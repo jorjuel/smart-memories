@@ -6,6 +6,41 @@ function ext(name: string, fallback: string) {
   return x && /^[a-z0-9]+$/.test(x) ? x : fallback;
 }
 
+export async function GET() {
+  try {
+    const sb = supabaseAdmin();
+
+    const { data, error } = await sb
+      .from('memories')
+      .select(
+        'code, recipient_name, message, sender_name, created_at, photo_url, audio_url, video_url'
+      )
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json(
+      (data || []).map((m) => ({
+        code: m.code,
+        recipient: m.recipient_name,
+        message: m.message,
+        sender: m.sender_name,
+        createdAt: m.created_at,
+        photoUrl: m.photo_url,
+        audioUrl: m.audio_url,
+        videoUrl: m.video_url,
+      }))
+    );
+  } catch (e) {
+    console.error('LIST MEMORIES ERROR:', e);
+
+    return NextResponse.json(
+      { error: 'Could not load memories.' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const form = await req.formData();

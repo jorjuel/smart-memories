@@ -1,6 +1,103 @@
 'use client';
-import {useEffect,useState} from 'react'; import Link from 'next/link'; import {deleteMemory,getMemories,MemoryRecord} from '../../lib/storage';
-export default function Memories(){const [items,setItems]=useState<MemoryRecord[]>([]);const load=()=>getMemories().then(setItems);useEffect(()=>{load()},[]);
-async function remove(code:string){if(confirm('Delete this local test memory?')){await deleteMemory(code);load()}}
-return <section className="wrap"><div className="titleRow"><div><h1>My Memories</h1><p className="lead">Your saved photo and voice memories on this browser.</p></div><Link className="btn" href="/create">+ New Memory</Link></div>
-{!items.length?<div className="card empty"><h2>No memories yet</h2><Link className="btn" href="/create">Create Memory</Link></div>:<div className="grid">{items.map(m=><article className="card record" key={m.code}><div className="placeholder">♥</div><div><span className="pill">{m.audio?'🎙 Voice saved':'No voice'}</span><h2>{m.recipient}</h2><p>{m.message||'Special memory'}</p><small>Code: {m.code}<br/>{new Date(m.createdAt).toLocaleString()}</small><div className="actions"><Link className="btn" href={'/m/'+m.code}>View Memory</Link><button className="danger" onClick={()=>remove(m.code)}>Delete</button></div></div></article>)}</div>}</section>}
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
+type CloudMemory = {
+  code: string;
+  recipient: string;
+  message: string | null;
+  sender: string | null;
+  createdAt: string;
+  photoUrl: string | null;
+  audioUrl: string | null;
+  videoUrl: string | null;
+};
+
+export default function AdminMemories() {
+  const [items, setItems] = useState<CloudMemory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadMemories() {
+      try {
+        const response = await fetch('/api/memories', {
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error('Could not load memories');
+        }
+
+        const data = await response.json();
+        setItems(data);
+      } catch {
+        setError('Could not load the cloud memory library.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadMemories();
+  }, []);
+
+  return (
+    <section className="wrap">
+      <div className="titleRow">
+        <div>
+          <h1>Memory Library</h1>
+          <p className="lead">
+            Smart Memories stored securely in the cloud.
+          </p>
+        </div>
+
+        <Link className="btn" href="/create">
+          + New Memory
+        </Link>
+      </div>
+
+      {loading && (
+        <div className="card">
+          <p>Loading cloud memories...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="card">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {!loading && !error && items.length === 0 && (
+        <div className="card">
+          <p>No cloud memories yet.</p>
+        </div>
+      )}
+
+      {!loading && !error && items.length > 0 && (
+        <div className="card table">
+          {items.map((m) => (
+            <div className="tr" key={m.code}>
+              <Link href={`/m/${m.code}`}>
+                {m.recipient}
+              </Link>
+
+              <span>{m.code}</span>
+
+              <span>
+                {m.audioUrl ? '🎙 MEDIA READY' : 'NO AUDIO'}
+              </span>
+
+              <span>
+                {m.photoUrl ? 'PHOTO READY' : 'NO PHOTO'}
+              </span>
+
+              <span>NFC TO PROGRAM</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
