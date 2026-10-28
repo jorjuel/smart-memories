@@ -952,4 +952,1262 @@ body {
     grid-template-columns: 1fr;
     gap: 8px;
   }
+}/* =========================================================
+   SMART MEMORIES V14 - HANDCRAFTED CARDS
+   ========================================================= */
+
+.cardsHero {
+  max-width: 1250px;
+  margin: auto;
+  padding: 90px 32px 110px;
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: 90px;
+  align-items: center;
+}
+
+.cardsHero h1 {
+  margin: 18px 0 25px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(55px, 6vw, 82px);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -2px;
+}
+
+.cardsHero > div:first-child > p {
+  max-width: 650px;
+  color: var(--sm-muted);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.cardsHeroFeatures {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cardsHeroFeatures span {
+  padding: 9px 13px;
+  background: var(--sm-blush);
+  color: var(--sm-plum);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Hero card */
+
+.cardsHeroArt {
+  position: relative;
+  min-height: 520px;
+}
+
+.cardsHeroBack,
+.cardsHeroFront {
+  position: absolute;
+  width: 350px;
+  min-height: 455px;
+  border-radius: 14px;
+  box-shadow: 0 30px 65px rgba(62, 37, 37, 0.17);
+}
+
+.cardsHeroBack {
+  top: 30px;
+  left: 100px;
+  background: linear-gradient(145deg, #d5aaa5, #a86d70);
+  transform: rotate(10deg);
+}
+
+.cardsHeroFront {
+  top: 0;
+  left: 25px;
+  padding: 60px 38px 35px;
+  background: #fffdfa;
+  border: 1px solid var(--sm-border);
+  text-align: center;
+  transform: rotate(-5deg);
+}
+
+.cardsHeroFront small {
+  color: var(--sm-rose);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.cardsHeroHeart {
+  margin: 45px 0 20px;
+  color: var(--sm-rose);
+  font-size: 48px;
+}
+
+.cardsHeroFront h2 {
+  margin: 0;
+  color: var(--sm-plum);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 39px;
+  font-weight: 400;
+}
+
+.cardsHeroFront p {
+  color: var(--sm-muted);
+  line-height: 1.6;
+}
+
+.cardsSmartMark {
+  margin-top: 40px;
+  padding-top: 18px;
+  border-top: 1px solid var(--sm-border);
+  display: grid;
+  gap: 4px;
+}
+
+.cardsSmartMark strong {
+  color: var(--sm-rose);
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+.cardsSmartMark span {
+  color: var(--sm-muted);
+  font-size: 10px;
+}
+
+/* OCCASIONS */
+
+.cardsOccasionSection {
+  padding: 90px max(5vw, 25px);
+  background: white;
+  text-align: center;
+}
+
+.cardsSectionIntro {
+  max-width: 700px;
+  margin: auto;
+}
+
+.cardsSectionIntro h2 {
+  margin: 12px 0;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(40px, 4vw, 58px);
+  font-weight: 400;
+}
+
+.cardsSectionIntro p {
+  color: var(--sm-muted);
+  line-height: 1.7;
+}
+
+.occasionTabs {
+  max-width: 1100px;
+  margin: 38px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.occasionTabs button {
+  padding: 12px 17px;
+  border: 1px solid var(--sm-border);
+  background: var(--sm-cream);
+  color: var(--sm-plum);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.occasionTabs button:hover {
+  border-color: var(--sm-rose);
+  color: var(--sm-rose);
+}
+
+.occasionTabs button.active {
+  background: var(--sm-plum);
+  border-color: var(--sm-plum);
+  color: white;
+}
+
+/* DESIGN GALLERY */
+
+.cardsGallerySection {
+  max-width: 1300px;
+  margin: auto;
+  padding: 100px 30px 120px;
+}
+
+.cardsGalleryHeading {
+  margin-bottom: 50px;
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: end;
+}
+
+.cardsGalleryHeading > div {
+  max-width: 720px;
+}
+
+.cardsGalleryHeading h2 {
+  margin: 12px 0;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(39px, 4vw, 56px);
+  font-weight: 400;
+}
+
+.cardsGalleryHeading p {
+  color: var(--sm-muted);
+  line-height: 1.7;
+}
+
+.designCount {
+  padding: 10px 15px;
+  background: var(--sm-blush);
+  color: var(--sm-rose);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.cardDesignGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 35px 22px;
+}
+
+.cardDesignItem {
+  min-width: 0;
+}
+
+.cardDesignPreview {
+  position: relative;
+  aspect-ratio: 0.72;
+  padding: 18px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(61, 39, 39, 0.12);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.cardDesignItem:hover .cardDesignPreview {
+  transform: translateY(-7px) rotate(-1deg);
+  box-shadow: 0 24px 45px rgba(61, 39, 39, 0.18);
+}
+
+.designNumber {
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  opacity: 0.55;
+}
+
+.designArtwork {
+  height: 100%;
+  padding: 40px 10px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.designArtwork small {
+  margin-bottom: 12px;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.6px;
+}
+
+.designArtwork h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(19px, 1.7vw, 27px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.designArtwork p {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11px;
+}
+
+.smartCorner {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  opacity: 0.65;
+}
+
+/* Ten visual styles */
+
+.cardDesignPreview.floral {
+  background:
+    radial-gradient(circle at 10% 10%, #e9b8bc 0 7%, transparent 8%),
+    radial-gradient(circle at 88% 17%, #d9a4aa 0 8%, transparent 9%),
+    radial-gradient(circle at 15% 90%, #edc7bd 0 9%, transparent 10%),
+    #fff8f4;
+  color: #70434a;
+}
+
+.flowerMark {
+  margin-bottom: 22px;
+  color: #b6606a;
+  font-size: 55px;
+}
+
+.cardDesignPreview.classic {
+  background: #f8f2e9;
+  border: 1px solid #cbbda9;
+  color: #4b4035;
+}
+
+.classicMark {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 25px;
+  border: 1px solid #897966;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: Georgia, serif;
+  font-size: 21px;
+}
+
+.cardDesignPreview.rustic {
+  background:
+    linear-gradient(rgba(255,255,255,.7), rgba(255,255,255,.7)),
+    repeating-linear-gradient(
+      90deg,
+      #c7ae91 0,
+      #c7ae91 2px,
+      #d4bea5 2px,
+      #d4bea5 7px
+    );
+  color: #644f3d;
+}
+
+.rusticMark {
+  margin-bottom: 25px;
+  font-size: 48px;
+}
+
+.cardDesignPreview.minimal {
+  background: #ffffff;
+  border: 1px solid #eee7e3;
+  color: #332b2b;
+}
+
+.minimalMark {
+  margin-bottom: 35px;
+  color: #a6535c;
+  font-size: 18px;
+  letter-spacing: 5px;
+}
+
+.cardDesignPreview.photo {
+  background: #292225;
+  color: white;
+}
+
+.photoMark {
+  width: 100%;
+  height: 52%;
+  margin-bottom: 22px;
+  background: linear-gradient(135deg, #d7b0aa, #7e5759);
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,.75);
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+.cardDesignPreview.gold {
+  background: #fbf7ed;
+  border: 1px solid #d8c391;
+  color: #69572c;
+}
+
+.goldMark {
+  margin-bottom: 25px;
+  color: #b39346;
+  font-size: 58px;
+}
+
+.cardDesignPreview.watercolour {
+  background:
+    radial-gradient(circle at 20% 25%, rgba(220,151,158,.55), transparent 30%),
+    radial-gradient(circle at 80% 70%, rgba(158,182,174,.55), transparent 30%),
+    radial-gradient(circle at 40% 85%, rgba(228,190,148,.5), transparent 27%),
+    #fffaf6;
+  color: #614b50;
+}
+
+.paintMark {
+  margin-bottom: 25px;
+  color: #a85a64;
+  font-size: 50px;
+  opacity: 0.75;
+}
+
+.cardDesignPreview.layered {
+  background: #ead9d2;
+  color: #604146;
+}
+
+.layerMark {
+  width: 110px;
+  height: 110px;
+  margin-bottom: 25px;
+  background: #fff9f6;
+  border: 10px solid #d9b4ae;
+  box-shadow:
+    8px 8px 0 #c88f91,
+    16px 16px 0 #f6ece8;
+  display: grid;
+  place-items: center;
+  font-size: 35px;
+}
+
+.cardDesignPreview.type {
+  background: #a6535c;
+  color: white;
+}
+
+.typeMark {
+  margin-bottom: 20px;
+  font-size: clamp(34px, 3vw, 48px);
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+
+.cardDesignPreview.signature {
+  background: #35282c;
+  color: #f5e9e5;
+}
+
+.signatureMark {
+  margin-bottom: 28px;
+  color: #e3b5b7;
+  font-family: Georgia, serif;
+  font-size: 40px;
+  font-style: italic;
+}
+
+/* Card information */
+
+.cardDesignInfo {
+  padding: 20px 4px 0;
+}
+
+.cardDesignInfo > span {
+  color: var(--sm-rose);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.cardDesignInfo h3 {
+  margin: 7px 0;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+}
+
+.cardDesignInfo p {
+  min-height: 55px;
+  color: var(--sm-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cardChooseButton {
+  color: var(--sm-rose);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* SMART MEMORY SECTION */
+
+.cardsSmartSection {
+  padding: 105px max(6vw, 30px);
+  background: var(--sm-plum);
+  color: white;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 90px;
+  align-items: center;
+}
+
+.cardsSmartCopy h2 {
+  margin: 15px 0 25px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(42px, 4.5vw, 62px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.cardsSmartCopy p {
+  max-width: 650px;
+  margin-bottom: 30px;
+  color: #dacacc;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.cardsSmartSteps {
+  display: grid;
+  gap: 12px;
+}
+
+.cardsSmartSteps div {
+  padding: 25px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 17px;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
+}
+
+.cardsSmartSteps strong {
+  color: #e7afb4;
+  font-family: Georgia, serif;
+  font-size: 25px;
+}
+
+.cardsSmartSteps span {
+  color: #f3e8e8;
+}
+
+/* BESPOKE */
+
+.cardsBespoke {
+  padding: 110px 25px;
+  background: white;
+  text-align: center;
+}
+
+.cardsBespoke h2 {
+  margin: 15px 0;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(42px, 5vw, 65px);
+  font-weight: 400;
+}
+
+.cardsBespoke p {
+  max-width: 690px;
+  margin: 0 auto 30px;
+  color: var(--sm-muted);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+/* RESPONSIVE CARDS */
+
+@media (max-width: 1100px) {
+  .cardDesignGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 850px) {
+  .cardsHero,
+  .cardsSmartSection {
+    grid-template-columns: 1fr;
+  }
+
+  .cardsHeroArt {
+    width: min(100%, 500px);
+    margin: auto;
+  }
+
+  .cardsGalleryHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cardDesignGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .cardsHero {
+    padding: 55px 20px 80px;
+  }
+
+  .cardsHero h1 {
+    font-size: 52px;
+  }
+
+  .cardsHeroArt {
+    min-height: 430px;
+  }
+
+  .cardsHeroBack,
+  .cardsHeroFront {
+    width: 270px;
+    min-height: 370px;
+  }
+
+  .cardsHeroBack {
+    left: 45px;
+  }
+
+  .cardsHeroFront {
+    left: 5px;
+    padding: 45px 25px 25px;
+  }
+
+  .cardsHeroHeart {
+    margin: 30px 0 15px;
+  }
+
+  .cardsHeroFront h2 {
+    font-size: 31px;
+  }
+
+  .cardsOccasionSection,
+  .cardsGallerySection,
+  .cardsSmartSection,
+  .cardsBespoke {
+    padding-top: 75px;
+    padding-bottom: 75px;
+  }
+
+  .cardDesignGrid {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+    margin: auto;
+  }
+
+  .cardDesignInfo p {
+    min-height: auto;
+  }
+}
+/* =========================================================
+   SMART MEMORIES V14 - CARD PERSONALISATION STUDIO
+   ========================================================= */
+
+.personaliseHeader {
+  padding: 70px max(5vw, 25px) 55px;
+  background: linear-gradient(180deg, #fffaf7 0%, #f8eeee 100%);
+  text-align: center;
+}
+
+.personaliseBack {
+  display: block;
+  margin-bottom: 35px;
+  color: var(--sm-muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.personaliseHeader h1 {
+  margin: 12px 0;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(52px, 6vw, 78px);
+  font-weight: 400;
+}
+
+.personaliseHeader p {
+  color: var(--sm-muted);
+  font-size: 17px;
+}
+
+.personaliseLayout {
+  max-width: 1400px;
+  margin: auto;
+  padding: 70px 30px 120px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  gap: 70px;
+  align-items: start;
+}
+
+.personaliseControls {
+  display: grid;
+  gap: 30px;
+}
+
+.personaliseBlock {
+  padding: 38px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(65, 43, 43, 0.06);
+}
+
+.personaliseStep {
+  color: var(--sm-rose);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.personaliseBlock h2 {
+  margin: 8px 0 10px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 31px;
+  font-weight: 400;
+}
+
+.personaliseBlock > p {
+  margin-bottom: 25px;
+  color: var(--sm-muted);
+  line-height: 1.7;
+}
+
+/* Card type */
+
+.cardTypeChoices {
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.cardTypeChoices button {
+  position: relative;
+  min-height: 145px;
+  padding: 25px;
+  border: 1px solid var(--sm-border);
+  border-radius: 16px;
+  background: #fffdfa;
+  color: var(--sm-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: 0.2s ease;
+}
+
+.cardTypeChoices button:hover {
+  transform: translateY(-2px);
+  border-color: var(--sm-rose);
+}
+
+.cardTypeChoices button.active {
+  border: 2px solid var(--sm-plum);
+  background: #fff9f8;
+}
+
+.cardTypeChoices button.smart.active {
+  background: linear-gradient(145deg, #fff8f6, #f8e8e7);
+}
+
+.cardTypeChoices strong,
+.cardTypeChoices span,
+.cardTypeChoices b {
+  display: block;
+}
+
+.cardTypeChoices strong {
+  margin-bottom: 8px;
+  color: var(--sm-plum);
+  font-size: 17px;
+}
+
+.cardTypeChoices span {
+  margin-bottom: 18px;
+  color: var(--sm-muted);
+  font-size: 13px;
+}
+
+.cardTypeChoices b {
+  color: var(--sm-rose);
+}
+
+.recommendedBadge {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  padding: 5px 9px;
+  background: var(--sm-plum);
+  color: white;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+/* Fields */
+
+.personaliseField {
+  margin-top: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.personaliseField > span {
+  color: var(--sm-plum);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.personaliseField input,
+.personaliseField textarea {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid var(--sm-border);
+  border-radius: 11px;
+  background: #fffdfa;
+  color: var(--sm-text);
+  font: inherit;
+  outline: none;
+}
+
+.personaliseField textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.personaliseField input:focus,
+.personaliseField textarea:focus {
+  border-color: var(--sm-rose);
+  box-shadow: 0 0 0 3px rgba(174, 91, 101, 0.08);
+}
+
+/* Colours */
+
+.colourChoices {
+  margin: 25px 0 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.colourChoices button {
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  background: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.colourChoices button.active {
+  border-color: var(--sm-plum);
+  box-shadow: 0 0 0 1px var(--sm-plum);
+}
+
+.colourDot {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.08);
+}
+
+.colourDot.rose { background: #c98b91; }
+.colourDot.plum { background: #68434d; }
+.colourDot.cream { background: #f4e9d7; }
+.colourDot.sage { background: #a8b3a0; }
+.colourDot.blue { background: #9aafbf; }
+.colourDot.gold { background: #c5a45d; }
+
+.photoOption {
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--sm-cream);
+  border-radius: 13px;
+  cursor: pointer;
+}
+
+.photoOption input {
+  margin-top: 4px;
+  accent-color: var(--sm-plum);
+}
+
+.photoOption span {
+  display: grid;
+  gap: 4px;
+}
+
+.photoOption strong {
+  color: var(--sm-plum);
+}
+
+.photoOption small {
+  color: var(--sm-muted);
+  line-height: 1.5;
+}
+
+/* Smart Memory builder */
+
+.smartMemoryBuilder {
+  background: linear-gradient(145deg, #fffaf8, #f7e9e9);
+  border-color: #e5c7c8;
+}
+
+.smartBuilderTitle {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.nfcBadge {
+  padding: 8px 11px;
+  background: var(--sm-plum);
+  color: white;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.smartMemoryOptions {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.smartMemoryOptions > div {
+  padding: 22px;
+  display: grid;
+  gap: 9px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+}
+
+.memoryOptionIcon {
+  width: max-content;
+  padding: 5px 8px;
+  background: var(--sm-blush);
+  color: var(--sm-rose);
+  border-radius: 5px;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.smartMemoryOptions strong {
+  color: var(--sm-plum);
+}
+
+.smartMemoryOptions small {
+  min-height: 40px;
+  color: var(--sm-muted);
+  line-height: 1.5;
+}
+
+.smartMemoryOptions input[type="file"] {
+  width: 100%;
+  font-size: 11px;
+}
+
+.smartPrivacyNote {
+  margin-top: 20px;
+  padding: 17px;
+  background: rgba(104, 67, 77, 0.07);
+  border-radius: 11px;
+}
+
+.smartPrivacyNote strong {
+  color: var(--sm-plum);
+  font-size: 12px;
+}
+
+.smartPrivacyNote p {
+  margin: 6px 0 0;
+  color: var(--sm-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Live preview */
+
+.personalisePreview {
+  min-width: 0;
+}
+
+.previewSticky {
+  position: sticky;
+  top: 110px;
+}
+
+.previewHeading {
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.previewHeading > span {
+  color: var(--sm-rose);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.previewHeading small {
+  color: var(--sm-muted);
+}
+
+.liveCardPreview {
+  position: relative;
+  min-height: 570px;
+  padding: 70px 50px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 28px 65px rgba(61, 39, 39, 0.17);
+  text-align: center;
+  transition: 0.25s ease;
+}
+
+.liveCardPreview > small {
+  margin-bottom: 15px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.previewRecipient {
+  margin-bottom: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.liveCardPreview h2 {
+  max-width: 380px;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(39px, 4vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.liveCardPreview > p {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+}
+
+.liveCardDecoration {
+  margin-bottom: 35px;
+  font-size: 60px;
+}
+
+.previewSmartMark {
+  position: absolute;
+  right: 25px;
+  bottom: 25px;
+  left: 25px;
+  padding-top: 15px;
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid currentColor;
+  opacity: 0.7;
+}
+
+.previewSmartMark strong {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+}
+
+.previewSmartMark span {
+  font-size: 9px;
+}
+
+/* Preview colours */
+
+.liveCardPreview.colour-rose {
+  background: #f6e5e4;
+  color: #74444b;
+}
+
+.liveCardPreview.colour-plum {
+  background: #563a43;
+  color: #fff5f3;
+}
+
+.liveCardPreview.colour-cream {
+  background: #f8f0df;
+  color: #5e4c3c;
+}
+
+.liveCardPreview.colour-sage {
+  background: #dce2d7;
+  color: #465044;
+}
+
+.liveCardPreview.colour-blue {
+  background: #dce6ec;
+  color: #40515d;
+}
+
+.liveCardPreview.colour-gold {
+  background: #f2e5bd;
+  color: #665425;
+}
+
+/* Inside preview */
+
+.insidePreview {
+  margin-top: 20px;
+  padding: 28px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+}
+
+.insidePreview > span {
+  color: var(--sm-rose);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.insidePreview p {
+  color: var(--sm-muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.insidePreview strong {
+  color: var(--sm-plum);
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+/* Price */
+
+.orderSummary {
+  margin-top: 20px;
+  padding: 22px;
+  background: #fffdfa;
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+}
+
+.orderSummary > div {
+  padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--sm-muted);
+  font-size: 13px;
+}
+
+.orderSummary strong {
+  color: var(--sm-plum);
+}
+
+.orderSummary .orderTotal {
+  margin-top: 8px;
+  padding-top: 15px;
+  border-top: 1px solid var(--sm-border);
+  color: var(--sm-plum);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.orderSummary .orderTotal strong {
+  color: var(--sm-rose);
+  font-size: 21px;
+}
+
+.personaliseBasketButton {
+  width: 100%;
+  margin-top: 15px;
+  padding: 17px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sm-plum);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  transition: 0.2s ease;
+}
+
+.personaliseBasketButton:hover {
+  background: var(--sm-plum-dark);
+  transform: translateY(-1px);
+}
+
+.basketSmallPrint {
+  color: var(--sm-muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+/* Responsive */
+
+@media (max-width: 950px) {
+  .personaliseLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .personalisePreview {
+    order: -1;
+    max-width: 600px;
+    width: 100%;
+    margin: auto;
+  }
+
+  .previewSticky {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .personaliseLayout {
+    padding: 40px 18px 80px;
+  }
+
+  .personaliseBlock {
+    padding: 25px 20px;
+  }
+
+  .cardTypeChoices,
+  .smartMemoryOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .liveCardPreview {
+    min-height: 480px;
+    padding: 55px 25px 35px;
+  }
+
+  .smartBuilderTitle {
+    flex-direction: column;
+  }
 }
