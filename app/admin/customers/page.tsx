@@ -1,0 +1,1 @@
+export default function Customers(){return <section className="wrap"><h1>Customers</h1><div className="card empty"><h2>Customer database ready to connect</h2><p>Customer profiles, order history, consent and account access will live here after secure authentication is added.</p></div></section>}

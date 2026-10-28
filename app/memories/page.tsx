@@ -1,0 +1,6 @@
+'use client';
+import {useEffect,useState} from 'react'; import Link from 'next/link'; import {deleteMemory,getMemories,MemoryRecord} from '../../lib/storage';
+export default function Memories(){const [items,setItems]=useState<MemoryRecord[]>([]);const load=()=>getMemories().then(setItems);useEffect(()=>{load()},[]);
+async function remove(code:string){if(confirm('Delete this local test memory?')){await deleteMemory(code);load()}}
+return <section className="wrap"><div className="titleRow"><div><h1>My Memories</h1><p className="lead">Your saved photo and voice memories on this browser.</p></div><Link className="btn" href="/create">+ New Memory</Link></div>
+{!items.length?<div className="card empty"><h2>No memories yet</h2><Link className="btn" href="/create">Create Memory</Link></div>:<div className="grid">{items.map(m=><article className="card record" key={m.code}><div className="placeholder">♥</div><div><span className="pill">{m.audio?'🎙 Voice saved':'No voice'}</span><h2>{m.recipient}</h2><p>{m.message||'Special memory'}</p><small>Code: {m.code}<br/>{new Date(m.createdAt).toLocaleString()}</small><div className="actions"><Link className="btn" href={'/m/'+m.code}>View Memory</Link><button className="danger" onClick={()=>remove(m.code)}>Delete</button></div></div></article>)}</div>}</section>}

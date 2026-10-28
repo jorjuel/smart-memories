@@ -1,0 +1,2 @@
+import ProductCard from '../../components/ProductCard'; import {products} from '../../lib/products';
+export default function Shop(){return <section className="wrap"><span className="eyebrow">PERSONALISED NFC GIFTS</span><h1>Shop Smart Memories</h1><p className="lead">Choose a physical gift, personalise the photo, then attach a private voice memory through its permanent NFC/QR link.</p><div className="products">{products.map(p=><ProductCard key={p.slug} p={p}/>)}</div></section>}
