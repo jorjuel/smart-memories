@@ -1,8 +1,21 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+
+function formatTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+}
 
 function PersonaliseCardContent() {
   const searchParams = useSearchParams();
@@ -12,15 +25,44 @@ function PersonaliseCardContent() {
 
   const [cardType, setCardType] = useState<'traditional' | 'smart'>('smart');
   const [recipient, setRecipient] = useState('');
+
   const [frontGreeting, setFrontGreeting] = useState(
     occasion === 'Birthday' ? 'Happy Birthday' : `Happy ${occasion}`
   );
+
   const [insideMessage, setInsideMessage] = useState(
     'Wishing you a very special day filled with wonderful memories.'
   );
+
   const [sender, setSender] = useState('');
   const [colour, setColour] = useState('Rose');
   const [includePhoto, setIncludePhoto] = useState(true);
+
+  /* =========================================================
+     VOICE RECORDING
+     ========================================================= */
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(
+    null
+  );
+  const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(
+    null
+  );
+  const [audioError, setAudioError] = useState<string | null>(null);
+
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(
+    null
+  );
+  const [uploadedAudioFile, setUploadedAudioFile] = useState<File | null>(
+    null
+  );
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const price = useMemo(() => {
     let total = 6.95;
@@ -30,6 +72,176 @@ function PersonaliseCardContent() {
 
     return total.toFixed(2);
   }, [cardType, includePhoto]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+
+      if (recordedAudioUrl) {
+        URL.revokeObjectURL(recordedAudioUrl);
+      }
+
+      if (uploadedAudioUrl) {
+        URL.revokeObjectURL(uploadedAudioUrl);
+      }
+    };
+  }, [recordedAudioUrl, uploadedAudioUrl]);
+
+  function getSupportedAudioMimeType() {
+    if (typeof MediaRecorder === 'undefined') {
+      return '';
+    }
+
+    const types = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4',
+      'audio/ogg;codecs=opus',
+    ];
+
+    return types.find((type) => MediaRecorder.isTypeSupported(type)) || '';
+  }
+
+  async function startRecording() {
+    setAudioError(null);
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setAudioError(
+        'Voice recording is not supported by this browser. Please upload an audio file instead.'
+      );
+      return;
+    }
+
+    try {
+      if (recordedAudioUrl) {
+        URL.revokeObjectURL(recordedAudioUrl);
+      }
+
+      setRecordedAudioUrl(null);
+      setRecordedAudioBlob(null);
+
+      if (uploadedAudioUrl) {
+        URL.revokeObjectURL(uploadedAudioUrl);
+      }
+
+      setUploadedAudioUrl(null);
+      setUploadedAudioFile(null);
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+
+      mediaStreamRef.current = stream;
+
+      const mimeType = getSupportedAudioMimeType();
+
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
+
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const finalType =
+          recorder.mimeType ||
+          audioChunksRef.current[0]?.type ||
+          'audio/webm';
+
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: finalType,
+        });
+
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        setRecordedAudioBlob(audioBlob);
+        setRecordedAudioUrl(audioUrl);
+
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current
+            .getTracks()
+            .forEach((track) => track.stop());
+        }
+
+        mediaStreamRef.current = null;
+      };
+
+      recorder.start();
+
+      setRecordingSeconds(0);
+      setIsRecording(true);
+
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((seconds) => seconds + 1);
+      }, 1000);
+    } catch (error) {
+      console.error(error);
+
+      setAudioError(
+        'Microphone access was not available. Please allow microphone permission in your browser and try again.'
+      );
+    }
+  }
+
+  function stopRecording() {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== 'inactive'
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+
+    setIsRecording(false);
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }
+
+  function deleteRecording() {
+    if (recordedAudioUrl) {
+      URL.revokeObjectURL(recordedAudioUrl);
+    }
+
+    setRecordedAudioUrl(null);
+    setRecordedAudioBlob(null);
+    setRecordingSeconds(0);
+    setAudioError(null);
+  }
+
+  function handleAudioUpload(file: File | null) {
+    if (!file) return;
+
+    setAudioError(null);
+
+    if (recordedAudioUrl) {
+      URL.revokeObjectURL(recordedAudioUrl);
+    }
+
+    setRecordedAudioUrl(null);
+    setRecordedAudioBlob(null);
+    setRecordingSeconds(0);
+
+    if (uploadedAudioUrl) {
+      URL.revokeObjectURL(uploadedAudioUrl);
+    }
+
+    setUploadedAudioFile(file);
+    setUploadedAudioUrl(URL.createObjectURL(file));
+  }
 
   return (
     <>
@@ -50,7 +262,6 @@ function PersonaliseCardContent() {
 
       <section className="personaliseLayout">
         <div className="personaliseControls">
-
           <div className="personaliseBlock">
             <span className="personaliseStep">01</span>
 
@@ -143,7 +354,9 @@ function PersonaliseCardContent() {
                     className={colour === item ? 'active' : ''}
                     onClick={() => setColour(item)}
                   >
-                    <span className={`colourDot ${item.toLowerCase()}`}></span>
+                    <span
+                      className={`colourDot ${item.toLowerCase()}`}
+                    ></span>
                     {item}
                   </button>
                 )
@@ -188,7 +401,9 @@ function PersonaliseCardContent() {
               <div className="smartMemoryOptions">
                 <div>
                   <span className="memoryOptionIcon">PHOTO</span>
+
                   <strong>Memory photograph</strong>
+
                   <small>
                     Upload the photograph they will see when they tap.
                   </small>
@@ -196,22 +411,150 @@ function PersonaliseCardContent() {
                   <input type="file" accept="image/*" />
                 </div>
 
-                <div>
+                <div className="voiceRecorderCard">
                   <span className="memoryOptionIcon">VOICE</span>
+
                   <strong>Voice message</strong>
+
                   <small>
-                    Upload your personal voice message.
+                    Record your message now, or upload an audio file.
                   </small>
 
-                  <input type="file" accept="audio/*" />
+                  {!isRecording &&
+                    !recordedAudioUrl &&
+                    !uploadedAudioUrl && (
+                      <button
+                        type="button"
+                        className="voiceRecordButton"
+                        onClick={startRecording}
+                      >
+                        🎙 Record my voice
+                      </button>
+                    )}
+
+                  {isRecording && (
+                    <div className="recordingLive">
+                      <div className="recordingStatus">
+                        <span className="recordingDot"></span>
+
+                        <strong>Recording</strong>
+
+                        <span>
+                          {formatTime(recordingSeconds)}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="voiceStopButton"
+                        onClick={stopRecording}
+                      >
+                        ■ Stop recording
+                      </button>
+                    </div>
+                  )}
+
+                  {recordedAudioUrl && !isRecording && (
+                    <div className="recordingPreview">
+                      <strong>Your recording is ready</strong>
+
+                      <span>
+                        Duration: {formatTime(recordingSeconds)}
+                      </span>
+
+                      <audio
+                        controls
+                        preload="metadata"
+                        src={recordedAudioUrl}
+                      />
+
+                      <div className="recordingActions">
+                        <button
+                          type="button"
+                          onClick={deleteRecording}
+                        >
+                          Delete
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            deleteRecording();
+                            setTimeout(startRecording, 50);
+                          }}
+                        >
+                          Record again
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {uploadedAudioUrl && (
+                    <div className="recordingPreview">
+                      <strong>Uploaded audio</strong>
+
+                      <span>{uploadedAudioFile?.name}</span>
+
+                      <audio
+                        controls
+                        preload="metadata"
+                        src={uploadedAudioUrl}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (uploadedAudioUrl) {
+                            URL.revokeObjectURL(uploadedAudioUrl);
+                          }
+
+                          setUploadedAudioUrl(null);
+                          setUploadedAudioFile(null);
+                        }}
+                      >
+                        Remove uploaded audio
+                      </button>
+                    </div>
+                  )}
+
+                  {!isRecording &&
+                    !recordedAudioUrl &&
+                    !uploadedAudioUrl && (
+                      <>
+                        <div className="voiceDivider">
+                          <span>OR</span>
+                        </div>
+
+                        <label className="voiceUploadOption">
+                          <span>Upload an existing recording</span>
+
+                          <input
+                            type="file"
+                            accept="audio/*"
+                            onChange={(event) =>
+                              handleAudioUpload(
+                                event.target.files?.[0] || null
+                              )
+                            }
+                          />
+                        </label>
+                      </>
+                    )}
+
+                  {audioError && (
+                    <p className="voiceError">{audioError}</p>
+                  )}
                 </div>
               </div>
 
               <div className="smartPrivacyNote">
-                <strong>Your memory is separate from the printed card.</strong>
+                <strong>
+                  Your memory is separate from the printed card.
+                </strong>
+
                 <p>
-                  The NFC chip contains only the Smart Memories link. Your
-                  photograph and voice message are stored digitally.
+                  The NFC chip contains only the Smart Memories link.
+                  Your photograph and voice message are stored digitally.
                 </p>
               </div>
             </div>
@@ -233,7 +576,9 @@ function PersonaliseCardContent() {
               <small>{occasion.toUpperCase()}</small>
 
               {recipient && (
-                <span className="previewRecipient">FOR {recipient}</span>
+                <span className="previewRecipient">
+                  FOR {recipient}
+                </span>
               )}
 
               <h2>{frontGreeting || 'Your greeting'}</h2>
@@ -252,10 +597,13 @@ function PersonaliseCardContent() {
               <span>INSIDE YOUR CARD</span>
 
               <p>
-                {insideMessage || 'Your personal message will appear here.'}
+                {insideMessage ||
+                  'Your personal message will appear here.'}
               </p>
 
-              {sender && <strong>With love, {sender}</strong>}
+              {sender && (
+                <strong>With love, {sender}</strong>
+              )}
             </div>
 
             <div className="orderSummary">
@@ -266,7 +614,9 @@ function PersonaliseCardContent() {
                     : 'Traditional Card'}
                 </span>
 
-                <strong>£{cardType === 'smart' ? '11.95' : '6.95'}</strong>
+                <strong>
+                  £{cardType === 'smart' ? '11.95' : '6.95'}
+                </strong>
               </div>
 
               {includePhoto && (
@@ -282,7 +632,10 @@ function PersonaliseCardContent() {
               </div>
             </div>
 
-            <button type="button" className="personaliseBasketButton">
+            <button
+              type="button"
+              className="personaliseBasketButton"
+            >
               Add personalised card to basket
             </button>
 
@@ -300,7 +653,12 @@ export default function PersonaliseCardPage() {
   return (
     <Suspense
       fallback={
-        <div style={{ padding: '100px 30px', textAlign: 'center' }}>
+        <div
+          style={{
+            padding: '100px 30px',
+            textAlign: 'center',
+          }}
+        >
           Loading your card...
         </div>
       }
