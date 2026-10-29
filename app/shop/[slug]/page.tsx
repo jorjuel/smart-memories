@@ -1,2 +1,90 @@
-import Link from 'next/link'; import {notFound} from 'next/navigation'; import {products,money} from '../../../lib/products'; import ProductVisual from '../../../components/ProductVisual';
-export default async function ProductPage({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const p=products.find(x=>x.slug===slug);if(!p)notFound();return <section className="wrap productDetail"><ProductVisual p={p} detail/><div><span className="eyebrow">{p.category}</span><h1>{p.name}</h1><h2>{money(p.price)}</h2><p className="lead">{p.description}</p><div className="featureList"><p>✓ Personalised photograph</p><p>✓ Hidden NFC tap point</p><p>✓ QR backup to the same permanent memory URL</p><p>✓ Personal message and voice recording</p><p>✓ Recipient opens the memory without an account</p></div><Link className="btn big" href={'/create?product='+p.slug}>Personalise this gift →</Link></div></section>}
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
+import {
+  products,
+  money,
+} from '../../../lib/products';
+
+import ProductVisual from '../../../components/ProductVisual';
+
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{
+    slug: string;
+  }>;
+}) {
+  const { slug } =
+    await params;
+
+  const product =
+    products.find(
+      (item) =>
+        item.slug === slug
+    );
+
+  if (!product) {
+    notFound();
+  }
+
+  return (
+    <section className="wrap productDetail">
+      <ProductVisual
+        p={product}
+        detail
+      />
+
+      <div>
+        <span className="eyebrow">
+          {product.category}
+        </span>
+
+        <h1>
+          {product.name}
+        </h1>
+
+        <h2>
+          {money(product.price)}
+        </h2>
+
+        <p className="lead">
+          {product.description}
+        </p>
+
+        <div className="featureList">
+          <p>
+            ✓ Add your own photograph or design
+          </p>
+
+          <p>
+            ✓ Personalise the wording
+          </p>
+
+          <p>
+            ✓ See a finished-product preview
+          </p>
+
+          <p>
+            ✓ Record a personal voice memory
+          </p>
+
+          <p>
+            ✓ Hidden NFC Smart Memory
+          </p>
+
+          <p>
+            ✓ QR backup
+          </p>
+        </div>
+
+        <Link
+          className="btn big"
+          href={`/personalise/${product.slug}`}
+        >
+          Personalise this gift →
+        </Link>
+      </div>
+    </section>
+  );
+}

@@ -2398,3 +2398,1748 @@ body {
   font-size: 11px;
   line-height: 1.5;
 }
+/* =========================================================
+   SMART MEMORIES V14 - CHECKOUT
+   ========================================================= */
+
+.checkoutPage {
+  max-width: 1450px;
+  margin: auto;
+  padding: 70px 30px 120px;
+}
+
+.checkoutHeader {
+  max-width: 760px;
+  margin-bottom: 55px;
+}
+
+.checkoutHeader h1 {
+  margin: 12px 0 18px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(48px, 5vw, 72px);
+  font-weight: 400;
+  line-height: 1.03;
+}
+
+.checkoutHeader p {
+  color: var(--sm-muted);
+  font-size: 17px;
+}
+
+.checkoutLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.75fr);
+  gap: 55px;
+  align-items: start;
+}
+
+.checkoutMain {
+  display: grid;
+  gap: 24px;
+}
+
+.checkoutCard {
+  padding: 34px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(61, 39, 39, 0.06);
+}
+
+.checkoutSectionHeading {
+  margin-bottom: 28px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.checkoutSectionHeading > span {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sm-blush);
+  color: var(--sm-rose);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.checkoutSectionHeading h2 {
+  margin: 0 0 5px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.checkoutSectionHeading p {
+  margin: 0;
+  color: var(--sm-muted);
+  font-size: 13px;
+}
+
+.checkoutFieldGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.checkoutFieldGrid label {
+  display: grid;
+  gap: 7px;
+}
+
+.checkoutFieldGrid label > span {
+  color: var(--sm-plum);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.checkoutFieldGrid input {
+  width: 100%;
+  padding: 14px 15px;
+  border: 1px solid var(--sm-border);
+  border-radius: 11px;
+  background: #fffdfa;
+  color: var(--sm-text);
+  font: inherit;
+  outline: none;
+}
+
+.checkoutFieldGrid input:focus {
+  border-color: var(--sm-rose);
+  box-shadow: 0 0 0 3px rgba(174, 91, 101, 0.08);
+}
+
+.checkoutFull {
+  grid-column: 1 / -1;
+}
+
+.deliveryChoices {
+  display: grid;
+  gap: 12px;
+}
+
+.deliveryChoices button {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  background: #fffdfa;
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.deliveryChoices button.active {
+  border: 2px solid var(--sm-plum);
+  background: #fff8f7;
+}
+
+.deliveryChoices button div {
+  display: grid;
+  gap: 4px;
+}
+
+.deliveryChoices strong {
+  color: var(--sm-plum);
+}
+
+.deliveryChoices span {
+  color: var(--sm-muted);
+  font-size: 12px;
+}
+
+.deliveryChoices b {
+  color: var(--sm-rose);
+}
+
+.paymentPlaceholder {
+  background: linear-gradient(145deg, #fffaf8, #f8eeee);
+}
+
+.paymentPreview {
+  padding: 22px;
+  border: 1px dashed #d9babc;
+  border-radius: 14px;
+  background: rgba(255,255,255,.65);
+}
+
+.paymentPreview strong {
+  color: var(--sm-plum);
+}
+
+.paymentPreview p {
+  color: var(--sm-muted);
+  line-height: 1.6;
+}
+
+.checkoutSummarySticky {
+  position: sticky;
+  top: 105px;
+  padding: 30px;
+  background: #fffdfa;
+  border: 1px solid var(--sm-border);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(61, 39, 39, 0.08);
+}
+
+.checkoutSummarySticky h2 {
+  margin: 8px 0 25px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.checkoutProducts {
+  display: grid;
+  gap: 18px;
+}
+
+.checkoutProduct {
+  padding-bottom: 18px;
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 14px;
+  border-bottom: 1px solid var(--sm-border);
+  align-items: center;
+}
+
+.checkoutProductImage {
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--sm-blush);
+}
+
+.checkoutProductImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.checkoutProductImage > div {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--sm-rose);
+  font-size: 24px;
+}
+
+.checkoutProduct > div:nth-child(2) {
+  display: grid;
+  gap: 4px;
+}
+
+.checkoutProduct strong {
+  color: var(--sm-plum);
+  font-size: 13px;
+}
+
+.checkoutProduct span,
+.checkoutProduct small {
+  color: var(--sm-muted);
+  font-size: 11px;
+}
+
+.checkoutProduct b {
+  color: var(--sm-plum);
+  font-size: 13px;
+}
+
+.checkoutTotals {
+  margin-top: 22px;
+  display: grid;
+  gap: 10px;
+}
+
+.checkoutTotals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--sm-muted);
+  font-size: 13px;
+}
+
+.checkoutTotals strong {
+  color: var(--sm-plum);
+}
+
+.checkoutGrandTotal {
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--sm-border);
+  color: var(--sm-plum) !important;
+  font-size: 18px !important;
+  font-weight: 800;
+}
+
+.checkoutGrandTotal strong {
+  color: var(--sm-rose);
+  font-size: 24px;
+}
+
+.checkoutBackLink {
+  display: block;
+  margin-top: 15px;
+  color: var(--sm-muted);
+  text-align: center;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.checkoutTrust {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--sm-blush);
+  border-radius: 12px;
+}
+
+.checkoutTrust strong {
+  color: var(--sm-plum);
+  font-size: 12px;
+}
+
+.checkoutTrust p {
+  margin: 6px 0 0;
+  color: var(--sm-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@media (max-width: 950px) {
+  .checkoutLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .checkoutSummary {
+    order: -1;
+  }
+
+  .checkoutSummarySticky {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .checkoutPage {
+    padding: 45px 18px 80px;
+  }
+
+  .checkoutCard {
+    padding: 24px 18px;
+  }
+
+  .checkoutFieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .checkoutFull {
+    grid-column: auto;
+  }
+
+  .deliveryChoices button {
+    align-items: flex-start;
+  }
+
+  .checkoutProduct {
+    grid-template-columns: 52px 1fr;
+  }
+
+  .checkoutProduct > b {
+    grid-column: 2;
+  }
+}
+@media (max-width: 600px) {
+  .checkoutPage {
+    padding: 45px 18px 80px;
+  }
+
+  /* existing checkout styles */
+}
+
+/* =========================================================
+   SMART MEMORIES V14 - BASKET
+   ========================================================= */
+
+.basketPage {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 70px 30px 120px;
+}
+
+.basketHeader {
+  max-width: 760px;
+  margin-bottom: 50px;
+}
+
+.basketHeader h1 {
+  margin: 10px 0 14px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(48px, 5vw, 68px);
+  font-weight: 400;
+}
+
+.basketHeader p {
+  color: var(--sm-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.basketLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+  gap: 50px;
+  align-items: start;
+}
+
+.basketItems {
+  display: grid;
+  gap: 20px;
+}
+
+.basketItem {
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 150px 1fr auto;
+  gap: 24px;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(61, 39, 39, 0.06);
+}
+
+.basketImage {
+  width: 150px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--sm-blush);
+}
+
+.basketImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.basketImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  gap: 7px;
+  text-align: center;
+  color: var(--sm-rose);
+}
+
+.basketImagePlaceholder span {
+  font-size: 36px;
+}
+
+.basketImagePlaceholder small {
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+}
+
+.basketItemType {
+  color: var(--sm-rose);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.6px;
+}
+
+.basketItemDetails h2 {
+  margin: 7px 0 14px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 27px;
+  font-weight: 400;
+}
+
+.basketItemDetails p {
+  margin: 5px 0;
+  color: var(--sm-muted);
+  font-size: 13px;
+}
+
+.basketReference {
+  display: block;
+  margin-top: 10px;
+  color: var(--sm-muted);
+  font-size: 9px;
+  word-break: break-all;
+}
+
+.basketItemActions {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.basketQuantity {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+}
+
+.basketQuantity button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: var(--sm-plum);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.basketQuantity span {
+  min-width: 30px;
+  text-align: center;
+  color: var(--sm-plum);
+  font-weight: 800;
+}
+
+.basketRemove {
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--sm-rose);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.basketItemPrice {
+  align-self: start;
+  color: var(--sm-plum);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.basketSummary {
+  position: sticky;
+  top: 105px;
+  padding: 30px;
+  background: #fffdfa;
+  border: 1px solid var(--sm-border);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(61, 39, 39, 0.08);
+}
+
+.basketSummaryLine {
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--sm-muted);
+  font-size: 13px;
+}
+
+.basketSummaryTotal {
+  margin-top: 12px;
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--sm-border);
+  color: var(--sm-plum);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.basketSummaryTotal strong {
+  color: var(--sm-rose);
+  font-size: 25px;
+}
+
+.basketCheckoutButton {
+  margin-top: 22px;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.basketContinue {
+  display: block;
+  margin-top: 14px;
+  color: var(--sm-muted);
+  text-align: center;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.basketSecurity {
+  margin-top: 25px;
+  padding: 16px;
+  background: var(--sm-blush);
+  border-radius: 12px;
+}
+
+.basketSecurity p {
+  margin: 6px 0 0;
+  color: var(--sm-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@media (max-width: 950px) {
+  .basketLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .basketSummary {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .basketPage {
+    padding: 45px 18px 80px;
+  }
+
+  .basketItem {
+    grid-template-columns: 95px 1fr;
+    gap: 16px;
+  }
+
+  .basketImage {
+    width: 95px;
+  }
+
+  .basketItemPrice {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .basketItem {
+    grid-template-columns: 1fr;
+  }
+
+  .basketImage {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .basketItemPrice {
+    grid-column: 1;
+  }
+}
+/* =========================================================
+   SMART MEMORIES V14 - FINISHED PRODUCT PREVIEWS
+   ========================================================= */
+
+.finalPreview {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.finalPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.finalPreviewPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--sm-rose);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* Slate */
+
+.finalSlate {
+  padding: 8px;
+  background: #ded9d4;
+}
+
+.finalSlateSurface {
+  width: 100%;
+  height: 100%;
+  min-height: 115px;
+  overflow: hidden;
+  background: #2e2d2c;
+  clip-path: polygon(
+    5% 2%,
+    95% 0,
+    100% 7%,
+    98% 94%,
+    91% 100%,
+    5% 98%,
+    0 91%,
+    2% 8%
+  );
+  box-shadow: inset 0 0 0 5px #343230;
+}
+
+.finalSlateSurface img {
+  padding: 7px;
+  object-fit: cover;
+}
+
+/* Plaque */
+
+.finalPlaque {
+  padding: 8px;
+  background: #d5b791;
+}
+
+.finalPlaqueSurface {
+  width: 100%;
+  height: 100%;
+  min-height: 115px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #eee2d1;
+  box-shadow: inset 0 0 0 7px #c59c6e;
+}
+
+.finalPlaqueSurface img {
+  object-fit: cover;
+}
+
+.finalPlaqueCaption {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  padding: 6px;
+  display: grid;
+  background: rgba(255,255,255,.88);
+  text-align: center;
+}
+
+.finalPlaqueCaption small {
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+
+.finalPlaqueCaption strong {
+  font-family: Georgia, serif;
+  font-size: 10px;
+}
+
+/* Pet */
+
+.finalPet {
+  gap: 5px;
+  background: #f4ece7;
+}
+
+.finalPetCircle {
+  width: 95px;
+  height: 95px;
+  overflow: hidden;
+  border: 6px solid white;
+  border-radius: 50%;
+  box-shadow: 0 5px 15px rgba(0,0,0,.12);
+}
+
+.finalPet small {
+  color: var(--sm-plum);
+  font-family: Georgia, serif;
+  font-size: 9px;
+}
+
+/* Baby */
+
+.finalBaby {
+  padding: 10px;
+  background: #e8eef0;
+}
+
+.finalBabyFrame {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 5px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: white;
+}
+
+.finalBabyFrame img {
+  min-height: 80px;
+}
+
+.finalBabyFrame strong {
+  color: #667985;
+  font-family: Georgia, serif;
+  font-size: 10px;
+  text-align: center;
+}
+
+/* Wedding */
+
+.finalWedding {
+  padding: 8px;
+  background: #eee4db;
+}
+
+.finalWeddingFrame {
+  width: 100%;
+  height: 100%;
+  padding: 7px;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 5px;
+  background: #fffdfa;
+  border: 1px solid #d6c3ac;
+}
+
+.finalWeddingFrame > div {
+  display: grid;
+  text-align: center;
+}
+
+.finalWeddingFrame small {
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+
+.finalWeddingFrame strong {
+  color: #655249;
+  font-family: Georgia, serif;
+  font-size: 10px;
+}
+
+/* Video */
+
+.finalVideo {
+  padding: 8px;
+  background: #1f1c20;
+}
+
+.finalVideoSurface {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.finalPlayMark {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.85);
+  color: var(--sm-plum);
+}
+
+/* Mug */
+
+.finalMug {
+  position: relative;
+  background: #f5f1ed;
+}
+
+.finalMugBody {
+  width: 85px;
+  height: 95px;
+  overflow: hidden;
+  border-radius: 6px 6px 15px 15px;
+  background: white;
+  box-shadow: 0 7px 15px rgba(0,0,0,.14);
+}
+
+.finalMugBody img {
+  width: 100%;
+  height: 72%;
+  margin-top: 12px;
+  object-fit: cover;
+}
+
+.finalMugHandle {
+  position: absolute;
+  width: 38px;
+  height: 55px;
+  right: 17px;
+  top: 34px;
+  border: 10px solid white;
+  border-left: 0;
+  border-radius: 0 28px 28px 0;
+}
+
+/* Mouse mat */
+
+.finalMouseMat {
+  width: 90%;
+  height: 78%;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 7px 17px rgba(0,0,0,.15);
+}
+
+/* Coaster */
+
+.finalCoaster {
+  width: 95px;
+  height: 95px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 4px 5px 0 #bfae9f;
+}
+
+/* Shirt */
+
+.finalShirt {
+  background: #eeeae7;
+}
+
+.finalShirtBody {
+  width: 110px;
+  height: 110px;
+  position: relative;
+  background: white;
+  clip-path: polygon(
+    25% 10%,
+    38% 0,
+    62% 0,
+    75% 10%,
+    100% 22%,
+    85% 43%,
+    75% 35%,
+    75% 100%,
+    25% 100%,
+    25% 35%,
+    15% 43%,
+    0 22%
+  );
+}
+
+.finalShirtBody img {
+  position: absolute;
+  width: 48%;
+  height: 48%;
+  left: 26%;
+  top: 28%;
+  object-fit: cover;
+}
+
+/* Card */
+
+.finalCardPreview {
+  padding: 10px;
+  background: #f3e8e6;
+}
+
+.finalCardFace {
+  width: 85%;
+  height: 100%;
+  min-height: 110px;
+  position: relative;
+  overflow: hidden;
+  background: white;
+  box-shadow: 6px 7px 15px rgba(0,0,0,.12);
+}
+
+.finalCardFace img {
+  width: 100%;
+  height: 65%;
+  object-fit: cover;
+}
+
+.finalCardText {
+  padding: 6px;
+  display: grid;
+  text-align: center;
+}
+
+.finalCardText small {
+  color: var(--sm-rose);
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+
+.finalCardText strong {
+  color: var(--sm-plum);
+  font-family: Georgia, serif;
+  font-size: 9px;
+}
+
+/* Generic */
+
+.finalGenericProduct {
+  padding: 8px;
+  background: var(--sm-blush);
+}
+
+.finalGenericProduct img {
+  border-radius: 7px;
+}
+
+.finalGenericProduct small {
+  position: absolute;
+  bottom: 5px;
+  padding: 3px 6px;
+  background: rgba(255,255,255,.85);
+  color: var(--sm-plum);
+  font-size: 7px;
+}
+/* =========================================================
+   SMART MEMORIES - PRODUCT PERSONALISER
+   ========================================================= */
+
+.personaliserPage {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 70px 30px 120px;
+}
+
+.personaliserHeader {
+  max-width: 760px;
+  margin-bottom: 50px;
+}
+
+.personaliserHeader h1 {
+  margin: 10px 0 15px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: clamp(44px, 5vw, 68px);
+  font-weight: 400;
+}
+
+.personaliserHeader p {
+  color: var(--sm-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.personaliserLayout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(380px, .85fr);
+  gap: 55px;
+  align-items: start;
+}
+
+.personaliserControls {
+  display: grid;
+  gap: 24px;
+}
+
+.personaliserSection {
+  padding: 30px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 20px;
+}
+
+.personaliserSection h2 {
+  margin: 0 0 20px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.personaliserStep {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sm-plum);
+  color: white;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.choiceGrid.two {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+.choiceCard,
+.orientationCard,
+.templateCard,
+.optionPill {
+  font: inherit;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.choiceCard {
+  min-height: 90px;
+  padding: 18px;
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  background: #fffdfa;
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+}
+
+.choiceCard strong {
+  color: var(--sm-plum);
+}
+
+.choiceCard small {
+  color: var(--sm-muted);
+  line-height: 1.5;
+}
+
+.choiceCard.active,
+.orientationCard.active,
+.templateCard.active,
+.optionPill.active {
+  border-color: var(--sm-rose);
+  box-shadow:
+    0 0 0 2px
+    rgba(179, 107, 112, .14);
+  background: var(--sm-blush);
+}
+
+.occasionGrid,
+.choiceRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.optionPill {
+  padding: 10px 15px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  background: white;
+  color: var(--sm-plum);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.personaliserSection select,
+.personaliserSection input,
+.personaliserSection textarea {
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+}
+
+.personaliserSection label {
+  display: block;
+  margin-top: 14px;
+  color: var(--sm-plum);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.templateGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.templateCard {
+  padding: 10px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.templateMiniPreview {
+  aspect-ratio: 4 / 3;
+  margin-bottom: 10px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      135deg,
+      var(--sm-blush),
+      #fff
+    );
+  color: var(--sm-rose);
+  font-size: 28px;
+}
+
+.templateCard strong {
+  color: var(--sm-plum);
+  font-size: 11px;
+}
+
+.orientationCard {
+  padding: 18px;
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+  color: var(--sm-plum);
+}
+
+.orientationShape {
+  display: block;
+  border: 3px solid var(--sm-plum);
+  border-radius: 3px;
+}
+
+.orientationShape.portrait {
+  width: 50px;
+  height: 68px;
+}
+
+.orientationShape.landscape {
+  width: 72px;
+  height: 50px;
+}
+
+.previewSticky {
+  position: sticky;
+  top: 105px;
+}
+
+.personaliserPreview {
+  margin-top: 15px;
+  padding: 18px;
+  display: grid;
+  place-items: center;
+  background: #dad5d1;
+  border-radius: 20px;
+  box-shadow:
+    0 22px 55px
+    rgba(61, 39, 39, .14);
+}
+
+.personaliserPortrait {
+  min-height: 520px;
+}
+
+.personaliserLandscape {
+  min-height: 380px;
+}
+
+.previewProductSurface {
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  overflow: hidden;
+  background: #292827;
+  clip-path: polygon(
+    4% 1%,
+    96% 0,
+    100% 5%,
+    98% 95%,
+    94% 100%,
+    4% 98%,
+    0 94%,
+    2% 6%
+  );
+}
+
+.personaliserPortrait
+.previewProductSurface {
+  aspect-ratio: 4 / 5;
+}
+
+.personaliserLandscape
+.previewProductSurface {
+  aspect-ratio: 5 / 4;
+}
+
+.previewProductSurface img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 8px;
+}
+
+.previewPhotoPlaceholder {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background:
+    linear-gradient(
+      135deg,
+      #eee9e5,
+      #fff
+    );
+  color: var(--sm-rose);
+}
+
+.previewPhotoPlaceholder span {
+  font-size: 48px;
+}
+
+.previewPhotoPlaceholder small {
+  margin-top: 8px;
+  letter-spacing: 2px;
+}
+
+.previewTopText,
+.previewBottomText,
+.previewParagraph {
+  position: absolute;
+  z-index: 5;
+  left: 18px;
+  right: 18px;
+  padding: 10px 14px;
+  background:
+    rgba(255, 255, 255, .86);
+  color: var(--sm-plum-dark);
+  text-align: center;
+  font-family: Georgia, serif;
+}
+
+.previewTopText {
+  top: 18px;
+}
+
+.previewBottomText {
+  bottom: 18px;
+}
+
+.previewParagraph {
+  bottom: 20px;
+  line-height: 1.45;
+}
+
+.previewDetails {
+  margin-top: 18px;
+  padding: 18px;
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+}
+
+.previewDetails p {
+  margin: 7px 0;
+  color: var(--sm-muted);
+  font-size: 12px;
+}
+
+.previewConfirmation {
+  margin-top: 16px;
+  padding: 22px;
+  background: var(--sm-blush);
+  border-radius: 16px;
+}
+
+.previewConfirmation strong {
+  color: var(--sm-plum);
+  font-family: Georgia, serif;
+  font-size: 20px;
+}
+
+.previewConfirmation p {
+  color: var(--sm-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 950px) {
+  .personaliserLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .previewSticky {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .personaliserPage {
+    padding: 45px 18px 80px;
+  }
+
+  .choiceGrid,
+  .choiceGrid.two,
+  .templateGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .choiceGrid,
+  .choiceGrid.two,
+  .templateGrid {
+    grid-template-columns: 1fr;
+  }
+}
+/* =========================================================
+   SMART MEMORIES - PREMIUM SLATE PREVIEW
+   ========================================================= */
+
+.previewProductSurface {
+  position: relative;
+  overflow: hidden;
+  background: #1f1f1f;
+
+  clip-path: polygon(
+    4% 1%,
+    96% 0,
+    100% 5%,
+    98% 95%,
+    94% 100%,
+    4% 98%,
+    0 94%,
+    2% 6%
+  );
+
+  box-shadow:
+    0 18px 38px rgba(0,0,0,.22),
+    inset 0 0 0 3px rgba(255,255,255,.08);
+}
+
+.previewProductSurface::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  z-index: 2;
+  pointer-events: none;
+
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 2px;
+}
+
+.previewProductSurface img {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  object-fit: cover;
+  display: block;
+}
+
+/* Shared text style */
+
+.previewTopText,
+.previewBottomText,
+.previewParagraph {
+  position: absolute;
+  z-index: 6;
+
+  left: 24px;
+  right: 24px;
+
+  padding: 14px 18px;
+
+  color: #fffdf8;
+  background: transparent;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  text-align: center;
+
+  text-shadow:
+    0 2px 8px rgba(0,0,0,.85),
+    0 1px 2px rgba(0,0,0,.8);
+}
+
+/* Top heading */
+
+.previewTopText {
+  top: 24px;
+
+  font-size: clamp(
+    22px,
+    3vw,
+    38px
+  );
+
+  font-weight: 500;
+
+  line-height: 1.15;
+
+  letter-spacing: .3px;
+}
+
+/* Bottom wording */
+
+.previewBottomText {
+  bottom: 24px;
+
+  font-size: clamp(
+    15px,
+    2vw,
+    22px
+  );
+
+  line-height: 1.35;
+
+  font-weight: 400;
+}
+
+/* Paragraph */
+
+.previewParagraph {
+  bottom: 28px;
+
+  font-size: clamp(
+    14px,
+    1.8vw,
+    20px
+  );
+
+  line-height: 1.5;
+}
+
+/* Soft dark fade behind top wording */
+
+.previewProductSurface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+
+  z-index: 3;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0,0,0,.42) 0%,
+      rgba(0,0,0,.18) 18%,
+      rgba(0,0,0,0) 38%,
+      rgba(0,0,0,0) 62%,
+      rgba(0,0,0,.18) 80%,
+      rgba(0,0,0,.48) 100%
+    );
+}
+
+/* Keep text above the gradient */
+
+.previewTopText,
+.previewBottomText,
+.previewParagraph {
+  z-index: 7;
+}
+
+/* Better placeholder */
+
+.previewPhotoPlaceholder {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+
+  display: grid;
+  place-content: center;
+
+  text-align: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ddd7d1,
+      #f8f4ef
+    );
+
+  color: var(--sm-rose);
+}
+
+.previewPhotoPlaceholder span {
+  font-size: 46px;
+}
+
+.previewPhotoPlaceholder small {
+  margin-top: 10px;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+/* Make portrait and landscape feel more like real products */
+
+.personaliserPortrait
+.previewProductSurface {
+  aspect-ratio: 4 / 5;
+}
+
+.personaliserLandscape
+.previewProductSurface {
+  aspect-ratio: 5 / 4;
+}
+
+/* Slight slate depth */
+
+.personaliserPreview {
+  background:
+    linear-gradient(
+      135deg,
+      #d8d2cd,
+      #efebe7
+    );
+
+  border: 1px solid rgba(0,0,0,.06);
+
+  box-shadow:
+    0 24px 60px
+    rgba(61,39,39,.16);
+}
+/* =========================================================
+   COASTER PREVIEW FIX
+   ========================================================= */
+
+.coasterConfigured {
+  min-height: 330px !important;
+  height: 330px !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+
+  overflow: visible !important;
+}
+
+.coasterConfigured .configuredCoaster {
+  position: relative !important;
+
+  width: 260px !important;
+  height: 260px !important;
+
+  transform: none !important;
+
+  overflow: hidden !important;
+
+  border-radius: 18px !important;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 18px 35px
+    rgba(0, 0, 0, .16);
+}
+
+.coasterConfigured .configuredCoaster.back,
+.coasterConfigured .configuredCoaster.front {
+  display: none !important;
+}
+
+.coasterConfigured .configuredCoaster.single {
+  display: block !important;
+}
+
+.coasterConfigured .configuredCoaster img {
+  width: 100% !important;
+  height: 100% !important;
+
+  display: block;
+
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+.coasterConfigured .previewPhotoPlaceholder {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+
+  display: grid;
+  place-content: center;
+
+  background: #f1ece8;
+}
+/* =========================================================
+   SMART MEMORIES - PRODUCT PREVIEW RESIZE FIX
+   ========================================================= */
+
+.configuredPreviewImage {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* SLATE */
+.configuredPreviewImage.smart-photo-slate {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ALUMINIUM PLAQUE */
+.configuredPreviewImage.smart-memory-plaque {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* MUG */
+.configuredMugPrint .configuredPreviewImage.photo-mug {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* COASTER */
+.coasterConfigured .configuredPreviewImage.coaster-set {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* KEYRING */
+.configuredKeyring .configuredPreviewImage.keyring {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* MOUSE MAT */
+.mouseConfigured .configuredPreviewImage.mouse-mat {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* WHITE T-SHIRT */
+.configuredShirtPrint .configuredPreviewImage.white-t-shirt {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}

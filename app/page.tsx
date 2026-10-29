@@ -227,7 +227,7 @@ export default function Home() {
               Personalised gifts for birthdays, weddings, parties,
               anniversaries, reunions and special events.
             </p>
-            <Link href="/shop">Explore occasions →</Link>
+            <Link href="/occasions">Explore occasions →</Link>
           </article>
 
           <article>

@@ -26,6 +26,7 @@ export default function Layout({
             <Link href="/how-it-works">How It Works</Link>
             <Link href="/create">Create</Link>
             <Link href="/memories">My Memories</Link>
+            <Link href="/cart">Basket 🛍️</Link>
             <Link href="/account">Account</Link>
           </nav>
         </header>
@@ -51,6 +52,7 @@ export default function Layout({
               <Link href="/shop">Smart Gifts</Link>
               <Link href="/cards">Handcrafted Cards</Link>
               <Link href="/create">Create a Memory</Link>
+              <Link href="/cart">Basket</Link>
             </div>
 
             <div>

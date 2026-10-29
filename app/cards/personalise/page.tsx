@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 function formatTime(seconds: number) {
@@ -27,6 +27,7 @@ function getAudioFileExtension(type: string) {
 }
 
 function PersonaliseCardContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const occasion = searchParams.get('occasion') || 'Birthday';
@@ -108,6 +109,9 @@ function PersonaliseCardContent() {
   const [savedPersonalisationId, setSavedPersonalisationId] =
     useState<string | null>(null);
 
+  const [savedMemoryPhotoUrl, setSavedMemoryPhotoUrl] =
+    useState<string | null>(null);
+
   /* =========================================================
      PRICE
      ========================================================= */
@@ -127,7 +131,7 @@ function PersonaliseCardContent() {
   }, [cardType, includePhoto]);
 
   /* =========================================================
-     CLEAN UP OBJECT URLS / MEDIA STREAM
+     CLEAN UP
      ========================================================= */
 
   useEffect(() => {
@@ -228,8 +232,7 @@ function PersonaliseCardContent() {
 
       mediaStreamRef.current = stream;
 
-      const mimeType =
-        getSupportedAudioMimeType();
+      const mimeType = getSupportedAudioMimeType();
 
       const recorder = mimeType
         ? new MediaRecorder(stream, { mimeType })
@@ -278,9 +281,7 @@ function PersonaliseCardContent() {
       setIsRecording(true);
 
       timerRef.current = setInterval(() => {
-        setRecordingSeconds(
-          (seconds) => seconds + 1
-        );
+        setRecordingSeconds((seconds) => seconds + 1);
       }, 1000);
     } catch (error) {
       console.error(error);
@@ -294,8 +295,7 @@ function PersonaliseCardContent() {
   function stopRecording() {
     if (
       mediaRecorderRef.current &&
-      mediaRecorderRef.current.state !==
-        'inactive'
+      mediaRecorderRef.current.state !== 'inactive'
     ) {
       mediaRecorderRef.current.stop();
     }
@@ -310,9 +310,7 @@ function PersonaliseCardContent() {
 
   function deleteRecording() {
     if (recordedAudioUrl) {
-      URL.revokeObjectURL(
-        recordedAudioUrl
-      );
+      URL.revokeObjectURL(recordedAudioUrl);
     }
 
     setRecordedAudioUrl(null);
@@ -321,17 +319,13 @@ function PersonaliseCardContent() {
     setAudioError(null);
   }
 
-  function handleAudioUpload(
-    file: File | null
-  ) {
+  function handleAudioUpload(file: File | null) {
     if (!file) return;
 
     setAudioError(null);
 
     if (recordedAudioUrl) {
-      URL.revokeObjectURL(
-        recordedAudioUrl
-      );
+      URL.revokeObjectURL(recordedAudioUrl);
     }
 
     setRecordedAudioUrl(null);
@@ -339,27 +333,83 @@ function PersonaliseCardContent() {
     setRecordingSeconds(0);
 
     if (uploadedAudioUrl) {
-      URL.revokeObjectURL(
-        uploadedAudioUrl
-      );
+      URL.revokeObjectURL(uploadedAudioUrl);
     }
 
     setUploadedAudioFile(file);
-
-    setUploadedAudioUrl(
-      URL.createObjectURL(file)
-    );
+    setUploadedAudioUrl(URL.createObjectURL(file));
   }
 
   function removeUploadedAudio() {
     if (uploadedAudioUrl) {
-      URL.revokeObjectURL(
-        uploadedAudioUrl
-      );
+      URL.revokeObjectURL(uploadedAudioUrl);
     }
 
     setUploadedAudioUrl(null);
     setUploadedAudioFile(null);
+  }
+
+  /* =========================================================
+     ADD SAVED CARD TO BASKET
+     ========================================================= */
+
+  function addSavedCardToBasket() {
+    if (!savedPersonalisationId) {
+      setSaveError('Please save the personalised card first.');
+      return;
+    }
+
+    const basketItem = {
+      id: crypto.randomUUID(),
+      personalisationId: savedPersonalisationId,
+
+      productType:
+        cardType === 'smart'
+          ? 'smart-card'
+          : 'traditional-card',
+
+      name:
+        cardType === 'smart'
+          ? `${occasion} Smart Memory Card`
+          : `${occasion} Handcrafted Card`,
+
+      occasion,
+      design,
+      recipient,
+
+      imageUrl: savedMemoryPhotoUrl,
+
+      price: Number(price),
+      quantity: 1,
+    };
+
+    try {
+      const existingBasket =
+        localStorage.getItem('smart-memories-cart');
+
+      const parsedBasket = existingBasket
+        ? JSON.parse(existingBasket)
+        : [];
+
+      const basket = Array.isArray(parsedBasket)
+        ? parsedBasket
+        : [];
+
+      basket.push(basketItem);
+
+      localStorage.setItem(
+        'smart-memories-cart',
+        JSON.stringify(basket)
+      );
+
+      router.push('/cart');
+    } catch (error) {
+      console.error(error);
+
+      setSaveError(
+        'Your card was saved, but it could not be added to the basket.'
+      );
+    }
   }
 
   /* =========================================================
@@ -400,55 +450,21 @@ function PersonaliseCardContent() {
 
       const formData = new FormData();
 
-      formData.append(
-        'occasion',
-        occasion
-      );
-
-      formData.append(
-        'designName',
-        design
-      );
-
-      formData.append(
-        'cardType',
-        cardType
-      );
-
-      formData.append(
-        'recipientName',
-        recipient
-      );
-
-      formData.append(
-        'frontGreeting',
-        frontGreeting
-      );
-
-      formData.append(
-        'insideMessage',
-        insideMessage
-      );
-
-      formData.append(
-        'senderName',
-        sender
-      );
-
-      formData.append(
-        'colour',
-        colour
-      );
+      formData.append('occasion', occasion);
+      formData.append('designName', design);
+      formData.append('cardType', cardType);
+      formData.append('recipientName', recipient);
+      formData.append('frontGreeting', frontGreeting);
+      formData.append('insideMessage', insideMessage);
+      formData.append('senderName', sender);
+      formData.append('colour', colour);
 
       formData.append(
         'includePrintedPhoto',
         String(includePhoto)
       );
 
-      formData.append(
-        'totalPrice',
-        price
-      );
+      formData.append('totalPrice', price);
 
       if (
         cardType === 'smart' &&
@@ -501,8 +517,7 @@ function PersonaliseCardContent() {
         }
       );
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -513,6 +528,10 @@ function PersonaliseCardContent() {
 
       setSavedPersonalisationId(
         result.personalisation.id
+      );
+
+      setSavedMemoryPhotoUrl(
+        result.personalisation.memoryPhotoUrl || null
       );
 
       setSaveSuccess(
@@ -548,16 +567,13 @@ function PersonaliseCardContent() {
         <h1>Make it theirs.</h1>
 
         <p>
-          You selected{' '}
-          <strong>{design}</strong> for{' '}
+          You selected <strong>{design}</strong> for{' '}
           <strong>{occasion}</strong>.
         </p>
       </section>
 
       <section className="personaliseLayout">
         <div className="personaliseControls">
-
-          {/* CARD TYPE */}
 
           <div className="personaliseBlock">
             <span className="personaliseStep">
@@ -567,8 +583,7 @@ function PersonaliseCardContent() {
             <h2>Choose your card</h2>
 
             <p>
-              Keep it beautifully traditional
-              or add the Smart Memories
+              Keep it beautifully traditional or add the Smart Memories
               experience.
             </p>
 
@@ -576,15 +591,12 @@ function PersonaliseCardContent() {
               <button
                 type="button"
                 className={
-                  cardType ===
-                  'traditional'
+                  cardType === 'traditional'
                     ? 'active'
                     : ''
                 }
                 onClick={() =>
-                  setCardType(
-                    'traditional'
-                  )
+                  setCardType('traditional')
                 }
               >
                 <strong>
@@ -592,8 +604,7 @@ function PersonaliseCardContent() {
                 </strong>
 
                 <span>
-                  Handcrafted and
-                  personalised
+                  Handcrafted and personalised
                 </span>
 
                 <b>From £6.95</b>
@@ -619,8 +630,7 @@ function PersonaliseCardContent() {
                 </strong>
 
                 <span>
-                  Card + NFC/QR digital
-                  memory
+                  Card + NFC/QR digital memory
                 </span>
 
                 <b>From £11.95</b>
@@ -628,62 +638,46 @@ function PersonaliseCardContent() {
             </div>
           </div>
 
-          {/* WORDS */}
-
           <div className="personaliseBlock">
             <span className="personaliseStep">
               02
             </span>
 
-            <h2>
-              Personalise the words
-            </h2>
+            <h2>Personalise the words</h2>
 
             <label className="personaliseField">
-              <span>
-                Recipient name
-              </span>
+              <span>Recipient name</span>
 
               <input
                 type="text"
                 placeholder="e.g. Mum, Sarah, Grandad..."
                 value={recipient}
                 onChange={(e) =>
-                  setRecipient(
-                    e.target.value
-                  )
+                  setRecipient(e.target.value)
                 }
               />
             </label>
 
             <label className="personaliseField">
-              <span>
-                Front greeting
-              </span>
+              <span>Front greeting</span>
 
               <input
                 type="text"
                 value={frontGreeting}
                 onChange={(e) =>
-                  setFrontGreeting(
-                    e.target.value
-                  )
+                  setFrontGreeting(e.target.value)
                 }
               />
             </label>
 
             <label className="personaliseField">
-              <span>
-                Inside message
-              </span>
+              <span>Inside message</span>
 
               <textarea
                 rows={6}
                 value={insideMessage}
                 onChange={(e) =>
-                  setInsideMessage(
-                    e.target.value
-                  )
+                  setInsideMessage(e.target.value)
                 }
               />
             </label>
@@ -696,15 +690,11 @@ function PersonaliseCardContent() {
                 placeholder="Your name"
                 value={sender}
                 onChange={(e) =>
-                  setSender(
-                    e.target.value
-                  )
+                  setSender(e.target.value)
                 }
               />
             </label>
           </div>
-
-          {/* STYLE */}
 
           <div className="personaliseBlock">
             <span className="personaliseStep">
@@ -758,24 +748,18 @@ function PersonaliseCardContent() {
 
               <span>
                 <strong>
-                  Add a printed
-                  photograph
+                  Add a printed photograph
                 </strong>
 
                 <small>
-                  Include a favourite
-                  photograph in the card
-                  design. +£1.50
+                  Include a favourite photograph in the card design. +£1.50
                 </small>
               </span>
             </label>
           </div>
 
-          {/* SMART MEMORY */}
-
           {cardType === 'smart' && (
             <div className="personaliseBlock smartMemoryBuilder">
-
               <span className="personaliseStep">
                 04
               </span>
@@ -787,8 +771,7 @@ function PersonaliseCardContent() {
                   </span>
 
                   <h2>
-                    Add the part they can
-                    hear.
+                    Add the part they can hear.
                   </h2>
                 </div>
 
@@ -798,17 +781,12 @@ function PersonaliseCardContent() {
               </div>
 
               <p>
-                Your card will contain a
-                discreet Smart Memories
-                point. When the recipient
-                taps it with their phone,
-                their private memory page
-                opens.
+                Your card will contain a discreet Smart Memories point.
+                When the recipient taps it with their phone, their private
+                memory page opens.
               </p>
 
               <div className="smartMemoryOptions">
-
-                {/* MEMORY PHOTO */}
 
                 <div>
                   <span className="memoryOptionIcon">
@@ -820,9 +798,7 @@ function PersonaliseCardContent() {
                   </strong>
 
                   <small>
-                    Upload the photograph
-                    they will see when they
-                    tap.
+                    Upload the photograph they will see when they tap.
                   </small>
 
                   {!memoryPhotoPreview && (
@@ -841,14 +817,11 @@ function PersonaliseCardContent() {
                   {memoryPhotoPreview && (
                     <div className="recordingPreview">
                       <strong>
-                        Memory photograph
-                        ready
+                        Memory photograph ready
                       </strong>
 
                       <img
-                        src={
-                          memoryPhotoPreview
-                        }
+                        src={memoryPhotoPreview}
                         alt="Memory preview"
                         style={{
                           width: '100%',
@@ -870,10 +843,7 @@ function PersonaliseCardContent() {
                   )}
                 </div>
 
-                {/* VOICE */}
-
                 <div className="voiceRecorderCard">
-
                   <span className="memoryOptionIcon">
                     VOICE
                   </span>
@@ -883,8 +853,7 @@ function PersonaliseCardContent() {
                   </strong>
 
                   <small>
-                    Record your message now,
-                    or upload an audio file.
+                    Record your message now, or upload an audio file.
                   </small>
 
                   {!isRecording &&
@@ -903,7 +872,6 @@ function PersonaliseCardContent() {
 
                   {isRecording && (
                     <div className="recordingLive">
-
                       <div className="recordingStatus">
                         <span className="recordingDot"></span>
 
@@ -933,10 +901,8 @@ function PersonaliseCardContent() {
                   {recordedAudioUrl &&
                     !isRecording && (
                       <div className="recordingPreview">
-
                         <strong>
-                          Your recording is
-                          ready
+                          Your recording is ready
                         </strong>
 
                         <span>
@@ -955,7 +921,6 @@ function PersonaliseCardContent() {
                         />
 
                         <div className="recordingActions">
-
                           <button
                             type="button"
                             onClick={
@@ -967,7 +932,7 @@ function PersonaliseCardContent() {
 
                           <button
                             type="button"
-                            onClick={async () => {
+                            onClick={() => {
                               deleteRecording();
 
                               setTimeout(
@@ -986,15 +951,12 @@ function PersonaliseCardContent() {
 
                   {uploadedAudioUrl && (
                     <div className="recordingPreview">
-
                       <strong>
                         Uploaded audio
                       </strong>
 
                       <span>
-                        {
-                          uploadedAudioFile?.name
-                        }
+                        {uploadedAudioFile?.name}
                       </span>
 
                       <audio
@@ -1025,21 +987,16 @@ function PersonaliseCardContent() {
                         </div>
 
                         <label className="voiceUploadOption">
-
                           <span>
-                            Upload an existing
-                            recording
+                            Upload an existing recording
                           </span>
 
                           <input
                             type="file"
                             accept="audio/*"
-                            onChange={(
-                              event
-                            ) =>
+                            onChange={(event) =>
                               handleAudioUpload(
-                                event.target
-                                  .files?.[0] ||
+                                event.target.files?.[0] ||
                                   null
                               )
                             }
@@ -1058,35 +1015,23 @@ function PersonaliseCardContent() {
 
               <div className="smartPrivacyNote">
                 <strong>
-                  Your memory is separate
-                  from the printed card.
+                  Your memory is separate from the printed card.
                 </strong>
 
                 <p>
-                  The NFC chip contains only
-                  the Smart Memories link.
-                  Your photograph and voice
-                  message are stored
-                  digitally.
+                  The NFC chip contains only the Smart Memories link.
+                  Your photograph and voice message are stored digitally.
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* PREVIEW */}
-
         <aside className="personalisePreview">
           <div className="previewSticky">
-
             <div className="previewHeading">
-              <span>
-                LIVE PREVIEW
-              </span>
-
-              <small>
-                {design}
-              </small>
+              <span>LIVE PREVIEW</span>
+              <small>{design}</small>
             </div>
 
             <div
@@ -1117,14 +1062,12 @@ function PersonaliseCardContent() {
 
               {cardType === 'smart' && (
                 <div className="previewSmartMark">
-
                   <strong>
                     ♥ SMART MEMORY
                   </strong>
 
                   <span>
-                    Tap to hear your
-                    message
+                    Tap to hear your message
                   </span>
                 </div>
               )}
@@ -1184,8 +1127,6 @@ function PersonaliseCardContent() {
               </div>
             </div>
 
-            {/* SAVE */}
-
             <button
               type="button"
               className="personaliseBasketButton"
@@ -1226,21 +1167,34 @@ function PersonaliseCardContent() {
                 </p>
 
                 {savedPersonalisationId && (
-                  <small>
-                    Reference:{' '}
-                    {
-                      savedPersonalisationId
-                    }
-                  </small>
+                  <>
+                    <small
+                      style={{
+                        display: 'block',
+                        marginBottom: '14px',
+                      }}
+                    >
+                      Reference:{' '}
+                      {savedPersonalisationId}
+                    </small>
+
+                    <button
+                      type="button"
+                      className="personaliseBasketButton"
+                      onClick={
+                        addSavedCardToBasket
+                      }
+                    >
+                      Add saved card to basket
+                    </button>
+                  </>
                 )}
               </div>
             )}
 
             <p className="basketSmallPrint">
-              Saving creates the Smart
-              Memories record. Basket and
-              payment will be connected
-              next.
+              Save your personalised Smart Memory first, then add it to
+              your basket.
             </p>
           </div>
         </aside>
@@ -1255,10 +1209,8 @@ export default function PersonaliseCardPage() {
       fallback={
         <div
           style={{
-            padding:
-              '100px 30px',
-            textAlign:
-              'center',
+            padding: '100px 30px',
+            textAlign: 'center',
           }}
         >
           Loading your card...
