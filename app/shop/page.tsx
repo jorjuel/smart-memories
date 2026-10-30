@@ -238,10 +238,6 @@ export default async function Shop({
         </p>
       )}
 
-      {/* ==========================================
-          INDIVIDUAL GIFTS
-          ========================================== */}
-
       <div
         style={{
           marginTop: '42px',
@@ -272,10 +268,6 @@ export default async function Shop({
           )
         )}
       </div>
-
-      {/* ==========================================
-          SPECIAL BUNDLES
-          ========================================== */}
 
       {!occasion && (
         <>
@@ -386,15 +378,7 @@ export default async function Shop({
               </Link>
             </article>
           </div>
-        </>
-      )}
 
-      {/* ==========================================
-          SHOP BY OCCASION
-          ========================================== */}
-
-      {!occasion && (
-        <>
           <div
             style={{
               marginTop: '64px',
@@ -445,15 +429,7 @@ export default async function Shop({
               )
             )}
           </div>
-        </>
-      )}
 
-      {/* ==========================================
-          CORPORATE BUNDLES
-          ========================================== */}
-
-      {!occasion && (
-        <>
           <div
             style={{
               marginTop: '64px',
@@ -475,35 +451,42 @@ export default async function Shop({
 
           <div className="products">
             {corporateBundles.map(
-              (bundle) => (
-                <article
-                  className="card"
-                  key={bundle.name}
-                >
-                  <span className="eyebrow">
-                    CORPORATE
-                  </span>
+              (bundle) => {
+                const quoteUrl =
+                  `/contact?type=corporate&bundle=${encodeURIComponent(
+                    bundle.name
+                  )}`;
 
-                  <h3>
-                    {bundle.name}
-                  </h3>
-
-                  <p>
-                    {bundle.description}
-                  </p>
-
-                  <p>
-                    Pricing depends on quantity, branding and delivery requirements.
-                  </p>
-
-                  <Link
-                    href="/contact"
-                    className="btn small"
+                return (
+                  <article
+                    className="card"
+                    key={bundle.name}
                   >
-                    Request a quote →
-                  </Link>
-                </article>
-              )
+                    <span className="eyebrow">
+                      CORPORATE
+                    </span>
+
+                    <h3>
+                      {bundle.name}
+                    </h3>
+
+                    <p>
+                      {bundle.description}
+                    </p>
+
+                    <p>
+                      Pricing depends on quantity, branding and delivery requirements.
+                    </p>
+
+                    <Link
+                      href={quoteUrl}
+                      className="btn small"
+                    >
+                      Request a quote →
+                    </Link>
+                  </article>
+                );
+              }
             )}
           </div>
         </>
