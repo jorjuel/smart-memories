@@ -4205,4 +4205,149 @@ body {
     height: 230px !important;
     transform: scale(0.9);
   }
+}/* =========================================================
+   SMART MEMORIES - SHOP ACCORDION
+   ========================================================= */
+
+.shopAccordion {
+  display: grid;
+  gap: 18px;
+  margin-top: 36px;
 }
+
+.shopAccordionItem {
+  border: 1px solid #ead8cf;
+  border-radius: 22px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 8px 26px rgba(60, 35, 25, 0.05);
+}
+
+.shopAccordionSummary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 28px;
+  background: #fffaf7;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.shopAccordionSummary::-webkit-details-marker {
+  display: none;
+}
+
+.shopAccordionSummary:hover {
+  background: #fff5f1;
+}
+
+.shopAccordionSummary h2 {
+  margin: 5px 0 4px;
+}
+
+.shopAccordionSummary p {
+  margin: 0;
+  opacity: 0.75;
+}
+
+.shopAccordionArrow {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #b44f5d;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+.shopAccordionItem[open]
+  .shopAccordionArrow {
+  transform: rotate(45deg);
+}
+
+.shopAccordionItem[open]
+  .shopAccordionSummary {
+  border-bottom: 1px solid #ead8cf;
+}
+
+.shopAccordionContent {
+  padding: 28px;
+}
+
+@media (max-width: 700px) {
+  .shopAccordionSummary {
+    padding: 20px;
+  }
+
+  .shopAccordionContent {
+    padding: 18px;
+  }
+
+  .shopAccordionArrow {
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+  }
+}
+/* =========================================================
+   SHOP ACCORDION VISUALS
+   ========================================================= */
+
+.shopAccordionSummary {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    220px
+    42px;
+  align-items: center;
+}
+
+.shopAccordionText {
+  min-width: 0;
+}
+
+.shopAccordionVisual {
+  position: relative;
+  width: 220px;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(60, 35, 25, 0.1);
+}
+
+.shopAccordionVisual img {
+  object-fit: cover;
+}
+
+@media (max-width: 850px) {
+  .shopAccordionSummary {
+    grid-template-columns:
+      minmax(0, 1fr)
+      42px;
+  }
+
+  .shopAccordionVisual {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    height: 180px;
+    margin-top: 14px;
+  }
+
+  .shopAccordionArrow {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+
+

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import ProductCard from '../../components/ProductCard';
 import { products } from '../../lib/products';
@@ -10,7 +11,6 @@ const occasionProducts: Record<string, string[]> = {
     'keyring',
     'white-t-shirt',
   ],
-
   Wedding: [
     'smart-photo-slate',
     'smart-memory-plaque',
@@ -18,35 +18,30 @@ const occasionProducts: Record<string, string[]> = {
     'coaster-set',
     'keyring',
   ],
-
   Anniversary: [
     'smart-photo-slate',
     'smart-memory-plaque',
     'photo-mug',
     'keyring',
   ],
-
   Retirement: [
     'photo-mug',
     'smart-photo-slate',
     'mouse-mat',
     'keyring',
   ],
-
   'Leaving Gift': [
     'photo-mug',
     'mouse-mat',
     'smart-photo-slate',
     'keyring',
   ],
-
   'Teacher Gift': [
     'photo-mug',
     'mouse-mat',
     'coaster-set',
     'keyring',
   ],
-
   'Pet Memory': [
     'smart-photo-slate',
     'keyring',
@@ -54,78 +49,66 @@ const occasionProducts: Record<string, string[]> = {
     'coaster-set',
     'mouse-mat',
   ],
-
   'Family Memory': [
     'smart-photo-slate',
     'photo-mug',
     'coaster-set',
     'smart-memory-plaque',
   ],
-
   'New Baby': [
     'smart-photo-slate',
     'photo-mug',
     'smart-memory-plaque',
     'keyring',
   ],
-
   Graduation: [
     'photo-mug',
     'smart-photo-slate',
     'white-t-shirt',
     'keyring',
   ],
-
   Christmas: [
     'photo-mug',
     'coaster-set',
     'smart-photo-slate',
     'keyring',
   ],
-
-  'Just Because': products.map(
-    (product) => product.slug
-  ),
+  'Just Because': products.map((product) => product.slug),
 };
 
 const bundles = [
   {
     slug: 'birthday-bundle',
     name: 'Birthday Bundle',
-    description:
-      'Mug + Coasters + Keyring',
+    description: 'Mug + Coasters + Keyring',
     normalPrice: 36.97,
     bundlePrice: 32.99,
   },
   {
     slug: 'home-bundle',
     name: 'Home Bundle',
-    description:
-      'Mug + Coasters + Mouse Mat',
+    description: 'Mug + Coasters + Mouse Mat',
     normalPrice: 42.97,
     bundlePrice: 37.99,
   },
   {
     slug: 'memory-bundle',
     name: 'Memory Bundle',
-    description:
-      'Slate + Keyring + Mug',
+    description: 'Slate + Keyring + Mug',
     normalPrice: 46.97,
     bundlePrice: 41.99,
   },
   {
     slug: 'pet-memory-bundle',
     name: 'Pet Memory Bundle',
-    description:
-      'Slate + Keyring + Coasters',
+    description: 'Slate + Keyring + Coasters',
     normalPrice: 47.97,
     bundlePrice: 42.99,
   },
   {
     slug: 'work-teacher-bundle',
     name: 'Work & Teacher Bundle',
-    description:
-      'Mug + Mouse Mat + Keyring',
+    description: 'Mug + Mouse Mat + Keyring',
     normalPrice: 36.97,
     bundlePrice: 32.99,
   },
@@ -149,28 +132,23 @@ const occasions = [
 const corporateBundles = [
   {
     name: 'Employee Welcome Pack',
-    description:
-      'Mug + Mouse Mat + Keyring',
+    description: 'Mug + Mouse Mat + Keyring',
   },
   {
     name: 'Thank You Pack',
-    description:
-      'Mug + Coasters + Keyring',
+    description: 'Mug + Coasters + Keyring',
   },
   {
     name: 'Event Gift Pack',
-    description:
-      'Mug + Keyring + White T-Shirt',
+    description: 'Mug + Keyring + White T-Shirt',
   },
   {
     name: 'Premium Client Pack',
-    description:
-      'Aluminium Plaque + Mug + Coasters',
+    description: 'Aluminium Plaque + Mug + Coasters',
   },
   {
     name: 'Recognition Pack',
-    description:
-      'Photo Slate + Keyring + Mug',
+    description: 'Photo Slate + Keyring + Mug',
   },
   {
     name: 'Custom Corporate Bundle',
@@ -190,23 +168,18 @@ export default async function Shop({
     occasion?: string;
   }>;
 }) {
-  const { occasion } =
-    await searchParams;
+  const { occasion } = await searchParams;
 
   const allowedProducts =
-    occasion &&
-    occasionProducts[occasion]
+    occasion && occasionProducts[occasion]
       ? occasionProducts[occasion]
       : null;
 
-  const filteredProducts =
-    allowedProducts
-      ? products.filter((product) =>
-          allowedProducts.includes(
-            product.slug
-          )
-        )
-      : products;
+  const filteredProducts = allowedProducts
+    ? products.filter((product) =>
+        allowedProducts.includes(product.slug)
+      )
+    : products;
 
   return (
     <section className="wrap">
@@ -223,274 +196,322 @@ export default async function Shop({
       <p className="lead">
         {occasion
           ? `We’ve selected personalised gifts that work especially well for ${occasion}.`
-          : 'Choose an individual personalised gift, save with a bundle, shop by occasion or explore corporate gift packs.'}
+          : 'Choose how you would like to shop. Open a section below to explore individual gifts, bundles, occasions or corporate gifting.'}
       </p>
 
       {occasion && (
-        <p>
+        <div style={{ marginBottom: '28px' }}>
           <Link href="/shop">
-            ← View the full shop
+            ← View full shop
           </Link>
           {' · '}
           <Link href="/occasions">
             Choose another occasion
           </Link>
-        </p>
+        </div>
       )}
 
-      <div
-        style={{
-          marginTop: '42px',
-          marginBottom: '24px',
-        }}
-      >
-        <span className="eyebrow">
-          INDIVIDUAL GIFTS
-        </span>
+      <div className="shopAccordion">
 
-        <h2>
-          Shop personalised gifts
-        </h2>
-
-        <p>
-          Choose one product and create it your way.
-        </p>
-      </div>
-
-      <div className="products">
-        {filteredProducts.map(
-          (product) => (
-            <ProductCard
-              key={product.slug}
-              p={product}
-              occasion={occasion}
-            />
-          )
-        )}
-      </div>
-
-      {!occasion && (
-        <>
-          <div
-            style={{
-              marginTop: '64px',
-              marginBottom: '24px',
-            }}
-          >
-            <span className="eyebrow">
-              SPECIAL BUNDLES
-            </span>
-
-            <h2>
-              More gifts, better value
-            </h2>
-
-            <p>
-              Save compared with buying each item separately.
-            </p>
-          </div>
-
-          <div className="products">
-            {bundles.map((bundle) => {
-              const saving =
-                bundle.normalPrice -
-                bundle.bundlePrice;
-
-              return (
-                <article
-                  className="card"
-                  key={bundle.slug}
-                >
-                  <span className="eyebrow">
-                    GIFT COLLECTION
-                  </span>
-
-                  <h3>
-                    {bundle.name}
-                  </h3>
-
-                  <p>
-                    {bundle.description}
-                  </p>
-
-                  <p
-                    style={{
-                      textDecoration:
-                        'line-through',
-                      opacity: 0.6,
-                    }}
-                  >
-                    Normally{' '}
-                    {money(
-                      bundle.normalPrice
-                    )}
-                  </p>
-
-                  <p
-                    style={{
-                      fontSize: '1.5rem',
-                      fontWeight: 800,
-                      marginBottom: '4px',
-                    }}
-                  >
-                    {money(
-                      bundle.bundlePrice
-                    )}
-                  </p>
-
-                  <p
-                    style={{
-                      fontWeight: 700,
-                    }}
-                  >
-                    Save{' '}
-                    {money(saving)}
-                  </p>
-
-                  <Link
-                    href={`/bundles/${bundle.slug}`}
-                    className="btn small"
-                  >
-                    View bundle →
-                  </Link>
-                </article>
-              );
-            })}
-
-            <article className="card">
+        <details
+          className="shopAccordionItem"
+          open
+        >
+          <summary className="shopAccordionSummary">
+            <div className="shopAccordionText">
               <span className="eyebrow">
-                BUILD YOUR OWN
+                INDIVIDUAL GIFTS
               </span>
 
-              <h3>
-                Create Your Own Bundle
-              </h3>
+              <h2>
+                Shop personalised gifts
+              </h2>
 
               <p>
-                Mix and match from our personalised product range.
+                Choose one product and create it your way.
               </p>
+            </div>
 
-              <Link
-                href="/bundles/build-your-own"
-                className="btn small"
-              >
-                Build my bundle →
-              </Link>
-            </article>
-          </div>
+            <div className="shopAccordionVisual">
+              <Image
+                src="/shop-sections/individual-gifts.png"
+                alt="Personalised individual gifts"
+                fill
+                sizes="220px"
+              />
+            </div>
 
-          <div
-            style={{
-              marginTop: '64px',
-              marginBottom: '24px',
-            }}
-          >
-            <span className="eyebrow">
-              SHOP BY OCCASION
+            <span className="shopAccordionArrow">
+              +
             </span>
+          </summary>
 
-            <h2>
-              What are you celebrating?
-            </h2>
-
-            <p>
-              Start with the occasion and we’ll narrow down the most suitable gifts.
-            </p>
+          <div className="shopAccordionContent">
+            <div className="products">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.slug}
+                  p={product}
+                  occasion={occasion}
+                />
+              ))}
+            </div>
           </div>
+        </details>
 
-          <div className="products">
-            {occasions.map(
-              (item) => (
-                <article
-                  className="card"
-                  key={item}
-                >
+        {!occasion && (
+          <details className="shopAccordionItem">
+            <summary className="shopAccordionSummary">
+              <div className="shopAccordionText">
+                <span className="eyebrow">
+                  SPECIAL BUNDLES
+                </span>
+
+                <h2>
+                  More gifts, better value
+                </h2>
+
+                <p>
+                  Ready-made personalised collections at a discounted price.
+                </p>
+              </div>
+
+              <div className="shopAccordionVisual">
+                <Image
+                  src="/shop-sections/special-bundles.png"
+                  alt="Personalised gift bundles"
+                  fill
+                  sizes="220px"
+                />
+              </div>
+
+              <span className="shopAccordionArrow">
+                +
+              </span>
+            </summary>
+
+            <div className="shopAccordionContent">
+              <div className="products">
+                {bundles.map((bundle) => {
+                  const saving =
+                    bundle.normalPrice -
+                    bundle.bundlePrice;
+
+                  return (
+                    <article
+                      className="card"
+                      key={bundle.slug}
+                    >
+                      <span className="eyebrow">
+                        GIFT COLLECTION
+                      </span>
+
+                      <h3>
+                        {bundle.name}
+                      </h3>
+
+                      <p>
+                        {bundle.description}
+                      </p>
+
+                      <p
+                        style={{
+                          textDecoration:
+                            'line-through',
+                          opacity: 0.6,
+                        }}
+                      >
+                        Normally {money(bundle.normalPrice)}
+                      </p>
+
+                      <p
+                        style={{
+                          fontSize: '1.5rem',
+                          fontWeight: 800,
+                          marginBottom: '4px',
+                        }}
+                      >
+                        {money(bundle.bundlePrice)}
+                      </p>
+
+                      <p style={{ fontWeight: 700 }}>
+                        Save {money(saving)}
+                      </p>
+
+                      <Link
+                        href={`/bundles/${bundle.slug}`}
+                        className="btn small"
+                      >
+                        View bundle →
+                      </Link>
+                    </article>
+                  );
+                })}
+
+                <article className="card">
                   <span className="eyebrow">
-                    OCCASION
+                    BUILD YOUR OWN
                   </span>
 
                   <h3>
-                    {item}
+                    Create Your Own Bundle
                   </h3>
 
                   <p>
-                    Explore personalised gifts chosen for {item}.
+                    Mix and match from our personalised product range.
                   </p>
 
                   <Link
-                    href={`/shop?occasion=${encodeURIComponent(
-                      item
-                    )}`}
+                    href="/bundles/build-your-own"
                     className="btn small"
                   >
-                    Explore gifts →
+                    Build my bundle →
                   </Link>
                 </article>
-              )
-            )}
-          </div>
+              </div>
+            </div>
+          </details>
+        )}
 
-          <div
-            style={{
-              marginTop: '64px',
-              marginBottom: '24px',
-            }}
-          >
-            <span className="eyebrow">
-              CORPORATE BUNDLES
-            </span>
+        {!occasion && (
+          <details className="shopAccordionItem">
+            <summary className="shopAccordionSummary">
+              <div className="shopAccordionText">
+                <span className="eyebrow">
+                  SHOP BY OCCASION
+                </span>
 
-            <h2>
-              Gifts for teams, clients and events
-            </h2>
+                <h2>
+                  What are you celebrating?
+                </h2>
 
-            <p>
-              Branded and personalised packs for staff recognition, customer gifts and business events.
-            </p>
-          </div>
+                <p>
+                  Start with the occasion and we’ll show you suitable gifts.
+                </p>
+              </div>
 
-          <div className="products">
-            {corporateBundles.map(
-              (bundle) => {
-                const quoteUrl =
-                  `/contact?type=corporate&bundle=${encodeURIComponent(
-                    bundle.name
-                  )}`;
+              <div className="shopAccordionVisual">
+                <Image
+                  src="/shop-sections/shop-by-occasion.png"
+                  alt="Personalised gifts for different occasions"
+                  fill
+                  sizes="220px"
+                />
+              </div>
 
-                return (
+              <span className="shopAccordionArrow">
+                +
+              </span>
+            </summary>
+
+            <div className="shopAccordionContent">
+              <div className="products">
+                {occasions.map((item) => (
                   <article
                     className="card"
-                    key={bundle.name}
+                    key={item}
                   >
                     <span className="eyebrow">
-                      CORPORATE
+                      OCCASION
                     </span>
 
                     <h3>
-                      {bundle.name}
+                      {item}
                     </h3>
 
                     <p>
-                      {bundle.description}
-                    </p>
-
-                    <p>
-                      Pricing depends on quantity, branding and delivery requirements.
+                      Explore personalised gifts selected for {item}.
                     </p>
 
                     <Link
-                      href={quoteUrl}
+                      href={`/shop?occasion=${encodeURIComponent(
+                        item
+                      )}`}
                       className="btn small"
                     >
-                      Request a quote →
+                      Explore gifts →
                     </Link>
                   </article>
-                );
-              }
-            )}
-          </div>
-        </>
-      )}
+                ))}
+              </div>
+            </div>
+          </details>
+        )}
+
+        {!occasion && (
+          <details className="shopAccordionItem">
+            <summary className="shopAccordionSummary">
+              <div className="shopAccordionText">
+                <span className="eyebrow">
+                  CORPORATE BUNDLES
+                </span>
+
+                <h2>
+                  Gifts for teams, clients and events
+                </h2>
+
+                <p>
+                  Branded gift packs for businesses, staff and customers.
+                </p>
+              </div>
+
+              <div className="shopAccordionVisual">
+                <Image
+                  src="/shop-sections/corporate-bundles.png"
+                  alt="Corporate personalised gift collection"
+                  fill
+                  sizes="220px"
+                />
+              </div>
+
+              <span className="shopAccordionArrow">
+                +
+              </span>
+            </summary>
+
+            <div className="shopAccordionContent">
+              <div className="products">
+                {corporateBundles.map((bundle) => {
+                  const quoteUrl =
+                    `/contact?type=corporate&bundle=${encodeURIComponent(
+                      bundle.name
+                    )}`;
+
+                  return (
+                    <article
+                      className="card"
+                      key={bundle.name}
+                    >
+                      <span className="eyebrow">
+                        CORPORATE
+                      </span>
+
+                      <h3>
+                        {bundle.name}
+                      </h3>
+
+                      <p>
+                        {bundle.description}
+                      </p>
+
+                      <p>
+                        Pricing depends on quantity, branding and delivery requirements.
+                      </p>
+
+                      <Link
+                        href={quoteUrl}
+                        className="btn small"
+                      >
+                        Request a quote →
+                      </Link>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </details>
+        )}
+      </div>
     </section>
   );
 }
