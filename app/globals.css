@@ -4142,4 +4142,67 @@ body {
   height: 100%;
   object-fit: contain;
   object-position: center;
+}/* =========================================================
+   SMART MEMORIES - COMPACT BUNDLE PREVIEW
+   ========================================================= */
+
+.bundlePreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.bundlePreviewCard {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #ead8cf;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.bundlePreviewCard h3 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.bundlePreviewFrame {
+  height: 190px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bundlePreviewFrame .configuredPreview {
+  width: 100%;
+  min-height: 0 !important;
+  height: 180px !important;
+  transform: scale(0.82);
+  transform-origin: center;
+}
+
+.bundlePreviewFrame .configuredSurface,
+.bundlePreviewFrame .configuredMug,
+.bundlePreviewFrame .configuredKeyring,
+.bundlePreviewFrame .configuredCoaster {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+@media (max-width: 1100px) {
+  .bundlePreviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bundlePreviewFrame {
+    height: 240px;
+  }
+
+  .bundlePreviewFrame .configuredPreview {
+    height: 230px !important;
+    transform: scale(0.9);
+  }
 }
