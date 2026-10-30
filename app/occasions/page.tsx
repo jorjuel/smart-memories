@@ -63,8 +63,7 @@ export default function OccasionsPage() {
       </h1>
 
       <p className="lead">
-        Start with the occasion and we’ll help you find
-        the right personalised gift.
+        Choose an occasion and we’ll show you the most suitable personalised gifts.
       </p>
 
       <div className="products">
@@ -77,16 +76,14 @@ export default function OccasionsPage() {
               OCCASION
             </span>
 
-            <h2>
-              {occasion.name}
-            </h2>
+            <h2>{occasion.name}</h2>
 
-            <p>
-              {occasion.products}
-            </p>
+            <p>{occasion.products}</p>
 
             <Link
-              href="/shop"
+              href={`/shop?occasion=${encodeURIComponent(
+                occasion.name
+              )}`}
               className="btn"
             >
               Explore gifts →

@@ -1,49 +1,121 @@
 import { NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export const runtime = 'nodejs';
 
-function ext(name: string, fallback: string) {
-  const x = name.split('.').pop()?.toLowerCase();
+/* =========================================================
+   FILE EXTENSION
+   ========================================================= */
 
-  return x && /^[a-z0-9]+$/.test(x)
-    ? x
+function ext(
+  name: string,
+  fallback: string
+) {
+  const extension =
+    name
+      .split('.')
+      .pop()
+      ?.toLowerCase();
+
+  return extension &&
+    /^[a-z0-9]+$/.test(
+      extension
+    )
+    ? extension
     : fallback;
 }
 
+/* =========================================================
+   SMART MEMORY CODE
+   Example: V5JYH4L3
+   ========================================================= */
+
+function generateMemoryCode() {
+  const characters =
+    'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  const bytes =
+    randomBytes(8);
+
+  let code = '';
+
+  for (
+    let i = 0;
+    i < 8;
+    i++
+  ) {
+    code +=
+      characters[
+        bytes[i] %
+          characters.length
+      ];
+  }
+
+  return code;
+}
+
+/* =========================================================
+   GET ALL MEMORIES
+   ========================================================= */
+
 export async function GET() {
   try {
-    const sb = supabaseAdmin();
+    const sb =
+      supabaseAdmin();
 
-    const { data, error } = await sb
+    const {
+      data,
+      error,
+    } = await sb
       .from('memories')
       .select(
         'code, recipient_name, message, sender_name, created_at, photo_url, audio_url, video_url'
       )
-      .order('created_at', {
-        ascending: false,
-      });
+      .order(
+        'created_at',
+        {
+          ascending: false,
+        }
+      );
 
     if (error) {
       throw error;
     }
 
     return NextResponse.json(
-      (data || []).map((m) => ({
-        code: m.code,
-        recipient: m.recipient_name,
-        message: m.message,
-        sender: m.sender_name,
-        createdAt: m.created_at,
-        photoUrl: m.photo_url,
-        audioUrl: m.audio_url,
-        videoUrl: m.video_url,
-      }))
+      (data || []).map(
+        (memory) => ({
+          code:
+            memory.code,
+
+          recipient:
+            memory.recipient_name,
+
+          message:
+            memory.message,
+
+          sender:
+            memory.sender_name,
+
+          createdAt:
+            memory.created_at,
+
+          photoUrl:
+            memory.photo_url,
+
+          audioUrl:
+            memory.audio_url,
+
+          videoUrl:
+            memory.video_url,
+        })
+      )
     );
-  } catch (e) {
+  } catch (error) {
     console.error(
       'LIST MEMORIES ERROR:',
-      e
+      error
     );
 
     return NextResponse.json(
@@ -58,6 +130,10 @@ export async function GET() {
   }
 }
 
+/* =========================================================
+   CREATE MEMORY
+   ========================================================= */
+
 export async function POST(
   req: Request
 ) {
@@ -65,30 +141,60 @@ export async function POST(
     const form =
       await req.formData();
 
-    const code = String(
-      form.get('code') || ''
-    );
+    /* -----------------------------------------------------
+       MEMORY CODE
 
-    const recipient = String(
-      form.get('recipient') || ''
-    ).trim();
+       If an older part of the website sends a valid code,
+       keep it.
 
-    const message = String(
-      form.get('message') || ''
-    );
+       Otherwise automatically create a new one.
+       ----------------------------------------------------- */
 
-    const sender = String(
-      form.get('sender') || ''
-    );
+    const suppliedCode =
+      String(
+        form.get('code') ||
+          ''
+      )
+        .trim()
+        .toUpperCase();
 
-    if (
-      !/^[A-Z2-9]{8}$/.test(code) ||
-      !recipient
-    ) {
+    const code =
+      /^[A-Z2-9]{8}$/.test(
+        suppliedCode
+      )
+        ? suppliedCode
+        : generateMemoryCode();
+
+    /* -----------------------------------------------------
+       CUSTOMER DATA
+       ----------------------------------------------------- */
+
+    const recipient =
+      String(
+        form.get(
+          'recipient'
+        ) || ''
+      ).trim();
+
+    const message =
+      String(
+        form.get(
+          'message'
+        ) || ''
+      ).trim();
+
+    const sender =
+      String(
+        form.get(
+          'sender'
+        ) || ''
+      ).trim();
+
+    if (!recipient) {
       return NextResponse.json(
         {
           error:
-            'Invalid memory data.',
+            'Please enter the recipient name.',
         },
         {
           status: 400,
@@ -96,7 +202,8 @@ export async function POST(
       );
     }
 
-    const sb = supabaseAdmin();
+    const sb =
+      supabaseAdmin();
 
     let photoUrl:
       | string
@@ -106,25 +213,29 @@ export async function POST(
       | string
       | null = null;
 
-    /*
-     * PHOTO
-     */
+    /* =====================================================
+       PHOTO
+       ===================================================== */
 
     const photo =
       form.get('photo');
 
     if (
-      photo instanceof File &&
-      photo.size
+      photo instanceof
+        File &&
+      photo.size >
+        0
     ) {
       if (
         photo.size >
-        10 * 1024 * 1024
+        10 *
+          1024 *
+          1024
       ) {
         return NextResponse.json(
           {
             error:
-              'Photo is too large (10 MB max).',
+              'Photo is too large. Maximum size is 10 MB.',
           },
           {
             status: 400,
@@ -138,9 +249,14 @@ export async function POST(
           'jpg'
         )}`;
 
-      const upload =
+      const {
+        error:
+          photoUploadError,
+      } =
         await sb.storage
-          .from('memory-media')
+          .from(
+            'memory-media'
+          )
           .upload(
             photoPath,
             photo,
@@ -153,41 +269,51 @@ export async function POST(
             }
           );
 
-      if (upload.error) {
-        throw upload.error;
+      if (
+        photoUploadError
+      ) {
+        throw photoUploadError;
       }
 
-      const publicPhoto =
+      const {
+        data:
+          publicPhoto,
+      } =
         sb.storage
-          .from('memory-media')
+          .from(
+            'memory-media'
+          )
           .getPublicUrl(
             photoPath
           );
 
       photoUrl =
-        publicPhoto.data
-          .publicUrl;
+        publicPhoto.publicUrl;
     }
 
-    /*
-     * AUDIO
-     */
+    /* =====================================================
+       AUDIO
+       ===================================================== */
 
     const audio =
       form.get('audio');
 
     if (
-      audio instanceof File &&
-      audio.size
+      audio instanceof
+        File &&
+      audio.size >
+        0
     ) {
       if (
         audio.size >
-        25 * 1024 * 1024
+        25 *
+          1024 *
+          1024
       ) {
         return NextResponse.json(
           {
             error:
-              'Audio is too large (25 MB max).',
+              'Audio is too large. Maximum size is 25 MB.',
           },
           {
             status: 400,
@@ -195,20 +321,27 @@ export async function POST(
         );
       }
 
+      const fallbackAudioExtension =
+        audio.type.includes(
+          'mp4'
+        )
+          ? 'm4a'
+          : 'webm';
+
       const audioPath =
         `${code}/audio.${ext(
           audio.name,
-
-          audio.type.includes(
-            'mp4'
-          )
-            ? 'm4a'
-            : 'webm'
+          fallbackAudioExtension
         )}`;
 
-      const upload =
+      const {
+        error:
+          audioUploadError,
+      } =
         await sb.storage
-          .from('memory-media')
+          .from(
+            'memory-media'
+          )
           .upload(
             audioPath,
             audio,
@@ -221,40 +354,52 @@ export async function POST(
             }
           );
 
-      if (upload.error) {
-        throw upload.error;
+      if (
+        audioUploadError
+      ) {
+        throw audioUploadError;
       }
 
-      const publicAudio =
+      const {
+        data:
+          publicAudio,
+      } =
         sb.storage
-          .from('memory-media')
+          .from(
+            'memory-media'
+          )
           .getPublicUrl(
             audioPath
           );
 
       audioUrl =
-        publicAudio.data
-          .publicUrl;
+        publicAudio.publicUrl;
     }
 
-    /*
-     * DATABASE
-     */
+    /* =====================================================
+       SAVE TO DATABASE
+       ===================================================== */
 
     const {
       data: memory,
-      error,
+      error:
+        databaseError,
     } = await sb
       .from('memories')
       .insert({
         code,
+
         recipient_name:
           recipient,
+
         message,
+
         sender_name:
           sender,
+
         photo_url:
           photoUrl,
+
         audio_url:
           audioUrl,
       })
@@ -263,42 +408,22 @@ export async function POST(
       )
       .single();
 
-    if (error) {
-      throw error;
+    if (
+      databaseError
+    ) {
+      throw databaseError;
     }
 
-    /*
-     * IMPORTANT:
-     * Return the URLs to the browser.
-     */
+    /* =====================================================
+       RETURN SAVED MEMORY
+       ===================================================== */
 
-    return NextResponse.json({
-      ok: true,
+    return NextResponse.json(
+      {
+        ok: true,
 
-      code:
-        memory.code,
-
-      photoUrl:
-        memory.photo_url,
-
-      audioUrl:
-        memory.audio_url,
-
-      memory: {
         code:
           memory.code,
-
-        recipient:
-          memory.recipient_name,
-
-        message:
-          memory.message,
-
-        sender:
-          memory.sender_name,
-
-        createdAt:
-          memory.created_at,
 
         photoUrl:
           memory.photo_url,
@@ -306,21 +431,48 @@ export async function POST(
         audioUrl:
           memory.audio_url,
 
-        videoUrl:
-          memory.video_url,
+        memory: {
+          code:
+            memory.code,
+
+          recipient:
+            memory.recipient_name,
+
+          message:
+            memory.message,
+
+          sender:
+            memory.sender_name,
+
+          createdAt:
+            memory.created_at,
+
+          photoUrl:
+            memory.photo_url,
+
+          audioUrl:
+            memory.audio_url,
+
+          videoUrl:
+            memory.video_url,
+        },
       },
-    });
-  } catch (e) {
+      {
+        status: 201,
+      }
+    );
+  } catch (error) {
     console.error(
       'CREATE MEMORY ERROR:',
-      e
+      error
     );
 
     return NextResponse.json(
       {
         error:
-          e instanceof Error
-            ? e.message
+          error instanceof
+          Error
+            ? error.message
             : 'Could not create memory.',
       },
       {

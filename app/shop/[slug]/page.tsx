@@ -10,23 +10,31 @@ import ProductVisual from '../../../components/ProductVisual';
 
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
   params: Promise<{
     slug: string;
   }>;
+  searchParams: Promise<{
+    occasion?: string;
+  }>;
 }) {
-  const { slug } =
-    await params;
+  const { slug } = await params;
+  const { occasion } = await searchParams;
 
-  const product =
-    products.find(
-      (item) =>
-        item.slug === slug
-    );
+  const product = products.find(
+    (item) => item.slug === slug
+  );
 
   if (!product) {
     notFound();
   }
+
+  const personaliseHref = occasion
+    ? `/personalise/${product.slug}?occasion=${encodeURIComponent(
+        occasion
+      )}`
+    : `/personalise/${product.slug}`;
 
   return (
     <section className="wrap productDetail">
@@ -47,6 +55,12 @@ export default async function ProductPage({
         <h2>
           {money(product.price)}
         </h2>
+
+        {occasion && (
+          <p>
+            Occasion: <strong>{occasion}</strong>
+          </p>
+        )}
 
         <p className="lead">
           {product.description}
@@ -80,7 +94,7 @@ export default async function ProductPage({
 
         <Link
           className="btn big"
-          href={`/personalise/${product.slug}`}
+          href={personaliseHref}
         >
           Personalise this gift →
         </Link>
