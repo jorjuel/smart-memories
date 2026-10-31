@@ -22,10 +22,14 @@ type CartItem = {
   memoryCode?: string | null;
 };
 
+type SessionResponse = {
+  loggedIn: boolean;
+};
+
 const CART_KEY =
   'smart-memories-cart';
 
-const MEMORY_LIBRARY_KEY =
+const GUEST_MEMORY_KEY =
   'smart-memories-owned-codes';
 
 function validCode(
@@ -55,12 +59,84 @@ export default function MyMemoriesPage() {
     setError,
   ] = useState('');
 
+  const [
+    loggedIn,
+    setLoggedIn,
+  ] = useState(false);
+
   useEffect(() => {
-    async function loadMyMemories() {
+    async function loadMemories() {
       try {
         /*
-         * 1. Read memories already associated
-         *    with this browser.
+         * First check whether the
+         * customer is logged in.
+         */
+        const sessionResponse =
+          await fetch(
+            '/api/account/session',
+            {
+              cache:
+                'no-store',
+            }
+          );
+
+        let hasAccount =
+          false;
+
+        if (
+          sessionResponse.ok
+        ) {
+          const sessionData =
+            (await sessionResponse.json()) as SessionResponse;
+
+          hasAccount =
+            sessionData.loggedIn;
+
+          setLoggedIn(
+            hasAccount
+          );
+        }
+
+        /*
+         * Logged-in customers:
+         * ask for only their own
+         * account memories.
+         */
+        if (
+          hasAccount
+        ) {
+          const response =
+            await fetch(
+              '/api/account/memories',
+              {
+                cache:
+                  'no-store',
+              }
+            );
+
+          if (
+            !response.ok
+          ) {
+            throw new Error(
+              'Could not load account memories'
+            );
+          }
+
+          const data =
+            await response.json();
+
+          setItems(
+            data
+          );
+
+          return;
+        }
+
+        /*
+         * Guest customers:
+         * only use memory codes
+         * already saved on this
+         * browser.
          */
         let savedCodes:
           string[] = [];
@@ -68,7 +144,7 @@ export default function MyMemoriesPage() {
         try {
           const raw =
             localStorage.getItem(
-              MEMORY_LIBRARY_KEY
+              GUEST_MEMORY_KEY
             );
 
           const parsed =
@@ -91,8 +167,8 @@ export default function MyMemoriesPage() {
         }
 
         /*
-         * 2. Read memory codes from this
-         *    customer's own basket.
+         * Also collect memory codes
+         * from this browser's basket.
          */
         let basketCodes:
           string[] = [];
@@ -131,14 +207,6 @@ export default function MyMemoriesPage() {
           basketCodes = [];
         }
 
-        /*
-         * 3. Merge them.
-         *
-         * This means memories currently
-         * in the customer's basket are
-         * automatically added to their
-         * private browser library.
-         */
         const codes =
           Array.from(
             new Set([
@@ -148,19 +216,15 @@ export default function MyMemoriesPage() {
           );
 
         localStorage.setItem(
-          MEMORY_LIBRARY_KEY,
+          GUEST_MEMORY_KEY,
           JSON.stringify(
             codes
           )
         );
 
         /*
-         * 4. Load ONLY those individual
-         *    memories.
-         *
-         * We never call /api/memories,
-         * because that route represents
-         * the complete database.
+         * Load each guest memory
+         * individually by code.
          */
         const results =
           await Promise.all(
@@ -217,22 +281,18 @@ export default function MyMemoriesPage() {
             )
           );
 
-        const validMemories =
+        setItems(
           results.filter(
             (
-              memory
-            ): memory is CloudMemory =>
-              memory !== null
-          );
-
-        setItems(
-          validMemories
+              item
+            ): item is CloudMemory =>
+              item !== null
+          )
         );
       } catch (
         loadError
       ) {
         console.error(
-          'MY MEMORIES ERROR:',
           loadError
         );
 
@@ -244,7 +304,7 @@ export default function MyMemoriesPage() {
       }
     }
 
-    loadMyMemories();
+    loadMemories();
   }, []);
 
   return (
@@ -260,8 +320,9 @@ export default function MyMemoriesPage() {
           </h1>
 
           <p className="lead">
-            Memories saved from this
-            browser appear here.
+            {loggedIn
+              ? 'Memories linked to your account.'
+              : 'Memories saved on this browser.'}
           </p>
         </div>
 
@@ -273,11 +334,57 @@ export default function MyMemoriesPage() {
         </Link>
       </div>
 
+      {!loggedIn && (
+        <div
+          className="card"
+          style={{
+            marginBottom:
+              '20px',
+          }}
+        >
+          <h2>
+            Want your memories on every device?
+          </h2>
+
+          <p>
+            You can continue as a guest,
+            or create a free account to
+            keep your memories linked to
+            you across devices.
+          </p>
+
+          <div
+            style={{
+              display:
+                'flex',
+              gap: '12px',
+              flexWrap:
+                'wrap',
+              marginTop:
+                '14px',
+            }}
+          >
+            <Link
+              href="/account/register"
+              className="btn"
+            >
+              Create Account
+            </Link>
+
+            <Link
+              href="/account/login"
+              className="btn secondary"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      )}
+
       {loading && (
         <div className="card">
           <p>
-            Loading your
-            memories...
+            Loading your memories...
           </p>
         </div>
       )}
@@ -296,15 +403,13 @@ export default function MyMemoriesPage() {
           0 && (
           <div className="card">
             <h2>
-              No memories saved
-              on this browser yet
+              No memories yet
             </h2>
 
             <p>
               When you create a
-              personalised Smart
-              Memories gift, it will
-              appear here.
+              Smart Memories gift,
+              it will appear here.
             </p>
 
             <Link
@@ -332,10 +437,10 @@ export default function MyMemoriesPage() {
                 memory
               ) => (
                 <article
-                  className="card"
                   key={
                     memory.code
                   }
+                  className="card"
                 >
                   <div
                     style={{
@@ -347,8 +452,6 @@ export default function MyMemoriesPage() {
                           : '1fr',
                       gap:
                         '22px',
-                      alignItems:
-                        'start',
                     }}
                   >
                     {memory.photoUrl && (
@@ -385,8 +488,7 @@ export default function MyMemoriesPage() {
 
                       <p>
                         <strong>
-                          Memory
-                          code:
+                          Code:
                         </strong>
                         {' '}
                         {
@@ -415,26 +517,21 @@ export default function MyMemoriesPage() {
                       )}
 
                       {memory.audioUrl && (
-                        <div
+                        <audio
+                          controls
+                          preload="none"
+                          src={
+                            memory.audioUrl
+                          }
                           style={{
-                            margin:
-                              '16px 0',
+                            width:
+                              '100%',
+                            maxWidth:
+                              '440px',
+                            marginBottom:
+                              '16px',
                           }}
-                        >
-                          <audio
-                            controls
-                            preload="none"
-                            src={
-                              memory.audioUrl
-                            }
-                            style={{
-                              width:
-                                '100%',
-                              maxWidth:
-                                '440px',
-                            }}
-                          />
-                        </div>
+                        />
                       )}
 
                       <Link

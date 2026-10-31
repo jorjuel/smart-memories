@@ -5,8 +5,8 @@ import {
 } from 'next/navigation';
 
 import {
-  createSupabaseServerClient,
-} from '../../../lib/supabaseServer';
+  createSupabaseAdminAuthClient,
+} from '../../../lib/supabaseAdminAuthServer';
 
 export default async function AdminProtectedLayout({
   children,
@@ -14,8 +14,8 @@ export default async function AdminProtectedLayout({
   children:
     React.ReactNode;
 }) {
-  const supabase =
-    await createSupabaseServerClient();
+ const supabase =
+  await createSupabaseAdminAuthClient();
 
   const {
     data: {

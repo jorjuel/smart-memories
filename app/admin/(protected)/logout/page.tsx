@@ -3,12 +3,12 @@ import {
 } from 'next/navigation';
 
 import {
-  createSupabaseServerClient,
-} from '../../../../lib/supabaseServer';
+  createSupabaseAdminAuthClient,
+} from '../../../../lib/supabaseAdminAuthServer';
 
 export default async function LogoutPage() {
   const supabase =
-    await createSupabaseServerClient();
+    await createSupabaseAdminAuthClient();
 
   await supabase.auth
     .signOut();

@@ -1,10 +1,12 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import {
+  redirect,
+} from 'next/navigation';
 
 import {
-  createSupabaseServerClient,
-} from '../../../lib/supabaseServer';
+  createSupabaseAdminAuthClient,
+} from '../../../lib/supabaseAdminAuthServer';
 
 export async function adminLogin(
   formData: FormData
@@ -27,8 +29,31 @@ export async function adminLogin(
     );
   }
 
+  const allowedEmails =
+    (
+      process.env.ADMIN_EMAILS ||
+      ''
+    )
+      .split(',')
+      .map((value) =>
+        value
+          .trim()
+          .toLowerCase()
+      )
+      .filter(Boolean);
+
+  if (
+    !allowedEmails.includes(
+      email
+    )
+  ) {
+    redirect(
+      '/admin/login?error=unauthorised'
+    );
+  }
+
   const supabase =
-    await createSupabaseServerClient();
+    await createSupabaseAdminAuthClient();
 
   const {
     data,
@@ -46,32 +71,6 @@ export async function adminLogin(
   ) {
     redirect(
       '/admin/login?error=invalid'
-    );
-  }
-
-  const allowedEmails =
-    (
-      process.env
-        .ADMIN_EMAILS || ''
-    )
-      .split(',')
-      .map((value) =>
-        value
-          .trim()
-          .toLowerCase()
-      )
-      .filter(Boolean);
-
-  if (
-    !allowedEmails.includes(
-      email
-    )
-  ) {
-    await supabase.auth
-      .signOut();
-
-    redirect(
-      '/admin/login?error=unauthorised'
     );
   }
 
