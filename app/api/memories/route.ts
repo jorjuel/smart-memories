@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { randomBytes } from 'crypto';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { createSupabaseServerClient,} from '@/lib/supabaseServer';
 
 export const runtime = 'nodejs';
 
@@ -56,11 +57,66 @@ function generateMemoryCode() {
 }
 
 /* =========================================================
-   GET ALL MEMORIES
+   GET MEMORIES - OWNER ONLY
    ========================================================= */
 
 export async function GET() {
   try {
+    const authClient =
+      await createSupabaseServerClient();
+
+    const {
+      data: { user },
+    } =
+      await authClient.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error:
+            'Authentication required.',
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    const allowedEmails =
+      (
+        process.env.ADMIN_EMAILS ||
+        ''
+      )
+        .split(',')
+        .map((email) =>
+          email
+            .trim()
+            .toLowerCase()
+        )
+        .filter(Boolean);
+
+    const userEmail =
+      user.email
+        ?.trim()
+        .toLowerCase() ||
+      '';
+
+    if (
+      !allowedEmails.includes(
+        userEmail
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'You are not authorised to view all memories.',
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
     const sb =
       supabaseAdmin();
 
