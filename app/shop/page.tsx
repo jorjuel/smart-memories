@@ -76,6 +76,21 @@ const occasionProducts: Record<string, string[]> = {
   'Just Because': products.map((product) => product.slug),
 };
 
+const occasions = [
+  'Birthday',
+  'Wedding',
+  'Anniversary',
+  'Retirement',
+  'Leaving Gift',
+  'Teacher Gift',
+  'Pet Memory',
+  'Family Memory',
+  'New Baby',
+  'Graduation',
+  'Christmas',
+  'Just Because',
+];
+
 const bundles = [
   {
     slug: 'birthday-bundle',
@@ -112,21 +127,6 @@ const bundles = [
     normalPrice: 36.97,
     bundlePrice: 32.99,
   },
-];
-
-const occasions = [
-  'Birthday',
-  'Wedding',
-  'Anniversary',
-  'Retirement',
-  'Leaving Gift',
-  'Teacher Gift',
-  'Pet Memory',
-  'Family Memory',
-  'New Baby',
-  'Graduation',
-  'Christmas',
-  'Just Because',
 ];
 
 const corporateBundles = [
@@ -196,7 +196,7 @@ export default async function Shop({
       <p className="lead">
         {occasion
           ? `We’ve selected personalised gifts that work especially well for ${occasion}.`
-          : 'Choose how you would like to shop. Open a section below to explore individual gifts, bundles, occasions or corporate gifting.'}
+          : 'Choose personalised gifts, save with a bundle or explore corporate gifting.'}
       </p>
 
       {occasion && (
@@ -204,7 +204,9 @@ export default async function Shop({
           <Link href="/shop">
             ← View full shop
           </Link>
+
           {' · '}
+
           <Link href="/occasions">
             Choose another occasion
           </Link>
@@ -213,6 +215,10 @@ export default async function Shop({
 
       <div className="shopAccordion">
 
+        {/* ==========================================
+            PERSONALISED GIFTS
+            ========================================== */}
+
         <details
           className="shopAccordionItem"
           open
@@ -220,22 +226,22 @@ export default async function Shop({
           <summary className="shopAccordionSummary">
             <div className="shopAccordionText">
               <span className="eyebrow">
-                INDIVIDUAL GIFTS
+                PERSONALISED GIFTS
               </span>
 
               <h2>
-                Shop personalised gifts
+                Shop your way
               </h2>
 
               <p>
-                Choose one product and create it your way.
+                Browse individual products or start with the occasion.
               </p>
             </div>
 
             <div className="shopAccordionVisual">
               <Image
                 src="/shop-sections/individual-gifts.png"
-                alt="Personalised individual gifts"
+                alt="Personalised Smart Memories gifts"
                 fill
                 sizes="220px"
               />
@@ -247,6 +253,71 @@ export default async function Shop({
           </summary>
 
           <div className="shopAccordionContent">
+
+            {!occasion && (
+              <>
+                <div
+                  style={{
+                    marginBottom: '22px',
+                  }}
+                >
+                  <span className="eyebrow">
+                    SHOP BY OCCASION
+                  </span>
+
+                  <h2>
+                    What are you celebrating?
+                  </h2>
+
+                  <p>
+                    Choose an occasion and we’ll narrow down the most suitable gifts.
+                  </p>
+                </div>
+
+                <div className="occasionQuickGrid">
+                  {occasions.map((item) => (
+                    <Link
+                      key={item}
+                      href={`/shop?occasion=${encodeURIComponent(
+                        item
+                      )}`}
+                      className="occasionQuickCard"
+                    >
+                      {item}
+                    </Link>
+                  ))}
+                </div>
+
+                <hr
+                  style={{
+                    margin: '34px 0',
+                  }}
+                />
+              </>
+            )}
+
+            <div
+              style={{
+                marginBottom: '22px',
+              }}
+            >
+              <span className="eyebrow">
+                {occasion
+                  ? 'RECOMMENDED PRODUCTS'
+                  : 'SHOP BY PRODUCT'}
+              </span>
+
+              <h2>
+                {occasion
+                  ? `Best gifts for ${occasion}`
+                  : 'Choose your gift'}
+              </h2>
+
+              <p>
+                Personalise the product with your photo, wording and Smart Memory.
+              </p>
+            </div>
+
             <div className="products">
               {filteredProducts.map((product) => (
                 <ProductCard
@@ -258,6 +329,10 @@ export default async function Shop({
             </div>
           </div>
         </details>
+
+        {/* ==========================================
+            SPECIAL BUNDLES
+            ========================================== */}
 
         {!occasion && (
           <details className="shopAccordionItem">
@@ -279,7 +354,7 @@ export default async function Shop({
               <div className="shopAccordionVisual">
                 <Image
                   src="/shop-sections/special-bundles.png"
-                  alt="Personalised gift bundles"
+                  alt="Personalised Smart Memories bundles"
                   fill
                   sizes="220px"
                 />
@@ -316,8 +391,7 @@ export default async function Shop({
 
                       <p
                         style={{
-                          textDecoration:
-                            'line-through',
+                          textDecoration: 'line-through',
                           opacity: 0.6,
                         }}
                       >
@@ -358,7 +432,7 @@ export default async function Shop({
                   </h3>
 
                   <p>
-                    Mix and match from our personalised product range.
+                    Mix and match products and unlock a bundle discount.
                   </p>
 
                   <Link
@@ -373,70 +447,9 @@ export default async function Shop({
           </details>
         )}
 
-        {!occasion && (
-          <details className="shopAccordionItem">
-            <summary className="shopAccordionSummary">
-              <div className="shopAccordionText">
-                <span className="eyebrow">
-                  SHOP BY OCCASION
-                </span>
-
-                <h2>
-                  What are you celebrating?
-                </h2>
-
-                <p>
-                  Start with the occasion and we’ll show you suitable gifts.
-                </p>
-              </div>
-
-              <div className="shopAccordionVisual">
-                <Image
-                  src="/shop-sections/shop-by-occasion.png"
-                  alt="Personalised gifts for different occasions"
-                  fill
-                  sizes="220px"
-                />
-              </div>
-
-              <span className="shopAccordionArrow">
-                +
-              </span>
-            </summary>
-
-            <div className="shopAccordionContent">
-              <div className="products">
-                {occasions.map((item) => (
-                  <article
-                    className="card"
-                    key={item}
-                  >
-                    <span className="eyebrow">
-                      OCCASION
-                    </span>
-
-                    <h3>
-                      {item}
-                    </h3>
-
-                    <p>
-                      Explore personalised gifts selected for {item}.
-                    </p>
-
-                    <Link
-                      href={`/shop?occasion=${encodeURIComponent(
-                        item
-                      )}`}
-                      className="btn small"
-                    >
-                      Explore gifts →
-                    </Link>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </details>
-        )}
+        {/* ==========================================
+            CORPORATE BUNDLES
+            ========================================== */}
 
         {!occasion && (
           <details className="shopAccordionItem">
@@ -458,7 +471,7 @@ export default async function Shop({
               <div className="shopAccordionVisual">
                 <Image
                   src="/shop-sections/corporate-bundles.png"
-                  alt="Corporate personalised gift collection"
+                  alt="Corporate Smart Memories gift collection"
                   fill
                   sizes="220px"
                 />

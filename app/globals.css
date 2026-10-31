@@ -4350,4 +4350,48 @@ body {
 }
 
 
+/* =========================================================
+   SHOP - QUICK OCCASION SELECTOR
+   ========================================================= */
 
+.occasionQuickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.occasionQuickCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  padding: 12px;
+  border: 1px solid #ead8cf;
+  border-radius: 14px;
+  background: #fffaf7;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.occasionQuickCard:hover {
+  transform: translateY(-2px);
+  background: #fff4ef;
+  box-shadow: 0 8px 20px rgba(60, 35, 25, 0.08);
+}
+
+@media (max-width: 850px) {
+  .occasionQuickGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 500px) {
+  .occasionQuickGrid {
+    grid-template-columns: 1fr;
+  }
+}
