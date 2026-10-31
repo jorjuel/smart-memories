@@ -1,306 +1,715 @@
 import Link from 'next/link';
+
 import ProductCard from '../components/ProductCard';
-import { products } from '../lib/products';
+
+import {
+  products,
+} from '../lib/products';
+
+const occasions = [
+  {
+    name: 'Birthday',
+    text: 'Celebrate their story, not just another birthday.',
+  },
+  {
+    name: 'Wedding',
+    text: 'Keep the voices, photographs and moments from the day.',
+  },
+  {
+    name: 'Anniversary',
+    text: 'Bring a favourite moment back with one simple tap.',
+  },
+  {
+    name: 'Family Memory',
+    text: 'Preserve the photographs, words and voices that matter.',
+  },
+  {
+    name: 'Pet Memory',
+    text: 'Keep their personality, photographs and special moments close.',
+  },
+  {
+    name: 'New Baby',
+    text: 'Save the beginnings you never want to forget.',
+  },
+  {
+    name: 'Retirement',
+    text: 'Turn years of memories into something they can revisit.',
+  },
+  {
+    name: 'Just Because',
+    text: 'Some memories do not need an occasion.',
+  },
+];
+
+const experiences = [
+  {
+    number: '01',
+    title: 'Photos',
+    text: 'Start with the photographs that tell the story.',
+  },
+  {
+    number: '02',
+    title: 'Voice',
+    text: 'Record the words only you can say in your own voice.',
+  },
+  {
+    number: '03',
+    title: 'Video',
+    text: 'Add moving moments when a photograph is not enough.',
+  },
+  {
+    number: '04',
+    title: 'Personal Message',
+    text: 'Write the words you want them to return to again and again.',
+  },
+];
 
 export default function Home() {
   return (
     <>
-      {/* HERO */}
-      <section className="v14Hero">
-        <div className="v14HeroContent">
+      {/* =====================================================
+          HERO
+          ===================================================== */}
+
+      <section className="memoryHomeHero">
+        <div className="memoryHomeHeroCopy">
           <span className="v14Eyebrow">
-            PERSONALISED GIFTS WITH A SMARTER HEART
+            MORE THAN A PERSONALISED GIFT
           </span>
 
           <h1>
-            A photograph
+            Some gifts hold a photo.
             <br />
-            they can <em>hear.</em>
+            <em>
+              Smart Memories holds
+              the story.
+            </em>
           </h1>
 
-          <p className="v14HeroLead">
-            Turn a beautiful personalised gift into something more.
-            Add a photograph, your words and your own voice.
-            One simple tap brings the memory back.
+          <p className="memoryHomeHeroLead">
+            Tap your gift to hear
+            their voice, see their
+            photos, watch their
+            moments and relive the
+            memories that matter.
           </p>
 
+          <div className="memoryHomeBrandLine">
+            Tap.
+            <span>
+              Remember.
+            </span>
+            Relive.
+          </div>
+
           <div className="actions">
-            <Link className="btn big" href="/shop">
-              Explore Smart Gifts
+            <Link
+              className="btn big"
+              href="/shop"
+            >
+              Create a Smart Memory
             </Link>
 
-            <Link className="v14TextButton" href="/how-it-works">
-              See how it works →
+            <Link
+              className="memoryHomeSecondaryButton"
+              href="/how-it-works"
+            >
+              See How It Works
             </Link>
           </div>
 
-          <div className="v14Trust">
-            <span>Personalised for them</span>
-            <span>Hidden NFC memory</span>
-            <span>QR backup</span>
-            <span>Your own voice</span>
+          <div className="memoryHomeHeroTrust">
+            <span>
+              No app required
+            </span>
+
+            <span>
+              NFC tap
+            </span>
+
+            <span>
+              QR backup
+            </span>
+
+            <span>
+              Made to be remembered
+            </span>
           </div>
         </div>
 
-        <div className="v14HeroVisual">
-          <div className="v14PhotoFrame">
-            <div className="v14PhotoPlaceholder">
-              <span>YOUR PHOTO</span>
+        <div
+          className="memoryHomeHeroExperience"
+          aria-label="Example Smart Memory"
+        >
+          <div className="memoryHomeGiftCard">
+            <div className="memoryHomeGiftPhoto">
+              <span>
+                YOUR FAVOURITE PHOTO
+              </span>
             </div>
 
-            <div className="v14MemoryCard">
-              <span className="v14MiniLabel">A MEMORY FOR SARAH</span>
-
-              <div className="v14Heart">♥</div>
-
-              <h2>Little things from the past.</h2>
-
-              <button type="button" className="v14Play">
-                ▶ PLAY MY MESSAGE
-              </button>
-
-              <p>With love always, Leo</p>
+            <div className="memoryHomeTapPoint">
+              <span>
+                TAP
+              </span>
             </div>
           </div>
 
-          <div className="v14TapBadge">
-            <strong>TAP</strong>
-            <span>to hear the memory</span>
+          <div className="memoryHomePhone">
+            <div className="memoryHomePhoneTop">
+              SMART MEMORY
+            </div>
+
+            <div className="memoryHomePhonePhoto">
+              <span>
+                A MEMORY FOR SOMEONE
+                SPECIAL
+              </span>
+            </div>
+
+            <div className="memoryHomePhoneContent">
+              <small>
+                A SPECIAL MESSAGE
+              </small>
+
+              <h2>
+                This moment still
+                sounds like you.
+              </h2>
+
+              <button
+                type="button"
+                className="memoryHomePlay"
+              >
+                ▶ Play My Message
+              </button>
+
+              <p>
+                With love, always.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* EMOTIONAL INTRO */}
-      <section className="v14Intro">
-        <span className="v14Eyebrow">MORE THAN A PERSONALISED GIFT</span>
+      {/* =====================================================
+          EMOTIONAL INTRO
+          ===================================================== */}
+
+      <section className="memoryHomeStatement">
+        <span className="v14Eyebrow">
+          THE MEMORY IS THE GIFT
+        </span>
 
         <h2>
-          Keep the photograph.
+          A photograph shows
+          the moment.
           <br />
-          Keep the voice.
-          <br />
-          Keep the moment.
+          A voice brings it
+          back.
         </h2>
 
         <p>
-          Every Smart Memories gift can connect to a private digital
-          memory page. The person receiving it simply taps the hidden
-          NFC point with their phone — or scans the QR backup — to see
-          the photograph, read your message and hear your voice.
+          Smart Memories connects
+          a physical personalised
+          gift to a digital memory
+          that can hold the things
+          a photograph cannot:
+          voices, videos, messages
+          and the story behind the
+          moment.
         </p>
       </section>
 
-      {/* PRODUCTS */}
-      <section className="section v14ProductsSection">
-        <div className="sectionHead">
-          <div>
-            <span className="v14Eyebrow">THE SMART MEMORIES COLLECTION</span>
-            <h2>Made to mean something.</h2>
+      {/* =====================================================
+          HOW IT WORKS
+          ===================================================== */}
+
+      <section
+        className="memoryHomeHow"
+        id="how-it-works"
+      >
+        <div className="memoryHomeSectionIntro lightSection">
+          <span className="v14Eyebrow light">
+            HOW IT WORKS
+          </span>
+
+          <h2>
+            Create it once.
+            <br />
+            Relive it with a tap.
+          </h2>
+
+          <p>
+            The technology stays
+            quietly in the
+            background. The memory
+            stays at the centre.
+          </p>
+        </div>
+
+        <div className="memoryHomeSteps">
+          <article>
+            <span>
+              01
+            </span>
+
+            <h3>
+              Choose the gift
+            </h3>
+
+            <p>
+              Pick one of our
+              existing Smart Memory
+              products or gift
+              collections.
+            </p>
+          </article>
+
+          <article>
+            <span>
+              02
+            </span>
+
+            <h3>
+              Build the memory
+            </h3>
+
+            <p>
+              Add your photograph,
+              message and voice,
+              with video where
+              available.
+            </p>
+          </article>
+
+          <article>
+            <span>
+              03
+            </span>
+
+            <h3>
+              We connect it
+            </h3>
+
+            <p>
+              Your gift is linked
+              to its unique Smart
+              Memory using NFC and
+              a QR backup.
+            </p>
+          </article>
+
+          <article>
+            <span>
+              04
+            </span>
+
+            <h3>
+              They tap and relive
+            </h3>
+
+            <p>
+              One tap opens the
+              memory on their phone.
+              No special app is
+              needed.
+            </p>
+          </article>
+        </div>
+
+        <Link
+          className="btn big"
+          href="/shop"
+        >
+          Start Creating
+        </Link>
+      </section>
+
+      {/* =====================================================
+          OCCASIONS
+          ===================================================== */}
+
+      <section className="memoryHomeOccasions">
+        <div className="memoryHomeSectionIntro">
+          <span className="v14Eyebrow">
+            WHAT MEMORY ARE YOU CREATING?
+          </span>
+
+          <h2>
+            Start with the person,
+            the moment or the story.
+          </h2>
+
+          <p>
+            You do not have to know
+            which product you want
+            first. Start with what
+            the memory means.
+          </p>
+        </div>
+
+        <div className="memoryHomeOccasionGrid">
+          {occasions.map(
+            (
+              occasion
+            ) => (
+              <Link
+                key={
+                  occasion.name
+                }
+                href={`/shop?occasion=${encodeURIComponent(
+                  occasion.name
+                )}`}
+                className="memoryHomeOccasionCard"
+              >
+                <span>
+                  SMART MEMORY
+                </span>
+
+                <h3>
+                  {
+                    occasion.name
+                  }
+                </h3>
+
+                <p>
+                  {
+                    occasion.text
+                  }
+                </p>
+
+                <strong>
+                  Explore memories →
+                </strong>
+              </Link>
+            )
+          )}
+        </div>
+
+        <div className="memoryHomeCentreAction">
+          <Link
+            className="memoryHomeTextLink"
+            href="/occasions"
+          >
+            Explore all occasions →
+          </Link>
+        </div>
+      </section>
+
+      {/* =====================================================
+          MEMORY EXPERIENCE
+          ===================================================== */}
+
+      <section className="memoryHomeExperience">
+        <div className="memoryHomeSectionIntro">
+          <span className="v14Eyebrow">
+            YOUR STORY, IN MORE THAN ONE WAY
+          </span>
+
+          <h2>
+            See it.
+            Hear it.
+            Feel it again.
+          </h2>
+
+          <p>
+            Build a richer memory
+            from the pieces that
+            make a moment personal.
+          </p>
+        </div>
+
+        <div className="memoryHomeExperienceGrid">
+          {experiences.map(
+            (
+              experience
+            ) => (
+              <article
+                key={
+                  experience.title
+                }
+              >
+                <span className="memoryHomeExperienceNumber">
+                  {
+                    experience.number
+                  }
+                </span>
+
+                <h3>
+                  {
+                    experience.title
+                  }
+                </h3>
+
+                <p>
+                  {
+                    experience.text
+                  }
+                </p>
+              </article>
+            )
+          )}
+        </div>
+      </section>
+
+      {/* =====================================================
+          TAP DEMONSTRATION
+          ===================================================== */}
+
+      <section className="memoryHomeTapDemo">
+        <div className="memoryHomeTapCopy">
+          <span className="v14Eyebrow light">
+            THE MOMENT IT COMES ALIVE
+          </span>
+
+          <h2>
+            One small tap.
+            <br />
+            A whole story returns.
+          </h2>
+
+          <p>
+            The recipient simply taps
+            the Smart Memory point
+            with a compatible phone,
+            or scans the QR backup.
+            Their memory opens in the
+            browser.
+          </p>
+
+          <Link
+            className="memoryHomeLightLink"
+            href="/how-it-works"
+          >
+            See the full experience →
+          </Link>
+        </div>
+
+        <div className="memoryHomeTapVisual">
+          <div className="memoryHomePhysicalGift">
+            <span className="memoryHomePhysicalLabel">
+              YOUR PERSONALISED GIFT
+            </span>
+
+            <div className="memoryHomePhysicalPhoto">
+              MEMORY
+            </div>
+
+            <div className="memoryHomeNfcMark">
+              NFC
+            </div>
           </div>
 
-          <Link className="v14TextButton" href="/shop">
-            Explore all gifts →
+          <div className="memoryHomeTapArrow">
+            TAP
+            <span>
+              →
+            </span>
+          </div>
+
+          <div className="memoryHomeMiniPhone">
+            <small>
+              SMART MEMORIES
+            </small>
+
+            <h3>
+              A special message
+              just for you.
+            </h3>
+
+            <div className="memoryHomeMiniPlay">
+              ▶
+            </div>
+
+            <strong>
+              PLAY MY MESSAGE
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          HERO PRODUCTS
+          ===================================================== */}
+
+      <section className="section memoryHomeProducts">
+        <div className="sectionHead">
+          <div>
+            <span className="v14Eyebrow">
+              SMART MEMORY GIFTS
+            </span>
+
+            <h2>
+              Choose what holds
+              the story.
+            </h2>
+
+            <p>
+              The physical gift is
+              the beginning. The
+              Smart Memory is what
+              makes it yours.
+            </p>
+          </div>
+
+          <Link
+            className="memoryHomeTextLink"
+            href="/shop"
+          >
+            See all products →
           </Link>
         </div>
 
         <div className="products">
-          {products.slice(0, 3).map((product) => (
-            <ProductCard key={product.slug} p={product} />
-          ))}
+          {products
+            .slice(
+              0,
+              3
+            )
+            .map(
+              (
+                product
+              ) => (
+                <ProductCard
+                  key={
+                    product.slug
+                  }
+                  p={
+                    product
+                  }
+                />
+              )
+            )}
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="v14How">
-        <div className="v14HowIntro">
-          <span className="v14Eyebrow light">HOW SMART MEMORIES WORKS</span>
+      {/* =====================================================
+          TRUST
+          ===================================================== */}
 
-          <h2>Three simple steps. One unforgettable gift.</h2>
-        </div>
-
-        <div className="v14Steps">
-          <article>
-            <span className="v14StepNumber">01</span>
-            <h3>Choose your gift</h3>
-            <p>
-              Pick a photo gift, keepsake, handcrafted card or special
-              bundle for the person and occasion.
-            </p>
-          </article>
-
-          <article>
-            <span className="v14StepNumber">02</span>
-            <h3>Add your memory</h3>
-            <p>
-              Upload your photograph, write a personal message and
-              record the voice message you want them to keep.
-            </p>
-          </article>
-
-          <article>
-            <span className="v14StepNumber">03</span>
-            <h3>They tap and remember</h3>
-            <p>
-              A hidden NFC tag connects the physical gift to its
-              digital memory. A QR code provides a simple backup.
-            </p>
-          </article>
-        </div>
-
-        <Link className="btn" href="/create">
-          Create a Smart Memory
-        </Link>
-      </section>
-
-      {/* HANDCRAFTED CARDS */}
-      <section className="v14CardsFeature">
-        <div className="v14CardsVisual">
-          <div className="v14CardBack"></div>
-
-          <div className="v14CardFront">
-            <span>HANDCRAFTED FOR YOU</span>
-            <div className="v14CardHeart">♥</div>
-            <h3>Happy Birthday</h3>
-            <p>A little card with a memory hidden inside.</p>
-          </div>
-        </div>
-
-        <div className="v14CardsCopy">
-          <span className="v14Eyebrow">HANDCRAFTED SMART CARDS</span>
+      <section className="memoryHomeTrust">
+        <div className="memoryHomeSectionIntro">
+          <span className="v14Eyebrow">
+            MADE FOR REAL MEMORIES
+          </span>
 
           <h2>
-            Traditional on the outside.
-            <br />
-            Smart on the inside.
+            Personal by design.
           </h2>
 
           <p>
-            For people who still love the feeling of receiving a real,
-            handcrafted card. Choose the occasion, select your design
-            and personalise the message — then add an optional Smart
-            Memory with your photograph and voice.
-          </p>
-
-          <div className="v14Occasions">
-            <span>Birthday</span>
-            <span>Wedding</span>
-            <span>Anniversary</span>
-            <span>New Baby</span>
-            <span>Christmas</span>
-            <span>Thank You</span>
-            <span>Remembrance</span>
-            <span>+ more</span>
-          </div>
-
-          <Link className="btn" href="/cards">
-            Explore Handcrafted Cards
-          </Link>
-        </div>
-      </section>
-
-      {/* BUNDLES */}
-      <section className="v14Bundles">
-        <div className="v14BundleHeading">
-          <span className="v14Eyebrow">MORE WAYS TO MAKE IT PERSONAL</span>
-          <h2>Gifts for one person. Or a hundred.</h2>
-          <p>
-            From thoughtful individual keepsakes to celebrations,
-            events and branded corporate gifting.
+            Smart Memories is designed
+            so the technology supports
+            the experience instead of
+            becoming the experience.
           </p>
         </div>
 
-        <div className="v14BundleGrid">
+        <div className="memoryHomeTrustGrid">
           <article>
-            <span className="v14BundleIcon">♥</span>
-            <h3>Special Bundles</h3>
+            <strong>
+              UNIQUE
+            </strong>
+
+            <h3>
+              One gift.
+              One Smart Memory.
+            </h3>
+
             <p>
-              Combine mugs, coasters, keyrings, cards and keepsakes
-              into one personalised gift collection.
+              Each Smart Memory has
+              its own unique link
+              connected to the gift.
             </p>
-            <Link href="/shop">View bundles →</Link>
           </article>
 
           <article>
-            <span className="v14BundleIcon">✦</span>
-            <h3>Celebrations & Social</h3>
+            <strong>
+              SIMPLE
+            </strong>
+
+            <h3>
+              Nothing to install.
+            </h3>
+
             <p>
-              Personalised gifts for birthdays, weddings, parties,
-              anniversaries, reunions and special events.
+              The recipient opens
+              their memory directly
+              in their phone browser.
             </p>
-            <Link href="/occasions">Explore occasions →</Link>
           </article>
 
           <article>
-            <span className="v14BundleIcon">SM</span>
-            <h3>Corporate Gifting</h3>
+            <strong>
+              BACKED UP
+            </strong>
+
+            <h3>
+              NFC plus QR.
+            </h3>
+
             <p>
-              Branded products and memorable gift packs for teams,
-              customers, events and business celebrations.
+              A QR code provides a
+              second simple way to
+              open the same Smart
+              Memory.
             </p>
-            <Link href="/contact">Talk to us →</Link>
+          </article>
+
+          <article>
+            <strong>
+              YOUR STORY
+            </strong>
+
+            <h3>
+              More than a print.
+            </h3>
+
+            <p>
+              Combine photographs,
+              words, voice and
+              memories in one
+              experience.
+            </p>
           </article>
         </div>
       </section>
 
-      {/* TECHNOLOGY */}
-      <section className="v14Technology">
-        <div>
-          <span className="v14Eyebrow light">THE SMART PART</span>
+      {/* =====================================================
+          FINAL CTA
+          ===================================================== */}
 
-          <h2>
-            The technology disappears.
-            <br />
-            The memory remains.
-          </h2>
-
-          <p>
-            The NFC chip does not hold your photograph or recording.
-            It simply opens the unique Smart Memory connected to your
-            gift. That means the physical keepsake stays beautifully
-            simple while the memory lives securely online.
-          </p>
-        </div>
-
-        <div className="v14TechPoints">
-          <div>
-            <strong>NFC</strong>
-            <span>Tap with a compatible smartphone</span>
-          </div>
-
-          <div>
-            <strong>QR</strong>
-            <span>A simple backup way to open the memory</span>
-          </div>
-
-          <div>
-            <strong>VOICE</strong>
-            <span>Let them hear the person behind the gift</span>
-          </div>
-        </div>
-      </section>
-
-      {/* FINAL CTA */}
-      <section className="v14FinalCta">
-        <span className="v14Eyebrow">CREATE SOMETHING THEY CAN KEEP</span>
+      <section className="memoryHomeFinal">
+        <span className="v14Eyebrow light">
+          TAP. REMEMBER. RELIVE.
+        </span>
 
         <h2>
-          Some moments deserve to be heard
-          <br />
-          as well as seen.
+          What story do you want
+          them to keep?
         </h2>
 
         <p>
-          Start with a photograph. Add your words. Add your voice.
-          Turn it into a memory they can return to with one tap.
+          Start with the memory.
+          We will help you turn it
+          into something they can
+          hold, tap and return to.
         </p>
 
         <div className="actions">
-          <Link className="btn big" href="/shop">
-            Find Their Gift
+          <Link
+            className="btn big"
+            href="/shop"
+          >
+            Create My Smart Memory
           </Link>
 
-          <Link className="v14TextButton" href="/create">
-            I already have a memory →
+          <Link
+            className="memoryHomeLightLink"
+            href="/how-it-works"
+          >
+            See How It Works
           </Link>
         </div>
       </section>
