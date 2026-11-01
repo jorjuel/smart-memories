@@ -1,0 +1,553 @@
+===== ACCOUNT HOME =====
+import Link from 'next/link';
+
+import {
+  redirect,
+} from 'next/navigation';
+
+import {
+  createSupabaseServerClient,
+} from '../../lib/supabaseServer';
+
+export const dynamic =
+  'force-dynamic';
+
+export default async function AccountPage() {
+  const supabase =
+    await createSupabaseServerClient();
+
+  const {
+    data: {
+      user,
+    },
+  } =
+    await supabase.auth
+      .getUser();
+
+  /*
+   * CUSTOMER ACCOUNT ONLY
+   *
+   * No customer session:
+   * go to customer login.
+   *
+   * IMPORTANT:
+   * This page NEVER redirects
+   * anybody to /admin.
+   */
+  if (!user) {
+    redirect(
+      '/account/login'
+    );
+  }
+
+  return (
+    <section className="wrap">
+      <span className="eyebrow">
+        MY ACCOUNT
+      </span>
+
+      <h1>
+        Welcome to Smart Memories
+      </h1>
+
+      <p className="lead">
+        Signed in as {user.email}
+      </p>
+
+      <div className="dashgrid">
+        <Link
+          className="card dashlink"
+          href="/memories"
+        >
+          <strong>
+            Memories
+          </strong>
+
+          <h2>
+            My Memories
+          </h2>
+
+          <p>
+            View the Smart Memories
+            linked to your customer
+            account.
+          </p>
+        </Link>
+
+        <Link
+  className="card dashlink"
+  href="/account/orders"
+>
+  <strong>
+    Orders
+  </strong>
+
+  <h2>
+    My Orders
+  </h2>
+
+  <p>
+    View your Smart Memories
+    purchases and order history.
+  </p>
+</Link>
+        <Link
+          className="card dashlink"
+          href="/shop"
+        >
+          <strong>
+            Shop
+          </strong>
+
+          <h2>
+            Create Another Gift
+          </h2>
+
+          <p>
+            Personalise another
+            Smart Memories gift.
+          </p>
+        </Link>
+
+        <Link
+          className="card dashlink"
+          href="/account/logout"
+        >
+          <strong>
+            Account
+          </strong>
+
+          <h2>
+            Sign Out
+          </h2>
+
+          <p>
+            Securely sign out of
+            your customer account.
+          </p>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+===== ACCOUNT MEMORIES API =====
+import {
+  NextResponse,
+} from 'next/server';
+
+import {
+  createSupabaseServerClient,
+} from '@/lib/supabaseServer';
+
+import {
+  supabaseAdmin,
+} from '@/lib/supabaseAdmin';
+
+export async function GET() {
+  const auth =
+    await createSupabaseServerClient();
+
+  const {
+    data: {
+      user,
+    },
+  } =
+    await auth.auth
+      .getUser();
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        error:
+          'Authentication required.',
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
+  const admin =
+    supabaseAdmin();
+
+  const {
+    data,
+    error,
+  } =
+    await admin
+      .from('memories')
+      .select(
+        `
+          code,
+          recipient_name,
+          message,
+          sender_name,
+          created_at,
+          photo_url,
+          audio_url,
+          video_url
+        `
+      )
+      .eq(
+        'customer_id',
+        user.id
+      )
+      .order(
+        'created_at',
+        {
+          ascending: false,
+        }
+      );
+
+  if (error) {
+    return NextResponse.json(
+      {
+        error:
+          'Could not load memories.',
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+
+  return NextResponse.json(
+    (data || []).map(
+      (
+        memory
+      ) => ({
+        code:
+          memory.code,
+
+        recipient:
+          memory.recipient_name,
+
+        message:
+          memory.message,
+
+        sender:
+          memory.sender_name,
+
+        createdAt:
+          memory.created_at,
+
+        photoUrl:
+          memory.photo_url,
+
+        audioUrl:
+          memory.audio_url,
+
+        videoUrl:
+          memory.video_url,
+      })
+    )
+  );
+}
+
+===== ACCOUNT SESSION API =====
+import {
+  NextResponse,
+} from 'next/server';
+
+import {
+  createSupabaseServerClient,
+} from '@/lib/supabaseServer';
+
+export async function GET() {
+  const supabase =
+    await createSupabaseServerClient();
+
+  const {
+    data: {
+      user,
+    },
+  } =
+    await supabase.auth
+      .getUser();
+
+  return NextResponse.json({
+    loggedIn:
+      Boolean(user),
+  });
+}
+
+===== SUPABASE SERVER CLIENT =====
+import {
+  createServerClient,
+} from '@supabase/ssr';
+
+import {
+  cookies,
+} from 'next/headers';
+
+export async function createSupabaseServerClient() {
+  const cookieStore =
+    await cookies();
+
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!url) {
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_URL is missing'
+    );
+  }
+
+  if (!key) {
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing'
+    );
+  }
+
+  return createServerClient(
+    url,
+    key,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+
+        setAll(
+          cookiesToSet
+        ) {
+          try {
+            cookiesToSet.forEach(
+              ({
+                name,
+                value,
+                options,
+              }) => {
+                cookieStore.set(
+                  name,
+                  value,
+                  options
+                );
+              }
+            );
+          } catch {
+            // Server Components may not
+            // always be allowed to write cookies.
+          }
+        },
+      },
+    }
+  );
+}
+
+===== SUPABASE ADMIN CLIENT =====
+import { createClient } from '@supabase/supabase-js';
+
+export function supabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+
+  if (!supabaseUrl) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is missing');
+  }
+
+  if (!supabaseSecretKey) {
+    throw new Error('SUPABASE_SECRET_KEY is missing');
+  }
+
+  return createClient(supabaseUrl, supabaseSecretKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+===== LOGIN ACTIONS =====
+'use server';
+
+import { redirect } from 'next/navigation';
+
+import {
+  createSupabaseServerClient,
+} from '../../../lib/supabaseServer';
+
+export async function customerLogin(
+  formData: FormData
+) {
+  const email =
+    formData
+      .get('email')
+      ?.toString()
+      .trim()
+      .toLowerCase();
+
+  const password =
+    formData
+      .get('password')
+      ?.toString();
+
+  if (!email || !password) {
+    redirect(
+      '/account/login?error=missing'
+    );
+  }
+
+  const supabase =
+    await createSupabaseServerClient();
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.auth
+      .signInWithPassword({
+        email,
+        password,
+      });
+
+  if (
+    error ||
+    !data.user
+  ) {
+    redirect(
+      '/account/login?error=invalid'
+    );
+  }
+
+  const ownerEmails =
+    (
+      process.env.ADMIN_EMAILS ||
+      ''
+    )
+      .split(',')
+      .map((value) =>
+        value
+          .trim()
+          .toLowerCase()
+      )
+      .filter(Boolean);
+
+  if (
+    ownerEmails.includes(
+      email
+    )
+  ) {
+    redirect('/admin');
+  }
+
+  redirect('/account');
+}
+
+===== REGISTER ACTIONS =====
+'use server';
+
+import { redirect } from 'next/navigation';
+
+import {
+  createSupabaseServerClient,
+} from '../../../lib/supabaseServer';
+
+export async function customerRegister(
+  formData: FormData
+) {
+  const email =
+    formData
+      .get('email')
+      ?.toString()
+      .trim()
+      .toLowerCase();
+
+  const password =
+    formData
+      .get('password')
+      ?.toString();
+
+  const confirmPassword =
+    formData
+      .get('confirmPassword')
+      ?.toString();
+
+  if (
+    !email ||
+    !password ||
+    !confirmPassword
+  ) {
+    redirect(
+      '/account/register?error=missing'
+    );
+  }
+
+  if (
+    password !==
+    confirmPassword
+  ) {
+    redirect(
+      '/account/register?error=match'
+    );
+  }
+
+  if (
+    password.length < 8
+  ) {
+    redirect(
+      '/account/register?error=short'
+    );
+  }
+
+  const ownerEmails =
+    (
+      process.env.ADMIN_EMAILS ||
+      ''
+    )
+      .split(',')
+      .map((value) =>
+        value
+          .trim()
+          .toLowerCase()
+      )
+      .filter(Boolean);
+
+  if (
+    ownerEmails.includes(
+      email
+    )
+  ) {
+    redirect(
+      '/account/register?error=owner'
+    );
+  }
+
+  const supabase =
+    await createSupabaseServerClient();
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.auth
+     .signUp({
+  email,
+  password,
+
+  options: {
+    emailRedirectTo:
+      'http://localhost:3000/auth/callback?next=/account',
+  },
+});
+
+  if (error) {
+    redirect(
+      `/account/register?error=${encodeURIComponent(
+        error.message
+      )}`
+    );
+  }
+
+  if (data.session) {
+    redirect('/account');
+  }
+
+  redirect(
+    '/account/login?message=check-email'
+  );
+}

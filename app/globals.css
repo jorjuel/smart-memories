@@ -7753,3 +7753,892 @@ header.smSiteHeader {
     padding: 33px 20px;
   }
 }
+/* =========================================================
+   SMART MEMORIES
+   PHASE 5 - CUSTOMER MEMORY LIBRARY
+   ========================================================= */
+
+.smAccountPage {
+  max-width: 1240px;
+  margin: auto;
+  padding:
+    45px 28px
+    110px;
+}
+
+.smAccountNav {
+  margin-bottom: 55px;
+  padding: 8px;
+  border: 1px solid var(--sm-border);
+  border-radius: 18px;
+  background: white;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.smAccountNav a {
+  padding: 11px 16px;
+  border-radius: 12px;
+  color: var(--sm-muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.smAccountNav a:hover,
+.smAccountNav a.active {
+  background: var(--sm-blush);
+  color: var(--sm-plum-dark);
+}
+
+.smAccountNav .smAccountCreate {
+  margin-left: auto;
+  background: var(--sm-rose);
+  color: white;
+}
+
+.smAccountNav .smAccountCreate:hover {
+  background: var(--sm-rose-dark);
+  color: white;
+}
+
+/* LIBRARY HERO */
+
+.smMemoryLibraryHero {
+  margin-bottom: 35px;
+  display: flex;
+  justify-content: space-between;
+  gap: 35px;
+  align-items: end;
+}
+
+.smMemoryLibraryHero h1 {
+  margin: 10px 0 12px;
+  color: var(--sm-plum-dark);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size:
+    clamp(50px, 7vw, 80px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.smMemoryLibraryHero p {
+  max-width: 620px;
+  margin: 0;
+  color: var(--sm-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+/* COUNTS */
+
+.smMemoryStats {
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 12px;
+}
+
+.smMemoryStats article {
+  padding: 20px;
+  border: 1px solid var(--sm-border);
+  border-radius: 17px;
+  background: white;
+}
+
+.smMemoryStats strong {
+  display: block;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 34px;
+  font-weight: 400;
+}
+
+.smMemoryStats span {
+  color: var(--sm-muted);
+  font-size: 11px;
+}
+
+/* PRIVACY */
+
+.smMemoryPrivacy {
+  margin-bottom: 28px;
+  padding: 18px 20px;
+  border-radius: 17px;
+  background: var(--sm-blush);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.smMemoryPrivacy > span {
+  font-size: 20px;
+}
+
+.smMemoryPrivacy strong {
+  color: var(--sm-plum-dark);
+}
+
+.smMemoryPrivacy p {
+  margin: 5px 0 0;
+  color: var(--sm-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* CONTROLS */
+
+.smMemoryLibraryControls {
+  margin-bottom: 27px;
+  display: grid;
+  grid-template-columns:
+    1fr 230px;
+  gap: 14px;
+}
+
+.smMemoryLibraryControls label {
+  display: grid;
+  gap: 7px;
+}
+
+.smMemoryLibraryControls label > span {
+  color: var(--sm-plum-dark);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.smMemoryLibraryControls input,
+.smMemoryLibraryControls select {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* MEMORY GRID */
+
+.smMemoryLibraryGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.smMemoryLibraryCard {
+  border: 1px solid var(--sm-border);
+  border-radius: 22px;
+  background: white;
+  overflow: hidden;
+  box-shadow:
+    0 12px 32px
+    rgba(60, 39, 40, .05);
+}
+
+.smMemoryCardCover {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--sm-blush);
+  overflow: hidden;
+}
+
+.smMemoryCardCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.smMemoryCardPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  color: var(--sm-rose);
+}
+
+.smMemoryCardPlaceholder span {
+  font-family: Georgia, serif;
+  font-size: 48px;
+}
+
+.smMemoryCardPlaceholder strong {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 400;
+}
+
+.smMemoryCardOccasion {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.93);
+  color: var(--sm-plum);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.smMemoryCardBody {
+  padding: 22px;
+}
+
+.smMemoryCardBody h2 {
+  margin: 9px 0 10px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 26px;
+  font-weight: 400;
+}
+
+.smMemoryConnectedGift,
+.smMemoryCreated {
+  margin: 6px 0;
+  color: var(--sm-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.smMemoryIndicators {
+  margin: 17px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.smMemoryIndicators span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: var(--sm-blush);
+  color: var(--sm-plum);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.smMemoryCardActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.smMemoryCardActions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* EMPTY / ERROR */
+
+.smMemoryEmpty,
+.smMemoryLoadError,
+.smMemoryNoSearch {
+  padding: 75px 30px;
+  border: 1px solid var(--sm-border);
+  border-radius: 25px;
+  background: white;
+  text-align: center;
+}
+
+.smMemoryEmptyIcon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  background: var(--sm-blush);
+  color: var(--sm-rose);
+  display: grid;
+  place-items: center;
+  font-family: Georgia, serif;
+  font-size: 34px;
+}
+
+.smMemoryEmpty h2,
+.smMemoryLoadError h2,
+.smMemoryNoSearch h2 {
+  margin: 12px 0;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(34px, 5vw, 50px);
+  font-weight: 400;
+}
+
+.smMemoryEmpty p,
+.smMemoryLoadError p,
+.smMemoryNoSearch p {
+  max-width: 600px;
+  margin: 0 auto 24px;
+  color: var(--sm-muted);
+  line-height: 1.7;
+}
+
+/* OWNER MEMORY */
+
+.smOwnerMemoryHeader {
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: space-between;
+  gap: 35px;
+  align-items: end;
+}
+
+.smOwnerBack {
+  display: block;
+  margin-bottom: 22px;
+  color: var(--sm-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.smOwnerMemoryHeader h1 {
+  margin: 10px 0 11px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(45px, 6vw, 72px);
+  font-weight: 400;
+  line-height: 1.02;
+}
+
+.smOwnerMemoryHeader p {
+  color: var(--sm-muted);
+}
+
+.smOwnerHeaderActions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.smOwnerMemoryGrid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.smOwnerMemoryMain {
+  display: grid;
+  gap: 18px;
+}
+
+.smOwnerSection,
+.smOwnerSideCard {
+  padding: 28px;
+  border: 1px solid var(--sm-border);
+  border-radius: 21px;
+  background: white;
+}
+
+.smOwnerSection h2,
+.smOwnerSideCard h2 {
+  margin: 10px 0 18px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.smOwnerMemoryPhoto {
+  width: 100%;
+  max-height: 700px;
+  border-radius: 17px;
+  object-fit: contain;
+  background: var(--sm-blush);
+}
+
+.smOwnerNoMedia {
+  min-height: 230px;
+  border-radius: 16px;
+  background: var(--sm-blush);
+  display: grid;
+  place-items: center;
+  color: var(--sm-muted);
+}
+
+.smOwnerMessage {
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 21px;
+  line-height: 1.65;
+}
+
+.smOwnerSender {
+  color: var(--sm-muted);
+}
+
+.smOwnerSection audio,
+.smOwnerSection video {
+  width: 100%;
+}
+
+.smOwnerMemorySidebar {
+  position: sticky;
+  top: 105px;
+  display: grid;
+  gap: 14px;
+}
+
+.smOwnerSideCard > strong {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--sm-plum-dark);
+  font-size: 17px;
+}
+
+.smOwnerSideCard p {
+  color: var(--sm-muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.smOwnerSideCard .btn {
+  width: 100%;
+  margin-top: 12px;
+  justify-content: center;
+}
+
+.smOwnerSideCard.muted {
+  background: var(--sm-blush);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 950px) {
+  .smMemoryLibraryGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .smOwnerMemoryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .smOwnerMemorySidebar {
+    position: static;
+  }
+
+  .smOwnerMemoryHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 650px) {
+  .smAccountPage {
+    padding:
+      28px 16px
+      90px;
+  }
+
+  .smAccountNav {
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+  .smAccountNav a {
+    padding: 11px 7px;
+    text-align: center;
+  }
+
+  .smAccountNav .smAccountCreate {
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+
+  .smMemoryLibraryHero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .smMemoryLibraryHero .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .smMemoryStats {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+  .smMemoryStats article {
+    padding: 15px 9px;
+    text-align: center;
+  }
+
+  .smMemoryStats strong {
+    font-size: 27px;
+  }
+
+  .smMemoryLibraryControls,
+  .smMemoryLibraryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .smMemoryCardActions {
+    flex-direction: column;
+  }
+
+  .smOwnerHeaderActions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .smOwnerHeaderActions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+/* =========================================================
+   SMART MEMORIES
+   PHASE 5B - ACCOUNT DASHBOARD + ORDERS
+   ========================================================= */
+
+.smAccountHero,
+.smOrdersHero {
+  margin-bottom: 45px;
+  display: flex;
+  justify-content: space-between;
+  gap: 35px;
+  align-items: end;
+}
+
+.smAccountHero h1,
+.smOrdersHero h1 {
+  margin: 10px 0 12px;
+  color: var(--sm-plum-dark);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size:
+    clamp(50px, 7vw, 78px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.smAccountHero p,
+.smOrdersHero p {
+  max-width: 620px;
+  margin: 0 0 8px;
+  color: var(--sm-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.smAccountHero small {
+  color: var(--sm-muted);
+}
+
+.smAccountOverview {
+  margin-bottom: 65px;
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 14px;
+}
+
+.smAccountOverview article {
+  min-height: 165px;
+  padding: 24px;
+  border: 1px solid var(--sm-border);
+  border-radius: 20px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.smAccountOverview article > strong {
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 38px;
+  font-weight: 400;
+}
+
+.smAccountOverview article > span {
+  margin-top: 4px;
+  color: var(--sm-muted);
+}
+
+.smAccountOverview article > a {
+  margin-top: auto;
+  color: var(--sm-rose);
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.smAccountSection {
+  margin-top: 70px;
+}
+
+.smAccountSectionHeading {
+  margin-bottom: 26px;
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  align-items: end;
+}
+
+.smAccountSectionHeading h2 {
+  margin: 9px 0 0;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(36px, 5vw, 53px);
+  font-weight: 400;
+}
+
+.smAccountEmptyCard {
+  padding: 45px;
+  border: 1px solid var(--sm-border);
+  border-radius: 22px;
+  background: white;
+}
+
+.smAccountEmptyCard h3 {
+  margin: 0 0 10px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.smAccountEmptyCard p {
+  color: var(--sm-muted);
+  line-height: 1.7;
+}
+
+.smAccountRecentOrders {
+  display: grid;
+  gap: 12px;
+}
+
+.smAccountRecentOrders article {
+  padding: 22px;
+  border: 1px solid var(--sm-border);
+  border-radius: 18px;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+
+.smAccountRecentOrders h3 {
+  margin: 7px 0 5px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.smAccountRecentOrders p,
+.smAccountRecentOrders span {
+  color: var(--sm-muted);
+  font-size: 11px;
+}
+
+.smAccountOrderRight {
+  text-align: right;
+}
+
+.smAccountOrderRight strong {
+  display: block;
+  color: var(--sm-plum-dark);
+  font-size: 19px;
+}
+
+.smAccountFooterActions {
+  margin-top: 70px;
+  padding-top: 25px;
+  border-top:
+    1px solid
+    var(--sm-border);
+}
+
+/* ORDERS */
+
+.smOrdersList {
+  display: grid;
+  gap: 22px;
+}
+
+.smOrderCard {
+  border: 1px solid var(--sm-border);
+  border-radius: 22px;
+  background: white;
+  overflow: hidden;
+}
+
+.smOrderCardHeader {
+  padding: 26px;
+  background: #fffaf7;
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+.smOrderCardHeader h2 {
+  margin: 8px 0 6px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 29px;
+  font-weight: 400;
+}
+
+.smOrderCardHeader p {
+  margin: 0;
+  color: var(--sm-muted);
+  font-size: 11px;
+}
+
+.smOrderCardSummary {
+  text-align: right;
+}
+
+.smOrderCardSummary strong {
+  display: block;
+  color: var(--sm-plum-dark);
+  font-size: 23px;
+}
+
+.smOrderCardSummary span {
+  color: var(--sm-muted);
+  font-size: 10px;
+}
+
+.smOrderItems {
+  padding: 0 26px 26px;
+}
+
+.smOrderItem {
+  padding: 22px 0;
+  border-top:
+    1px solid
+    var(--sm-border);
+  display: grid;
+  grid-template-columns:
+    110px 1fr;
+  gap: 22px;
+}
+
+.smOrderItem:first-child {
+  border-top: 0;
+}
+
+.smOrderItemImage {
+  width: 110px;
+  height: 110px;
+  border-radius: 15px;
+  background: var(--sm-blush);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: var(--sm-rose);
+  font-family: Georgia, serif;
+  font-size: 30px;
+}
+
+.smOrderItemImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.smOrderItemInfo h3 {
+  margin: 0 0 8px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.smOrderItemInfo p {
+  margin: 4px 0;
+  color: var(--sm-muted);
+  font-size: 11px;
+}
+
+.smOrderItemActions {
+  margin-top: 15px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.smOrderProductLink {
+  color: var(--sm-rose);
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+/* MOBILE */
+
+@media (max-width: 750px) {
+  .smAccountHero,
+  .smOrdersHero,
+  .smAccountSectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .smAccountHero .btn,
+  .smOrdersHero .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .smAccountOverview {
+    grid-template-columns: 1fr;
+  }
+
+  .smAccountSectionHeading .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .smAccountRecentOrders article,
+  .smOrderCardHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .smAccountOrderRight,
+  .smOrderCardSummary {
+    text-align: left;
+  }
+
+  .smOrderItem {
+    grid-template-columns:
+      85px 1fr;
+    gap: 15px;
+  }
+
+  .smOrderItemImage {
+    width: 85px;
+    height: 85px;
+  }
+
+  .smOrderItemActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .smOrderItemActions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

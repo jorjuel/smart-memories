@@ -12,13 +12,25 @@ import {
   supabaseAdmin,
 } from '../../../lib/supabaseAdmin';
 
+import {
+  products,
+} from '../../../lib/products';
+
+import {
+  getProductExperience,
+} from '../../../lib/productExperience';
+
+import AccountNav from '../../../components/AccountNav';
+
 export const dynamic =
   'force-dynamic';
 
 type OrderItem = {
   id: string;
+  product_slug: string | null;
   product_name: string;
   quantity: number;
+  unit_price_pence: number;
   memory_code: string | null;
   image_url: string | null;
 };
@@ -89,6 +101,49 @@ function statusLabel(
   }
 }
 
+function paymentLabel(
+  value: string
+) {
+  switch (value) {
+    case 'paid':
+      return 'Paid';
+
+    case 'failed':
+      return 'Payment Failed';
+
+    case 'refunded':
+      return 'Refunded';
+
+    default:
+      return 'Pending';
+  }
+}
+
+function customerProductName(
+  item: OrderItem
+) {
+  if (
+    !item.product_slug
+  ) {
+    return item.product_name;
+  }
+
+  const exists =
+    products.some(
+      (product) =>
+        product.slug ===
+        item.product_slug
+    );
+
+  if (!exists) {
+    return item.product_name;
+  }
+
+  return getProductExperience(
+    item.product_slug
+  ).marketingName;
+}
+
 export default async function CustomerOrdersPage() {
   const auth =
     await createSupabaseServerClient();
@@ -126,8 +181,10 @@ export default async function CustomerOrdersPage() {
           created_at,
           order_items (
             id,
+            product_slug,
             product_name,
             quantity,
+            unit_price_pence,
             memory_code,
             image_url
           )
@@ -146,101 +203,111 @@ export default async function CustomerOrdersPage() {
       );
 
   const orders =
-    (data || []) as Order[];
+    (data ||
+      []) as Order[];
 
   return (
-    <section className="wrap">
-      <div className="titleRow">
+    <main className="smAccountPage">
+      <AccountNav />
+
+      <section className="smOrdersHero">
         <div>
-          <span className="eyebrow">
-            MY ACCOUNT
+          <span className="v14Eyebrow">
+            YOUR SMART GIFTS
           </span>
 
           <h1>
             My Orders
           </h1>
 
-          <p className="lead">
-            Track your Smart Memories
-            purchases and production.
+          <p>
+            Track your physical
+            Smart Gifts and open
+            the memories connected
+            to them.
           </p>
         </div>
 
         <Link
-          href="/account"
-          className="btn secondary"
+          href="/create"
+          className="btn big"
         >
-          My Account
+          Create a New Memory
         </Link>
-      </div>
+      </section>
 
       {error && (
-        <div className="card">
+        <section className="smMemoryLoadError">
+          <h2>
+            We couldn't load
+            your orders.
+          </h2>
+
           <p>
-            We could not load your
-            orders.
+            Please try again.
           </p>
-        </div>
+
+          <Link
+            href="/account/orders"
+            className="btn"
+          >
+            Try Again
+          </Link>
+        </section>
       )}
 
       {!error &&
         orders.length ===
           0 && (
-          <div className="card">
+          <section className="smMemoryEmpty">
+            <div className="smMemoryEmptyIcon">
+              ♡
+            </div>
+
+            <span className="v14Eyebrow">
+              YOUR ORDERS
+            </span>
+
             <h2>
-              No orders yet
+              Your Smart Gifts
+              will appear here.
             </h2>
 
             <p>
               When you purchase a
               Smart Memories gift,
-              your order will appear
-              here.
+              you can follow its
+              progress from this
+              page.
             </p>
 
             <Link
               href="/shop"
-              className="btn"
+              className="btn big"
             >
-              Browse Gifts
+              Explore Smart Gifts
             </Link>
-          </div>
+          </section>
         )}
 
       {!error &&
         orders.length >
           0 && (
-          <div
-            style={{
-              display:
-                'grid',
-              gap: '20px',
-            }}
-          >
+          <section className="smOrdersList">
             {orders.map(
               (
                 order
               ) => (
                 <article
-                  className="card"
                   key={
                     order.id
                   }
+                  className="smOrderCard"
                 >
-                  <div
-                    style={{
-                      display:
-                        'flex',
-                      justifyContent:
-                        'space-between',
-                      gap:
-                        '20px',
-                      flexWrap:
-                        'wrap',
-                    }}
-                  >
+                  <header className="smOrderCardHeader">
                     <div>
                       <span className="eyebrow">
+                        ORDER{' '}
                         {
                           order.order_number
                         }
@@ -260,32 +327,23 @@ export default async function CustomerOrdersPage() {
                       </p>
                     </div>
 
-                    <div>
+                    <div className="smOrderCardSummary">
                       <strong>
                         {money(
                           order.total_pence
                         )}
                       </strong>
 
-                      <p>
+                      <span>
                         Payment:{' '}
-                        {
+                        {paymentLabel(
                           order.payment_status
-                        }
-                      </p>
+                        )}
+                      </span>
                     </div>
-                  </div>
+                  </header>
 
-                  <div
-                    style={{
-                      marginTop:
-                        '20px',
-                      display:
-                        'grid',
-                      gap:
-                        '12px',
-                    }}
-                  >
+                  <div className="smOrderItems">
                     {order.order_items.map(
                       (
                         item
@@ -294,59 +352,82 @@ export default async function CustomerOrdersPage() {
                           key={
                             item.id
                           }
-                          style={{
-                            display:
-                              'flex',
-                            alignItems:
-                              'center',
-                            gap:
-                              '14px',
-                            borderTop:
-                              '1px solid #eee',
-                            paddingTop:
-                              '14px',
-                          }}
+                          className="smOrderItem"
                         >
-                          {item.image_url && (
-                            <img
-                              src={
-                                item.image_url
-                              }
-                              alt=""
-                              style={{
-                                width:
-                                  '70px',
-                                height:
-                                  '70px',
-                                objectFit:
-                                  'cover',
-                                borderRadius:
-                                  '10px',
-                              }}
-                            />
-                          )}
+                          <div className="smOrderItemImage">
+                            {item.image_url ? (
+                              <img
+                                src={
+                                  item.image_url
+                                }
+                                alt=""
+                                loading="lazy"
+                              />
+                            ) : (
+                              <span>
+                                ♡
+                              </span>
+                            )}
+                          </div>
 
-                          <div>
-                            <strong>
-                              {
-                                item.product_name
-                              }
-                            </strong>
+                          <div className="smOrderItemInfo">
+                            <h3>
+                              {customerProductName(
+                                item
+                              )}
+                            </h3>
 
                             <p>
-                              Qty:{' '}
+                              Quantity:{' '}
                               {
                                 item.quantity
                               }
                             </p>
 
-                            {item.memory_code && (
-                              <Link
-                                href={`/m/${item.memory_code}`}
-                              >
-                                View Smart Memory
-                              </Link>
-                            )}
+                            <p>
+                              {money(
+                                item.unit_price_pence
+                              )}{' '}
+                              each
+                            </p>
+
+                            <div className="smOrderItemActions">
+                              {item.memory_code && (
+                                <>
+                                  <Link
+                                    href={`/memories/${item.memory_code}`}
+                                    className="btn"
+                                  >
+                                    View Smart
+                                    Memory
+                                  </Link>
+
+                                  <Link
+                                    href={`/m/${item.memory_code}`}
+                                    className="btn secondary"
+                                  >
+                                    Recipient
+                                    View
+                                  </Link>
+                                </>
+                              )}
+
+                              {item.product_slug &&
+                                products.some(
+                                  (
+                                    product
+                                  ) =>
+                                    product.slug ===
+                                    item.product_slug
+                                ) && (
+                                  <Link
+                                    href={`/shop/${item.product_slug}`}
+                                    className="smOrderProductLink"
+                                  >
+                                    View Gift
+                                  </Link>
+                                )}
+                            </div>
                           </div>
                         </div>
                       )
@@ -355,8 +436,8 @@ export default async function CustomerOrdersPage() {
                 </article>
               )
             )}
-          </div>
+          </section>
         )}
-    </section>
+    </main>
   );
 }

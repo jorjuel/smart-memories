@@ -196,6 +196,16 @@ export async function POST(
   try {
     const form =
       await req.formData();
+    const authClient =
+      await createSupabaseServerClient();
+
+    const {
+      data: {
+        user,
+      },
+    } =
+      await authClient.auth
+        .getUser();
 
     /* -----------------------------------------------------
        MEMORY CODE
@@ -442,23 +452,26 @@ export async function POST(
         databaseError,
     } = await sb
       .from('memories')
-      .insert({
-        code,
+    .insert({
+  code,
 
-        recipient_name:
-          recipient,
+  customer_id:
+    user?.id || null,
 
-        message,
+  recipient_name:
+    recipient,
 
-        sender_name:
-          sender,
+  message,
 
-        photo_url:
-          photoUrl,
+  sender_name:
+    sender,
 
-        audio_url:
-          audioUrl,
-      })
+  photo_url:
+    photoUrl,
+
+  audio_url:
+    audioUrl,
+})
       .select(
         'code, recipient_name, message, sender_name, created_at, photo_url, audio_url, video_url'
       )
