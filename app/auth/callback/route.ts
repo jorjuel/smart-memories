@@ -1,4 +1,6 @@
-import { NextResponse } from 'next/server';
+import {
+  NextResponse,
+} from 'next/server';
 
 import {
   createSupabaseServerClient,
@@ -15,19 +17,50 @@ export async function GET(
       'code'
     );
 
-  const next =
+  const requestedNext =
     requestUrl.searchParams.get(
       'next'
-    ) || '/account';
+    );
 
-  if (code) {
-    const supabase =
-      await createSupabaseServerClient();
+  const next =
+    requestedNext &&
+    requestedNext.startsWith('/') &&
+    !requestedNext.startsWith('//')
+      ? requestedNext
+      : '/account';
 
+  if (!code) {
+    return NextResponse.redirect(
+      new URL(
+        '/account/login?error=callback',
+        requestUrl.origin
+      )
+    );
+  }
+
+  const supabase =
+    await createSupabaseServerClient();
+
+  const {
+    error,
+  } =
     await supabase.auth
       .exchangeCodeForSession(
         code
       );
+
+  if (error) {
+    console.error(
+      'AUTH CALLBACK ERROR:',
+      error
+    );
+
+    return NextResponse.redirect(
+      new URL(
+        '/account/login?error=callback',
+        requestUrl.origin
+      )
+    );
   }
 
   return NextResponse.redirect(
