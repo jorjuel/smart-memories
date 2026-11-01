@@ -6,6 +6,8 @@ import {
   createSupabaseServerClient,
 } from '../../../lib/supabaseServer';
 
+import { getCanonicalSiteUrl } from '@/lib/memoryUrl';
+
 export async function customerRegister(
   formData: FormData
 ) {
@@ -90,7 +92,7 @@ export async function customerRegister(
 
   options: {
     emailRedirectTo:
-      'http://localhost:3000/auth/callback?next=/account',
+      getCanonicalSiteUrl() + '/auth/callback?next=/account',
   },
 });
 

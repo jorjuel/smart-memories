@@ -1732,22 +1732,22 @@ export default async function AdminOrderDetailPage({
 
                   <span>
                     {item.productionReady
-                      ? 'Ã¢Å“â€œ'
-                      : 'Ã¢â€”â€¹'}{' '}
+                      ? '\u2713'
+                      : '\u25CB'}{' '}
                     Production
                   </span>
 
                   <span>
                     {item.smartReady
-                      ? 'Ã¢Å“â€œ'
-                      : 'Ã¢â€”â€¹'}{' '}
+                      ? '\u2713'
+                      : '\u25CB'}{' '}
                     NFC / QR
                   </span>
 
                   <span>
                     {item.qualityReady
-                      ? 'Ã¢Å“â€œ'
-                      : 'Ã¢â€”â€¹'}{' '}
+                      ? '\u2713'
+                      : '\u25CB'}{' '}
                     Quality
                   </span>
                 </div>
