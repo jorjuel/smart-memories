@@ -121,6 +121,12 @@ export default function SiteHeader() {
   const pathname =
     usePathname();
 
+const hideForRecipientMemory =
+  pathname === '/m' ||
+  pathname.startsWith(
+    '/m/'
+  );
+
   const [
     shopOpen,
     setShopOpen,
@@ -141,6 +147,12 @@ export default function SiteHeader() {
     setMobileOpen(false);
     setMobileShopOpen(false);
   }, [pathname]);
+
+if (
+  hideForRecipientMemory
+) {
+  return null;
+}
 
   function closeMenus() {
     setShopOpen(false);

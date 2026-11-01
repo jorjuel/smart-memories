@@ -1,0 +1,969 @@
+===== PUBLIC MEMORY PAGE =====
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+
+type CloudMemory = {
+  code: string;
+  recipient: string;
+  message: string;
+  sender: string;
+  photoUrl?: string | null;
+  audioUrl?: string | null;
+};
+
+export default function Memory({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
+  const [m, setM] = useState<CloudMemory | null | undefined>(undefined);
+  const [playing, setPlaying] = useState(false);
+  const [audioReady, setAudioReady] = useState(false);
+  const [audioError, setAudioError] = useState(false);
+
+  const player = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    params.then(async ({ code }) => {
+      try {
+        const r = await fetch(
+          '/api/memories/' + encodeURIComponent(code),
+          { cache: 'no-store' }
+        );
+
+        if (!r.ok) {
+          setM(null);
+          return;
+        }
+
+        setM(await r.json());
+      } catch {
+        setM(null);
+      }
+    });
+  }, [params]);
+
+  async function play() {
+    const audio = player.current;
+
+    if (!audio || !audioReady) return;
+
+    try {
+      if (audio.paused) {
+        await audio.play();
+      } else {
+        audio.pause();
+      }
+    } catch {
+      setAudioError(true);
+    }
+  }
+
+  if (m === undefined) {
+    return (
+      <section className="wrap">
+        <p>Loading memory...</p>
+      </section>
+    );
+  }
+
+  if (!m) {
+    return (
+      <section className="wrap">
+        <div className="card">
+          <h1>Memory not found</h1>
+          <p>This memory could not be found online.</p>
+          <Link className="btn" href="/">
+            Smart Memories
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="memory">
+      <span className="pill">MEMORY FOR</span>
+
+      <h1>{m.recipient}</h1>
+
+      {m.photoUrl && (
+        <img
+          className="memoryphoto"
+          src={m.photoUrl}
+          alt={m.recipient}
+        />
+      )}
+
+      <div className="card">
+        <p className="quote">
+          {m.message || 'A memory made especially for you.'}
+        </p>
+
+        {m.audioUrl ? (
+          <>
+            <audio
+              ref={player}
+              src={m.audioUrl}
+              preload="auto"
+              onCanPlay={() => setAudioReady(true)}
+              onCanPlayThrough={() => setAudioReady(true)}
+              onLoadedData={() => setAudioReady(true)}
+              onWaiting={() => setAudioReady(false)}
+              onEnded={() => setPlaying(false)}
+              onPause={() => setPlaying(false)}
+              onPlay={() => {
+                setPlaying(true);
+                setAudioReady(true);
+              }}
+              onError={() => {
+                setAudioError(true);
+                setAudioReady(false);
+              }}
+            />
+
+            {!audioReady && !audioError && (
+              <p className="success">
+                Preparing your voice message...
+              </p>
+            )}
+
+            <button
+              className="btn big play"
+              onClick={play}
+              disabled={!audioReady || audioError}
+            >
+              {audioError
+                ? 'VOICE MESSAGE UNAVAILABLE'
+                : !audioReady
+                  ? 'LOADING VOICE MESSAGE...'
+                  : playing
+                    ? '⏸ PAUSE MY MESSAGE'
+                    : '▶ PLAY MY MESSAGE'}
+            </button>
+
+            {!audioError && audioReady && (
+              <p className="success">
+                🎙 Voice message ready
+              </p>
+            )}
+          </>
+        ) : (
+          <p>No voice message was added to this memory.</p>
+        )}
+
+        {m.sender && (
+          <p>
+            With love always, <b>{m.sender}</b> ♡
+          </p>
+        )}
+
+        <small>Memory code: {m.code}</small>
+      </div>
+    </section>
+  );
+}
+
+===== PUBLIC MEMORY API =====
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ code: string }> }
+) {
+  try {
+    const { code } = await params;
+    const sb = supabaseAdmin();
+
+    const { data, error } = await sb
+      .from('memories')
+      .select(
+        'code, recipient_name, message, sender_name, created_at, photo_url, audio_url, video_url'
+      )
+      .eq('code', code)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      return NextResponse.json(
+        { error: 'Memory not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      code: data.code,
+      recipient: data.recipient_name,
+      message: data.message,
+      sender: data.sender_name,
+      created_at: data.created_at,
+      photoUrl: data.photo_url,
+      audioUrl: data.audio_url,
+      videoUrl: data.video_url,
+    });
+  } catch (e) {
+    console.error('LOAD MEMORY ERROR:', e);
+
+    return NextResponse.json(
+      { error: 'Could not load memory' },
+      { status: 500 }
+    );
+  }
+}
+
+===== ROOT LAYOUT =====
+import './globals.css';
+
+import Link from 'next/link';
+
+import SiteHeader from '../components/SiteHeader';
+
+export const metadata = {
+  title:
+    'Smart Memories | Tap. Remember. Relive.',
+  description:
+    'Create a personalised Smart Memory with photographs, words, voice and meaningful moments — connected to a gift they can tap and relive.',
+};
+
+export default function Layout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body>
+        <SiteHeader />
+
+        <main>
+          {children}
+        </main>
+
+        <footer className="siteFooter">
+          <div className="footerBrand">
+            <Link
+              href="/"
+              className="footerLogo"
+            >
+              SMART MEMORIES
+              <span>♥</span>
+            </Link>
+
+            <p>
+              Some gifts hold a
+              photo.
+              <br />
+              Smart Memories holds
+              the story.
+            </p>
+
+            <small className="footerBrandLine">
+              Tap. Remember. Relive.
+            </small>
+          </div>
+
+          <div className="footerLinks">
+            <div>
+              <strong>
+                CREATE
+              </strong>
+
+              <Link href="/create">
+                Create a Memory
+              </Link>
+
+              <Link href="/shop">
+                Smart Gifts
+              </Link>
+
+              <Link href="/cards">
+                Smart Cards
+              </Link>
+
+              <Link href="/occasions">
+                Shop by Occasion
+              </Link>
+            </div>
+
+            <div>
+              <strong>
+                YOUR MEMORIES
+              </strong>
+
+              <Link href="/memories">
+                My Memories
+              </Link>
+
+              <Link href="/account/orders">
+                My Orders
+              </Link>
+
+              <Link href="/account">
+                Account
+              </Link>
+
+              <Link href="/cart">
+                Basket
+              </Link>
+            </div>
+
+            <div>
+              <strong>
+                DISCOVER
+              </strong>
+
+              <Link href="/how-it-works">
+                How It Works
+              </Link>
+
+              <Link href="/about">
+                About Smart Memories
+              </Link>
+
+              <Link href="/contact">
+                Contact
+              </Link>
+            </div>
+
+            <div>
+              <strong>
+                INFORMATION
+              </strong>
+
+              <Link href="/privacy">
+                Privacy Policy
+              </Link>
+
+              <Link href="/terms">
+                Terms
+              </Link>
+            </div>
+          </div>
+
+          <div className="footerBottom">
+            <span>
+              ©{' '}
+              {new Date().getFullYear()}{' '}
+              Smart Memories
+            </span>
+
+            <Link
+              href="/admin"
+              className="ownerLink"
+            >
+              Owner
+            </Link>
+          </div>
+        </footer>
+      </body>
+    </html>
+  );
+}
+
+===== SITE HEADER =====
+'use client';
+
+import Link from 'next/link';
+
+import {
+  useEffect,
+  useState,
+} from 'react';
+
+import {
+  usePathname,
+} from 'next/navigation';
+
+const shopGroups = [
+  {
+    title: 'Love & Couples',
+    items: [
+      {
+        label: 'Anniversary',
+        href: '/shop?occasion=Anniversary',
+      },
+      {
+        label: 'Wedding',
+        href: '/shop?occasion=Wedding',
+      },
+      {
+        label: 'Our Story',
+        href: '/shop?occasion=Anniversary',
+      },
+    ],
+  },
+
+  {
+    title: 'Family',
+    items: [
+      {
+        label: 'Mum',
+        href: '/shop?occasion=Family%20Memory',
+      },
+      {
+        label: 'Dad',
+        href: '/shop?occasion=Family%20Memory',
+      },
+      {
+        label: 'Grandparents',
+        href: '/shop?occasion=Family%20Memory',
+      },
+      {
+        label: 'Family Memories',
+        href: '/shop?occasion=Family%20Memory',
+      },
+    ],
+  },
+
+  {
+    title: 'Baby Memories',
+    items: [
+      {
+        label: 'New Baby',
+        href: '/shop?occasion=New%20Baby',
+      },
+      {
+        label: 'First Birthday',
+        href: '/shop?occasion=Birthday',
+      },
+      {
+        label: 'Baby Keepsakes',
+        href: '/shop?occasion=New%20Baby',
+      },
+    ],
+  },
+
+  {
+    title: 'Pet Memories',
+    items: [
+      {
+        label: 'Pet Keepsakes',
+        href: '/shop?occasion=Pet%20Memory',
+      },
+      {
+        label: 'Pet Memorials',
+        href: '/shop?occasion=Pet%20Memory',
+      },
+    ],
+  },
+
+  {
+    title: 'Remembrance',
+    items: [
+      {
+        label: 'Forever Voice',
+        href: '/shop?occasion=Remembrance',
+      },
+      {
+        label: 'Memorial Gifts',
+        href: '/shop?occasion=Remembrance',
+      },
+    ],
+  },
+
+  {
+    title: 'Birthdays & Celebrations',
+    items: [
+      {
+        label: 'Birthdays',
+        href: '/shop?occasion=Birthday',
+      },
+      {
+        label: 'Graduation',
+        href: '/shop?occasion=Graduation',
+      },
+      {
+        label: 'Special Milestones',
+        href: '/shop?occasion=Birthday',
+      },
+    ],
+  },
+];
+
+export default function SiteHeader() {
+  const pathname =
+    usePathname();
+
+  const [
+    shopOpen,
+    setShopOpen,
+  ] = useState(false);
+
+  const [
+    mobileOpen,
+    setMobileOpen,
+  ] = useState(false);
+
+  const [
+    mobileShopOpen,
+    setMobileShopOpen,
+  ] = useState(false);
+
+  useEffect(() => {
+    setShopOpen(false);
+    setMobileOpen(false);
+    setMobileShopOpen(false);
+  }, [pathname]);
+
+  function closeMenus() {
+    setShopOpen(false);
+    setMobileOpen(false);
+    setMobileShopOpen(false);
+  }
+
+  return (
+    <header className="smSiteHeader">
+      <div className="smHeaderInner">
+        <Link
+          href="/"
+          className="smHeaderBrand"
+          onClick={closeMenus}
+        >
+          SMART MEMORIES
+          <span>♥</span>
+        </Link>
+
+        <nav
+          className="smDesktopNav"
+          aria-label="Main navigation"
+        >
+       <div className="smShopMenu">
+           <button
+              type="button"
+              className="smNavButton"
+              aria-expanded={
+                shopOpen
+              }
+              onClick={() =>
+                setShopOpen(
+                  (current) =>
+                    !current
+                )
+              }
+            >
+              Shop
+              <span
+                className="smMenuChevron"
+                aria-hidden="true"
+              >
+                ▾
+              </span>
+            </button>
+
+            {shopOpen && (
+              <div className="smShopDropdown">
+                <div className="smShopDropdownIntro">
+                  <span>
+                    SHOP BY MEMORY
+                  </span>
+
+                  <strong>
+                    Start with who
+                    or what you want
+                    to remember.
+                  </strong>
+                </div>
+
+                <div className="smShopDropdownGrid">
+                  {shopGroups.map(
+                    (
+                      group
+                    ) => (
+                      <div
+                        key={
+                          group.title
+                        }
+                        className="smShopGroup"
+                      >
+                        <strong>
+                          {
+                            group.title
+                          }
+                        </strong>
+
+                        {group.items.map(
+                          (
+                            item
+                          ) => (
+                            <Link
+                              key={
+                                item.label
+                              }
+                              href={
+                                item.href
+                              }
+                              onClick={
+                                closeMenus
+                              }
+                            >
+                              {
+                                item.label
+                              }
+                            </Link>
+                          )
+                        )}
+                      </div>
+                    )
+                  )}
+
+                  <div className="smShopGroup smShopSpecialGroup">
+                    <strong>
+                      More ways to
+                      remember
+                    </strong>
+
+                    <Link
+                      href="/cards"
+                      onClick={
+                        closeMenus
+                      }
+                    >
+                      Smart Cards
+                    </Link>
+
+                    <Link
+                      href="/occasions"
+                      onClick={
+                        closeMenus
+                      }
+                    >
+                      All Occasions
+                    </Link>
+
+                    <Link
+                      href="/shop"
+                      onClick={
+                        closeMenus
+                      }
+                    >
+                      All Gifts
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Link
+            href="/create"
+            className="smCreateNavCta"
+          >
+            Create a Memory
+          </Link>
+
+          <Link href="/how-it-works">
+            How It Works
+          </Link>
+
+          <Link href="/memories">
+            My Memories
+          </Link>
+
+          <Link href="/account/orders">
+            My Orders
+          </Link>
+        </nav>
+
+        <div className="smHeaderUtilities">
+          <Link
+            href="/account"
+            className="smUtilityLink"
+          >
+            Account
+          </Link>
+
+          <Link
+            href="/cart"
+            className="smCartLink"
+          >
+            Basket
+          </Link>
+
+          <button
+            type="button"
+            className="smMobileToggle"
+            aria-expanded={
+              mobileOpen
+            }
+            aria-label={
+              mobileOpen
+                ? 'Close menu'
+                : 'Open menu'
+            }
+            onClick={() =>
+              setMobileOpen(
+                (current) =>
+                  !current
+              )
+            }
+          >
+            {mobileOpen
+              ? 'Close'
+              : 'Menu'}
+          </button>
+        </div>
+      </div>
+
+      {mobileOpen && (
+        <nav
+          className="smMobileMenu"
+          aria-label="Mobile navigation"
+        >
+          <Link
+            href="/create"
+            className="smMobileCreate"
+            onClick={
+              closeMenus
+            }
+          >
+            Create a Memory
+          </Link>
+
+          <button
+            type="button"
+            className="smMobileShopToggle"
+            aria-expanded={
+              mobileShopOpen
+            }
+            onClick={() =>
+              setMobileShopOpen(
+                (current) =>
+                  !current
+              )
+            }
+          >
+            <span>
+              Shop
+            </span>
+
+            <span>
+              {mobileShopOpen
+                ? '−'
+                : '+'}
+            </span>
+          </button>
+
+          {mobileShopOpen && (
+            <div className="smMobileShop">
+              {shopGroups.map(
+                (
+                  group
+                ) => (
+                  <div
+                    key={
+                      group.title
+                    }
+                    className="smMobileShopGroup"
+                  >
+                    <strong>
+                      {
+                        group.title
+                      }
+                    </strong>
+
+                    {group.items.map(
+                      (
+                        item
+                      ) => (
+                        <Link
+                          key={
+                            item.label
+                          }
+                          href={
+                            item.href
+                          }
+                          onClick={
+                            closeMenus
+                          }
+                        >
+                          {
+                            item.label
+                          }
+                        </Link>
+                      )
+                    )}
+                  </div>
+                )
+              )}
+
+              <div className="smMobileShopGroup">
+                <strong>
+                  Explore
+                </strong>
+
+                <Link
+                  href="/cards"
+                  onClick={
+                    closeMenus
+                  }
+                >
+                  Smart Cards
+                </Link>
+
+                <Link
+                  href="/shop"
+                  onClick={
+                    closeMenus
+                  }
+                >
+                  All Gifts
+                </Link>
+              </div>
+            </div>
+          )}
+
+          <Link
+            href="/how-it-works"
+            onClick={
+              closeMenus
+            }
+          >
+            How It Works
+          </Link>
+
+          <Link
+            href="/memories"
+            onClick={
+              closeMenus
+            }
+          >
+            My Memories
+          </Link>
+
+          <Link
+            href="/account/orders"
+            onClick={
+              closeMenus
+            }
+          >
+            My Orders
+          </Link>
+
+          <Link
+            href="/account"
+            onClick={
+              closeMenus
+            }
+          >
+            Account
+          </Link>
+
+          <Link
+            href="/cart"
+            onClick={
+              closeMenus
+            }
+          >
+            Basket
+          </Link>
+        </nav>
+      )}
+    </header>
+  );
+}
+
+===== PHASE 4 MEMORY PREVIEW =====
+type Props = {
+  recipient: string;
+  message: string;
+  sender: string;
+  occasion?: string;
+  photoUrl?: string;
+  audioUrl?: string;
+};
+
+export default function SmartMemoryLivePreview({
+  recipient,
+  message,
+  sender,
+  occasion,
+  photoUrl,
+  audioUrl,
+}: Props) {
+  return (
+    <div className="smLiveMemoryPhone">
+      <div className="smLiveMemoryPhoneTop">
+        <span />
+      </div>
+
+      <div className="smLiveMemoryScreen">
+        <small>
+          SMART MEMORY PREVIEW
+        </small>
+
+        {occasion && (
+          <span className="smLiveMemoryOccasion">
+            {occasion}
+          </span>
+        )}
+
+        <span className="smLiveMemoryFor">
+          MEMORY FOR
+        </span>
+
+        <h3>
+          {recipient ||
+            'Recipient name'}
+        </h3>
+
+        {photoUrl ? (
+          <img
+            src={photoUrl}
+            alt={
+              recipient
+                ? `Memory for ${recipient}`
+                : 'Your Smart Memory photo'
+            }
+          />
+        ) : (
+          <div className="smLiveMemoryEmptyPhoto">
+            <span>
+              Your main photo
+              will appear here
+            </span>
+          </div>
+        )}
+
+        <div className="smLiveMemoryCard">
+          <p>
+            {message ||
+              'Your personal message will appear here.'}
+          </p>
+
+          {audioUrl ? (
+            <audio
+              controls
+              preload="metadata"
+              src={audioUrl}
+            />
+          ) : (
+            <div className="smLiveMemoryNoVoice">
+              Voice message
+              not added
+            </div>
+          )}
+
+          {sender && (
+            <span>
+              With love always,{' '}
+              <strong>
+                {sender}
+              </strong>{' '}
+              ♡
+            </span>
+          )}
+        </div>
+
+        <small className="smLiveMemoryNote">
+          Live preview using
+          your current
+          personalisation.
+        </small>
+      </div>
+    </div>
+  );
+}

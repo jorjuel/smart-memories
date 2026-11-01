@@ -1,3 +1,6 @@
+import MemoryAudio from './recipient/MemoryAudio';
+import MemoryMessage from './recipient/MemoryMessage';
+
 type Props = {
   recipient: string;
   message: string;
@@ -60,16 +63,20 @@ export default function SmartMemoryLivePreview({
         )}
 
         <div className="smLiveMemoryCard">
-          <p>
-            {message ||
-              'Your personal message will appear here.'}
-          </p>
+          <MemoryMessage
+            message={
+              message ||
+              'Your personal message will appear here.'
+            }
+            variant="compact"
+          />
 
           {audioUrl ? (
-            <audio
-              controls
-              preload="metadata"
-              src={audioUrl}
+            <MemoryAudio
+              src={
+                audioUrl
+              }
+              variant="compact"
             />
           ) : (
             <div className="smLiveMemoryNoVoice">
