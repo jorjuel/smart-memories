@@ -781,9 +781,9 @@ function PersonaliseCardContent() {
               </div>
 
               <p>
-                Your card will contain a discreet Smart Memories point.
-                When the recipient taps it with their phone, their private
-                memory page opens.
+                 Your card will contain a discreet Smart Memories point.
+ 		 When the recipient taps it with their phone, their unique
+ 		 Smart Memory page opens in the browser.
               </p>
 
               <div className="smartMemoryOptions">

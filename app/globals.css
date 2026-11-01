@@ -5411,6 +5411,7 @@ header.smSiteHeader {
 .smShopDropdown {
   position: absolute;
   top: calc(100% + 8px);
+
   left: 0;
   width: min(
     820px,
@@ -6112,5 +6113,869 @@ header.smSiteHeader {
 
   .footerLinks {
     grid-template-columns: 1fr;
+  }
+}
+/* =========================================================
+   SMART MEMORIES
+   PHASE 3 - PRODUCT & SMART MEMORY EXPERIENCE
+   ========================================================= */
+
+.smPdp {
+  overflow: hidden;
+}
+
+/* HERO */
+
+.smPdpHero {
+  max-width: 1280px;
+  margin: auto;
+  padding: 75px 28px 100px;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.05fr)
+    minmax(420px, .95fr);
+  gap: 70px;
+  align-items: start;
+}
+
+.smPdpGalleryMain {
+  min-height: 540px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--sm-blush);
+  display: grid;
+  place-items: center;
+}
+
+.smPdpGalleryMain .productHero {
+  width: 100%;
+  min-height: 540px;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+}
+
+.smPdpGalleryMain .productPhoto {
+  width: 100%;
+  height: 100%;
+  min-height: 540px;
+  object-fit: cover;
+}
+
+.smPdpGallerySlots {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 10px;
+}
+
+.smPdpGallerySlot {
+  min-height: 135px;
+  padding: 18px;
+  border: 1px solid var(--sm-border);
+  border-radius: 17px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.smPdpGallerySlot > span {
+  color: var(--sm-rose);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.3px;
+}
+
+.smPdpGallerySlot strong {
+  color: var(--sm-plum-dark);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.smPdpGallerySlot small {
+  color: var(--sm-muted);
+  font-size: 9px;
+}
+
+.smPdpGallerySlot.tap {
+  background: var(--sm-plum-dark);
+}
+
+.smPdpGallerySlot.tap strong,
+.smPdpGallerySlot.tap small {
+  color: white;
+}
+
+.smPdpGallerySlot.memory {
+  background: var(--sm-blush);
+}
+
+.smPdpGalleryNote {
+  margin: 11px 4px 0;
+  color: var(--sm-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.smPdpHeroCopy {
+  position: sticky;
+  top: 115px;
+}
+
+.smPdpHeroCopy h1 {
+  margin: 14px 0 15px;
+  color: var(--sm-plum-dark);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size:
+    clamp(48px, 5vw, 72px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.smPdpSubtitle {
+  margin: 0 0 18px;
+  color: var(--sm-rose);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+.smPdpDescription {
+  color: var(--sm-muted);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.smPdpPrice {
+  margin: 24px 0;
+  color: var(--sm-plum-dark);
+  font-size: 29px;
+  font-weight: 900;
+}
+
+.smPdpOccasionSelected {
+  display: inline-block;
+  margin-bottom: 24px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--sm-blush);
+  color: var(--sm-plum);
+  font-size: 12px;
+}
+
+.smPdpBenefitGrid {
+  margin: 6px 0 28px;
+  display: grid;
+  grid-template-columns:
+    repeat(2, 1fr);
+  gap: 9px;
+}
+
+.smPdpBenefitGrid div {
+  min-height: 52px;
+  padding: 11px 13px;
+  border: 1px solid var(--sm-border);
+  border-radius: 13px;
+  background: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.smPdpBenefitGrid span {
+  font-size: 17px;
+}
+
+.smPdpBenefitGrid strong {
+  color: var(--sm-text);
+  font-size: 11px;
+}
+
+.smPdpPrimaryCta {
+  width: 100%;
+  justify-content: center;
+}
+
+.smPdpTrust {
+  margin-top: 17px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.smPdpTrust span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--sm-blush);
+  color: var(--sm-plum);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+
+/* SHARED INTRO */
+
+.smPdpSectionIntro {
+  max-width: 790px;
+  margin-bottom: 44px;
+}
+
+.smPdpSectionIntro h2 {
+  margin: 12px 0;
+  color: var(--sm-plum-dark);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size:
+    clamp(40px, 5vw, 62px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.smPdpSectionIntro.light h2 {
+  color: white;
+}
+
+
+/* TWO EXPERIENCES */
+
+.smPdpDual {
+  padding: 100px max(5vw, 28px);
+  background: #fff6f2;
+}
+
+.smPdpDual >
+.smPdpSectionIntro {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.smPdpDualGrid {
+  max-width: 1180px;
+  margin: auto;
+  display: grid;
+  grid-template-columns:
+    1fr 80px 1fr;
+  gap: 26px;
+  align-items: center;
+}
+
+.smPdpPhysical,
+.smPdpDigital {
+  min-height: 620px;
+  padding: 36px;
+  border: 1px solid var(--sm-border);
+  border-radius: 27px;
+  background: white;
+}
+
+.smPdpDualNumber {
+  color: var(--sm-rose);
+  font-family: Georgia, serif;
+  font-size: 27px;
+}
+
+.smPdpPhysical h3,
+.smPdpDigital h3 {
+  margin: 20px 0 10px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 32px;
+  font-weight: 400;
+}
+
+.smPdpPhysical > p,
+.smPdpDigital > p {
+  color: var(--sm-muted);
+  line-height: 1.7;
+}
+
+.smPdpPhysicalVisual {
+  min-height: 310px;
+  margin-top: 30px;
+  border-radius: 19px;
+  background: var(--sm-blush);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.smPdpPhysicalVisual
+.productArt {
+  width: 100%;
+  min-height: 310px;
+  margin: 0;
+}
+
+.smPdpPhysicalDetails {
+  margin-top: 19px;
+  display: grid;
+  gap: 7px;
+}
+
+.smPdpPhysicalDetails span {
+  color: var(--sm-muted);
+  font-size: 11px;
+}
+
+.smPdpFlowArrow {
+  color: var(--sm-rose);
+  text-align: center;
+  font-family: Georgia, serif;
+  font-size: 32px;
+}
+
+.smPdpFlowArrow span {
+  display: block;
+  margin-bottom: 7px;
+  font-family: Arial, sans-serif;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+
+/* PHONE SAMPLE */
+
+.smMemoryPhone {
+  width: min(100%, 300px);
+  margin: 30px auto 0;
+  padding: 9px;
+  border-radius: 35px;
+  background: #201b1c;
+  box-shadow:
+    0 22px 55px
+    rgba(40, 24, 25, .2);
+}
+
+.smMemoryPhoneTop {
+  height: 27px;
+  display: grid;
+  place-items: center;
+}
+
+.smMemoryPhoneTop span {
+  width: 75px;
+  height: 6px;
+  border-radius: 999px;
+  background: #454043;
+}
+
+.smMemoryPhoneScreen {
+  min-height: 470px;
+  padding: 25px 18px;
+  border-radius: 27px;
+  background: var(--sm-cream);
+  text-align: center;
+}
+
+.smMemoryPhoneScreen > small:first-child {
+  color: var(--sm-rose);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+}
+
+.smMemoryFor {
+  display: block;
+  margin-top: 22px;
+  color: var(--sm-muted);
+  font-size: 7px;
+  letter-spacing: 1.2px;
+}
+
+.smMemoryPhoneScreen h3 {
+  margin: 6px 0 16px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.smMemorySamplePhoto {
+  aspect-ratio: 4 / 3;
+  border-radius: 15px;
+  background:
+    linear-gradient(
+      145deg,
+      var(--sm-blush),
+      #dfc1c2
+    );
+  display: grid;
+  place-items: center;
+  color: var(--sm-rose);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+}
+
+.smMemorySampleCard {
+  margin-top: 13px;
+  padding: 17px;
+  border: 1px solid var(--sm-border);
+  border-radius: 15px;
+  background: white;
+}
+
+.smMemorySampleCard p {
+  margin: 0 0 13px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.smMemoryVoiceButton {
+  margin: 0 0 12px;
+  padding: 9px;
+  border-radius: 999px;
+  background: var(--sm-rose);
+  color: white;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.smMemorySampleCard > span {
+  color: var(--sm-muted);
+  font-size: 8px;
+}
+
+.smMemorySampleNote {
+  display: block;
+  margin-top: 14px;
+  color: var(--sm-muted);
+  line-height: 1.4;
+}
+
+
+/* TAP */
+
+.smPdpTapSection {
+  padding: 105px max(5vw, 28px);
+  background: var(--sm-plum-dark);
+  color: white;
+}
+
+.smPdpTapSection >
+.smPdpSectionIntro,
+.smPdpTapSteps,
+.smPdpQrNote {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.smPdpTapSteps {
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 18px;
+}
+
+.smPdpTapSteps article {
+  min-height: 275px;
+  padding: 30px;
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+  border-radius: 21px;
+  background:
+    rgba(255,255,255,.05);
+}
+
+.smPdpTapSteps article > span {
+  color: #e7afb4;
+  font-family: Georgia, serif;
+  font-size: 29px;
+}
+
+.smPdpTapSteps h3 {
+  margin: 35px 0 10px;
+  font-size: 20px;
+}
+
+.smPdpTapSteps p {
+  color: #d3c3c5;
+  line-height: 1.7;
+}
+
+.smPdpQrNote {
+  margin-top: 25px;
+  color: #e9c6c9;
+  text-align: center;
+  font-weight: 700;
+}
+
+
+/* CONTENT */
+
+.smPdpContents {
+  max-width: 1180px;
+  margin: auto;
+  padding: 105px 28px;
+}
+
+.smPdpContentGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+  gap: 16px;
+}
+
+.smPdpContentGrid article {
+  min-height: 250px;
+  padding: 29px;
+  border: 1px solid var(--sm-border);
+  border-radius: 21px;
+  background: white;
+}
+
+.smPdpContentGrid article > span {
+  font-size: 31px;
+}
+
+.smPdpContentGrid h3 {
+  margin: 25px 0 10px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 23px;
+  font-weight: 400;
+}
+
+.smPdpContentGrid p {
+  color: var(--sm-muted);
+  line-height: 1.65;
+}
+
+.smPdpContentUnavailable {
+  opacity: .62;
+  background: #f7f3f1 !important;
+}
+
+.smPdpContentUnavailable small {
+  color: var(--sm-rose);
+  font-weight: 800;
+}
+
+
+/* INCLUDED */
+
+.smPdpIncluded {
+  padding: 90px max(6vw, 30px);
+  background: var(--sm-blush);
+  display: grid;
+  grid-template-columns:
+    .9fr 1.1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.smPdpIncluded h2 {
+  margin: 12px 0 18px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(40px, 4.5vw, 57px);
+  font-weight: 400;
+}
+
+.smPdpIncluded p {
+  color: var(--sm-muted);
+  line-height: 1.75;
+}
+
+.smPdpIncludedList {
+  display: grid;
+  grid-template-columns:
+    1fr 1fr;
+  gap: 12px;
+}
+
+.smPdpIncludedList span {
+  padding: 16px;
+  border-radius: 14px;
+  background: white;
+  color: var(--sm-plum);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* PREVIEW */
+
+.smPdpPreviewSection {
+  max-width: 1100px;
+  margin: auto;
+  padding: 110px 28px;
+  display: grid;
+  grid-template-columns:
+    1fr 390px;
+  gap: 100px;
+  align-items: center;
+}
+
+.smPdpPreviewCopy h2 {
+  margin: 13px 0 19px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(40px, 5vw, 59px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.smPdpPreviewCopy p {
+  color: var(--sm-muted);
+  line-height: 1.8;
+}
+
+
+/* OCCASIONS */
+
+.smPdpOccasions {
+  max-width: 1100px;
+  margin: auto;
+  padding: 10px 28px 100px;
+  text-align: center;
+}
+
+.smPdpOccasionTags {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.smPdpOccasionTags span {
+  padding: 10px 15px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  background: white;
+  color: var(--sm-plum);
+  font-size: 11px;
+}
+
+
+/* CREATE STEPS */
+
+.smPdpCreate {
+  padding: 100px max(5vw, 28px);
+  background: #fff7f4;
+}
+
+.smPdpCreate >
+.smPdpSectionIntro,
+.smPdpCreateSteps {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.smPdpCreateSteps {
+  display: grid;
+  grid-template-columns:
+    repeat(6, 1fr);
+  gap: 10px;
+}
+
+.smPdpCreateSteps article {
+  min-height: 150px;
+  padding: 20px;
+  border: 1px solid var(--sm-border);
+  border-radius: 17px;
+  background: white;
+}
+
+.smPdpCreateSteps span {
+  display: block;
+  margin-bottom: 26px;
+  color: var(--sm-rose);
+  font-family: Georgia, serif;
+  font-size: 23px;
+}
+
+.smPdpCreateSteps strong {
+  color: var(--sm-plum-dark);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+
+/* FAQ */
+
+.smPdpFaq {
+  max-width: 980px;
+  margin: auto;
+  padding: 105px 28px;
+}
+
+.smPdpFaqList {
+  display: grid;
+  gap: 9px;
+}
+
+.smPdpFaqList details {
+  border: 1px solid var(--sm-border);
+  border-radius: 15px;
+  background: white;
+  overflow: hidden;
+}
+
+.smPdpFaqList summary {
+  padding: 20px 22px;
+  color: var(--sm-plum-dark);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.smPdpFaqList p {
+  margin: 0;
+  padding: 0 22px 22px;
+  color: var(--sm-muted);
+  line-height: 1.7;
+}
+
+
+/* FINAL CTA */
+
+.smPdpFinalCta {
+  padding: 105px 25px;
+  background: var(--sm-plum-dark);
+  color: white;
+  text-align: center;
+}
+
+.smPdpFinalCta h2 {
+  max-width: 760px;
+  margin: 15px auto 30px;
+  font-family: Georgia, serif;
+  font-size:
+    clamp(42px, 5vw, 62px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1050px) {
+  .smPdpHero {
+    grid-template-columns: 1fr;
+  }
+
+  .smPdpHeroCopy {
+    position: static;
+  }
+
+  .smPdpDualGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .smPdpFlowArrow {
+    transform: rotate(90deg);
+  }
+
+  .smPdpContentGrid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .smPdpCreateSteps {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .smPdpTapSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .smPdpIncluded,
+  .smPdpPreviewSection {
+    grid-template-columns: 1fr;
+    gap: 45px;
+  }
+
+  .smPdpPreviewSection
+  .smMemoryPhone {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .smPdpHero {
+    padding:
+      45px 18px 70px;
+  }
+
+  .smPdpHeroCopy h1 {
+    font-size: 47px;
+  }
+
+  .smPdpGalleryMain,
+  .smPdpGalleryMain
+  .productHero,
+  .smPdpGalleryMain
+  .productPhoto {
+    min-height: 390px;
+  }
+
+  .smPdpGallerySlots {
+    grid-template-columns: 1fr;
+  }
+
+  .smPdpGallerySlot {
+    min-height: 105px;
+  }
+
+  .smPdpBenefitGrid,
+  .smPdpContentGrid,
+  .smPdpIncludedList,
+  .smPdpCreateSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .smPdpPhysical,
+  .smPdpDigital {
+    min-height: auto;
+    padding: 24px;
+  }
+
+  .smPdpDual,
+  .smPdpTapSection,
+  .smPdpContents,
+  .smPdpIncluded,
+  .smPdpCreate,
+  .smPdpFaq {
+    padding-left: 19px;
+    padding-right: 19px;
+  }
+
+  .smPdpPreviewSection {
+    padding-left: 19px;
+    padding-right: 19px;
+  }
+
+  .smPdpCreateSteps article {
+    min-height: auto;
   }
 }
