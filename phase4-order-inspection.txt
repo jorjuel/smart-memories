@@ -1,0 +1,1835 @@
+===== CART =====
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
+
+type BasketItem = {
+  id: string;
+  personalisationId?: string;
+  memoryCode?: string;
+
+  productType: 'smart-card' | 'traditional-card' | 'product';
+
+  productSlug?: string;
+
+  name: string;
+  category?: string;
+
+  occasion?: string;
+  design?: string;
+  recipient?: string;
+
+  imageUrl?: string | null;
+
+  price: number;
+  quantity: number;
+};
+
+const CART_KEY = 'smart-memories-cart';
+
+export default function CartPage() {
+  const [items, setItems] = useState<BasketItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CART_KEY);
+
+      if (!saved) {
+        setItems([]);
+        setLoaded(true);
+        return;
+      }
+
+      const parsed = JSON.parse(saved);
+
+      if (Array.isArray(parsed)) {
+        const safeItems = parsed.map((item: any) => ({
+          id: item.id || crypto.randomUUID(),
+
+          personalisationId: item.personalisationId,
+          memoryCode: item.memoryCode,
+
+          productType:
+            item.productType === 'smart-card' ||
+            item.productType === 'traditional-card'
+              ? item.productType
+              : 'product',
+
+          productSlug: item.productSlug,
+
+          name: item.name || 'Smart Memories Product',
+          category: item.category,
+
+          occasion: item.occasion,
+          design: item.design,
+          recipient: item.recipient,
+
+          imageUrl:
+            typeof item.imageUrl === 'string' && item.imageUrl.length > 0
+              ? item.imageUrl
+              : null,
+
+          price: Number(item.price) || 0,
+          quantity:
+            Number(item.quantity) > 0
+              ? Number(item.quantity)
+              : 1,
+        }));
+
+        setItems(safeItems);
+      } else {
+        setItems([]);
+      }
+    } catch (error) {
+      console.error('Could not load basket:', error);
+      setItems([]);
+    }
+
+    setLoaded(true);
+  }, []);
+
+  function saveItems(nextItems: BasketItem[]) {
+    setItems(nextItems);
+
+    localStorage.setItem(
+      CART_KEY,
+      JSON.stringify(nextItems)
+    );
+  }
+
+  function removeItem(id: string) {
+    const nextItems = items.filter(
+      (item) => item.id !== id
+    );
+
+    saveItems(nextItems);
+  }
+
+  function increaseQuantity(id: string) {
+    const nextItems = items.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            quantity: item.quantity + 1,
+          }
+        : item
+    );
+
+    saveItems(nextItems);
+  }
+
+  function decreaseQuantity(id: string) {
+    const nextItems = items.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            quantity: Math.max(
+              1,
+              item.quantity - 1
+            ),
+          }
+        : item
+    );
+
+    saveItems(nextItems);
+  }
+
+  const subtotal = useMemo(() => {
+    return items.reduce(
+      (total, item) =>
+        total +
+        item.price * item.quantity,
+      0
+    );
+  }, [items]);
+
+  if (!loaded) {
+    return (
+      <section className="basketPage">
+        <div className="basketHeader">
+          <span className="eyebrow">
+            YOUR ORDER
+          </span>
+
+          <h1>Your basket</h1>
+
+          <p>Loading your personalised gifts...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <section className="basketPage">
+        <div className="basketHeader">
+          <span className="eyebrow">
+            YOUR ORDER
+          </span>
+
+          <h1>Your basket</h1>
+
+          <p>
+            Your basket is currently empty.
+          </p>
+        </div>
+
+        <div className="basketSummary">
+          <p>
+            Start creating something meaningful.
+          </p>
+
+          <Link
+            href="/shop"
+            className="btn big basketCheckoutButton"
+          >
+            Shop Smart Gifts →
+          </Link>
+
+          <Link
+            href="/cards"
+            className="basketContinue"
+          >
+            Browse handcrafted cards
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="basketPage">
+      <div className="basketHeader">
+        <span className="eyebrow">
+          YOUR ORDER
+        </span>
+
+        <h1>Your basket</h1>
+
+        <p>
+          Review your personalised gifts before
+          continuing to checkout.
+        </p>
+      </div>
+
+      <div className="basketLayout">
+        <div className="basketItems">
+          {items.map((item) => (
+            <article
+              key={item.id}
+              className="basketItem"
+            >
+              <div className="basketImage">
+                <PersonalisedProductPreview
+                  productType={item.productType}
+                  productSlug={item.productSlug}
+                  imageUrl={item.imageUrl}
+                  name={item.name}
+                  recipient={item.recipient}
+                />
+              </div>
+
+              <div className="basketItemDetails">
+                <span className="basketItemType">
+                  {item.productType === 'product'
+                    ? item.category ||
+                      'SMART GIFT'
+                    : item.productType ===
+                      'smart-card'
+                    ? 'SMART HANDCRAFTED CARD'
+                    : 'HANDCRAFTED CARD'}
+                </span>
+
+                <h2>{item.name}</h2>
+
+                {item.recipient && (
+                  <p>
+                    For:{' '}
+                    <strong>
+                      {item.recipient}
+                    </strong>
+                  </p>
+                )}
+
+                {item.occasion && (
+                  <p>
+                    Occasion:{' '}
+                    <strong>
+                      {item.occasion}
+                    </strong>
+                  </p>
+                )}
+
+                {item.design && (
+                  <p>
+                    Design:{' '}
+                    <strong>
+                      {item.design}
+                    </strong>
+                  </p>
+                )}
+
+                {item.memoryCode && (
+                  <small className="basketReference">
+                    Memory reference:{' '}
+                    {item.memoryCode}
+                  </small>
+                )}
+
+                {item.personalisationId && (
+                  <small className="basketReference">
+                    Personalisation reference:{' '}
+                    {item.personalisationId}
+                  </small>
+                )}
+
+                <div className="basketItemActions">
+                  <div className="basketQuantity">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        decreaseQuantity(
+                          item.id
+                        )
+                      }
+                      aria-label="Reduce quantity"
+                    >
+                      −
+                    </button>
+
+                    <span>
+                      {item.quantity}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        increaseQuantity(
+                          item.id
+                        )
+                      }
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="basketRemove"
+                    onClick={() =>
+                      removeItem(item.id)
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <div className="basketItemPrice">
+                £
+                {(
+                  item.price *
+                  item.quantity
+                ).toFixed(2)}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <aside className="basketSummary">
+          <span className="eyebrow">
+            ORDER SUMMARY
+          </span>
+
+          <div className="basketSummaryLine">
+            <span>
+              {items.reduce(
+                (total, item) =>
+                  total +
+                  item.quantity,
+                0
+              )}{' '}
+              item
+              {items.reduce(
+                (total, item) =>
+                  total +
+                  item.quantity,
+                0
+              ) === 1
+                ? ''
+                : 's'}
+            </span>
+
+            <strong>
+              £{subtotal.toFixed(2)}
+            </strong>
+          </div>
+
+          <div className="basketSummaryLine">
+            <span>Delivery</span>
+            <span>
+              Calculated at checkout
+            </span>
+          </div>
+
+          <div className="basketSummaryTotal">
+            <span>Subtotal</span>
+
+            <strong>
+              £{subtotal.toFixed(2)}
+            </strong>
+          </div>
+
+          <Link
+            href="/checkout"
+            className="btn big basketCheckoutButton"
+          >
+            Continue to checkout →
+          </Link>
+
+          <Link
+            href="/shop"
+            className="basketContinue"
+          >
+            Continue shopping
+          </Link>
+
+          <div className="basketSecurity">
+            <strong>
+              Your Smart Memory
+            </strong>
+
+            <p>
+              Your personalisation,
+              photograph and voice memory stay
+              attached to the product as you move
+              through checkout.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+===== CHECKOUT =====
+'use client';
+
+import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
+import Link from 'next/link';
+
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+
+type BasketItem = {
+  id: string;
+  personalisationId?: string;
+  memoryCode?: string;
+  productType:
+    | 'smart-card'
+    | 'traditional-card'
+    | 'product'
+    | 'bundle';
+  productSlug?: string;
+  name: string;
+  occasion?: string;
+  design?: string;
+  recipient?: string;
+  imageUrl?: string | null;
+  audioUrl?: string | null;
+  price: number;
+  quantity: number;
+  personalisation?: unknown;
+};
+
+const CART_KEY =
+  'smart-memories-cart';
+
+export default function CheckoutPage() {
+  const [
+    items,
+    setItems,
+  ] = useState<BasketItem[]>([]);
+
+  const [
+    loaded,
+    setLoaded,
+  ] = useState(false);
+
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
+
+  const [
+    orderError,
+    setOrderError,
+  ] = useState('');
+
+  const [
+    orderNumber,
+    setOrderNumber,
+  ] = useState('');
+
+  const [
+    email,
+    setEmail,
+  ] = useState('');
+
+  const [
+    firstName,
+    setFirstName,
+  ] = useState('');
+
+  const [
+    lastName,
+    setLastName,
+  ] = useState('');
+
+  const [
+    phone,
+    setPhone,
+  ] = useState('');
+
+  const [
+    address1,
+    setAddress1,
+  ] = useState('');
+
+  const [
+    address2,
+    setAddress2,
+  ] = useState('');
+
+  const [
+    town,
+    setTown,
+  ] = useState('');
+
+  const [
+    county,
+    setCounty,
+  ] = useState('');
+
+  const [
+    postcode,
+    setPostcode,
+  ] = useState('');
+
+  const [
+    deliveryMethod,
+    setDeliveryMethod,
+  ] = useState<
+    'standard' | 'express'
+  >('standard');
+
+  useEffect(() => {
+    try {
+      const saved =
+        localStorage.getItem(
+          CART_KEY
+        );
+
+      if (saved) {
+        const parsed =
+          JSON.parse(saved);
+
+        if (
+          Array.isArray(parsed)
+        ) {
+          setItems(parsed);
+        }
+      }
+    } catch (error) {
+      console.error(
+        'Could not load basket',
+        error
+      );
+    } finally {
+      setLoaded(true);
+    }
+  }, []);
+
+  const subtotal =
+    useMemo(
+      () =>
+        items.reduce(
+          (
+            total,
+            item
+          ) =>
+            total +
+            item.price *
+              item.quantity,
+          0
+        ),
+      [items]
+    );
+
+  const delivery =
+    deliveryMethod ===
+    'express'
+      ? 6.95
+      : 3.95;
+
+  const total =
+    subtotal + delivery;
+
+  const customerName =
+    `${firstName} ${lastName}`
+      .trim();
+
+  const formReady =
+    email.trim() &&
+    firstName.trim() &&
+    lastName.trim() &&
+    address1.trim() &&
+    town.trim() &&
+    postcode.trim();
+
+  async function createOrder() {
+    if (!formReady) {
+      setOrderError(
+        'Please complete your name, email and delivery address.'
+      );
+
+      return;
+    }
+
+    setSubmitting(true);
+    setOrderError('');
+
+    try {
+      const response =
+        await fetch(
+          '/api/orders',
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type':
+                'application/json',
+            },
+
+            body: JSON.stringify({
+              cart: items,
+
+              email:
+                email
+                  .trim()
+                  .toLowerCase(),
+
+              customerName,
+
+              phone:
+                phone.trim(),
+
+              deliveryName:
+                customerName,
+
+              address1:
+                address1.trim(),
+
+              address2:
+                address2.trim(),
+
+              city:
+                town.trim(),
+
+              county:
+                county.trim(),
+
+              postcode:
+                postcode
+                  .trim()
+                  .toUpperCase(),
+
+              deliveryMethod,
+
+              deliveryPrice:
+                delivery,
+            }),
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+            'Could not create the order.'
+        );
+      }
+
+      localStorage.removeItem(
+        CART_KEY
+      );
+
+      setOrderNumber(
+        result.orderNumber
+      );
+
+      setItems([]);
+    } catch (error) {
+      console.error(
+        'CHECKOUT ORDER ERROR:',
+        error
+      );
+
+      setOrderError(
+        error instanceof Error
+          ? error.message
+          : 'Could not create your order.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!loaded) {
+    return (
+      <section className="narrow">
+        <h1>
+          Checkout
+        </h1>
+
+        <p>
+          Loading your order...
+        </p>
+      </section>
+    );
+  }
+
+  /*
+   * ORDER CREATED
+   */
+  if (orderNumber) {
+    return (
+      <section className="narrow">
+        <span className="v14Eyebrow">
+          ORDER RECEIVED
+        </span>
+
+        <h1>
+          Thank you.
+        </h1>
+
+        <div className="card">
+          <h2>
+            Your order has been created.
+          </h2>
+
+          <p>
+            Your order number is:
+          </p>
+
+          <p
+            style={{
+              fontSize: '1.4rem',
+              fontWeight: 800,
+            }}
+          >
+            {orderNumber}
+          </p>
+
+          <p>
+            Payment is currently
+            marked as pending because
+            Stripe has not yet been
+            connected.
+          </p>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginTop: '20px',
+            }}
+          >
+            <Link
+              href="/account/orders"
+              className="btn"
+            >
+              My Orders
+            </Link>
+
+            <Link
+              href="/shop"
+              className="btn secondary"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (
+    items.length === 0
+  ) {
+    return (
+      <section className="narrow">
+        <h1>
+          Checkout
+        </h1>
+
+        <div className="card empty">
+          <h2>
+            Your basket is empty.
+          </h2>
+
+          <p>
+            Add a personalised
+            Smart Memories gift
+            before continuing to
+            checkout.
+          </p>
+
+          <Link
+            className="btn"
+            href="/shop"
+          >
+            Browse gifts
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="checkoutPage">
+      <div className="checkoutHeader">
+        <span className="v14Eyebrow">
+          SECURE CHECKOUT
+        </span>
+
+        <h1>
+          Almost ready to make it special.
+        </h1>
+
+        <p>
+          Confirm your details and
+          delivery information before
+          creating your order.
+        </p>
+      </div>
+
+      <div className="checkoutLayout">
+        <div className="checkoutMain">
+          <section className="checkoutCard">
+            <div className="checkoutSectionHeading">
+              <span>
+                01
+              </span>
+
+              <div>
+                <h2>
+                  Contact details
+                </h2>
+
+                <p>
+                  We'll use these
+                  details for your
+                  order confirmation.
+                </p>
+              </div>
+            </div>
+
+            <div className="checkoutFieldGrid">
+              <label>
+                <span>
+                  Email address
+                </span>
+
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(
+                    e
+                  ) =>
+                    setEmail(
+                      e.target.value
+                    )
+                  }
+                  placeholder="you@example.com"
+                  required
+                />
+              </label>
+
+              <label>
+                <span>
+                  Phone number
+                </span>
+
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(
+                    e
+                  ) =>
+                    setPhone(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Optional"
+                />
+              </label>
+
+              <label>
+                <span>
+                  First name
+                </span>
+
+                <input
+                  value={
+                    firstName
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setFirstName(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+              </label>
+
+              <label>
+                <span>
+                  Last name
+                </span>
+
+                <input
+                  value={
+                    lastName
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setLastName(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="checkoutCard">
+            <div className="checkoutSectionHeading">
+              <span>
+                02
+              </span>
+
+              <div>
+                <h2>
+                  Delivery address
+                </h2>
+
+                <p>
+                  Where should we
+                  send your
+                  personalised gift?
+                </p>
+              </div>
+            </div>
+
+            <div className="checkoutFieldGrid">
+              <label className="checkoutFull">
+                <span>
+                  Address line 1
+                </span>
+
+                <input
+                  value={
+                    address1
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setAddress1(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+              </label>
+
+              <label className="checkoutFull">
+                <span>
+                  Address line 2
+                </span>
+
+                <input
+                  value={
+                    address2
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setAddress2(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Optional"
+                />
+              </label>
+
+              <label>
+                <span>
+                  Town / City
+                </span>
+
+                <input
+                  value={town}
+                  onChange={(
+                    e
+                  ) =>
+                    setTown(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+              </label>
+
+              <label>
+                <span>
+                  County
+                </span>
+
+                <input
+                  value={county}
+                  onChange={(
+                    e
+                  ) =>
+                    setCounty(
+                      e.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                <span>
+                  Postcode
+                </span>
+
+                <input
+                  value={
+                    postcode
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setPostcode(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="checkoutCard">
+            <div className="checkoutSectionHeading">
+              <span>
+                03
+              </span>
+
+              <div>
+                <h2>
+                  Delivery method
+                </h2>
+
+                <p>
+                  Choose how quickly
+                  you'd like your
+                  order delivered.
+                </p>
+              </div>
+            </div>
+
+            <div className="deliveryChoices">
+              <button
+                type="button"
+                className={
+                  deliveryMethod ===
+                  'standard'
+                    ? 'active'
+                    : ''
+                }
+                onClick={() =>
+                  setDeliveryMethod(
+                    'standard'
+                  )
+                }
+              >
+                <div>
+                  <strong>
+                    Standard delivery
+                  </strong>
+
+                  <span>
+                    Usually 3-5
+                    working days
+                    after production
+                  </span>
+                </div>
+
+                <b>
+                  £3.95
+                </b>
+              </button>
+
+              <button
+                type="button"
+                className={
+                  deliveryMethod ===
+                  'express'
+                    ? 'active'
+                    : ''
+                }
+                onClick={() =>
+                  setDeliveryMethod(
+                    'express'
+                  )
+                }
+              >
+                <div>
+                  <strong>
+                    Express delivery
+                  </strong>
+
+                  <span>
+                    Priority dispatch
+                    after production
+                  </span>
+                </div>
+
+                <b>
+                  £6.95
+                </b>
+              </button>
+            </div>
+          </section>
+
+          <section className="checkoutCard paymentPlaceholder">
+            <div className="checkoutSectionHeading">
+              <span>
+                04
+              </span>
+
+              <div>
+                <h2>
+                  Payment
+                </h2>
+
+                <p>
+                  Secure payment will
+                  be handled by Stripe.
+                </p>
+              </div>
+            </div>
+
+            <div className="paymentPreview">
+              <strong>
+                Development order mode
+              </strong>
+
+              <p>
+                Stripe is not connected
+                yet. For now this button
+                creates a real order in
+                Supabase with payment
+                status set to pending.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <aside className="checkoutSummary">
+          <div className="checkoutSummarySticky">
+            <span className="v14Eyebrow">
+              YOUR ORDER
+            </span>
+
+            <h2>
+              Order summary
+            </h2>
+
+            <div className="checkoutProducts">
+              {items.map(
+                (
+                  item
+                ) => (
+                  <div
+                    className="checkoutProduct"
+                    key={
+                      item.id
+                    }
+                  >
+                    <div className="checkoutProductImage">
+                      <PersonalisedProductPreview
+                        productType={
+                          item.productType
+                        }
+                        productSlug={
+                          item.productSlug
+                        }
+                        imageUrl={
+                          item.imageUrl
+                        }
+                        name={
+                          item.name
+                        }
+                        recipient={
+                          item.recipient
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <strong>
+                        {
+                          item.name
+                        }
+                      </strong>
+
+                      {item.recipient && (
+                        <span>
+                          For{' '}
+                          {
+                            item.recipient
+                          }
+                        </span>
+                      )}
+
+                      <small>
+                        Qty{' '}
+                        {
+                          item.quantity
+                        }
+                      </small>
+                    </div>
+
+                    <b>
+                      £
+                      {(
+                        item.price *
+                        item.quantity
+                      ).toFixed(
+                        2
+                      )}
+                    </b>
+                  </div>
+                )
+              )}
+            </div>
+
+            <div className="checkoutTotals">
+              <div>
+                <span>
+                  Subtotal
+                </span>
+
+                <strong>
+                  £
+                  {subtotal.toFixed(
+                    2
+                  )}
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  Delivery
+                </span>
+
+                <strong>
+                  £
+                  {delivery.toFixed(
+                    2
+                  )}
+                </strong>
+              </div>
+
+              <div className="checkoutGrandTotal">
+                <span>
+                  Total
+                </span>
+
+                <strong>
+                  £
+                  {total.toFixed(
+                    2
+                  )}
+                </strong>
+              </div>
+            </div>
+
+            {orderError && (
+              <div
+                style={{
+                  marginBottom:
+                    '14px',
+                  padding:
+                    '12px',
+                  border:
+                    '1px solid #d9a3a3',
+                  borderRadius:
+                    '12px',
+                }}
+              >
+                {orderError}
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="personaliseBasketButton"
+              disabled={
+                submitting
+              }
+              onClick={
+                createOrder
+              }
+            >
+              {submitting
+                ? 'Creating order...'
+                : 'Create Order'}
+            </button>
+
+            <p
+              style={{
+                fontSize:
+                  '0.85rem',
+                marginTop:
+                  '10px',
+                opacity: 0.7,
+              }}
+            >
+              Development mode:
+              payment will remain
+              pending until Stripe
+              is connected.
+            </p>
+
+            <Link
+              href="/cart"
+              className="checkoutBackLink"
+            >
+              Back to basket
+            </Link>
+
+            <div className="checkoutTrust">
+              <strong>
+                Smart Memories
+              </strong>
+
+              <p>
+                Your photo, voice
+                message and
+                personalisation
+                remain linked to
+                your order through
+                the Smart Memories
+                system.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+===== ORDERS API =====
+import {
+  NextResponse,
+} from 'next/server';
+
+import {
+  randomBytes,
+} from 'crypto';
+
+import {
+  createSupabaseServerClient,
+} from '@/lib/supabaseServer';
+
+import {
+  supabaseAdmin,
+} from '@/lib/supabaseAdmin';
+
+export const runtime =
+  'nodejs';
+
+type IncomingCartItem = {
+  productType?: string;
+  productSlug?: string;
+  name?: string;
+  quantity?: number;
+  price?: number;
+  memoryCode?: string | null;
+  imageUrl?: string | null;
+  personalisation?: unknown;
+};
+
+function makeOrderNumber() {
+  const year =
+    new Date().getFullYear();
+
+  const random =
+    randomBytes(3)
+      .toString('hex')
+      .toUpperCase();
+
+  return `SM-${year}-${random}`;
+}
+
+function moneyToPence(
+  value: unknown
+) {
+  const number =
+    Number(value);
+
+  if (
+    !Number.isFinite(number) ||
+    number < 0
+  ) {
+    return 0;
+  }
+
+  return Math.round(
+    number * 100
+  );
+}
+
+/* =========================================
+   CREATE ORDER
+   ========================================= */
+
+export async function POST(
+  request: Request
+) {
+  try {
+    const body =
+      await request.json();
+
+    const cart =
+      Array.isArray(body.cart)
+        ? (
+            body.cart as IncomingCartItem[]
+          )
+        : [];
+
+    if (
+      cart.length === 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Your basket is empty.',
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const auth =
+      await createSupabaseServerClient();
+
+    const {
+      data: {
+        user,
+      },
+    } =
+      await auth.auth.getUser();
+
+    const customerEmail =
+      (
+        user?.email ||
+        body.email ||
+        ''
+      )
+        .toString()
+        .trim()
+        .toLowerCase();
+
+    if (!customerEmail) {
+      return NextResponse.json(
+        {
+          error:
+            'Customer email is required.',
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const customerId =
+      user?.id ||
+      null;
+
+    const subtotalPence =
+      cart.reduce(
+        (
+          total,
+          item
+        ) => {
+          const quantity =
+            Math.max(
+              1,
+              Number(
+                item.quantity ||
+                  1
+              )
+            );
+
+          return (
+            total +
+            moneyToPence(
+              item.price
+            ) *
+              quantity
+          );
+        },
+        0
+      );
+
+    const deliveryPence =
+      moneyToPence(
+        body.deliveryPrice ||
+          0
+      );
+
+    const totalPence =
+      subtotalPence +
+      deliveryPence;
+
+    const admin =
+      supabaseAdmin();
+
+    const orderNumber =
+      makeOrderNumber();
+
+    const {
+      data: order,
+      error:
+        orderError,
+    } =
+      await admin
+        .from('orders')
+        .insert({
+          order_number:
+            orderNumber,
+
+          customer_id:
+            customerId,
+
+          customer_email:
+            customerEmail,
+
+          customer_name:
+            body.customerName ||
+            null,
+
+          delivery_name:
+            body.deliveryName ||
+            body.customerName ||
+            null,
+
+          delivery_address_1:
+            body.address1 ||
+            null,
+
+          delivery_address_2:
+            body.address2 ||
+            null,
+
+          delivery_city:
+            body.city ||
+            null,
+
+          delivery_postcode:
+            body.postcode ||
+            null,
+
+          delivery_method:
+            body.deliveryMethod ||
+            'standard',
+
+          subtotal_pence:
+            subtotalPence,
+
+          delivery_pence:
+            deliveryPence,
+
+          total_pence:
+            totalPence,
+
+          /*
+           * Until Stripe is connected,
+           * orders remain pending.
+           */
+          payment_status:
+            'pending',
+
+          status:
+            'new',
+        })
+        .select(
+          'id, order_number'
+        )
+        .single();
+
+    if (
+      orderError ||
+      !order
+    ) {
+      throw (
+        orderError ||
+        new Error(
+          'Could not create order.'
+        )
+      );
+    }
+
+    const items =
+      cart.map(
+        (
+          item
+        ) => ({
+          order_id:
+            order.id,
+
+          product_type:
+            item.productType ||
+            'product',
+
+          product_slug:
+            item.productSlug ||
+            null,
+
+          product_name:
+            item.name ||
+            'Smart Memories Gift',
+
+          quantity:
+            Math.max(
+              1,
+              Number(
+                item.quantity ||
+                  1
+              )
+            ),
+
+          unit_price_pence:
+            moneyToPence(
+              item.price
+            ),
+
+          memory_code:
+            item.memoryCode ||
+            null,
+
+          image_url:
+            item.imageUrl ||
+            null,
+
+          personalisation:
+            item.personalisation ||
+            null,
+        })
+      );
+
+    const {
+      error:
+        itemError,
+    } =
+      await admin
+        .from(
+          'order_items'
+        )
+        .insert(items);
+
+    if (itemError) {
+      /*
+       * Remove incomplete order
+       * if item creation fails.
+       */
+      await admin
+        .from('orders')
+        .delete()
+        .eq(
+          'id',
+          order.id
+        );
+
+      throw itemError;
+    }
+
+    return NextResponse.json(
+      {
+        ok: true,
+
+        orderId:
+          order.id,
+
+        orderNumber:
+          order.order_number,
+
+        totalPence,
+      },
+      {
+        status: 201,
+      }
+    );
+  } catch (error) {
+    console.error(
+      'CREATE ORDER ERROR:',
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Could not create order.',
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+/* =========================================
+   CUSTOMER ORDERS
+   ========================================= */
+
+export async function GET() {
+  try {
+    const auth =
+      await createSupabaseServerClient();
+
+    const {
+      data: {
+        user,
+      },
+    } =
+      await auth.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error:
+            'Authentication required.',
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    const admin =
+      supabaseAdmin();
+
+    const {
+      data,
+      error,
+    } =
+      await admin
+        .from('orders')
+        .select(
+          `
+            id,
+            order_number,
+            customer_email,
+            total_pence,
+            payment_status,
+            status,
+            created_at,
+            order_items (
+              id,
+              product_type,
+              product_slug,
+              product_name,
+              quantity,
+              unit_price_pence,
+              memory_code,
+              image_url
+            )
+          `
+        )
+        .eq(
+          'customer_id',
+          user.id
+        )
+        .order(
+          'created_at',
+          {
+            ascending:
+              false,
+          }
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json(
+      data || []
+    );
+  } catch (error) {
+    console.error(
+      'CUSTOMER ORDERS ERROR:',
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          'Could not load orders.',
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+===== CURRENT PERSONALISE ROUTE =====
+import ProductPersonaliser from '../../../components/ProductPersonaliser';
+
+export default async function PersonalisePage({
+  params,
+}: {
+  params: Promise<{
+    slug: string;
+  }>;
+}) {
+  const { slug } = await params;
+
+  return (
+    <ProductPersonaliser
+      slug={slug}
+    />
+  );
+}

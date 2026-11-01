@@ -22,6 +22,9 @@ type BasketItem = {
 
   imageUrl?: string | null;
 
+  audioUrl?: string | null;
+  personalisation?: unknown;
+
   price: number;
   quantity: number;
 };
@@ -70,6 +73,15 @@ export default function CartPage() {
             typeof item.imageUrl === 'string' && item.imageUrl.length > 0
               ? item.imageUrl
               : null,
+	audioUrl:
+	    typeof item.audioUrl === 'string' &&
+ 		 item.audioUrl.length > 0
+    		? item.audioUrl
+   		 : null,
+
+	    personalisation:
+ 		 item.personalisation ??
+ 		 undefined,
 
           price: Number(item.price) || 0,
           quantity:

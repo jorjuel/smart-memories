@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -21,16 +22,57 @@ import {
 } from '../lib/storage';
 
 import ConfiguredProductPreview from './ConfiguredProductPreview';
+import PersonaliserProgress from './PersonaliserProgress';
+import SmartMemoryLivePreview from './SmartMemoryLivePreview';
 
 type Props = {
   slug: string;
+  initialOccasion?: string;
 };
+
+type StepKey =
+  | 'gift'
+  | 'photo'
+  | 'voice'
+  | 'message'
+  | 'preview'
+  | 'ready';
+
+type WizardStep = {
+  key: StepKey;
+  label: string;
+};
+
+const MAX_PHOTO_BYTES =
+  10 * 1024 * 1024;
+
+const MAX_AUDIO_BYTES =
+  25 * 1024 * 1024;
+
+function formatTime(
+  seconds: number
+) {
+  const minutes =
+    Math.floor(
+      seconds / 60
+    );
+
+  const remaining =
+    seconds % 60;
+
+  return `${minutes}:${String(
+    remaining
+  ).padStart(2, '0')}`;
+}
 
 export default function ProductPersonaliser({
   slug,
+  initialOccasion = '',
 }: Props) {
   const product =
-    getPersonalisationProduct(slug);
+    getPersonalisationProduct(
+      slug
+    );
 
   const shopProduct =
     shopProducts.find(
@@ -38,9 +80,9 @@ export default function ProductPersonaliser({
         item.slug === slug
     );
 
-  /*
-   * BASIC PRODUCT OPTIONS
-   */
+  /* =====================================================
+     PRODUCT OPTIONS
+     ===================================================== */
 
   const [mode, setMode] =
     useState<
@@ -57,20 +99,22 @@ export default function ProductPersonaliser({
   const [
     occasion,
     setOccasion,
-  ] = useState('');
-
-  const [
-    size,
-    setSize,
   ] = useState(
-    product?.sizes?.[0] || ''
+    initialOccasion
   );
+
+  const [size, setSize] =
+    useState(
+      product?.sizes?.[0] ||
+        ''
+    );
 
   const [
     orientation,
     setOrientation,
   ] = useState(
-    product?.orientations?.[0] ||
+    product
+      ?.orientations?.[0] ||
       'portrait'
   );
 
@@ -78,14 +122,17 @@ export default function ProductPersonaliser({
     template,
     setTemplate,
   ] = useState(
-    product?.templates?.[0] || ''
+    product
+      ?.templates?.[0] ||
+      ''
   );
 
   const [
     textLayout,
     setTextLayout,
   ] = useState<TextLayout>(
-    product?.textLayouts?.[0] ||
+    product
+      ?.textLayouts?.[0] ||
       'photo-only'
   );
 
@@ -108,9 +155,14 @@ export default function ProductPersonaliser({
     accessory,
     setAccessory,
   ] = useState(
-    product?.accessories?.[0] ||
+    product
+      ?.accessories?.[0] ||
       ''
   );
+
+  /* =====================================================
+     MEMORY DETAILS
+     ===================================================== */
 
   const [
     recipient,
@@ -122,32 +174,39 @@ export default function ProductPersonaliser({
     setSender,
   ] = useState('');
 
-  /*
-   * PHOTO / ARTWORK
-   */
+  const [
+    memoryMessage,
+    setMemoryMessage,
+  ] = useState('');
+
+  /* =====================================================
+     PHOTO
+     ===================================================== */
 
   const [
     photo,
     setPhoto,
-  ] = useState<File | null>(
-    null
-  );
+  ] =
+    useState<File | null>(
+      null
+    );
 
   const [
     photoUrl,
     setPhotoUrl,
   ] = useState('');
 
-  /*
-   * AUDIO
-   */
+  /* =====================================================
+     AUDIO
+     ===================================================== */
 
   const [
     audio,
     setAudio,
-  ] = useState<Blob | null>(
-    null
-  );
+  ] =
+    useState<Blob | null>(
+      null
+    );
 
   const [
     audioUrl,
@@ -179,9 +238,9 @@ export default function ProductPersonaliser({
       > | null
     >(null);
 
-  /*
-   * SAVING
-   */
+  /* =====================================================
+     SAVING
+     ===================================================== */
 
   const [
     saving,
@@ -214,26 +273,208 @@ export default function ProductPersonaliser({
     setFinalReview,
   ] = useState(false);
 
-  /*
-   * HELPERS
-   */
+  const [
+    stepError,
+    setStepError,
+  ] = useState('');
+
+  /* =====================================================
+     WIZARD
+     ===================================================== */
+
+  const steps =
+    useMemo<
+      WizardStep[]
+    >(() => {
+      const result:
+        WizardStep[] = [
+        {
+          key: 'gift',
+          label: 'Gift',
+        },
+        {
+          key: 'photo',
+          label: 'Photo',
+        },
+      ];
+
+      if (
+        product?.smartMemory
+      ) {
+        result.push({
+          key: 'voice',
+          label: 'Voice',
+        });
+      }
+
+      result.push(
+        {
+          key: 'message',
+          label: 'Message',
+        },
+        {
+          key: 'preview',
+          label: 'Preview',
+        },
+        {
+          key: 'ready',
+          label: 'Ready',
+        }
+      );
+
+      return result;
+    }, [
+      product?.smartMemory,
+    ]);
+
+  const [
+    stepIndex,
+    setStepIndex,
+  ] = useState(0);
+
+  const currentStep =
+    steps[stepIndex]?.key ||
+    'gift';
+
+  const isMug =
+    product?.slug ===
+    'photo-mug';
+
+  const isCoaster =
+    product?.slug ===
+    'coaster-set';
+
+  const allowsOwnDesign =
+    isMug ||
+    isCoaster;
+
+  const finalMemoryMessage =
+    memoryMessage.trim() ||
+    paragraph.trim() ||
+    bottomText.trim() ||
+    topText.trim() ||
+    occasion ||
+    'Smart Memory';
+
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior:
+        'smooth',
+    });
+  }
 
   function markChanged() {
     setFinalReview(false);
+    setStepError('');
   }
 
-  /*
-   * PHOTO / DESIGN UPLOAD
-   */
+  function changeStep(
+    index: number
+  ) {
+    setStepIndex(index);
+    setStepError('');
+    scrollToTop();
+  }
+
+  function goBack() {
+    if (
+      stepIndex <= 0
+    ) {
+      return;
+    }
+
+    changeStep(
+      stepIndex - 1
+    );
+  }
+
+  function validateStep() {
+    setStepError('');
+
+    if (
+      currentStep ===
+        'photo' &&
+      !photo
+    ) {
+      setStepError(
+        'Please add your main photo before continuing.'
+      );
+
+      return false;
+    }
+
+    if (
+      currentStep ===
+        'message' &&
+      !recipient.trim()
+    ) {
+      setStepError(
+        'Please enter who this Smart Memory is for before continuing.'
+      );
+
+      return false;
+    }
+
+    if (
+      recording
+    ) {
+      setStepError(
+        'Please stop the voice recording before continuing.'
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  function goNext() {
+    if (
+      !validateStep()
+    ) {
+      return;
+    }
+
+    if (
+      stepIndex <
+      steps.length - 1
+    ) {
+      changeStep(
+        stepIndex + 1
+      );
+    }
+  }
+
+  /* =====================================================
+     PHOTO
+     ===================================================== */
 
   function choosePhoto(
     event:
       React.ChangeEvent<HTMLInputElement>
   ) {
     const file =
-      event.target.files?.[0];
+      event.target
+        .files?.[0];
 
     if (!file) {
+      return;
+    }
+
+    setStepError('');
+
+    if (
+      file.size >
+      MAX_PHOTO_BYTES
+    ) {
+      setStepError(
+        'This photo is too large. The current maximum is 10 MB.'
+      );
+
+      event.target.value =
+        '';
+
       return;
     }
 
@@ -246,32 +487,64 @@ export default function ProductPersonaliser({
     setPhoto(file);
 
     setPhotoUrl(
-      URL.createObjectURL(file)
+      URL.createObjectURL(
+        file
+      )
     );
 
     markChanged();
   }
 
-  /*
-   * START RECORDING
-   */
+  function removePhoto() {
+    if (photoUrl) {
+      URL.revokeObjectURL(
+        photoUrl
+      );
+    }
+
+    setPhoto(null);
+    setPhotoUrl('');
+    markChanged();
+  }
+
+  /* =====================================================
+     VOICE RECORDING
+     ===================================================== */
 
   async function startRecording() {
+    setStepError('');
+
+    if (
+      !navigator
+        .mediaDevices
+        ?.getUserMedia ||
+      typeof MediaRecorder ===
+        'undefined'
+    ) {
+      setStepError(
+        'Voice recording is not supported by this browser. You can upload an audio recording instead.'
+      );
+
+      return;
+    }
+
     try {
       const stream =
-        await navigator.mediaDevices.getUserMedia(
-          {
+        await navigator
+          .mediaDevices
+          .getUserMedia({
             audio: true,
-          }
-        );
+          });
 
-      audioChunks.current = [];
+      audioChunks.current =
+        [];
 
-      const supportedTypes = [
-        'audio/webm;codecs=opus',
-        'audio/webm',
-        'audio/mp4',
-      ];
+      const supportedTypes =
+        [
+          'audio/webm;codecs=opus',
+          'audio/webm',
+          'audio/mp4',
+        ];
 
       const mimeType =
         supportedTypes.find(
@@ -294,60 +567,86 @@ export default function ProductPersonaliser({
       mediaRecorder.current =
         recorder;
 
-      recorder.ondataavailable = (
-        event
-      ) => {
-        if (
-          event.data.size > 0
-        ) {
-          audioChunks.current.push(
+      recorder.ondataavailable =
+        (event) => {
+          if (
             event.data
-          );
-        }
-      };
+              .size > 0
+          ) {
+            audioChunks.current.push(
+              event.data
+            );
+          }
+        };
 
-      recorder.onstop = () => {
-        const type =
-          recorder.mimeType ||
-          audioChunks.current[0]
-            ?.type ||
-          'audio/webm';
+      recorder.onstop =
+        () => {
+          const type =
+            recorder.mimeType ||
+            audioChunks
+              .current[0]
+              ?.type ||
+            'audio/webm';
 
-        const blob =
-          new Blob(
-            audioChunks.current,
-            {
-              type,
-            }
-          );
+          const blob =
+            new Blob(
+              audioChunks.current,
+              {
+                type,
+              }
+            );
 
-        if (audioUrl) {
-          URL.revokeObjectURL(
+          if (
+            blob.size >
+            MAX_AUDIO_BYTES
+          ) {
+            setStepError(
+              'This recording is too large. The current maximum audio size is 25 MB.'
+            );
+
+            stream
+              .getTracks()
+              .forEach(
+                (track) =>
+                  track.stop()
+              );
+
+            return;
+          }
+
+          if (
             audioUrl
-          );
-        }
+          ) {
+            URL.revokeObjectURL(
+              audioUrl
+            );
+          }
 
-        setAudio(blob);
+          setAudio(blob);
 
-        setAudioUrl(
-          URL.createObjectURL(
-            blob
-          )
-        );
-
-        stream
-          .getTracks()
-          .forEach(
-            (track) =>
-              track.stop()
+          setAudioUrl(
+            URL.createObjectURL(
+              blob
+            )
           );
 
-        markChanged();
-      };
+          stream
+            .getTracks()
+            .forEach(
+              (track) =>
+                track.stop()
+            );
 
-      recorder.start(250);
+          markChanged();
+        };
 
-      setRecordingSeconds(0);
+      recorder.start(
+        250
+      );
+
+      setRecordingSeconds(
+        0
+      );
 
       setRecording(true);
 
@@ -359,21 +658,18 @@ export default function ProductPersonaliser({
           );
         }, 1000);
     } catch {
-      alert(
-        'Microphone access failed. Please allow microphone permission or upload an audio message instead.'
+      setStepError(
+        'Microphone access is blocked or unavailable. Enable microphone access in your browser, or upload an audio recording instead.'
       );
     }
   }
-
-  /*
-   * STOP RECORDING
-   */
 
   function stopRecording() {
     if (
       mediaRecorder.current &&
       mediaRecorder.current
-        .state !== 'inactive'
+        .state !==
+        'inactive'
     ) {
       mediaRecorder.current.stop();
     }
@@ -392,10 +688,6 @@ export default function ProductPersonaliser({
     setRecording(false);
   }
 
-  /*
-   * DELETE RECORDING
-   */
-
   function deleteRecording() {
     if (audioUrl) {
       URL.revokeObjectURL(
@@ -405,23 +697,38 @@ export default function ProductPersonaliser({
 
     setAudio(null);
     setAudioUrl('');
-    setRecordingSeconds(0);
+    setRecordingSeconds(
+      0
+    );
 
     markChanged();
   }
-
-  /*
-   * UPLOAD AUDIO
-   */
 
   function chooseAudio(
     event:
       React.ChangeEvent<HTMLInputElement>
   ) {
     const file =
-      event.target.files?.[0];
+      event.target
+        .files?.[0];
 
     if (!file) {
+      return;
+    }
+
+    setStepError('');
+
+    if (
+      file.size >
+      MAX_AUDIO_BYTES
+    ) {
+      setStepError(
+        'This audio file is too large. The current maximum is 25 MB.'
+      );
+
+      event.target.value =
+        '';
+
       return;
     }
 
@@ -434,21 +741,30 @@ export default function ProductPersonaliser({
     setAudio(file);
 
     setAudioUrl(
-      URL.createObjectURL(file)
+      URL.createObjectURL(
+        file
+      )
     );
 
-    setRecordingSeconds(0);
+    setRecordingSeconds(
+      0
+    );
 
     markChanged();
   }
 
-  /*
-   * SAVE SMART MEMORY
-   */
+  /* =====================================================
+     SAVE SMART MEMORY
+     Existing API / storage logic preserved
+     ===================================================== */
 
   async function saveSmartMemory() {
-    if (!recipient.trim()) {
-      alert(
+    setStepError('');
+
+    if (
+      !recipient.trim()
+    ) {
+      setStepError(
         'Please enter who this gift is for.'
       );
 
@@ -456,20 +772,15 @@ export default function ProductPersonaliser({
     }
 
     if (!photo) {
-      alert(
-        product?.slug ===
-          'photo-mug' ||
-        product?.slug ===
-          'coaster-set'
-          ? 'Please upload your photograph or design.'
-          : 'Please add a photograph before continuing.'
+      setStepError(
+        'Please add your main photo before creating your Smart Memory.'
       );
 
       return;
     }
 
     if (recording) {
-      alert(
+      setStepError(
         'Please stop the voice recording first.'
       );
 
@@ -495,16 +806,9 @@ export default function ProductPersonaliser({
         recipient.trim()
       );
 
-      const memoryMessage =
-        paragraph.trim() ||
-        bottomText.trim() ||
-        topText.trim() ||
-        occasion ||
-        'Smart Memory';
-
       formData.set(
         'message',
-        memoryMessage
+        finalMemoryMessage
       );
 
       formData.set(
@@ -543,8 +847,10 @@ export default function ProductPersonaliser({
         await fetch(
           '/api/memories',
           {
-            method: 'POST',
-            body: formData,
+            method:
+              'POST',
+            body:
+              formData,
           }
         );
 
@@ -560,7 +866,8 @@ export default function ProductPersonaliser({
 
       setSavedCode(
         result.code ||
-          result.memory?.code ||
+          result.memory
+            ?.code ||
           code
       );
 
@@ -582,21 +889,39 @@ export default function ProductPersonaliser({
           null
       );
 
-      setFinalReview(true);
+      setFinalReview(
+        true
+      );
+
+      const readyIndex =
+        steps.findIndex(
+          (step) =>
+            step.key ===
+            'ready'
+        );
+
+      changeStep(
+        readyIndex >= 0
+          ? readyIndex
+          : steps.length -
+              1
+      );
     } catch (error) {
-      alert(
-        error instanceof Error
+      setStepError(
+        error instanceof
+          Error
           ? error.message
-          : 'Could not save Smart Memory'
+          : 'We could not save your Smart Memory. Please try again.'
       );
     } finally {
       setSaving(false);
     }
   }
 
-  /*
-   * ADD TO BASKET
-   */
+  /* =====================================================
+     ADD TO BASKET
+     Existing cart model preserved
+     ===================================================== */
 
   function addToBasket() {
     if (
@@ -629,8 +954,20 @@ export default function ProductPersonaliser({
 
       category:
         occasion ||
-        shopProduct?.category ||
+        shopProduct
+          ?.category ||
         'Personalised Gift',
+
+      occasion:
+        occasion ||
+        undefined,
+
+      design:
+        designSource ===
+        'own'
+          ? 'Customer design'
+          : template ||
+            undefined,
 
       recipient:
         recipient.trim(),
@@ -661,7 +998,8 @@ export default function ProductPersonaliser({
         template:
           designSource ===
             'ours' &&
-          mode === 'quick'
+          mode ===
+            'quick'
             ? template
             : null,
 
@@ -672,6 +1010,9 @@ export default function ProductPersonaliser({
         bottomText,
 
         paragraph,
+
+        memoryMessage:
+          finalMemoryMessage,
 
         accessory,
 
@@ -699,7 +1040,9 @@ export default function ProductPersonaliser({
           : [];
 
       const basket =
-        Array.isArray(parsed)
+        Array.isArray(
+          parsed
+        )
           ? parsed
           : [];
 
@@ -717,15 +1060,15 @@ export default function ProductPersonaliser({
       window.location.href =
         '/cart';
     } catch {
-      alert(
+      setStepError(
         'Your Smart Memory was saved, but the product could not be added to the basket.'
       );
     }
   }
 
-  /*
-   * PRODUCT CHECK
-   */
+  /* =====================================================
+     PRODUCT CHECK
+     ===================================================== */
 
   if (!product) {
     return (
@@ -741,982 +1084,1564 @@ export default function ProductPersonaliser({
     );
   }
 
-  const isMug =
-    product.slug ===
-    'photo-mug';
+  const productBackHref =
+    initialOccasion
+      ? `/shop/${product.slug}?occasion=${encodeURIComponent(
+          initialOccasion
+        )}`
+      : `/shop/${product.slug}`;
 
-  const isCoaster =
-    product.slug ===
-    'coaster-set';
-
-  const allowsOwnDesign =
-    isMug || isCoaster;
+  /* =====================================================
+     PAGE
+     ===================================================== */
 
   return (
-    <section className="personaliserPage">
-      <div className="personaliserHeader">
-        <span className="eyebrow">
-          CREATE YOUR OWN
+    <section className="personaliserPage smWizardPage">
+      <div className="smWizardHeader">
+        <Link
+          href={
+            productBackHref
+          }
+          className="smWizardBackToProduct"
+        >
+          ← Back to gift
+        </Link>
+
+        <span className="v14Eyebrow">
+          CREATE YOUR SMART MEMORY
         </span>
 
         <h1>
-          {product.name}
+          Create Your Smart Memory
         </h1>
 
         <p>
-          Personalise it, preview
-          the finished product and
-          confirm it before adding
-          it to your basket.
+          Turn your
+          personalised gift
+          into something they
+          can see, hear and
+          relive.
         </p>
+
+        <div className="smWizardProductName">
+          <strong>
+            {product.name}
+          </strong>
+
+          {shopProduct && (
+            <span>
+              £
+              {shopProduct.price.toFixed(
+                2
+              )}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="personaliserLayout">
+      <PersonaliserProgress
+        steps={steps}
+        currentIndex={
+          stepIndex
+        }
+      />
 
-        {/* LEFT SIDE */}
+      <div className="smWizardShell">
+        <div className="smWizardStepContent">
 
-        <div className="personaliserControls">
+          {/* =========================================
+              STEP 1 — YOUR GIFT
+              ========================================= */}
 
-          {/* CREATE STYLE */}
+          {currentStep ===
+            'gift' && (
+            <>
+              <div className="smWizardStepHeading">
+                <span>
+                  STEP{' '}
+                  {stepIndex +
+                    1}
+                </span>
 
-          <div className="personaliserSection">
-            <span className="personaliserStep">
-              1
-            </span>
+                <h2>
+                  Your Gift
+                </h2>
 
-            <h2>
-              How would you like to
-              create it?
-            </h2>
+                <p>
+                  Start by making
+                  the physical
+                  gift yours.
+                </p>
+              </div>
 
-            <div className="choiceGrid two">
-              <button
-                type="button"
-                className={
-                  mode === 'quick'
-                    ? 'choiceCard active'
-                    : 'choiceCard'
-                }
-                onClick={() => {
-                  setMode(
-                    'quick'
-                  );
+              <div className="smWizardSection">
+                <h3>
+                  How would you
+                  like to create
+                  it?
+                </h3>
 
-                  markChanged();
-                }}
-              >
-                <strong>
-                  Quick Template
-                </strong>
-
-                <small>
-                  Choose a ready-made
-                  style and personalise
-                  it.
-                </small>
-              </button>
-
-              <button
-                type="button"
-                className={
-                  mode === 'custom'
-                    ? 'choiceCard active'
-                    : 'choiceCard'
-                }
-                onClick={() => {
-                  setMode(
-                    'custom'
-                  );
-
-                  markChanged();
-                }}
-              >
-                <strong>
-                  Customize It
-                </strong>
-
-                <small>
-                  Choose the layout and
-                  wording yourself.
-                </small>
-              </button>
-            </div>
-          </div>
-
-          {/* OCCASION */}
-
-          <div className="personaliserSection">
-            <span className="personaliserStep">
-              2
-            </span>
-
-            <h2>
-              What is it for?
-            </h2>
-
-            <div className="occasionGrid">
-              {product.occasions
-                .slice(0, 12)
-                .map((item) => (
+                <div className="choiceGrid two">
                   <button
                     type="button"
-                    key={item}
                     className={
-                      occasion ===
-                      item
-                        ? 'optionPill active'
-                        : 'optionPill'
+                      mode ===
+                      'quick'
+                        ? 'choiceCard active'
+                        : 'choiceCard'
                     }
                     onClick={() => {
-                      setOccasion(
-                        item
+                      setMode(
+                        'quick'
                       );
-
                       markChanged();
                     }}
                   >
-                    {item}
+                    <strong>
+                      Quick
+                      Template
+                    </strong>
+
+                    <small>
+                      Choose a
+                      ready-made
+                      style and
+                      personalise
+                      it.
+                    </small>
                   </button>
-                ))}
-            </div>
 
-            <select
-              value={occasion}
-              onChange={(event) => {
-                setOccasion(
-                  event.target.value
-                );
-
-                markChanged();
-              }}
-            >
-              <option value="">
-                More occasions...
-              </option>
-
-              {product.occasions.map(
-                (item) => (
-                  <option
-                    key={item}
-                    value={item}
-                  >
-                    {item}
-                  </option>
-                )
-              )}
-            </select>
-          </div>
-
-          {/* OUR DESIGN / OWN DESIGN */}
-
-          {allowsOwnDesign && (
-            <div className="personaliserSection">
-              <h2>
-                How would you like
-                to design it?
-              </h2>
-
-              <div className="choiceGrid two">
-                <button
-                  type="button"
-                  className={
-                    designSource ===
-                    'ours'
-                      ? 'choiceCard active'
-                      : 'choiceCard'
-                  }
-                  onClick={() => {
-                    setDesignSource(
-                      'ours'
-                    );
-
-                    markChanged();
-                  }}
-                >
-                  <strong>
-                    Use Our Designs
-                  </strong>
-
-                  <small>
-                    Choose a Smart
-                    Memories design and
-                    personalise it.
-                  </small>
-                </button>
-
-                <button
-                  type="button"
-                  className={
-                    designSource ===
-                    'own'
-                      ? 'choiceCard active'
-                      : 'choiceCard'
-                  }
-                  onClick={() => {
-                    setDesignSource(
-                      'own'
-                    );
-
-                    markChanged();
-                  }}
-                >
-                  <strong>
-                    Upload My Own Design
-                  </strong>
-
-                  <small>
-                    Use your own artwork
-                    or finished image.
-                  </small>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* TEMPLATES */}
-
-          {mode === 'quick' &&
-            (!allowsOwnDesign ||
-              designSource ===
-                'ours') && (
-              <div className="personaliserSection">
-                <h2>
-                  Choose a design
-                </h2>
-
-                <div className="templateGrid">
-                  {product.templates.map(
-                    (item) => (
-                      <button
-                        type="button"
-                        key={item}
-                        className={
-                          template ===
-                          item
-                            ? 'templateCard active'
-                            : 'templateCard'
-                        }
-                        onClick={() => {
-                          setTemplate(
-                            item
-                          );
-
-                          markChanged();
-                        }}
-                      >
-                        <div className="templateMiniPreview">
-                          ♥
-                        </div>
-
-                        <strong>
-                          {item}
-                        </strong>
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
-          {/* SIZE / COASTER SET */}
-
-          {product.sizes &&
-            product.sizes.length >
-              0 && (
-              <div className="personaliserSection">
-                <h2>
-                  {isCoaster
-                    ? 'How many coasters would you like?'
-                    : 'Choose the size'}
-                </h2>
-
-                <div className="choiceRow">
-                  {product.sizes.map(
-                    (item) => (
-                      <button
-                        type="button"
-                        key={item}
-                        className={
-                          size === item
-                            ? 'optionPill active'
-                            : 'optionPill'
-                        }
-                        onClick={() => {
-                          setSize(
-                            item
-                          );
-
-                          markChanged();
-                        }}
-                      >
-                        {item}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
-          {/* ORIENTATION */}
-
-          {product.orientations &&
-            product.orientations
-              .length > 1 && (
-              <div className="personaliserSection">
-                <h2>
-                  Which direction?
-                </h2>
-
-                <div className="choiceGrid two">
-                  {product.orientations.map(
-                    (item) => (
-                      <button
-                        type="button"
-                        key={item}
-                        className={
-                          orientation ===
-                          item
-                            ? 'orientationCard active'
-                            : 'orientationCard'
-                        }
-                        onClick={() => {
-                          setOrientation(
-                            item
-                          );
-
-                          markChanged();
-                        }}
-                      >
-                        <span
-                          className={
-                            item ===
-                            'landscape'
-                              ? 'orientationShape landscape'
-                              : 'orientationShape portrait'
-                          }
-                        />
-
-                        <strong>
-                          {item ===
-                          'landscape'
-                            ? 'Across'
-                            : item ===
-                              'portrait'
-                            ? 'Upright'
-                            : 'Square'}
-                        </strong>
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
-          {/* WORD LOCATION */}
-
-          {product.textLayouts &&
-            product.textLayouts
-              .length > 0 &&
-            designSource !==
-              'own' && (
-              <div className="personaliserSection">
-                <h2>
-                  Where would you like
-                  the words?
-                </h2>
-
-                <div className="choiceGrid">
-                  {product.textLayouts.map(
-                    (item) => (
-                      <button
-                        type="button"
-                        key={item}
-                        className={
-                          textLayout ===
-                          item
-                            ? 'choiceCard active'
-                            : 'choiceCard'
-                        }
-                        onClick={() => {
-                          setTextLayout(
-                            item
-                          );
-
-                          markChanged();
-                        }}
-                      >
-                        <strong>
-                          {item ===
-                          'photo-only'
-                            ? 'Photo only'
-                            : item ===
-                              'top'
-                            ? 'Words at top'
-                            : item ===
-                              'bottom'
-                            ? 'Words at bottom'
-                            : item ===
-                              'top-bottom'
-                            ? 'Top + bottom'
-                            : 'One paragraph'}
-                        </strong>
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
-          {/* WORDING */}
-
-          {designSource !==
-            'own' &&
-            textLayout !==
-              'photo-only' && (
-              <div className="personaliserSection">
-                <h2>
-                  Add your words
-                </h2>
-
-                {(textLayout ===
-                  'top' ||
-                  textLayout ===
-                    'top-bottom') && (
-                  <label>
-                    Top phrase
-
-                    <input
-                      value={
-                        topText
-                      }
-                      onChange={(
-                        event
-                      ) => {
-                        setTopText(
-                          event.target
-                            .value
-                        );
-
-                        markChanged();
-                      }}
-                      placeholder="e.g. Happy Birthday"
-                    />
-                  </label>
-                )}
-
-                {(textLayout ===
-                  'bottom' ||
-                  textLayout ===
-                    'top-bottom') && (
-                  <label>
-                    Bottom phrase
-
-                    <input
-                      value={
-                        bottomText
-                      }
-                      onChange={(
-                        event
-                      ) => {
-                        setBottomText(
-                          event.target
-                            .value
-                        );
-
-                        markChanged();
-                      }}
-                      placeholder="e.g. Love from all of us"
-                    />
-                  </label>
-                )}
-
-                {textLayout ===
-                  'paragraph' && (
-                  <label>
-                    Message
-
-                    <textarea
-                      value={
-                        paragraph
-                      }
-                      onChange={(
-                        event
-                      ) => {
-                        setParagraph(
-                          event.target
-                            .value
-                        );
-
-                        markChanged();
-                      }}
-                      placeholder="Write your personal message..."
-                    />
-                  </label>
-                )}
-              </div>
-            )}
-
-          {/* RECIPIENT */}
-
-          <div className="personaliserSection">
-            <h2>
-              Who is it for?
-            </h2>
-
-            <label>
-              Recipient
-
-              <input
-                value={
-                  recipient
-                }
-                onChange={(event) => {
-                  setRecipient(
-                    event.target.value
-                  );
-
-                  markChanged();
-                }}
-                placeholder="e.g. Sarah"
-              />
-            </label>
-
-            <label>
-              From
-
-              <input
-                value={sender}
-                onChange={(event) => {
-                  setSender(
-                    event.target.value
-                  );
-
-                  markChanged();
-                }}
-                placeholder="e.g. Leo"
-              />
-            </label>
-          </div>
-
-          {/* PHOTO / OWN ARTWORK */}
-
-          <div className="personaliserSection">
-            <h2>
-              {allowsOwnDesign &&
-              designSource ===
-                'own'
-                ? 'Upload your design'
-                : 'Add your photograph'}
-            </h2>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={
-                choosePhoto
-              }
-            />
-
-            {isCoaster && (
-              <p
-                style={{
-                  color:
-                    'var(--sm-muted)',
-                  fontSize:
-                    '12px',
-                  lineHeight:
-                    1.6,
-                }}
-              >
-                For now, the same
-                photograph or design
-                will be printed across
-                every coaster in the
-                set.
-              </p>
-            )}
-
-            {allowsOwnDesign &&
-              designSource ===
-                'own' && (
-                <p
-                  style={{
-                    color:
-                      'var(--sm-muted)',
-                    fontSize:
-                      '12px',
-                    lineHeight:
-                      1.6,
-                  }}
-                >
-                  Upload your finished
-                  artwork or image and
-                  check the preview
-                  carefully before
-                  confirming.
-                </p>
-              )}
-          </div>
-
-          {/* VOICE MEMORY */}
-
-          <div className="personaliserSection">
-            <h2>
-              Add a voice memory
-            </h2>
-
-            <p
-              style={{
-                color:
-                  'var(--sm-muted)',
-                fontSize: '13px',
-                lineHeight: 1.6,
-              }}
-            >
-              Record a personal
-              message that the
-              recipient can hear when
-              they tap their Smart
-              Memory.
-            </p>
-
-            {!audioUrl && (
-              <button
-                type="button"
-                className="btn"
-                onClick={
-                  recording
-                    ? stopRecording
-                    : startRecording
-                }
-              >
-                {recording
-                  ? `■ Stop recording (${recordingSeconds}s)`
-                  : '● Record my voice'}
-              </button>
-            )}
-
-            {audioUrl && (
-              <div
-                style={{
-                  marginTop:
-                    '16px',
-                }}
-              >
-                <p className="success">
-                  ✓ Voice message ready
-                </p>
-
-                <audio
-                  controls
-                  preload="metadata"
-                  src={audioUrl}
-                  style={{
-                    width: '100%',
-                  }}
-                />
-
-                <div
-                  className="choiceRow"
-                  style={{
-                    marginTop:
-                      '12px',
-                  }}
-                >
                   <button
                     type="button"
-                    className="optionPill"
-                    onClick={
-                      deleteRecording
+                    className={
+                      mode ===
+                      'custom'
+                        ? 'choiceCard active'
+                        : 'choiceCard'
                     }
+                    onClick={() => {
+                      setMode(
+                        'custom'
+                      );
+                      markChanged();
+                    }}
                   >
-                    Delete & record
-                    again
+                    <strong>
+                      Customize It
+                    </strong>
+
+                    <small>
+                      Choose the
+                      layout and
+                      wording
+                      yourself.
+                    </small>
                   </button>
                 </div>
               </div>
-            )}
 
-            <label>
-              Or upload audio
+              <div className="smWizardSection">
+                <h3>
+                  What is it for?
+                </h3>
 
-              <input
-                type="file"
-                accept="audio/*"
-                onChange={
-                  chooseAudio
-                }
-              />
-            </label>
-          </div>
-
-          {/* ACCESSORIES */}
-
-          {product.accessories &&
-            product.accessories
-              .length > 0 && (
-              <div className="personaliserSection">
-                <h2>
-                  Would you like a
-                  stand?
-                </h2>
-
-                <div className="choiceRow">
-                  {product.accessories.map(
-                    (item) => (
-                      <button
-                        type="button"
-                        key={item}
-                        className={
-                          accessory ===
-                          item
-                            ? 'optionPill active'
-                            : 'optionPill'
-                        }
-                        onClick={() => {
-                          setAccessory(
-                            item
-                          );
-
-                          markChanged();
-                        }}
-                      >
-                        {item}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-        </div>
-
-        {/* RIGHT SIDE - LIVE PREVIEW */}
-
-        <aside className="personaliserPreviewColumn">
-          <div className="previewSticky">
-            <span className="eyebrow">
-              YOUR PREVIEW
-            </span>
-
-            <ConfiguredProductPreview
-              slug={product.slug}
-              photoUrl={photoUrl}
-              orientation={
-                orientation
-              }
-              topText={
-                designSource ===
-                'own'
-                  ? ''
-                  : topText
-              }
-              bottomText={
-                designSource ===
-                'own'
-                  ? ''
-                  : bottomText
-              }
-              paragraph={
-                designSource ===
-                'own'
-                  ? ''
-                  : paragraph
-              }
-              textLayout={
-                designSource ===
-                'own'
-                  ? 'photo-only'
-                  : textLayout
-              }
-            />
-
-            <div className="previewDetails">
-              {occasion && (
-                <p>
-                  <strong>
-                    Occasion:
-                  </strong>{' '}
-                  {occasion}
-                </p>
-              )}
-
-              {size && (
-                <p>
-                  <strong>
-                    {isCoaster
-                      ? 'Quantity:'
-                      : 'Size:'}
-                  </strong>{' '}
-                  {size}
-                </p>
-              )}
-
-              {product.orientations &&
-                product.orientations
-                  .length > 0 && (
-                  <p>
+                {initialOccasion && (
+                  <div className="smWizardOccasionNotice">
+                    You arrived
+                    through:{' '}
                     <strong>
-                      Direction:
-                    </strong>{' '}
-                    {orientation ===
-                    'landscape'
-                      ? 'Across'
-                      : orientation ===
-                        'portrait'
-                      ? 'Upright'
-                      : 'Square'}
-                  </p>
+                      {
+                        initialOccasion
+                      }
+                    </strong>
+                  </div>
                 )}
 
+                <div className="occasionGrid">
+                  {product.occasions
+                    .slice(
+                      0,
+                      12
+                    )
+                    .map(
+                      (
+                        item
+                      ) => (
+                        <button
+                          type="button"
+                          key={
+                            item
+                          }
+                          className={
+                            occasion ===
+                            item
+                              ? 'optionPill active'
+                              : 'optionPill'
+                          }
+                          onClick={() => {
+                            setOccasion(
+                              item
+                            );
+                            markChanged();
+                          }}
+                        >
+                          {
+                            item
+                          }
+                        </button>
+                      )
+                    )}
+                </div>
+
+                <select
+                  value={
+                    occasion
+                  }
+                  onChange={(
+                    event
+                  ) => {
+                    setOccasion(
+                      event.target
+                        .value
+                    );
+                    markChanged();
+                  }}
+                >
+                  <option value="">
+                    More
+                    occasions...
+                  </option>
+
+                  {product.occasions.map(
+                    (
+                      item
+                    ) => (
+                      <option
+                        key={
+                          item
+                        }
+                        value={
+                          item
+                        }
+                      >
+                        {
+                          item
+                        }
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+
               {allowsOwnDesign && (
-                <p>
-                  <strong>
-                    Design:
-                  </strong>{' '}
-                  {designSource ===
-                  'own'
-                    ? 'Customer design'
-                    : 'Smart Memories design'}
-                </p>
+                <div className="smWizardSection">
+                  <h3>
+                    How would you
+                    like to design
+                    it?
+                  </h3>
+
+                  <div className="choiceGrid two">
+                    <button
+                      type="button"
+                      className={
+                        designSource ===
+                        'ours'
+                          ? 'choiceCard active'
+                          : 'choiceCard'
+                      }
+                      onClick={() => {
+                        setDesignSource(
+                          'ours'
+                        );
+                        markChanged();
+                      }}
+                    >
+                      <strong>
+                        Use Our
+                        Designs
+                      </strong>
+
+                      <small>
+                        Choose a
+                        Smart
+                        Memories
+                        style.
+                      </small>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={
+                        designSource ===
+                        'own'
+                          ? 'choiceCard active'
+                          : 'choiceCard'
+                      }
+                      onClick={() => {
+                        setDesignSource(
+                          'own'
+                        );
+                        markChanged();
+                      }}
+                    >
+                      <strong>
+                        Upload My
+                        Own Design
+                      </strong>
+
+                      <small>
+                        Use your
+                        finished
+                        artwork or
+                        image.
+                      </small>
+                    </button>
+                  </div>
+                </div>
               )}
 
               {mode ===
                 'quick' &&
-                designSource ===
-                  'ours' &&
-                template && (
-                  <p>
+                (!allowsOwnDesign ||
+                  designSource ===
+                    'ours') && (
+                  <div className="smWizardSection">
+                    <h3>
+                      Choose a
+                      design
+                    </h3>
+
+                    <div className="templateGrid">
+                      {product.templates.map(
+                        (
+                          item
+                        ) => (
+                          <button
+                            type="button"
+                            key={
+                              item
+                            }
+                            className={
+                              template ===
+                              item
+                                ? 'templateCard active'
+                                : 'templateCard'
+                            }
+                            onClick={() => {
+                              setTemplate(
+                                item
+                              );
+                              markChanged();
+                            }}
+                          >
+                            <div className="templateMiniPreview">
+                              ♥
+                            </div>
+
+                            <strong>
+                              {
+                                item
+                              }
+                            </strong>
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {product.sizes &&
+                product.sizes
+                  .length >
+                  0 && (
+                  <div className="smWizardSection">
+                    <h3>
+                      {isCoaster
+                        ? 'How many coasters would you like?'
+                        : 'Choose the size'}
+                    </h3>
+
+                    <div className="choiceRow">
+                      {product.sizes.map(
+                        (
+                          item
+                        ) => (
+                          <button
+                            type="button"
+                            key={
+                              item
+                            }
+                            className={
+                              size ===
+                              item
+                                ? 'optionPill active'
+                                : 'optionPill'
+                            }
+                            onClick={() => {
+                              setSize(
+                                item
+                              );
+                              markChanged();
+                            }}
+                          >
+                            {
+                              item
+                            }
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {product.orientations &&
+                product
+                  .orientations
+                  .length >
+                  1 && (
+                  <div className="smWizardSection">
+                    <h3>
+                      Which
+                      direction?
+                    </h3>
+
+                    <div className="choiceGrid two">
+                      {product.orientations.map(
+                        (
+                          item
+                        ) => (
+                          <button
+                            type="button"
+                            key={
+                              item
+                            }
+                            className={
+                              orientation ===
+                              item
+                                ? 'orientationCard active'
+                                : 'orientationCard'
+                            }
+                            onClick={() => {
+                              setOrientation(
+                                item
+                              );
+                              markChanged();
+                            }}
+                          >
+                            <span
+                              className={
+                                item ===
+                                'landscape'
+                                  ? 'orientationShape landscape'
+                                  : 'orientationShape portrait'
+                              }
+                            />
+
+                            <strong>
+                              {item ===
+                              'landscape'
+                                ? 'Across'
+                                : item ===
+                                    'portrait'
+                                  ? 'Upright'
+                                  : 'Square'}
+                            </strong>
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {product.textLayouts &&
+                product
+                  .textLayouts
+                  .length >
+                  0 &&
+                designSource !==
+                  'own' && (
+                  <div className="smWizardSection">
+                    <h3>
+                      Words on the
+                      physical gift
+                    </h3>
+
+                    <div className="choiceGrid">
+                      {product.textLayouts.map(
+                        (
+                          item
+                        ) => (
+                          <button
+                            type="button"
+                            key={
+                              item
+                            }
+                            className={
+                              textLayout ===
+                              item
+                                ? 'choiceCard active'
+                                : 'choiceCard'
+                            }
+                            onClick={() => {
+                              setTextLayout(
+                                item
+                              );
+                              markChanged();
+                            }}
+                          >
+                            <strong>
+                              {item ===
+                              'photo-only'
+                                ? 'Photo only'
+                                : item ===
+                                    'top'
+                                  ? 'Words at top'
+                                  : item ===
+                                      'bottom'
+                                    ? 'Words at bottom'
+                                    : item ===
+                                        'top-bottom'
+                                      ? 'Top + bottom'
+                                      : 'One paragraph'}
+                            </strong>
+                          </button>
+                        )
+                      )}
+                    </div>
+
+                    {textLayout !==
+                      'photo-only' && (
+                      <div className="smWizardFields">
+                        {(textLayout ===
+                          'top' ||
+                          textLayout ===
+                            'top-bottom') && (
+                          <label>
+                            <span>
+                              Top
+                              phrase
+                            </span>
+
+                            <input
+                              value={
+                                topText
+                              }
+                              onChange={(
+                                event
+                              ) => {
+                                setTopText(
+                                  event
+                                    .target
+                                    .value
+                                );
+                                markChanged();
+                              }}
+                              placeholder="e.g. Happy Birthday"
+                            />
+                          </label>
+                        )}
+
+                        {(textLayout ===
+                          'bottom' ||
+                          textLayout ===
+                            'top-bottom') && (
+                          <label>
+                            <span>
+                              Bottom
+                              phrase
+                            </span>
+
+                            <input
+                              value={
+                                bottomText
+                              }
+                              onChange={(
+                                event
+                              ) => {
+                                setBottomText(
+                                  event
+                                    .target
+                                    .value
+                                );
+                                markChanged();
+                              }}
+                              placeholder="e.g. Love from all of us"
+                            />
+                          </label>
+                        )}
+
+                        {textLayout ===
+                          'paragraph' && (
+                          <label>
+                            <span>
+                              Printed
+                              message
+                            </span>
+
+                            <textarea
+                              rows={
+                                5
+                              }
+                              value={
+                                paragraph
+                              }
+                              onChange={(
+                                event
+                              ) => {
+                                setParagraph(
+                                  event
+                                    .target
+                                    .value
+                                );
+                                markChanged();
+                              }}
+                              placeholder="Write the wording for the physical gift..."
+                            />
+                          </label>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              {product.accessories &&
+                product
+                  .accessories
+                  .length >
+                  0 && (
+                  <div className="smWizardSection">
+                    <h3>
+                      Would you
+                      like a stand?
+                    </h3>
+
+                    <div className="choiceRow">
+                      {product.accessories.map(
+                        (
+                          item
+                        ) => (
+                          <button
+                            type="button"
+                            key={
+                              item
+                            }
+                            className={
+                              accessory ===
+                              item
+                                ? 'optionPill active'
+                                : 'optionPill'
+                            }
+                            onClick={() => {
+                              setAccessory(
+                                item
+                              );
+                              markChanged();
+                            }}
+                          >
+                            {
+                              item
+                            }
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+            </>
+          )}
+
+          {/* =========================================
+              STEP 2 — MAIN PHOTO
+              ========================================= */}
+
+          {currentStep ===
+            'photo' && (
+            <>
+              <div className="smWizardStepHeading">
+                <span>
+                  STEP{' '}
+                  {stepIndex +
+                    1}
+                </span>
+
+                <h2>
+                  Choose Your Main
+                  Photo
+                </h2>
+
+                <p>
+                  This is the image
+                  that will appear
+                  on your
+                  personalised gift
+                  and current Smart
+                  Memory page.
+                </p>
+              </div>
+
+              <div className="smWizardUploadCard">
+                {!photoUrl ? (
+                  <label className="smWizardUploadButton">
                     <strong>
-                      Template:
-                    </strong>{' '}
-                    {template}
+                      Add Main Photo
+                    </strong>
+
+                    <span>
+                      Choose from
+                      your camera
+                      roll, photo
+                      library or
+                      files
+                    </span>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={
+                        choosePhoto
+                      }
+                    />
+                  </label>
+                ) : (
+                  <div className="smWizardPhotoReady">
+                    <img
+                      src={
+                        photoUrl
+                      }
+                      alt="Your selected main photo"
+                    />
+
+                    <div>
+                      <strong>
+                        Main photo
+                        added
+                      </strong>
+
+                      <div className="choiceRow">
+                        <label className="optionPill">
+                          Replace
+                          <input
+                            className="smHiddenFileInput"
+                            type="file"
+                            accept="image/*"
+                            onChange={
+                              choosePhoto
+                            }
+                          />
+                        </label>
+
+                        <button
+                          type="button"
+                          className="optionPill"
+                          onClick={
+                            removePhoto
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <small>
+                  Supported image
+                  format through
+                  your browser •
+                  Maximum 10 MB
+                </small>
+
+                {isCoaster && (
+                  <p>
+                    The current
+                    coaster creator
+                    uses the same
+                    photograph or
+                    design across
+                    the set.
                   </p>
                 )}
 
-              {recipient && (
-                <p>
-                  <strong>
-                    For:
-                  </strong>{' '}
-                  {recipient}
-                </p>
-              )}
-
-              {accessory && (
-                <p>
-                  <strong>
-                    Stand:
-                  </strong>{' '}
-                  {accessory}
-                </p>
-              )}
-
-              <p>
-                <strong>
-                  Voice memory:
-                </strong>{' '}
-                {audio
-                  ? 'Ready ✓'
-                  : 'Not added'}
-              </p>
-
-              {shopProduct && (
-                <p>
-                  <strong>
-                    Price:
-                  </strong>{' '}
-                  £
-                  {shopProduct.price.toFixed(
-                    2
+                {allowsOwnDesign &&
+                  designSource ===
+                    'own' && (
+                    <p>
+                      Your uploaded
+                      finished
+                      artwork will
+                      also be used
+                      as the current
+                      Smart Memory
+                      image.
+                    </p>
                   )}
+              </div>
+            </>
+          )}
+
+          {/* =========================================
+              VOICE
+              ========================================= */}
+
+          {currentStep ===
+            'voice' && (
+            <>
+              <div className="smWizardStepHeading">
+                <span>
+                  STEP{' '}
+                  {stepIndex +
+                    1}
+                </span>
+
+                <h2>
+                  Add Your Voice
+                </h2>
+
+                <p>
+                  Sometimes hearing
+                  someone's voice
+                  means more than
+                  any photograph.
                 </p>
-              )}
-            </div>
+              </div>
 
-            {/* CONFIRM */}
+              <div className="smWizardVoiceCard">
+                {!audioUrl &&
+                  !recording && (
+                    <div className="smWizardVoiceActions">
+                      <button
+                        type="button"
+                        className="btn big"
+                        onClick={
+                          startRecording
+                        }
+                      >
+                        🎙 Record a
+                        Message
+                      </button>
 
-            {!finalReview ? (
-              <div className="previewConfirmation">
+                      <label className="btn secondary">
+                        Upload
+                        Recording
+
+                        <input
+                          className="smHiddenFileInput"
+                          type="file"
+                          accept="audio/*"
+                          onChange={
+                            chooseAudio
+                          }
+                        />
+                      </label>
+                    </div>
+                  )}
+
+                {recording && (
+                  <div className="smWizardRecordingLive">
+                    <span className="smWizardRecordingDot" />
+
+                    <strong>
+                      Recording...
+                    </strong>
+
+                    <span>
+                      {formatTime(
+                        recordingSeconds
+                      )}
+                    </span>
+
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={
+                        stopRecording
+                      }
+                    >
+                      Stop Recording
+                    </button>
+                  </div>
+                )}
+
+                {audioUrl && (
+                  <div className="smWizardAudioReady">
+                    <strong>
+                      ✓ Voice
+                      message ready
+                    </strong>
+
+                    <audio
+                      controls
+                      preload="metadata"
+                      src={
+                        audioUrl
+                      }
+                    />
+
+                    <div className="choiceRow">
+                      <button
+                        type="button"
+                        className="optionPill"
+                        onClick={
+                          deleteRecording
+                        }
+                      >
+                        Remove
+                      </button>
+
+                      <label className="optionPill">
+                        Replace with
+                        upload
+
+                        <input
+                          className="smHiddenFileInput"
+                          type="file"
+                          accept="audio/*"
+                          onChange={
+                            chooseAudio
+                          }
+                        />
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                <small>
+                  Audio maximum:
+                  25 MB
+                </small>
+              </div>
+
+              <div className="smWizardPromptIdeas">
                 <strong>
-                  Happy with your
-                  finished product?
+                  Not sure what to
+                  say?
                 </strong>
 
                 <p>
-                  Check the photograph,
-                  design, wording and
-                  Smart Memory before
-                  confirming.
+                  “Happy birthday —
+                  I hope you always
+                  remember...”
                 </p>
+
+                <p>
+                  “I wanted you to
+                  hear this whenever
+                  you miss me...”
+                </p>
+
+                <p>
+                  “Here's to all the
+                  memories we've
+                  made together...”
+                </p>
+
+                <p>
+                  “I love you
+                  because...”
+                </p>
+              </div>
+
+              <p className="smWizardOptional">
+                Voice is optional.
+                You can continue
+                without adding one.
+              </p>
+            </>
+          )}
+
+          {/* =========================================
+              MESSAGE
+              ========================================= */}
+
+          {currentStep ===
+            'message' && (
+            <>
+              <div className="smWizardStepHeading">
+                <span>
+                  STEP{' '}
+                  {stepIndex +
+                    1}
+                </span>
+
+                <h2>
+                  Write Your
+                  Message
+                </h2>
+
+                <p>
+                  Add the words you
+                  want them to see
+                  when their Smart
+                  Memory opens.
+                </p>
+              </div>
+
+              <div className="smWizardFields">
+                <label>
+                  <span>
+                    Who is this
+                    memory for? *
+                  </span>
+
+                  <input
+                    value={
+                      recipient
+                    }
+                    onChange={(
+                      event
+                    ) => {
+                      setRecipient(
+                        event
+                          .target
+                          .value
+                      );
+                      markChanged();
+                    }}
+                    placeholder="e.g. Mum, Sarah, Grandad..."
+                  />
+                </label>
+
+                <label>
+                  <span>
+                    Personal
+                    message
+                  </span>
+
+                  <textarea
+                    rows={7}
+                    value={
+                      memoryMessage
+                    }
+                    onChange={(
+                      event
+                    ) => {
+                      setMemoryMessage(
+                        event
+                          .target
+                          .value
+                      );
+                      markChanged();
+                    }}
+                    placeholder={
+                      occasion ===
+                      'Pet Memory'
+                        ? 'Add your favourite moments together...'
+                        : occasion ===
+                            'Remembrance'
+                          ? 'Write about the moments you never want to forget...'
+                          : occasion ===
+                              'New Baby'
+                            ? 'Write about the little moments you want to remember forever...'
+                            : 'Write something they will want to keep...'
+                    }
+                  />
+                </label>
+
+                <label>
+                  <span>
+                    From
+                  </span>
+
+                  <input
+                    value={
+                      sender
+                    }
+                    onChange={(
+                      event
+                    ) => {
+                      setSender(
+                        event
+                          .target
+                          .value
+                      );
+                      markChanged();
+                    }}
+                    placeholder="Your name"
+                  />
+                </label>
+              </div>
+            </>
+          )}
+
+          {/* =========================================
+              PREVIEW
+              ========================================= */}
+
+          {currentStep ===
+            'preview' && (
+            <>
+              <div className="smWizardStepHeading">
+                <span>
+                  STEP{' '}
+                  {stepIndex +
+                    1}
+                </span>
+
+                <h2>
+                  Preview Your
+                  Smart Memory
+                </h2>
+
+                <p>
+                  See what they'll
+                  experience when
+                  they tap their
+                  gift.
+                </p>
+              </div>
+
+              <div className="smWizardDualPreview">
+                <article>
+                  <span className="v14Eyebrow">
+                    A. YOUR
+                    PHYSICAL GIFT
+                  </span>
+
+                  <ConfiguredProductPreview
+                    slug={
+                      product.slug
+                    }
+                    photoUrl={
+                      photoUrl
+                    }
+                    orientation={
+                      orientation
+                    }
+                    topText={
+                      designSource ===
+                      'own'
+                        ? ''
+                        : topText
+                    }
+                    bottomText={
+                      designSource ===
+                      'own'
+                        ? ''
+                        : bottomText
+                    }
+                    paragraph={
+                      designSource ===
+                      'own'
+                        ? ''
+                        : paragraph
+                    }
+                    textLayout={
+                      designSource ===
+                      'own'
+                        ? 'photo-only'
+                        : textLayout
+                    }
+                  />
+                </article>
+
+                <article>
+                  <span className="v14Eyebrow">
+                    B. THEIR SMART
+                    MEMORY
+                  </span>
+
+                  <SmartMemoryLivePreview
+                    recipient={
+                      recipient
+                    }
+                    message={
+                      finalMemoryMessage
+                    }
+                    sender={
+                      sender
+                    }
+                    occasion={
+                      occasion
+                    }
+                    photoUrl={
+                      photoUrl
+                    }
+                    audioUrl={
+                      audioUrl
+                    }
+                  />
+                </article>
+              </div>
+
+              <div className="smWizardReviewSummary">
+                <div>
+                  <span>
+                    Gift
+                  </span>
+
+                  <strong>
+                    {
+                      product.name
+                    }
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Main photo
+                  </span>
+
+                  <strong>
+                    {photo
+                      ? '✓ Added'
+                      : 'Not added'}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Voice
+                  </span>
+
+                  <strong>
+                    {audio
+                      ? '✓ Added'
+                      : 'Optional'}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Message
+                  </span>
+
+                  <strong>
+                    {finalMemoryMessage
+                      ? '✓ Ready'
+                      : 'Not added'}
+                  </strong>
+                </div>
+
+                {shopProduct && (
+                  <div>
+                    <span>
+                      Price
+                    </span>
+
+                    <strong>
+                      £
+                      {shopProduct.price.toFixed(
+                        2
+                      )}
+                    </strong>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="btn big smWizardCreateButton"
+                disabled={
+                  saving
+                }
+                onClick={
+                  saveSmartMemory
+                }
+              >
+                {saving
+                  ? 'Creating your Smart Memory...'
+                  : 'Create My Smart Gift →'}
+              </button>
+
+              {saving && (
+                <p className="smWizardSavingNote">
+                  Uploading your
+                  photo and voice
+                  message and
+                  preparing your
+                  Smart Memory...
+                </p>
+              )}
+            </>
+          )}
+
+          {/* =========================================
+              READY
+              ========================================= */}
+
+          {currentStep ===
+            'ready' && (
+            <>
+              <div className="smWizardReady">
+                <span className="smWizardReadyMark">
+                  ✓
+                </span>
+
+                <span className="v14Eyebrow">
+                  YOUR SMART MEMORY
+                  IS READY
+                </span>
+
+                <h2>
+                  Ready to add your
+                  Smart Gift to the
+                  basket.
+                </h2>
+
+                <div className="smWizardReadySummary">
+                  <div>
+                    <span>
+                      Gift
+                    </span>
+
+                    <strong>
+                      {
+                        product.name
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Main photo
+                    </span>
+
+                    <strong>
+                      ✓ Added
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Voice
+                    </span>
+
+                    <strong>
+                      {audio
+                        ? '✓ Added'
+                        : 'Not added'}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Message
+                    </span>
+
+                    <strong>
+                      ✓ Added
+                    </strong>
+                  </div>
+
+                  {savedCode && (
+                    <div>
+                      <span>
+                        Memory
+                        reference
+                      </span>
+
+                      <strong>
+                        {
+                          savedCode
+                        }
+                      </strong>
+                    </div>
+                  )}
+
+                  {shopProduct && (
+                    <div>
+                      <span>
+                        Price
+                      </span>
+
+                      <strong>
+                        £
+                        {shopProduct.price.toFixed(
+                          2
+                        )}
+                      </strong>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className="btn big smWizardCreateButton"
+                  onClick={
+                    addToBasket
+                  }
+                >
+                  Add My Smart Gift
+                  to Basket →
+                </button>
+
+                <p>
+                  Your existing
+                  memory code will
+                  stay attached to
+                  this product
+                  through the
+                  basket and order.
+                </p>
+              </div>
+            </>
+          )}
+
+          {stepError && (
+            <div
+              className="smWizardError"
+              role="alert"
+            >
+              {stepError}
+            </div>
+          )}
+
+          {/* BACK / CONTINUE */}
+
+          {currentStep !==
+            'preview' &&
+            currentStep !==
+              'ready' && (
+              <div className="smWizardNavigation">
+                {stepIndex >
+                  0 ? (
+                  <button
+                    type="button"
+                    className="btn secondary"
+                    onClick={
+                      goBack
+                    }
+                  >
+                    ← Back
+                  </button>
+                ) : (
+                  <span />
+                )}
 
                 <button
                   type="button"
                   className="btn big"
-                  disabled={saving}
                   onClick={
-                    saveSmartMemory
+                    goNext
                   }
                 >
-                  {saving
-                    ? 'Saving Smart Memory...'
-                    : 'Confirm & Save Smart Memory →'}
+                  Continue →
                 </button>
               </div>
-            ) : (
-              <div className="previewConfirmation">
-                <strong>
-                  ✓ Your product is ready
-                </strong>
+            )}
 
-                <p>
-                  This is the confirmed
-                  version that will be
-                  added to your basket.
-                </p>
+          {currentStep ===
+            'preview' && (
+            <div className="smWizardNavigation smWizardPreviewBack">
+              <button
+                type="button"
+                className="btn secondary"
+                disabled={
+                  saving
+                }
+                onClick={
+                  goBack
+                }
+              >
+                ← Back
+              </button>
+            </div>
+          )}
+        </div>
 
-                {savedCode && (
-                  <small>
-                    Memory reference:{' '}
-                    {savedCode}
-                  </small>
+        {/* =========================================
+            LIVE PHYSICAL PREVIEW
+            ========================================= */}
+
+        {currentStep !==
+          'preview' &&
+          currentStep !==
+            'ready' && (
+            <aside className="smWizardStickyPreview">
+              <span className="eyebrow">
+                LIVE GIFT PREVIEW
+              </span>
+
+              <ConfiguredProductPreview
+                slug={
+                  product.slug
+                }
+                photoUrl={
+                  photoUrl
+                }
+                orientation={
+                  orientation
+                }
+                topText={
+                  designSource ===
+                  'own'
+                    ? ''
+                    : topText
+                }
+                bottomText={
+                  designSource ===
+                  'own'
+                    ? ''
+                    : bottomText
+                }
+                paragraph={
+                  designSource ===
+                  'own'
+                    ? ''
+                    : paragraph
+                }
+                textLayout={
+                  designSource ===
+                  'own'
+                    ? 'photo-only'
+                    : textLayout
+                }
+              />
+
+              <div className="smWizardMiniSummary">
+                {occasion && (
+                  <p>
+                    <strong>
+                      Occasion:
+                    </strong>{' '}
+                    {occasion}
+                  </p>
                 )}
 
-                <div
-                  style={{
-                    display:
-                      'grid',
-                    gap: '10px',
-                    marginTop:
-                      '18px',
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="btn big"
-                    onClick={
-                      addToBasket
-                    }
-                  >
-                    Confirm & Add to
-                    Basket →
-                  </button>
+                {size && (
+                  <p>
+                    <strong>
+                      {isCoaster
+                        ? 'Quantity:'
+                        : 'Size:'}
+                    </strong>{' '}
+                    {size}
+                  </p>
+                )}
 
-                  <button
-                    type="button"
-                    className="optionPill"
-                    onClick={() =>
-                      setFinalReview(
-                        false
-                      )
-                    }
-                  >
-                    Edit Design
-                  </button>
-                </div>
+                {recipient && (
+                  <p>
+                    <strong>
+                      For:
+                    </strong>{' '}
+                    {recipient}
+                  </p>
+                )}
+
+                <p>
+                  <strong>
+                    Voice:
+                  </strong>{' '}
+                  {audio
+                    ? 'Ready ✓'
+                    : 'Not added'}
+                </p>
+
+                {shopProduct && (
+                  <p>
+                    <strong>
+                      Price:
+                    </strong>{' '}
+                    £
+                    {shopProduct.price.toFixed(
+                      2
+                    )}
+                  </p>
+                )}
               </div>
-            )}
-          </div>
-        </aside>
+            </aside>
+          )}
       </div>
     </section>
   );
