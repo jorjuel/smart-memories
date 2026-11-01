@@ -57,8 +57,8 @@ export async function requestAdminPasswordReset(
 
     const redirectTo =
       `${getCanonicalSiteUrl()}` +
-      '/auth/callback' +
-      '?next=/account/update-password';
+      '/admin/auth/callback' +
+      '';
 
     const {
       error,
