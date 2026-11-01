@@ -1,10 +1,14 @@
 import './globals.css';
+
 import Link from 'next/link';
 
+import SiteHeader from '../components/SiteHeader';
+
 export const metadata = {
-  title: 'Smart Memories | Personalised Gifts You Can Hear',
+  title:
+    'Smart Memories | Tap. Remember. Relive.',
   description:
-    'Personalised photo gifts with a hidden Smart Memory. Add your photograph, words and voice — one tap brings the memory back.',
+    'Create a personalised Smart Memory with photographs, words, voice and meaningful moments — connected to a gift they can tap and relive.',
 };
 
 export default function Layout({
@@ -15,64 +19,124 @@ export default function Layout({
   return (
     <html lang="en">
       <body>
-        <header className="siteHeader">
-          <Link href="/" className="brand">
-            SMART MEMORIES <span>♥</span>
-          </Link>
+        <SiteHeader />
 
-          <nav className="mainNav">
-            <Link href="/shop">Shop</Link>
-            <Link href="/cards">Handcrafted Cards</Link>
-            <Link href="/how-it-works">How It Works</Link>
-            <Link href="/create">Create</Link>
-            <Link href="/memories">My Memories</Link>
-            <Link href="/cart">Basket 🛍️</Link>
-            <Link href="/account">Account</Link>
-          </nav>
-        </header>
-
-        <main>{children}</main>
+        <main>
+          {children}
+        </main>
 
         <footer className="siteFooter">
           <div className="footerBrand">
-            <Link href="/" className="footerLogo">
-              SMART MEMORIES <span>♥</span>
+            <Link
+              href="/"
+              className="footerLogo"
+            >
+              SMART MEMORIES
+              <span>♥</span>
             </Link>
 
             <p>
-              Some moments deserve to be heard
+              Some gifts hold a
+              photo.
               <br />
-              as well as seen.
+              Smart Memories holds
+              the story.
             </p>
+
+            <small className="footerBrandLine">
+              Tap. Remember. Relive.
+            </small>
           </div>
 
           <div className="footerLinks">
             <div>
-              <strong>SHOP</strong>
-              <Link href="/shop">Smart Gifts</Link>
-              <Link href="/cards">Handcrafted Cards</Link>
-              <Link href="/create">Create a Memory</Link>
-              <Link href="/cart">Basket</Link>
+              <strong>
+                CREATE
+              </strong>
+
+              <Link href="/create">
+                Create a Memory
+              </Link>
+
+              <Link href="/shop">
+                Smart Gifts
+              </Link>
+
+              <Link href="/cards">
+                Smart Cards
+              </Link>
+
+              <Link href="/occasions">
+                Shop by Occasion
+              </Link>
             </div>
 
             <div>
-              <strong>DISCOVER</strong>
-              <Link href="/how-it-works">How It Works</Link>
-              <Link href="/about">Our Story</Link>
-              <Link href="/contact">Contact</Link>
+              <strong>
+                YOUR MEMORIES
+              </strong>
+
+              <Link href="/memories">
+                My Memories
+              </Link>
+
+              <Link href="/account/orders">
+                My Orders
+              </Link>
+
+              <Link href="/account">
+                Account
+              </Link>
+
+              <Link href="/cart">
+                Basket
+              </Link>
             </div>
 
             <div>
-              <strong>YOUR MEMORIES</strong>
-              <Link href="/memories">My Memories</Link>
-              <Link href="/account">Account</Link>
+              <strong>
+                DISCOVER
+              </strong>
+
+              <Link href="/how-it-works">
+                How It Works
+              </Link>
+
+              <Link href="/about">
+                About Smart Memories
+              </Link>
+
+              <Link href="/contact">
+                Contact
+              </Link>
+            </div>
+
+            <div>
+              <strong>
+                INFORMATION
+              </strong>
+
+              <Link href="/privacy">
+                Privacy Policy
+              </Link>
+
+              <Link href="/terms">
+                Terms
+              </Link>
             </div>
           </div>
 
           <div className="footerBottom">
-            <span>© {new Date().getFullYear()} Smart Memories</span>
+            <span>
+              ©{' '}
+              {new Date().getFullYear()}{' '}
+              Smart Memories
+            </span>
 
-            <Link href="/admin" className="ownerLink">
+            <Link
+              href="/admin"
+              className="ownerLink"
+            >
               Owner
             </Link>
           </div>

@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import {
   useRouter,
   useSearchParams,
@@ -17,6 +18,8 @@ import {
 import {
   products,
 } from '../../lib/products';
+
+import CreateMemoryJourney from '../../components/CreateMemoryJourney';
 
 function CreateContent() {
   const router = useRouter();
@@ -390,7 +393,17 @@ setSavedPhotoUrl(permanentPhotoUrl);
       );
     }
   }
+  const directMode =
+    Boolean(productSlug) ||
+    searchParams.get(
+      'direct'
+    ) === '1';
 
+  if (!directMode) {
+    return (
+      <CreateMemoryJourney />
+    );
+  }
   return (
     <section className="wrap">
       <div

@@ -1,98 +1,385 @@
 'use client';
+
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 type BasketItem = {
   id: string;
   personalisationId?: string;
   memoryCode?: string;
-  productType: 'smart-card' | 'traditional-card' | 'product';
+  productType:
+    | 'smart-card'
+    | 'traditional-card'
+    | 'product'
+    | 'bundle';
   productSlug?: string;
   name: string;
   occasion?: string;
   design?: string;
   recipient?: string;
   imageUrl?: string | null;
+  audioUrl?: string | null;
   price: number;
   quantity: number;
+  personalisation?: unknown;
 };
 
-const CART_KEY = 'smart-memories-cart';
+const CART_KEY =
+  'smart-memories-cart';
 
 export default function CheckoutPage() {
-  const [items, setItems] = useState<BasketItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [
+    items,
+    setItems,
+  ] = useState<BasketItem[]>([]);
 
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [
+    loaded,
+    setLoaded,
+  ] = useState(false);
 
-  const [address1, setAddress1] = useState('');
-  const [address2, setAddress2] = useState('');
-  const [town, setTown] = useState('');
-  const [county, setCounty] = useState('');
-  const [postcode, setPostcode] = useState('');
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
 
-  const [deliveryMethod, setDeliveryMethod] = useState<'standard' | 'express'>(
-    'standard'
-  );
+  const [
+    orderError,
+    setOrderError,
+  ] = useState('');
+
+  const [
+    orderNumber,
+    setOrderNumber,
+  ] = useState('');
+
+  const [
+    email,
+    setEmail,
+  ] = useState('');
+
+  const [
+    firstName,
+    setFirstName,
+  ] = useState('');
+
+  const [
+    lastName,
+    setLastName,
+  ] = useState('');
+
+  const [
+    phone,
+    setPhone,
+  ] = useState('');
+
+  const [
+    address1,
+    setAddress1,
+  ] = useState('');
+
+  const [
+    address2,
+    setAddress2,
+  ] = useState('');
+
+  const [
+    town,
+    setTown,
+  ] = useState('');
+
+  const [
+    county,
+    setCounty,
+  ] = useState('');
+
+  const [
+    postcode,
+    setPostcode,
+  ] = useState('');
+
+  const [
+    deliveryMethod,
+    setDeliveryMethod,
+  ] = useState<
+    'standard' | 'express'
+  >('standard');
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(CART_KEY);
+      const saved =
+        localStorage.getItem(
+          CART_KEY
+        );
 
       if (saved) {
-        const parsed = JSON.parse(saved);
+        const parsed =
+          JSON.parse(saved);
 
-        if (Array.isArray(parsed)) {
+        if (
+          Array.isArray(parsed)
+        ) {
           setItems(parsed);
         }
       }
     } catch (error) {
-      console.error('Could not load basket', error);
+      console.error(
+        'Could not load basket',
+        error
+      );
     } finally {
       setLoaded(true);
     }
   }, []);
 
-  const subtotal = useMemo(
-    () =>
-      items.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-      ),
-    [items]
-  );
+  const subtotal =
+    useMemo(
+      () =>
+        items.reduce(
+          (
+            total,
+            item
+          ) =>
+            total +
+            item.price *
+              item.quantity,
+          0
+        ),
+      [items]
+    );
 
-  const delivery = deliveryMethod === 'express' ? 6.95 : 3.95;
+  const delivery =
+    deliveryMethod ===
+    'express'
+      ? 6.95
+      : 3.95;
 
-  const total = subtotal + delivery;
+  const total =
+    subtotal + delivery;
+
+  const customerName =
+    `${firstName} ${lastName}`
+      .trim();
+
+  const formReady =
+    email.trim() &&
+    firstName.trim() &&
+    lastName.trim() &&
+    address1.trim() &&
+    town.trim() &&
+    postcode.trim();
+
+  async function createOrder() {
+    if (!formReady) {
+      setOrderError(
+        'Please complete your name, email and delivery address.'
+      );
+
+      return;
+    }
+
+    setSubmitting(true);
+    setOrderError('');
+
+    try {
+      const response =
+        await fetch(
+          '/api/orders',
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type':
+                'application/json',
+            },
+
+            body: JSON.stringify({
+              cart: items,
+
+              email:
+                email
+                  .trim()
+                  .toLowerCase(),
+
+              customerName,
+
+              phone:
+                phone.trim(),
+
+              deliveryName:
+                customerName,
+
+              address1:
+                address1.trim(),
+
+              address2:
+                address2.trim(),
+
+              city:
+                town.trim(),
+
+              county:
+                county.trim(),
+
+              postcode:
+                postcode
+                  .trim()
+                  .toUpperCase(),
+
+              deliveryMethod,
+
+              deliveryPrice:
+                delivery,
+            }),
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+            'Could not create the order.'
+        );
+      }
+
+      localStorage.removeItem(
+        CART_KEY
+      );
+
+      setOrderNumber(
+        result.orderNumber
+      );
+
+      setItems([]);
+    } catch (error) {
+      console.error(
+        'CHECKOUT ORDER ERROR:',
+        error
+      );
+
+      setOrderError(
+        error instanceof Error
+          ? error.message
+          : 'Could not create your order.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   if (!loaded) {
     return (
       <section className="narrow">
-        <h1>Checkout</h1>
-        <p>Loading your order...</p>
+        <h1>
+          Checkout
+        </h1>
+
+        <p>
+          Loading your order...
+        </p>
       </section>
     );
   }
 
-  if (items.length === 0) {
+  /*
+   * ORDER CREATED
+   */
+  if (orderNumber) {
     return (
       <section className="narrow">
-        <h1>Checkout</h1>
+        <span className="v14Eyebrow">
+          ORDER RECEIVED
+        </span>
 
-        <div className="card empty">
-          <h2>Your basket is empty.</h2>
+        <h1>
+          Thank you.
+        </h1>
+
+        <div className="card">
+          <h2>
+            Your order has been created.
+          </h2>
 
           <p>
-            Add a personalised Smart Memories gift before continuing to
+            Your order number is:
+          </p>
+
+          <p
+            style={{
+              fontSize: '1.4rem',
+              fontWeight: 800,
+            }}
+          >
+            {orderNumber}
+          </p>
+
+          <p>
+            Payment is currently
+            marked as pending because
+            Stripe has not yet been
+            connected.
+          </p>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginTop: '20px',
+            }}
+          >
+            <Link
+              href="/account/orders"
+              className="btn"
+            >
+              My Orders
+            </Link>
+
+            <Link
+              href="/shop"
+              className="btn secondary"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (
+    items.length === 0
+  ) {
+    return (
+      <section className="narrow">
+        <h1>
+          Checkout
+        </h1>
+
+        <div className="card empty">
+          <h2>
+            Your basket is empty.
+          </h2>
+
+          <p>
+            Add a personalised
+            Smart Memories gift
+            before continuing to
             checkout.
           </p>
 
-          <Link className="btn" href="/shop">
+          <Link
+            className="btn"
+            href="/shop"
+          >
             Browse gifts
           </Link>
         </div>
@@ -103,62 +390,119 @@ export default function CheckoutPage() {
   return (
     <section className="checkoutPage">
       <div className="checkoutHeader">
-        <span className="v14Eyebrow">SECURE CHECKOUT</span>
+        <span className="v14Eyebrow">
+          SECURE CHECKOUT
+        </span>
 
-        <h1>Almost ready to make it special.</h1>
+        <h1>
+          Almost ready to make it special.
+        </h1>
 
         <p>
-          Confirm your details and delivery information before payment.
+          Confirm your details and
+          delivery information before
+          creating your order.
         </p>
       </div>
 
       <div className="checkoutLayout">
         <div className="checkoutMain">
-
           <section className="checkoutCard">
             <div className="checkoutSectionHeading">
-              <span>01</span>
+              <span>
+                01
+              </span>
 
               <div>
-                <h2>Contact details</h2>
-                <p>We’ll use these details for your order confirmation.</p>
+                <h2>
+                  Contact details
+                </h2>
+
+                <p>
+                  We'll use these
+                  details for your
+                  order confirmation.
+                </p>
               </div>
             </div>
 
             <div className="checkoutFieldGrid">
               <label>
-                <span>Email address</span>
+                <span>
+                  Email address
+                </span>
+
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(
+                    e
+                  ) =>
+                    setEmail(
+                      e.target.value
+                    )
+                  }
                   placeholder="you@example.com"
+                  required
                 />
               </label>
 
               <label>
-                <span>Phone number</span>
+                <span>
+                  Phone number
+                </span>
+
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(
+                    e
+                  ) =>
+                    setPhone(
+                      e.target.value
+                    )
+                  }
                   placeholder="Optional"
                 />
               </label>
 
               <label>
-                <span>First name</span>
+                <span>
+                  First name
+                </span>
+
                 <input
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  value={
+                    firstName
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setFirstName(
+                      e.target.value
+                    )
+                  }
+                  required
                 />
               </label>
 
               <label>
-                <span>Last name</span>
+                <span>
+                  Last name
+                </span>
+
                 <input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  value={
+                    lastName
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setLastName(
+                      e.target.value
+                    )
+                  }
+                  required
                 />
               </label>
             </div>
@@ -166,53 +510,116 @@ export default function CheckoutPage() {
 
           <section className="checkoutCard">
             <div className="checkoutSectionHeading">
-              <span>02</span>
+              <span>
+                02
+              </span>
 
               <div>
-                <h2>Delivery address</h2>
-                <p>Where should we send your personalised gift?</p>
+                <h2>
+                  Delivery address
+                </h2>
+
+                <p>
+                  Where should we
+                  send your
+                  personalised gift?
+                </p>
               </div>
             </div>
 
             <div className="checkoutFieldGrid">
               <label className="checkoutFull">
-                <span>Address line 1</span>
+                <span>
+                  Address line 1
+                </span>
+
                 <input
-                  value={address1}
-                  onChange={(e) => setAddress1(e.target.value)}
+                  value={
+                    address1
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setAddress1(
+                      e.target.value
+                    )
+                  }
+                  required
                 />
               </label>
 
               <label className="checkoutFull">
-                <span>Address line 2</span>
+                <span>
+                  Address line 2
+                </span>
+
                 <input
-                  value={address2}
-                  onChange={(e) => setAddress2(e.target.value)}
+                  value={
+                    address2
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setAddress2(
+                      e.target.value
+                    )
+                  }
                   placeholder="Optional"
                 />
               </label>
 
               <label>
-                <span>Town / City</span>
+                <span>
+                  Town / City
+                </span>
+
                 <input
                   value={town}
-                  onChange={(e) => setTown(e.target.value)}
+                  onChange={(
+                    e
+                  ) =>
+                    setTown(
+                      e.target.value
+                    )
+                  }
+                  required
                 />
               </label>
 
               <label>
-                <span>County</span>
+                <span>
+                  County
+                </span>
+
                 <input
                   value={county}
-                  onChange={(e) => setCounty(e.target.value)}
+                  onChange={(
+                    e
+                  ) =>
+                    setCounty(
+                      e.target.value
+                    )
+                  }
                 />
               </label>
 
               <label>
-                <span>Postcode</span>
+                <span>
+                  Postcode
+                </span>
+
                 <input
-                  value={postcode}
-                  onChange={(e) => setPostcode(e.target.value)}
+                  value={
+                    postcode
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    setPostcode(
+                      e.target.value
+                    )
+                  }
+                  required
                 />
               </label>
             </div>
@@ -220,60 +627,116 @@ export default function CheckoutPage() {
 
           <section className="checkoutCard">
             <div className="checkoutSectionHeading">
-              <span>03</span>
+              <span>
+                03
+              </span>
 
               <div>
-                <h2>Delivery method</h2>
-                <p>Choose how quickly you’d like your order delivered.</p>
+                <h2>
+                  Delivery method
+                </h2>
+
+                <p>
+                  Choose how quickly
+                  you'd like your
+                  order delivered.
+                </p>
               </div>
             </div>
 
             <div className="deliveryChoices">
               <button
                 type="button"
-                className={deliveryMethod === 'standard' ? 'active' : ''}
-                onClick={() => setDeliveryMethod('standard')}
+                className={
+                  deliveryMethod ===
+                  'standard'
+                    ? 'active'
+                    : ''
+                }
+                onClick={() =>
+                  setDeliveryMethod(
+                    'standard'
+                  )
+                }
               >
                 <div>
-                  <strong>Standard delivery</strong>
-                  <span>Usually 3–5 working days after production</span>
+                  <strong>
+                    Standard delivery
+                  </strong>
+
+                  <span>
+                    Usually 3-5
+                    working days
+                    after production
+                  </span>
                 </div>
 
-                <b>£3.95</b>
+                <b>
+                  £3.95
+                </b>
               </button>
 
               <button
                 type="button"
-                className={deliveryMethod === 'express' ? 'active' : ''}
-                onClick={() => setDeliveryMethod('express')}
+                className={
+                  deliveryMethod ===
+                  'express'
+                    ? 'active'
+                    : ''
+                }
+                onClick={() =>
+                  setDeliveryMethod(
+                    'express'
+                  )
+                }
               >
                 <div>
-                  <strong>Express delivery</strong>
-                  <span>Priority dispatch after production</span>
+                  <strong>
+                    Express delivery
+                  </strong>
+
+                  <span>
+                    Priority dispatch
+                    after production
+                  </span>
                 </div>
 
-                <b>£6.95</b>
+                <b>
+                  £6.95
+                </b>
               </button>
             </div>
           </section>
 
           <section className="checkoutCard paymentPlaceholder">
             <div className="checkoutSectionHeading">
-              <span>04</span>
+              <span>
+                04
+              </span>
 
               <div>
-                <h2>Payment</h2>
-                <p>Secure payment will be handled by Stripe.</p>
+                <h2>
+                  Payment
+                </h2>
+
+                <p>
+                  Secure payment will
+                  be handled by Stripe.
+                </p>
               </div>
             </div>
 
             <div className="paymentPreview">
-              <strong>Stripe connection coming next</strong>
+              <strong>
+                Development order mode
+              </strong>
 
               <p>
-                Card details are not collected in this development version.
-                The final version will use Stripe Checkout or Stripe Payment
-                Elements.
+                Stripe is not connected
+                yet. For now this button
+                creates a real order in
+                Supabase with payment
+                status set to pending.
               </p>
             </div>
           </section>
@@ -281,77 +744,191 @@ export default function CheckoutPage() {
 
         <aside className="checkoutSummary">
           <div className="checkoutSummarySticky">
-            <span className="v14Eyebrow">YOUR ORDER</span>
+            <span className="v14Eyebrow">
+              YOUR ORDER
+            </span>
 
-            <h2>Order summary</h2>
+            <h2>
+              Order summary
+            </h2>
 
             <div className="checkoutProducts">
-              {items.map((item) => (
-                <div className="checkoutProduct" key={item.id}>
-                  <div className="checkoutProductImage">
-  <PersonalisedProductPreview
-    productType={item.productType}
-    productSlug={item.productSlug}
-    imageUrl={item.imageUrl}
-    name={item.name}
-    recipient={item.recipient}
-  />
-</div>
+              {items.map(
+                (
+                  item
+                ) => (
+                  <div
+                    className="checkoutProduct"
+                    key={
+                      item.id
+                    }
+                  >
+                    <div className="checkoutProductImage">
+                      <PersonalisedProductPreview
+                        productType={
+                          item.productType
+                        }
+                        productSlug={
+                          item.productSlug
+                        }
+                        imageUrl={
+                          item.imageUrl
+                        }
+                        name={
+                          item.name
+                        }
+                        recipient={
+                          item.recipient
+                        }
+                      />
+                    </div>
 
-                  <div>
-                    <strong>{item.name}</strong>
+                    <div>
+                      <strong>
+                        {
+                          item.name
+                        }
+                      </strong>
 
-                    {item.recipient && (
-                      <span>For {item.recipient}</span>
-                    )}
+                      {item.recipient && (
+                        <span>
+                          For{' '}
+                          {
+                            item.recipient
+                          }
+                        </span>
+                      )}
 
-                    <small>
-                      Qty {item.quantity}
-                    </small>
+                      <small>
+                        Qty{' '}
+                        {
+                          item.quantity
+                        }
+                      </small>
+                    </div>
+
+                    <b>
+                      £
+                      {(
+                        item.price *
+                        item.quantity
+                      ).toFixed(
+                        2
+                      )}
+                    </b>
                   </div>
-
-                  <b>
-                    £{(item.price * item.quantity).toFixed(2)}
-                  </b>
-                </div>
-              ))}
+                )
+              )}
             </div>
 
             <div className="checkoutTotals">
               <div>
-                <span>Subtotal</span>
-                <strong>£{subtotal.toFixed(2)}</strong>
+                <span>
+                  Subtotal
+                </span>
+
+                <strong>
+                  £
+                  {subtotal.toFixed(
+                    2
+                  )}
+                </strong>
               </div>
 
               <div>
-                <span>Delivery</span>
-                <strong>£{delivery.toFixed(2)}</strong>
+                <span>
+                  Delivery
+                </span>
+
+                <strong>
+                  £
+                  {delivery.toFixed(
+                    2
+                  )}
+                </strong>
               </div>
 
               <div className="checkoutGrandTotal">
-                <span>Total</span>
-                <strong>£{total.toFixed(2)}</strong>
+                <span>
+                  Total
+                </span>
+
+                <strong>
+                  £
+                  {total.toFixed(
+                    2
+                  )}
+                </strong>
               </div>
             </div>
+
+            {orderError && (
+              <div
+                style={{
+                  marginBottom:
+                    '14px',
+                  padding:
+                    '12px',
+                  border:
+                    '1px solid #d9a3a3',
+                  borderRadius:
+                    '12px',
+                }}
+              >
+                {orderError}
+              </div>
+            )}
 
             <button
               type="button"
               className="personaliseBasketButton"
-              disabled
+              disabled={
+                submitting
+              }
+              onClick={
+                createOrder
+              }
             >
-              Secure payment coming next
+              {submitting
+                ? 'Creating order...'
+                : 'Create Order'}
             </button>
 
-            <Link href="/cart" className="checkoutBackLink">
-              ← Back to basket
+            <p
+              style={{
+                fontSize:
+                  '0.85rem',
+                marginTop:
+                  '10px',
+                opacity: 0.7,
+              }}
+            >
+              Development mode:
+              payment will remain
+              pending until Stripe
+              is connected.
+            </p>
+
+            <Link
+              href="/cart"
+              className="checkoutBackLink"
+            >
+              Back to basket
             </Link>
 
             <div className="checkoutTrust">
-              <strong>Smart Memories</strong>
+              <strong>
+                Smart Memories
+              </strong>
 
               <p>
-                Your photo, voice message and personalisation remain linked to
-                your order through the Smart Memories system.
+                Your photo, voice
+                message and
+                personalisation
+                remain linked to
+                your order through
+                the Smart Memories
+                system.
               </p>
             </div>
           </div>

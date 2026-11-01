@@ -5301,3 +5301,816 @@ body {
     gap: 8px;
   }
 }
+/* =========================================================
+   SMART MEMORIES
+   PHASE 2 - NAVIGATION & CUSTOMER JOURNEY
+   ========================================================= */
+
+/* HEADER */
+
+header.smSiteHeader {
+  height: auto;
+  min-height: 78px;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(255,255,255,.97);
+  border-bottom: 1px solid var(--sm-border);
+  backdrop-filter: blur(14px);
+}
+
+.smHeaderInner {
+  width: 100%;
+  max-width: 1500px;
+  min-height: 78px;
+  margin: auto;
+  padding: 0 max(3vw, 24px);
+  display: grid;
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+  gap: 28px;
+  align-items: center;
+}
+
+.smHeaderBrand {
+  color: var(--sm-plum-dark);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 2.4px;
+  white-space: nowrap;
+}
+
+.smHeaderBrand span {
+  margin-left: 5px;
+  color: var(--sm-rose);
+}
+
+.smDesktopNav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.smDesktopNav > a,
+.smNavButton {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sm-text);
+  text-decoration: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition:
+    background .2s ease,
+    color .2s ease;
+}
+
+.smDesktopNav > a:hover,
+.smNavButton:hover {
+  background: var(--sm-blush);
+  color: var(--sm-rose);
+}
+
+.smDesktopNav .smCreateNavCta {
+  padding-left: 18px;
+  padding-right: 18px;
+  background: var(--sm-rose);
+  color: white !important;
+  box-shadow:
+    0 8px 20px
+    rgba(86,45,49,.13);
+}
+
+.smDesktopNav .smCreateNavCta:hover {
+  background: var(--sm-rose-dark);
+  color: white;
+}
+
+.smMenuChevron {
+  font-size: 11px;
+}
+
+.smShopMenu {
+  position: relative;
+}
+
+.smShopDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(
+    820px,
+    calc(100vw - 40px)
+  );
+  padding: 28px;
+  border: 1px solid var(--sm-border);
+  border-radius: 24px;
+  background: white;
+  box-shadow:
+    0 25px 70px
+    rgba(49,31,32,.18);
+}
+
+.smShopDropdown::before {
+  content: "";
+  position: absolute;
+  left: 32px;
+  top: -9px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-left:
+    1px solid var(--sm-border);
+  border-top:
+    1px solid var(--sm-border);
+  transform: rotate(45deg);
+}
+
+.smShopDropdownIntro {
+  padding-bottom: 20px;
+  margin-bottom: 22px;
+  border-bottom:
+    1px solid var(--sm-border);
+  display: grid;
+  gap: 7px;
+}
+
+.smShopDropdownIntro span {
+  color: var(--sm-rose);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.8px;
+}
+
+.smShopDropdownIntro strong {
+  color: var(--sm-plum-dark);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.smShopDropdownGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 27px 35px;
+}
+
+.smShopGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.smShopGroup strong {
+  margin-bottom: 4px;
+  color: var(--sm-plum-dark);
+  font-size: 12px;
+}
+
+.smShopGroup a {
+  color: var(--sm-muted);
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.smShopGroup a:hover {
+  color: var(--sm-rose);
+}
+
+.smShopSpecialGroup {
+  padding: 17px;
+  border-radius: 15px;
+  background: var(--sm-blush);
+}
+
+.smHeaderUtilities {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.smUtilityLink,
+.smCartLink {
+  padding: 9px 10px;
+  color: var(--sm-text);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.smCartLink {
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.smMobileToggle {
+  display: none;
+  min-width: 62px;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  background: white;
+  color: var(--sm-plum);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* MOBILE NAVIGATION */
+
+.smMobileMenu {
+  display: none;
+}
+
+/* CREATE MEMORY JOURNEY */
+
+.createMemoryHero {
+  max-width: 1000px;
+  margin: auto;
+  padding: 95px 28px 75px;
+  text-align: center;
+}
+
+.createMemoryHero h1 {
+  max-width: 900px;
+  margin: 17px auto 24px;
+  color: var(--sm-plum-dark);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size:
+    clamp(48px,6vw,78px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -2px;
+}
+
+.createMemoryHero > p {
+  max-width: 700px;
+  margin: auto;
+  color: var(--sm-muted);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.createMemoryBrandLine {
+  margin-top: 28px;
+  color: var(--sm-plum);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 20px;
+  font-style: italic;
+}
+
+.createMemoryBrandLine span {
+  margin: 0 7px;
+  color: var(--sm-rose);
+}
+
+.createMemoryChoices {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 28px 110px;
+}
+
+.createMemoryChoiceGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 18px;
+}
+
+.createMemoryChoice {
+  min-height: 300px;
+  padding: 30px;
+  border: 1px solid var(--sm-border);
+  border-radius: 23px;
+  background: white;
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 10px 35px
+    rgba(65,39,37,.05);
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.createMemoryChoice:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 20px 45px
+    rgba(65,39,37,.11);
+}
+
+.createMemoryChoiceSymbol {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--sm-blush);
+  color: var(--sm-rose);
+  display: grid;
+  place-items: center;
+  font-family: Georgia, serif;
+  font-size: 22px;
+}
+
+.createMemoryChoice h2 {
+  margin: 25px 0 11px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.createMemoryChoice p {
+  color: var(--sm-muted);
+  line-height: 1.7;
+  flex: 1;
+}
+
+.createMemoryChoice strong {
+  color: var(--sm-rose);
+  font-size: 12px;
+}
+
+.createMemoryGuide {
+  padding: 100px max(6vw,30px);
+  background: var(--sm-plum-dark);
+  color: white;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.createMemoryGuide h2 {
+  margin: 15px 0 22px;
+  font-family: Georgia, serif;
+  font-size:
+    clamp(42px,5vw,62px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.createMemoryGuide p {
+  max-width: 620px;
+  color: #d1c2c4;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.createMemoryGuideLink {
+  color: #edb9bd;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.createMemoryMiniSteps {
+  display: grid;
+  gap: 12px;
+}
+
+.createMemoryMiniSteps article {
+  padding: 20px 24px;
+  border:
+    1px solid
+    rgba(255,255,255,.11);
+  border-radius: 16px;
+  background:
+    rgba(255,255,255,.05);
+  display: grid;
+  grid-template-columns:
+    45px 1fr;
+  align-items: center;
+  gap: 15px;
+}
+
+.createMemoryMiniSteps span {
+  color: #e8b1b6;
+  font-family: Georgia, serif;
+  font-size: 21px;
+}
+
+.createMemoryDirect {
+  padding: 100px 25px;
+  background: white;
+  text-align: center;
+}
+
+.createMemoryDirect h2 {
+  margin: 12px 0 28px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(37px,4vw,52px);
+  font-weight: 400;
+}
+
+.createMemoryDirect .actions {
+  justify-content: center;
+  align-items: center;
+}
+
+.createMemoryDirectLink {
+  color: var(--sm-rose);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+/* HOW IT WORKS */
+
+.howMemoryHero {
+  max-width: 950px;
+  margin: auto;
+  padding: 90px 28px 65px;
+  text-align: center;
+}
+
+.howMemoryHero h1 {
+  margin: 16px 0 22px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(48px,6vw,75px);
+  font-weight: 400;
+  line-height: 1.03;
+}
+
+.howMemoryHero > p {
+  max-width: 720px;
+  margin: auto;
+  color: var(--sm-muted);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.howMemoryNoApp {
+  max-width: 630px;
+  margin: 35px auto 0;
+  padding: 19px 23px;
+  border: 1px solid var(--sm-border);
+  border-radius: 16px;
+  background: white;
+  display: grid;
+  gap: 5px;
+}
+
+.howMemoryNoApp strong {
+  color: var(--sm-rose);
+}
+
+.howMemoryNoApp span {
+  color: var(--sm-muted);
+  line-height: 1.5;
+}
+
+.howMemorySteps {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 28px 110px;
+  display: grid;
+  grid-template-columns:
+    repeat(5,1fr);
+  gap: 16px;
+}
+
+.howMemorySteps article {
+  min-height: 300px;
+  padding: 28px;
+  border: 1px solid var(--sm-border);
+  border-radius: 22px;
+  background: white;
+}
+
+.howMemorySteps article > span {
+  color: var(--sm-rose);
+  font-family: Georgia, serif;
+  font-size: 29px;
+}
+
+.howMemorySteps h2 {
+  margin: 32px 0 12px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size: 23px;
+  font-weight: 400;
+}
+
+.howMemorySteps p {
+  margin: 0;
+  color: var(--sm-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.howMemoryFinal {
+  padding: 100px 25px;
+  background: var(--sm-plum-dark);
+  color: white;
+  text-align: center;
+}
+
+.howMemoryFinal h2 {
+  margin: 14px 0;
+  font-family: Georgia, serif;
+  font-size:
+    clamp(42px,5vw,60px);
+  font-weight: 400;
+}
+
+.howMemoryFinal p {
+  margin-bottom: 27px;
+  color: #d4c4c6;
+  font-size: 17px;
+}
+
+/* INFORMATION PAGES */
+
+.infoPage h1 {
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-size:
+    clamp(45px,5vw,62px);
+  font-weight: 400;
+}
+
+.infoPage .card h2 {
+  margin-top: 30px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+
+.infoPage .card h2:first-child {
+  margin-top: 0;
+}
+
+.infoPage .card p {
+  color: var(--sm-muted);
+  line-height: 1.75;
+}
+
+.footerBrandLine {
+  display: inline-block;
+  margin-top: 14px;
+  color: #e7b1b5;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.footerLinks {
+  grid-template-columns:
+    repeat(4, 1fr);
+}
+
+/* RESPONSIVE NAV */
+
+@media (max-width: 1180px) {
+  .smHeaderInner {
+    gap: 16px;
+  }
+
+  .smDesktopNav {
+    gap: 2px;
+  }
+
+  .smDesktopNav > a,
+  .smNavButton {
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 12px;
+  }
+
+  .smUtilityLink {
+    display: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .smHeaderInner {
+    grid-template-columns:
+      1fr auto;
+    min-height: 72px;
+  }
+
+  .smDesktopNav {
+    display: none;
+  }
+
+  .smHeaderUtilities {
+    grid-column: 2;
+  }
+
+  .smUtilityLink {
+    display: none;
+  }
+
+  .smMobileToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .smMobileMenu {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: calc(100% + 8px);
+    max-height:
+      calc(100vh - 100px);
+    overflow-y: auto;
+    padding: 14px;
+    border: 1px solid var(--sm-border);
+    border-radius: 21px;
+    background: white;
+    box-shadow:
+      0 24px 60px
+      rgba(50,30,31,.2);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .smMobileMenu > a,
+  .smMobileShopToggle {
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 15px;
+    border: 0;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--sm-text);
+    text-decoration: none;
+    text-align: left;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 750;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .smMobileMenu > a:hover,
+  .smMobileShopToggle:hover {
+    background: var(--sm-blush);
+  }
+
+  .smMobileMenu
+  .smMobileCreate {
+    background: var(--sm-rose);
+    color: white !important;
+    justify-content: center;
+  }
+
+  .smMobileShop {
+    padding: 12px;
+    border-radius: 15px;
+    background: #fff8f5;
+    display: grid;
+    grid-template-columns:
+      repeat(2,1fr);
+    gap: 22px;
+  }
+
+  .smMobileShopGroup {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .smMobileShopGroup strong {
+    color: var(--sm-plum-dark);
+    font-size: 11px;
+  }
+
+  .smMobileShopGroup a {
+    min-height: 36px;
+    color: var(--sm-muted);
+    text-decoration: none;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .createMemoryChoiceGrid {
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+  .createMemoryGuide {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+
+  .howMemorySteps {
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+  .footerLinks {
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .smHeaderInner {
+    padding:
+      0 16px;
+  }
+
+  .smHeaderBrand {
+    font-size: 14px;
+    letter-spacing: 1.7px;
+  }
+
+  .smCartLink {
+    display: none;
+  }
+
+  .smMobileShop {
+    grid-template-columns: 1fr;
+  }
+
+  .createMemoryHero {
+    padding:
+      65px 20px 55px;
+  }
+
+  .createMemoryHero h1 {
+    font-size: 48px;
+  }
+
+  .createMemoryChoices {
+    padding:
+      10px 20px 75px;
+  }
+
+  .createMemoryChoiceGrid,
+  .howMemorySteps {
+    grid-template-columns: 1fr;
+  }
+
+  .createMemoryChoice {
+    min-height: auto;
+  }
+
+  .createMemoryGuide {
+    padding:
+      75px 22px;
+  }
+
+  .howMemoryHero {
+    padding:
+      65px 20px 50px;
+  }
+
+  .howMemoryHero h1 {
+    font-size: 47px;
+  }
+
+  .howMemorySteps {
+    padding:
+      10px 20px 75px;
+  }
+
+  .howMemorySteps article {
+    min-height: auto;
+  }
+
+  .footerLinks {
+    grid-template-columns: 1fr;
+  }
+}

@@ -49,6 +49,11 @@ const occasionProducts: Record<string, string[]> = {
     'coaster-set',
     'mouse-mat',
   ],
+  Remembrance: [
+    'smart-memory-plaque',
+    'smart-photo-slate',
+    'keyring',
+  ],
   'Family Memory': [
     'smart-photo-slate',
     'photo-mug',
@@ -84,6 +89,7 @@ const occasions = [
   'Leaving Gift',
   'Teacher Gift',
   'Pet Memory',
+  'Remembrance',
   'Family Memory',
   'New Baby',
   'Graduation',
