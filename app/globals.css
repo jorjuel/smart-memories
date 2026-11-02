@@ -5441,6 +5441,26 @@ header.smSiteHeader {
     rgba(49,31,32,.18);
 }
 
+.smShopDropdown::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -20px;
+  height: 20px;
+  background: transparent;
+}
+
+.smShopDropdown::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -20px;
+  height: 20px;
+  background: transparent;
+}
+
 .smShopDropdown::before {
   content: "";
   position: absolute;
