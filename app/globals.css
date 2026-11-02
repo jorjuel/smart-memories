@@ -10873,3 +10873,20 @@ header.smSiteHeader {
 .smAdminDispatchEmailStatus form {
   margin-top: 5px;
 }
+
+/* Header utility hover states */
+.smUtilityLink,
+.smCartLink {
+  border-radius: 999px;
+  transition:
+    background-color .2s ease,
+    color .2s ease,
+    border-color .2s ease;
+}
+
+.smUtilityLink:hover,
+.smCartLink:hover {
+  background-color: var(--sm-rose) !important;
+  color: white !important;
+  border-color: var(--sm-rose) !important;
+}
