@@ -176,10 +176,23 @@ if (
           className="smDesktopNav"
           aria-label="Main navigation"
         >
-       <div className="smShopMenu">
+       <div
+          className="smShopMenu"
+          onMouseLeave={() =>
+            setShopOpen(false)
+          }
+        >
            <button
               type="button"
-              className="smNavButton"
+              className={
+                shopOpen ||
+                pathname.startsWith('/shop') ||
+                pathname.startsWith('/cards') ||
+                pathname.startsWith('/occasions') ||
+                pathname.startsWith('/bundles')
+                  ? 'smNavButton smNavActive'
+                  : 'smNavButton'
+              }
               aria-expanded={
                 shopOpen
               }
@@ -295,20 +308,45 @@ if (
 
           <Link
             href="/create"
-            className="smCreateNavCta"
+            className={
+              pathname === '/create'
+                ? 'smCreateNavCta smNavActive'
+                : undefined
+            }
           >
             Create a Memory
           </Link>
 
-          <Link href="/how-it-works">
+          <Link
+            href="/how-it-works"
+            className={
+              pathname === '/how-it-works'
+                ? 'smNavActive'
+                : undefined
+            }
+          >
             How It Works
           </Link>
 
-          <Link href="/memories">
+          <Link
+            href="/memories"
+            className={
+              pathname.startsWith('/memories')
+                ? 'smNavActive'
+                : undefined
+            }
+          >
             My Memories
           </Link>
 
-          <Link href="/account/orders">
+          <Link
+            href="/account/orders"
+            className={
+              pathname.startsWith('/account/orders')
+                ? 'smNavActive'
+                : undefined
+            }
+          >
             My Orders
           </Link>
         </nav>

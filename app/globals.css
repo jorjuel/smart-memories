@@ -5385,6 +5385,21 @@ header.smSiteHeader {
   color: var(--sm-rose);
 }
 
+.smDesktopNav > a.smNavActive,
+.smNavButton.smNavActive {
+  background: var(--sm-rose);
+  color: white !important;
+  box-shadow:
+    0 8px 20px
+    rgba(86,45,49,.13);
+}
+
+.smDesktopNav > a.smNavActive:hover,
+.smNavButton.smNavActive:hover {
+  background: var(--sm-rose-dark);
+  color: white !important;
+}
+
 .smDesktopNav .smCreateNavCta {
   padding-left: 18px;
   padding-right: 18px;
