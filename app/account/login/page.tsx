@@ -72,6 +72,22 @@ export default async function CustomerLoginPage({
           </div>
         )}
 
+        {params.message ===
+          'password-reset' && (
+          <div
+            style={{
+              padding: '14px',
+              marginBottom: '18px',
+              borderRadius: '12px',
+              background: '#fffaf7',
+            }}
+          >
+            Your password has been
+            changed successfully.
+            You can now sign in.
+          </div>
+        )}
+
         {errorMessage && (
           <div
             style={{
@@ -112,6 +128,12 @@ export default async function CustomerLoginPage({
               type="password"
               required
             />
+
+            <div>
+              <Link href="/account/forgot-password">
+                Forgot password?
+              </Link>
+            </div>
 
             <button
               type="submit"

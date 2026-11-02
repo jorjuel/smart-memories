@@ -87,6 +87,6 @@ export async function updatePassword(
     .signOut();
 
   redirect(
-    '/admin/login?reset=success'
+    '/account/login?message=password-reset'
   );
 }

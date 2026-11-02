@@ -73,7 +73,7 @@ export default async function UpdatePasswordPage({
         <p className="lead">
           Set the password you will
           use for your Smart Memories
-          admin account.
+          customer account.
         </p>
 
         {errorMessage && (
@@ -137,8 +137,8 @@ export default async function UpdatePasswordPage({
             marginTop: '20px',
           }}
         >
-          <Link href="/admin/login">
-            Back to Admin Login
+          <Link href="/account/login">
+            Back to Sign In
           </Link>
         </p>
       </div>
