@@ -20,6 +20,7 @@ import {
 import AccountNav from '../../components/AccountNav';
 import MemoryCard from '../../components/MemoryCard';
 import { customerOrderProgress } from '@/lib/customerOrderProgress';
+import { verifiedGuestOrderEmail } from '@/lib/customerOrderAccess';
 
 export const dynamic =
   'force-dynamic';
@@ -166,9 +167,7 @@ export default async function AccountPage() {
       throw error;
     }
 
-    const verifiedEmail = user.email_confirmed_at
-      ? user.email?.trim().toLowerCase()
-      : null;
+    const verifiedEmail = verifiedGuestOrderEmail(user);
 
     let guestOrders: RecentOrder[] = [];
 

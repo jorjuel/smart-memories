@@ -22,6 +22,7 @@ import {
 
 import AccountNav from '../../../components/AccountNav';
 import { customerOrderProgress } from '@/lib/customerOrderProgress';
+import { verifiedGuestOrderEmail } from '@/lib/customerOrderAccess';
 
 export const dynamic =
   'force-dynamic';
@@ -209,10 +210,7 @@ export default async function CustomerOrdersPage() {
 
   // Only a verified email address can unlock guest orders.
   // Keep customer_id ownership checks for registered orders.
-  const verifiedEmail =
-    user.email_confirmed_at
-      ? user.email?.trim().toLowerCase()
-      : null;
+  const verifiedEmail = verifiedGuestOrderEmail(user);
 
   let guestOrders: Order[] = [];
   let guestError: unknown = null;
