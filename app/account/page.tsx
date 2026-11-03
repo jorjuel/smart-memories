@@ -122,7 +122,8 @@ export default async function AccountPage() {
   try {
     memories =
       await getCustomerMemories(
-        user.id
+        user.id,
+        verifiedGuestOrderEmail(user)
       );
 
     const admin =
