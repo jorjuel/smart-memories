@@ -31,6 +31,7 @@ type RecentOrder = {
   status: string;
   production_status: string;
   payment_status: string;
+  stripe_checkout_session_id: string | null;
   created_at: string;
   order_items: {
     id: string;
@@ -180,6 +181,7 @@ export default async function AccountPage() {
           status,
           production_status,
           payment_status,
+          stripe_checkout_session_id,
           created_at,
           order_items (
             id,
@@ -433,6 +435,11 @@ export default async function AccountPage() {
                     <h3>
                       {customerOrderProgress(order.payment_status, order.production_status)}
                     </h3>
+                    {order.stripe_checkout_session_id?.startsWith('cs_test_') && (
+                      <span style={{ display: 'inline-block', padding: '6px 10px', borderRadius: '8px', background: '#fff1d9', color: '#794813', fontWeight: 700 }}>
+                        Test order — no real payment
+                      </span>
+                    )}
                     <span
                       aria-label={order.payment_status === 'paid' ? 'Payment received' : 'Payment status'}
                       style={{
