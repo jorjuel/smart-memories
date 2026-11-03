@@ -21,6 +21,7 @@ import {
 } from '../../../lib/productExperience';
 
 import AccountNav from '../../../components/AccountNav';
+import { customerOrderProgress } from '@/lib/customerOrderProgress';
 
 export const dynamic =
   'force-dynamic';
@@ -41,6 +42,7 @@ type Order = {
   total_pence: number;
   payment_status: string;
   status: string;
+  production_status: string;
   created_at: string;
   order_items:
     OrderItem[];
@@ -176,8 +178,8 @@ export default async function CustomerOrdersPage() {
           id,
           order_number,
           total_pence,
-          payment_status,
-          status,
+          payment_status,          status,
+          production_status,
           created_at,
           order_items (
             id,
@@ -219,8 +221,8 @@ export default async function CustomerOrdersPage() {
         id,
         order_number,
         total_pence,
-        payment_status,
-        status,
+        payment_status,        status,
+        production_status,
         created_at,
         order_items (
           id,
@@ -359,9 +361,7 @@ export default async function CustomerOrdersPage() {
                       </span>
 
                       <h2>
-                        {statusLabel(
-                          order.status
-                        )}
+                        {customerOrderProgress(order.payment_status, order.production_status)}
                       </h2>
 
                       <p>
