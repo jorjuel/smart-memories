@@ -141,6 +141,7 @@ export default async function AccountPage() {
             status,
             production_status,
             payment_status,
+            stripe_checkout_session_id,
             created_at,
             order_items (
               id,
