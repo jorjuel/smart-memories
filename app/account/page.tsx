@@ -274,9 +274,9 @@ export default async function AccountPage() {
               : 'Smart Memories'}
           </span>
 
-          <Link href="/memories">
+          <a href="/memories">
             View Memories →
-          </Link>
+          </a>
         </article>
 
         <article>
@@ -290,9 +290,9 @@ export default async function AccountPage() {
             Recent Orders
           </span>
 
-          <Link href="/account/orders">
+          <a href="/account/orders">
             View Orders →
-          </Link>
+          </a>
         </article>
 
         <article>
@@ -324,12 +324,11 @@ export default async function AccountPage() {
             </h2>
           </div>
 
-          <Link
-            href="/memories"
+          <a href="/memories"
             className="btn secondary"
           >
             View All Memories
-          </Link>
+          </a>
         </div>
 
         {recentMemories.length ===
@@ -387,12 +386,11 @@ export default async function AccountPage() {
             </h2>
           </div>
 
-          <Link
-            href="/account/orders"
+          <a href="/account/orders"
             className="btn secondary"
           >
             View All Orders
-          </Link>
+          </a>
         </div>
 
         {recentOrders.length ===
