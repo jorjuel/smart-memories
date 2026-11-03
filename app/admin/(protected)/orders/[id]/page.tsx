@@ -60,6 +60,7 @@ type Order = {
   delivery_pence: number;
   total_pence: number;
   payment_status: string;
+  stripe_checkout_session_id: string | null;
   status: string;
   production_status: string;
   production_data: unknown;
@@ -215,6 +216,7 @@ export default async function AdminOrderDetailPage({
           delivery_pence,
           total_pence,
           payment_status,
+          stripe_checkout_session_id,
           status,
           production_status,
           production_data,
@@ -772,7 +774,20 @@ export default async function AdminOrderDetailPage({
           </h2>
 
           <p>
-            Payment:{' '}
+{order.stripe_checkout_session_id?.startsWith('cs_test_') && (
+              <span style={{ display: 'inline-block', padding: '5px 10px', background: '#fff1d9', borderRadius: '8px', fontWeight: 700 }}>
+                TEST PAYMENT — NOT REAL REVENUE
+              </span>
+            )}
+            {order.stripe_checkout_session_id?.startsWith('cs_live_') && (
+              <span style={{ display: 'inline-block', padding: '5px 10px', background: '#e5f6eb', borderRadius: '8px', fontWeight: 700 }}>
+                LIVE PAYMENT
+              </span>
+            )}
+            {!order.stripe_checkout_session_id && (
+              <span style={{ fontWeight: 600 }}>Payment mode unverified</span>
+            )}
+                        Payment:{' '}
             <strong>
               {
                 order.payment_status

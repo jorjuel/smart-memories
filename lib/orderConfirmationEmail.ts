@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-export async function sendOrderConfirmation(orderId: string) {
+export async function sendOrderConfirmation(orderId: string, isLivePayment: boolean) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.ORDER_CONFIRMATION_EMAIL_FROM || process.env.DISPATCH_EMAIL_FROM;
   if (!apiKey || !from) return;
@@ -22,8 +22,8 @@ export async function sendOrderConfirmation(orderId: string) {
   const { error: sendError } = await resend.emails.send({
     from,
     to: order.customer_email,
-    subject: 'Smart Memories payment confirmed: ' + order.order_number,
-    text: 'Thank you for your order ' + order.order_number +
+    subject: (isLivePayment ? '' : '[TEST PAYMENT — NO REAL MONEY] ') + 'Smart Memories payment confirmed: ' + order.order_number,
+    text: (isLivePayment ? '' : 'SANDBOX TEST ONLY. No real money was charged. Do not fulfil this order.\n\n') + 'Thank you for your order ' + order.order_number +
       '. Your payment of £' + amount +
       ' was confirmed. View your orders at https://smartmemories.co.uk/account/orders',
   }, { idempotencyKey: 'smart-memories-confirmation/' + order.id });

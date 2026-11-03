@@ -44,6 +44,7 @@ type OrderRow = {
   customer_email: string;
   total_pence: number;
   payment_status: string;
+  stripe_checkout_session_id: string | null;
   status: string;
   production_status: ProductionStatus;
   created_at: string;
@@ -225,6 +226,7 @@ export default async function AdminOrdersPage({
           customer_email,
           total_pence,
           payment_status,
+          stripe_checkout_session_id,
           status,
           production_status,
           created_at,
@@ -790,6 +792,21 @@ export default async function AdminOrdersPage({
                       )}
                     </strong>
 
+                    {order.stripe_checkout_session_id?.startsWith('cs_test_') && (
+                      <span style={{ display: 'inline-block', padding: '4px 9px', background: '#fff1d9', borderRadius: '8px', fontWeight: 700 }}>
+                        TEST PAYMENT — NOT REAL REVENUE
+                      </span>
+                    )}
+                    {order.stripe_checkout_session_id?.startsWith('cs_live_') && (
+                      <span style={{ display: 'inline-block', padding: '4px 9px', background: '#e5f6eb', borderRadius: '8px', fontWeight: 700 }}>
+                        LIVE PAYMENT
+                      </span>
+                    )}
+                    {!order.stripe_checkout_session_id && (
+                      <span style={{ color: '#946a33', fontWeight: 600 }}>
+                        Payment mode unverified
+                      </span>
+                    )}
                     <small>
                       Payment:{' '}
                       {

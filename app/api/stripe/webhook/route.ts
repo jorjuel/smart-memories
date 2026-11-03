@@ -128,7 +128,7 @@ async function markOrderPaid(
 
   try {
     const email = await import('@/lib/orderConfirmationEmail');
-    await email.sendOrderConfirmation(orderId);
+    await email.sendOrderConfirmation(orderId, session.livemode);
   } catch (error) {
     console.error('Order confirmation email failed:', error);
   }
