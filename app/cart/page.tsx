@@ -9,7 +9,7 @@ type BasketItem = {
   personalisationId?: string;
   memoryCode?: string;
 
-  productType: 'smart-card' | 'traditional-card' | 'product';
+  productType: 'smart-card' | 'traditional-card' | 'product' | 'bundle';
 
   productSlug?: string;
 
@@ -56,7 +56,8 @@ export default function CartPage() {
 
           productType:
             item.productType === 'smart-card' ||
-            item.productType === 'traditional-card'
+            item.productType === 'traditional-card' ||
+            item.productType === 'bundle'
               ? item.productType
               : 'product',
 

@@ -2,12 +2,14 @@
 
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 import {
   useEffect,
   useMemo,
   useState,
 } from 'react';
+
 
 type BasketItem = {
   id: string;
@@ -33,7 +35,21 @@ type BasketItem = {
 const CART_KEY =
   'smart-memories-cart';
 
+const IDEMPOTENCY_KEY =
+  'smart-memories-checkout-idempotency';
+
 export default function CheckoutPage() {
+    const searchParams = useSearchParams();
+
+  const paymentStatus =
+    searchParams.get('payment');
+
+  const sessionId =
+    searchParams.get('session_id');
+
+  const paymentSuccessful =
+    paymentStatus === 'success' &&
+    Boolean(sessionId);
   const [
     items,
     setItems,
@@ -138,6 +154,19 @@ export default function CheckoutPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!paymentSuccessful) {
+      return;
+    }
+
+    localStorage.removeItem(CART_KEY);
+
+    sessionStorage.removeItem(
+      IDEMPOTENCY_KEY
+    );
+
+    setItems([]);
+  }, [paymentSuccessful]);
   const subtotal =
     useMemo(
       () =>
@@ -188,6 +217,21 @@ export default function CheckoutPage() {
     setOrderError('');
 
     try {
+      let idempotencyKey =
+        sessionStorage.getItem(
+          IDEMPOTENCY_KEY
+        );
+
+      if (!idempotencyKey) {
+        idempotencyKey =
+          crypto.randomUUID();
+
+        sessionStorage.setItem(
+          IDEMPOTENCY_KEY,
+          idempotencyKey
+        );
+      }
+
       const response =
         await fetch(
           '/api/orders',
@@ -201,6 +245,8 @@ export default function CheckoutPage() {
 
             body: JSON.stringify({
               cart: items,
+
+              idempotencyKey,
 
               email:
                 email
@@ -250,15 +296,48 @@ export default function CheckoutPage() {
         );
       }
 
-      localStorage.removeItem(
-        CART_KEY
-      );
+      if (!result.orderId) {
+        throw new Error(
+          'Order reference was not returned.'
+        );
+      }
 
-      setOrderNumber(
-        result.orderNumber
-      );
+      const paymentResponse =
+        await fetch(
+          '/api/stripe/checkout',
+          {
+            method: 'POST',
 
-      setItems([]);
+            headers: {
+              'Content-Type':
+                'application/json',
+            },
+
+            body: JSON.stringify({
+              orderId:
+                result.orderId,
+
+              idempotencyKey,
+            }),
+          }
+        );
+
+      const paymentResult =
+        await paymentResponse.json();
+
+      if (
+        !paymentResponse.ok ||
+        !paymentResult.url
+      ) {
+        throw new Error(
+          paymentResult.error ||
+            'Could not start secure payment.'
+        );
+      }
+
+      window.location.assign(
+        paymentResult.url
+      );
     } catch (error) {
       console.error(
         'CHECKOUT ORDER ERROR:',
@@ -273,6 +352,58 @@ export default function CheckoutPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+    if (paymentSuccessful) {
+    return (
+      <section className="narrow">
+        <span className="v14Eyebrow">
+          PAYMENT SUCCESSFUL
+        </span>
+
+        <h1>
+          Thank you for your order.
+        </h1>
+
+        <div className="card">
+          <h2>
+            Your Smart Memories order is confirmed.
+          </h2>
+
+          <p>
+            Your payment was successful and your order
+            is now being prepared.
+          </p>
+
+          <p>
+            You can view your order details and status
+            from your account.
+          </p>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginTop: '20px',
+            }}
+          >
+            <Link
+              href="/account/orders"
+              className="btn"
+            >
+              View My Orders
+            </Link>
+
+            <Link
+              href="/shop"
+              className="btn secondary"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   if (!loaded) {

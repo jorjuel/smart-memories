@@ -14,6 +14,13 @@ import {
   supabaseAdmin,
 } from '@/lib/supabaseAdmin';
 
+import {
+  getBundlePricePence,
+  getCardPricePence,
+  getProductPricePence,
+  getShippingPricePence,
+} from '@/lib/pricing';
+
 export const runtime =
   'nodejs';
 
@@ -25,6 +32,7 @@ type IncomingCartItem = {
   price?: number;
   memoryCode?: string | null;
   imageUrl?: string | null;
+  personalisationId?: string;
   personalisation?: unknown;
 };
 
@@ -126,44 +134,241 @@ export async function POST(
       user?.id ||
       null;
 
-    const subtotalPence =
-      cart.reduce(
-        (
-          total,
-          item
-        ) => {
-          const quantity =
-            Math.max(
-              1,
+    const admin =
+      supabaseAdmin();
+
+    const idempotencyKey =
+      typeof body.idempotencyKey === 'string'
+        ? body.idempotencyKey.trim()
+        : '';
+
+    if (idempotencyKey) {
+      const {
+        data: existingOrder,
+        error: existingOrderError,
+      } =
+        await admin
+          .from('orders')
+          .select(
+            'id, order_number, total_pence'
+          )
+          .eq(
+            'idempotency_key',
+            idempotencyKey
+          )
+          .eq(
+            'customer_email',
+            customerEmail
+          )
+          .maybeSingle();
+
+      if (existingOrderError) {
+        throw existingOrderError;
+      }
+
+      if (existingOrder) {
+        return NextResponse.json(
+          {
+            ok: true,
+            orderId:
+              existingOrder.id,
+            orderNumber:
+              existingOrder.order_number,
+            totalPence:
+              existingOrder.total_pence,
+            duplicate: true,
+          },
+          {
+            status: 200,
+          }
+        );
+      }
+    }
+
+    const deliveryMethod =
+      body.deliveryMethod ===
+      'express'
+        ? 'express'
+        : 'standard';
+
+    const pricedCart =
+      await Promise.all(
+        cart.map(
+          async (item) => {
+            const requestedQuantity =
               Number(
                 item.quantity ||
                   1
-              )
-            );
+              );
 
-          return (
-            total +
-            moneyToPence(
-              item.price
-            ) *
-              quantity
-          );
-        },
+            const quantity =
+              Number.isInteger(
+                requestedQuantity
+              ) &&
+              requestedQuantity > 0 &&
+              requestedQuantity <= 99
+                ? requestedQuantity
+                : 1;
+
+            const productType =
+              item.productType ||
+              'product';
+
+            let unitPricePence:
+              number;
+
+            if (
+              productType ===
+              'product'
+            ) {
+              if (
+                !item.productSlug
+              ) {
+                throw new Error(
+                  'Product reference is missing.'
+                );
+              }
+
+              unitPricePence =
+                getProductPricePence(
+                  item.productSlug
+                );
+            } else if (
+              productType ===
+              'bundle'
+            ) {
+              if (
+                !item.productSlug
+              ) {
+                throw new Error(
+                  'Bundle reference is missing.'
+                );
+              }
+
+              unitPricePence =
+                getBundlePricePence(
+                  item.productSlug
+                );
+            } else if (
+              productType ===
+                'smart-card' ||
+              productType ===
+                'traditional-card'
+            ) {
+              if (
+                !item.personalisationId
+              ) {
+                throw new Error(
+                  'Card personalisation reference is missing.'
+                );
+              }
+
+              const {
+                data:
+                  cardPersonalisation,
+                error:
+                  cardPersonalisationError,
+              } =
+                await admin
+                  .from(
+                    'card_personalisations'
+                  )
+                  .select(
+                    `
+                      id,
+                      card_type,
+                      include_printed_photo
+                    `
+                  )
+                  .eq(
+                    'id',
+                    item.personalisationId
+                  )
+                  .maybeSingle();
+
+              if (
+                cardPersonalisationError ||
+                !cardPersonalisation
+              ) {
+                throw new Error(
+                  'Card personalisation could not be verified.'
+                );
+              }
+
+              const savedCardType =
+                cardPersonalisation.card_type ===
+                'smart'
+                  ? 'smart'
+                  : cardPersonalisation.card_type ===
+                    'traditional'
+                  ? 'traditional'
+                  : null;
+
+              if (!savedCardType) {
+                throw new Error(
+                  'Saved card type is invalid.'
+                );
+              }
+
+              const expectedProductType =
+                savedCardType ===
+                'smart'
+                  ? 'smart-card'
+                  : 'traditional-card';
+
+              if (
+                productType !==
+                expectedProductType
+              ) {
+                throw new Error(
+                  'Card type does not match the saved personalisation.'
+                );
+              }
+
+              unitPricePence =
+                getCardPricePence(
+                  savedCardType,
+                  Boolean(
+                    cardPersonalisation
+                      .include_printed_photo
+                  )
+                );
+            } else {
+              throw new Error(
+                'Invalid product type.'
+              );
+            }
+
+            return {
+              ...item,
+              productType,
+              quantity,
+              unitPricePence,
+            };
+          }
+        )
+      );
+
+    const subtotalPence =
+      pricedCart.reduce(
+        (
+          total,
+          item
+        ) =>
+          total +
+          item.unitPricePence *
+            item.quantity,
         0
       );
 
     const deliveryPence =
-      moneyToPence(
-        body.deliveryPrice ||
-          0
+      getShippingPricePence(
+        deliveryMethod
       );
 
     const totalPence =
       subtotalPence +
       deliveryPence;
-
-    const admin =
-      supabaseAdmin();
 
     const orderNumber =
       makeOrderNumber();
@@ -178,6 +383,10 @@ export async function POST(
         .insert({
           order_number:
             orderNumber,
+
+          idempotency_key:
+            idempotencyKey ||
+            null,
 
           customer_id:
             customerId,
@@ -211,8 +420,7 @@ export async function POST(
             null,
 
           delivery_method:
-            body.deliveryMethod ||
-            'standard',
+            deliveryMethod,
 
           subtotal_pence:
             subtotalPence,
@@ -242,6 +450,48 @@ export async function POST(
       orderError ||
       !order
     ) {
+      if (
+        idempotencyKey &&
+        orderError?.code === '23505'
+      ) {
+        const {
+          data: duplicateOrder,
+          error: duplicateError,
+        } =
+          await admin
+            .from('orders')
+            .select(
+              'id, order_number, total_pence'
+            )
+            .eq(
+              'idempotency_key',
+              idempotencyKey
+            )
+            .maybeSingle();
+
+        if (duplicateError) {
+          throw duplicateError;
+        }
+
+        if (duplicateOrder) {
+          return NextResponse.json(
+            {
+              ok: true,
+              orderId:
+                duplicateOrder.id,
+              orderNumber:
+                duplicateOrder.order_number,
+              totalPence:
+                duplicateOrder.total_pence,
+              duplicate: true,
+            },
+            {
+              status: 200,
+            }
+          );
+        }
+      }
+
       throw (
         orderError ||
         new Error(
@@ -251,7 +501,7 @@ export async function POST(
     }
 
     const items =
-      cart.map(
+      pricedCart.map(
         (
           item
         ) => ({
@@ -271,18 +521,10 @@ export async function POST(
             'Smart Memories Gift',
 
           quantity:
-            Math.max(
-              1,
-              Number(
-                item.quantity ||
-                  1
-              )
-            ),
+            item.quantity,
 
           unit_price_pence:
-            moneyToPence(
-              item.price
-            ),
+            item.unitPricePence,
 
           memory_code:
             item.memoryCode ||

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getCardPricePence } from '@/lib/pricing';
 
 export const runtime = 'nodejs';
 
@@ -52,7 +53,11 @@ export async function POST(request: Request) {
     const includePrintedPhoto =
       String(formData.get('includePrintedPhoto') || 'false') === 'true';
 
-    const totalPrice = Number(formData.get('totalPrice') || 0);
+    const totalPrice =
+      getCardPricePence(
+        cardType as 'traditional' | 'smart',
+        includePrintedPhoto
+      ) / 100;
 
     const memoryPhoto = formData.get('memoryPhoto');
     const audioFile = formData.get('audioFile');
