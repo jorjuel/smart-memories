@@ -249,7 +249,7 @@ export default async function CustomerOrdersPage() {
     b.created_at.localeCompare(a.created_at)
   );
 
-  const loadError = error || guestError;
+  const loadError = Boolean(error || guestError);
 
   return (
     <main className="smAccountPage">
