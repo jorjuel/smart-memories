@@ -379,11 +379,18 @@ export default async function CustomerOrdersPage() {
                         )}
                       </strong>
 
-                      <span>
-                        Payment:{' '}
-                        {paymentLabel(
-                          order.payment_status
-                        )}
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '7px 12px',
+                          borderRadius: '999px',
+                          fontWeight: 700,
+                          color: order.payment_status === 'paid' ? '#17633b' : '#794813',
+                          backgroundColor: order.payment_status === 'paid' ? '#e5f6eb' : '#fff1d9',
+                        }}
+                      >
+                        {order.payment_status === 'paid' ? '✓ ' : ''}
+                        Payment: {paymentLabel(order.payment_status)}
                       </span>
                     </div>
                   </header>

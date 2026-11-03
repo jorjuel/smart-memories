@@ -28,6 +28,7 @@ type RecentOrder = {
   order_number: string;
   total_pence: number;
   status: string;
+  payment_status: string;
   created_at: string;
   order_items: {
     id: string;
@@ -135,6 +136,7 @@ export default async function AccountPage() {
             order_number,
             total_pence,
             status,
+            payment_status,
             created_at,
             order_items (
               id,
@@ -173,6 +175,7 @@ export default async function AccountPage() {
           order_number,
           total_pence,
           status,
+          payment_status,
           created_at,
           order_items (
             id,
@@ -428,6 +431,27 @@ export default async function AccountPage() {
                         order.status
                       )}
                     </h3>
+                    <span
+                      aria-label={order.payment_status === 'paid' ? 'Payment received' : 'Payment status'}
+                      style={{
+                        display: 'inline-block',
+                        marginTop: '8px',
+                        padding: '6px 12px',
+                        borderRadius: '999px',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        color: order.payment_status === 'paid' ? '#17633b' : '#794813',
+                        backgroundColor: order.payment_status === 'paid' ? '#e5f6eb' : '#fff1d9',
+                      }}
+                    >
+                      {order.payment_status === 'paid'
+                        ? '✓ Paid'
+                        : order.payment_status === 'refunded'
+                        ? 'Refunded'
+                        : order.payment_status === 'failed'
+                        ? 'Payment failed'
+                        : 'Payment pending'}
+                    </span>
 
                     <p>
                       {formatDate(
