@@ -116,48 +116,47 @@ function getCustomerProductName(
 }
 
 async function getOwnedOrders(
-  userId: string
+  userId: string,
+  verifiedEmail: string | null = null
 ) {
-  const admin =
-    supabaseAdmin();
+  const admin = supabaseAdmin();
+  const select = `
+    id,
+    order_number,
+    created_at,
+    order_items (
+      product_slug,
+      product_name,
+      memory_code,
+      image_url,
+      personalisation
+    )
+  `;
 
-  const {
-    data,
-    error,
-  } =
-    await admin
-      .from('orders')
-      .select(
-        `
-          id,
-          order_number,
-          created_at,
-          order_items (
-            product_slug,
-            product_name,
-            memory_code,
-            image_url,
-            personalisation
-          )
-        `
-      )
-      .eq(
-        'customer_id',
-        userId
-      )
-      .order(
-        'created_at',
-        {
-          ascending: false,
-        }
-      );
+  const owned = await admin.from('orders')
+    .select(select)
+    .eq('customer_id', userId)
+    .order('created_at', { ascending: false });
 
-  if (error) {
-    throw error;
+  if (owned.error) throw owned.error;
+
+  let guests: RawOrder[] = [];
+  // Only a verified email can connect a previously placed guest order.
+  if (verifiedEmail) {
+    const guest = await admin.from('orders')
+      .select(select)
+      .is('customer_id', null)
+      .eq('customer_email', verifiedEmail)
+      .order('created_at', { ascending: false });
+    if (guest.error) throw guest.error;
+    guests = (guest.data || []) as unknown as RawOrder[];
   }
 
-  return (
-    (data || []) as unknown as RawOrder[]
+  return Array.from(
+    new Map(
+      [...((owned.data || []) as unknown as RawOrder[]), ...guests]
+        .map((order) => [order.id, order])
+    ).values()
   );
 }
 
@@ -279,14 +278,16 @@ function convertMemory(
 }
 
 export async function getCustomerMemories(
-  userId: string
+  userId: string,
+  verifiedEmail: string | null = null
 ): Promise<CustomerMemory[]> {
   const admin =
     supabaseAdmin();
 
   const orders =
     await getOwnedOrders(
-      userId
+      userId,
+      verifiedEmail
     );
 
   const giftMap =
@@ -439,7 +440,8 @@ export async function getCustomerMemories(
 
 export async function getCustomerMemoryByCode(
   userId: string,
-  code: string
+  code: string,
+  verifiedEmail: string | null = null
 ): Promise<CustomerMemory | null> {
   const normalized =
     code
@@ -495,7 +497,8 @@ export async function getCustomerMemoryByCode(
 
   const orders =
     await getOwnedOrders(
-      userId
+      userId,
+      verifiedEmail
     );
 
   const giftMap =

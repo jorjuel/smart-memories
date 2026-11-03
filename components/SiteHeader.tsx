@@ -329,6 +329,7 @@ if (
           </Link>
 
           <Link
+            prefetch={false}
             href="/memories"
             className={
               pathname.startsWith('/memories')
@@ -340,6 +341,7 @@ if (
           </Link>
 
           <Link
+            prefetch={false}
             href="/account/orders"
             className={
               pathname.startsWith('/account/orders')
@@ -353,6 +355,7 @@ if (
 
         <div className="smHeaderUtilities">
           <Link
+            prefetch={false}
             href="/account"
             className="smUtilityLink"
           >
@@ -509,6 +512,7 @@ if (
           </Link>
 
           <Link
+            prefetch={false}
             href="/memories"
             onClick={
               closeMenus
@@ -518,6 +522,7 @@ if (
           </Link>
 
           <Link
+            prefetch={false}
             href="/account/orders"
             onClick={
               closeMenus
@@ -527,6 +532,7 @@ if (
           </Link>
 
           <Link
+            prefetch={false}
             href="/account"
             onClick={
               closeMenus

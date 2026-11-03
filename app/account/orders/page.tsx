@@ -404,6 +404,23 @@ export default async function CustomerOrdersPage() {
                     </div>
                   </header>
 
+                  {order.payment_status === 'pending' && (
+                    <div className="card" style={{ margin: '14px 0', padding: '16px' }}>
+                      <strong>Checkout not completed</strong>
+                      <p>
+                        This is an unpaid checkout record, not a confirmed purchase.
+                        If your saved gift is still in the basket on this device,
+                        return to the basket to finish checking out.
+                        Otherwise you can start a new personalisation from the shop.
+                        Payment will create a new order reference; the earlier unpaid
+                        record is retained for transparency.
+                      </p>
+                      <Link href="/cart" className="btn secondary">
+                        Return to Basket
+                      </Link>
+                    </div>
+                  )}
+
                   <div className="smOrderItems">
                     {order.order_items.map(
                       (
