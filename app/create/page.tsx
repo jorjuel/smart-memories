@@ -20,6 +20,7 @@ import {
 } from '../../lib/products';
 
 import CreateMemoryJourney from '../../components/CreateMemoryJourney';
+import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
 
 function CreateContent() {
   const router = useRouter();
@@ -251,31 +252,13 @@ function CreateContent() {
       );
 
       if (photo) {
-        formData.set(
-          'photo',
-          photo
-        );
+        const photoPath = await uploadMemoryMedia(photo, 'photo');
+        formData.set('photoPath', photoPath);
       }
 
       if (audio) {
-        const extension =
-          audio.type.includes(
-            'mp4'
-          )
-            ? 'm4a'
-            : 'webm';
-
-        formData.set(
-          'audio',
-          new File(
-            [audio],
-            `message.${extension}`,
-            {
-              type:
-                audio.type,
-            }
-          )
-        );
+        const audioPath = await uploadMemoryMedia(audio, 'audio');
+        formData.set('audioPath', audioPath);
       }
 
       const response =
@@ -287,15 +270,7 @@ function CreateContent() {
           }
         );
 
-      const result =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error ||
-            'Could not save memory'
-        );
-      }
+      const result = await readMemorySaveResult(response);
 
       setSavedCode(code);
 const permanentPhotoUrl =
