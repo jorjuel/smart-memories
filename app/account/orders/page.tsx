@@ -179,8 +179,10 @@ export default async function CustomerOrdersPage() {
           id,
           order_number,
           total_pence,
-          payment_status,          status,
+          payment_status,
+          status,
           production_status,
+          stripe_checkout_session_id,
           created_at,
           order_items (
             id,
@@ -222,8 +224,10 @@ export default async function CustomerOrdersPage() {
         id,
         order_number,
         total_pence,
-        payment_status,        status,
+        payment_status,
+        status,
         production_status,
+        stripe_checkout_session_id,
         created_at,
         order_items (
           id,
