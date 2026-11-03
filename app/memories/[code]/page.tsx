@@ -14,6 +14,7 @@ import {
 } from '../../../lib/customerMemories';
 
 import AccountNav from '../../../components/AccountNav';
+import { verifiedGuestOrderEmail } from '@/lib/customerOrderAccess';
 import CopyMemoryLink from '../../../components/CopyMemoryLink';
 
 export const dynamic =
@@ -75,7 +76,8 @@ export default async function MemoryOwnerPage({
     memory =
       await getCustomerMemoryByCode(
         user.id,
-        code
+        code,
+        verifiedGuestOrderEmail(user)
       );
   } catch (
     error
