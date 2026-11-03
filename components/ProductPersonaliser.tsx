@@ -24,6 +24,7 @@ import {
 import ConfiguredProductPreview from './ConfiguredProductPreview';
 import PersonaliserProgress from './PersonaliserProgress';
 import SmartMemoryLivePreview from './SmartMemoryLivePreview';
+import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
 
 type Props = {
   slug: string;
@@ -816,31 +817,14 @@ export default function ProductPersonaliser({
         sender.trim()
       );
 
-      formData.set(
-        'photo',
-        photo
-      );
+      // Upload photo and audio directly to storage, bypassing the
+      // serverless function request-body limit.
+      const photoPath = await uploadMemoryMedia(photo, 'photo');
+      formData.set('photoPath', photoPath);
 
       if (audio) {
-        const extension =
-          audio.type.includes(
-            'mp4'
-          )
-            ? 'm4a'
-            : 'webm';
-
-        formData.set(
-          'audio',
-          new File(
-            [audio],
-            `message.${extension}`,
-            {
-              type:
-                audio.type ||
-                'audio/webm',
-            }
-          )
-        );
+        const audioPath = await uploadMemoryMedia(audio, 'audio');
+        formData.set('audioPath', audioPath);
       }
 
       const response =
@@ -854,15 +838,7 @@ export default function ProductPersonaliser({
           }
         );
 
-      const result =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error ||
-            'Could not save Smart Memory'
-        );
-      }
+      const result = await readMemorySaveResult(response);
 
       setSavedCode(
         result.code ||
