@@ -462,8 +462,10 @@ export async function POST(
       if (infoError || !info) {
         return NextResponse.json({ error: 'Uploaded media was not found. Please try uploading again.' }, { status: 400 });
       }
-      const fileSize = Number(info.metadata?.size || 0);
-      const mimeType = String(info.metadata?.mimetype || '');
+      // Storage .info() returns size and contentType at the top level;
+      // .metadata is user-supplied custom metadata, not file properties.
+      const fileSize = Number(info.size || 0);
+      const mimeType = String(info.contentType || '').toLowerCase();
       if (fileSize < 1 || fileSize > entry.maxBytes ||
           !mimeType.startsWith(entry.kind + '/')) {
         return NextResponse.json({ error: 'Uploaded media format or size is invalid.' }, { status: 400 });
