@@ -37,6 +37,7 @@ type DashboardOrder = {
   customer_name: string | null;
   customer_email: string;
   payment_status: string;
+  stripe_checkout_session_id: string | null;
   production_status:
     ProductionStatus;
   created_at: string;
@@ -136,6 +137,7 @@ export default async function AdminDashboardPage() {
             customer_name,
             customer_email,
             payment_status,
+            stripe_checkout_session_id,
             production_status,
             created_at,
             order_items (
@@ -477,7 +479,20 @@ export default async function AdminDashboardPage() {
                       </strong>
 
                       <p>
-                        Payment:{' '}
+{order.stripe_checkout_session_id?.startsWith('cs_test_') && (
+              <span style={{ display: 'inline-block', padding: '5px 10px', background: '#fff1d9', borderRadius: '8px', fontWeight: 700 }}>
+                TEST PAYMENT — NOT REAL REVENUE
+              </span>
+            )}
+            {order.stripe_checkout_session_id?.startsWith('cs_live_') && (
+              <span style={{ display: 'inline-block', padding: '5px 10px', background: '#e5f6eb', borderRadius: '8px', fontWeight: 700 }}>
+                LIVE PAYMENT
+              </span>
+            )}
+            {!order.stripe_checkout_session_id && (
+              <span style={{ fontWeight: 600 }}>Payment mode unverified</span>
+            )}
+                                    Payment:{' '}
                         {paymentLabel(
                           order.payment_status
                         )}
