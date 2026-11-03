@@ -121,6 +121,14 @@ export default function SiteFooter() {
           <Link href="/terms">
             Terms
           </Link>
+
+          <Link href="/delivery">
+            Delivery Information
+          </Link>
+
+          <Link href="/returns">
+            Returns & Cancellations
+          </Link>
         </div>
       </div>
 

@@ -84,14 +84,34 @@ function ContactContent() {
     setMessage,
   ] = useState('');
 
-  function handleSubmit(
-    event: React.FormEvent
-  ) {
-    event.preventDefault();
+  const [sendStatus, setSendStatus] = useState('');
+  const [sending, setSending] = useState(false);
+  const [companyWebsite, setCompanyWebsite] = useState('');
 
-    alert(
-      'Thank you. Your corporate enquiry has been captured. We will connect this form to email or Supabase next.'
-    );
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setSending(true);
+    setSendStatus('');
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          companyName, contactName, email, phone, quantity, bundle,
+          budget, requiredDate, branding, message, companyWebsite,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) {
+        setSendStatus(result.error || 'We could not send your enquiry.');
+        return;
+      }
+      setSendStatus('Your enquiry was sent successfully. Thank you.');
+    } catch {
+      setSendStatus('We could not send your enquiry. Please try again later.');
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -373,12 +393,22 @@ function ContactContent() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn big"
-          >
-            Request Corporate Quote
+          <div style={{ position: 'absolute', left: '-10000px' }} aria-hidden="true">
+            <label htmlFor="companyWebsite">Company website</label>
+            <input
+              id="companyWebsite"
+              name="companyWebsite"
+              tabIndex={-1}
+              autoComplete="off"
+              value={companyWebsite}
+              onChange={(event) => setCompanyWebsite(event.target.value)}
+            />
+          </div>
+
+          <button type="submit" className="btn big" disabled={sending}>
+            {sending ? 'Sending...' : 'Request Corporate Quote'}
           </button>
+          {sendStatus && <p role="status">{sendStatus}</p>}
         </form>
       ) : (
         <div
