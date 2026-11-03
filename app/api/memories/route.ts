@@ -443,6 +443,39 @@ export async function POST(
     }
 
     /* =====================================================
+       DIRECT STORAGE UPLOADS
+       Signed media uploads bypass Vercel's 4.5 MB body cap.
+       Verify the requested storage object exists before linking it.
+       ===================================================== */
+    for (const entry of [
+      { field: 'photoPath', kind: 'image', maxBytes: 10 * 1024 * 1024 },
+      { field: 'audioPath', kind: 'audio', maxBytes: 25 * 1024 * 1024 },
+    ]) {
+      const path = String(form.get(entry.field) || '').trim();
+      if (!path) continue;
+      if (!/^memory-uploads\/[a-f0-9-]{36}\.[a-z0-9]+$/.test(path)) {
+        return NextResponse.json({ error: 'Invalid media reference.' }, { status: 400 });
+      }
+
+      const { data: info, error: infoError } = await sb.storage
+        .from('memory-media').info(path);
+      if (infoError || !info) {
+        return NextResponse.json({ error: 'Uploaded media was not found. Please try uploading again.' }, { status: 400 });
+      }
+      const fileSize = Number(info.metadata?.size || 0);
+      const mimeType = String(info.metadata?.mimetype || '');
+      if (fileSize < 1 || fileSize > entry.maxBytes ||
+          !mimeType.startsWith(entry.kind + '/')) {
+        return NextResponse.json({ error: 'Uploaded media format or size is invalid.' }, { status: 400 });
+      }
+
+      const { data: publicFile } = sb.storage
+        .from('memory-media').getPublicUrl(path);
+      if (entry.kind === 'image') photoUrl = publicFile.publicUrl;
+      if (entry.kind === 'audio') audioUrl = publicFile.publicUrl;
+    }
+
+    /* =====================================================
        SAVE TO DATABASE
        ===================================================== */
 
