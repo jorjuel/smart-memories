@@ -22,11 +22,11 @@ export async function GET(
       'next'
     );
 
+  // Only internal destinations used by the registration and
+  // password recovery flow are accepted, preventing open redirects.
   const next =
-    requestedNext &&
-    requestedNext.startsWith('/') &&
-    !requestedNext.startsWith('//')
-      ? requestedNext
+    requestedNext === '/account/update-password'
+      ? '/account/update-password'
       : '/account';
 
   if (!code) {
