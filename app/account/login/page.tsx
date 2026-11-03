@@ -35,6 +35,12 @@ export default async function CustomerLoginPage({
       'Please enter your email and password.';
   }
 
+  if (params.error === 'callback') {
+    errorMessage =
+      'Your confirmation or password reset link could not be verified. ' +
+      'It may have expired or already been used. Please request a fresh link.';
+  }
+
   return (
     <section className="wrap">
       <div

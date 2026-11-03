@@ -29,6 +29,11 @@ export default async function CustomerForgotPasswordPage({
       'We could not send the reset email. Please try again.';
   }
 
+  if (params.error === 'invalid') {
+    errorMessage =
+      'Your reset link is invalid or expired. Please request a new one.';
+  }
+
   return (
     <section className="wrap">
       <div
