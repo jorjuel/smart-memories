@@ -116,12 +116,12 @@ export default function MemoryCard({
         </div>
 
         <div className="smMemoryCardActions">
-          <Link
+          <a
             href={`/memories/${memory.code}`}
             className="btn"
           >
             View Memory
-          </Link>
+          </a>
 
           <Link
             href={`/m/${memory.code}`}

@@ -328,9 +328,7 @@ if (
             How It Works
           </Link>
 
-          <Link
-            prefetch={false}
-            href="/memories"
+          <a href="/memories"
             className={
               pathname.startsWith('/memories')
                 ? 'smNavActive'
@@ -338,11 +336,9 @@ if (
             }
           >
             My Memories
-          </Link>
+          </a>
 
-          <Link
-            prefetch={false}
-            href="/account/orders"
+          <a href="/account/orders"
             className={
               pathname.startsWith('/account/orders')
                 ? 'smNavActive'
@@ -350,17 +346,15 @@ if (
             }
           >
             My Orders
-          </Link>
+          </a>
         </nav>
 
         <div className="smHeaderUtilities">
-          <Link
-            prefetch={false}
-            href="/account"
+          <a href="/account"
             className="smUtilityLink"
           >
             Account
-          </Link>
+          </a>
 
           <Link
             href="/cart"
@@ -511,35 +505,29 @@ if (
             How It Works
           </Link>
 
-          <Link
-            prefetch={false}
-            href="/memories"
+          <a href="/memories"
             onClick={
               closeMenus
             }
           >
             My Memories
-          </Link>
+          </a>
 
-          <Link
-            prefetch={false}
-            href="/account/orders"
+          <a href="/account/orders"
             onClick={
               closeMenus
             }
           >
             My Orders
-          </Link>
+          </a>
 
-          <Link
-            prefetch={false}
-            href="/account"
+          <a href="/account"
             onClick={
               closeMenus
             }
           >
             Account
-          </Link>
+          </a>
 
           <Link
             href="/cart"

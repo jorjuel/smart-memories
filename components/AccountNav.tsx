@@ -33,9 +33,7 @@ export default function AccountNav() {
       className="smAccountNav"
       aria-label="Customer account"
     >
-      <Link
-        prefetch={false}
-        href="/memories"
+      <a href="/memories"
         className={
           active(
             '/memories'
@@ -45,11 +43,9 @@ export default function AccountNav() {
         }
       >
         Memories
-      </Link>
+      </a>
 
-      <Link
-        prefetch={false}
-        href="/account/orders"
+      <a href="/account/orders"
         className={
           active(
             '/account/orders'
@@ -59,11 +55,9 @@ export default function AccountNav() {
         }
       >
         Orders
-      </Link>
+      </a>
 
-      <Link
-        prefetch={false}
-        href="/account"
+      <a href="/account"
         className={
           active(
             '/account'
@@ -73,7 +67,7 @@ export default function AccountNav() {
         }
       >
         Account
-      </Link>
+      </a>
 
       <Link
         href="/create"
