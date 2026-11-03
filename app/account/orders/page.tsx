@@ -202,9 +202,54 @@ export default async function CustomerOrdersPage() {
         }
       );
 
-  const orders =
-    (data ||
-      []) as Order[];
+  // Only a verified email address can unlock guest orders.
+  // Keep customer_id ownership checks for registered orders.
+  const verifiedEmail =
+    user.email_confirmed_at
+      ? user.email?.trim().toLowerCase()
+      : null;
+
+  let guestOrders: Order[] = [];
+  let guestError: unknown = null;
+
+  if (verifiedEmail) {
+    const guestResult = await admin
+      .from('orders')
+      .select(`
+        id,
+        order_number,
+        total_pence,
+        payment_status,
+        status,
+        created_at,
+        order_items (
+          id,
+          product_slug,
+          product_name,
+          quantity,
+          unit_price_pence,
+          memory_code,
+          image_url
+        )
+      `)
+      .is('customer_id', null)
+      .eq('customer_email', verifiedEmail)
+      .order('created_at', { ascending: false });
+
+    guestOrders = (guestResult.data || []) as Order[];
+    guestError = guestResult.error;
+  }
+
+  const orders = Array.from(
+    new Map(
+      [...((data || []) as Order[]), ...guestOrders]
+        .map((order) => [order.id, order])
+    ).values()
+  ).sort((a, b) =>
+    b.created_at.localeCompare(a.created_at)
+  );
+
+  const loadError = Boolean(error || guestError);
 
   return (
     <main className="smAccountPage">
@@ -236,7 +281,7 @@ export default async function CustomerOrdersPage() {
         </Link>
       </section>
 
-      {error && (
+      {loadError && (
         <section className="smMemoryLoadError">
           <h2>
             We couldn't load
@@ -256,7 +301,7 @@ export default async function CustomerOrdersPage() {
         </section>
       )}
 
-      {!error &&
+      {!loadError &&
         orders.length ===
           0 && (
           <section className="smMemoryEmpty">
@@ -290,7 +335,7 @@ export default async function CustomerOrdersPage() {
           </section>
         )}
 
-      {!error &&
+      {!loadError &&
         orders.length >
           0 && (
           <section className="smOrdersList">

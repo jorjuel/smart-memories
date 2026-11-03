@@ -159,9 +159,46 @@ export default async function AccountPage() {
       throw error;
     }
 
-    recentOrders =
-      (data ||
-        []) as RecentOrder[];
+    const verifiedEmail = user.email_confirmed_at
+      ? user.email?.trim().toLowerCase()
+      : null;
+
+    let guestOrders: RecentOrder[] = [];
+
+    if (verifiedEmail) {
+      const guestResult = await admin
+        .from('orders')
+        .select(`
+          id,
+          order_number,
+          total_pence,
+          status,
+          created_at,
+          order_items (
+            id,
+            product_name,
+            memory_code
+          )
+        `)
+        .is('customer_id', null)
+        .eq('customer_email', verifiedEmail)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (guestResult.error) {
+        throw guestResult.error;
+      }
+      guestOrders = (guestResult.data || []) as RecentOrder[];
+    }
+
+    recentOrders = Array.from(
+      new Map(
+        [...((data || []) as RecentOrder[]), ...guestOrders]
+          .map((order) => [order.id, order])
+      ).values()
+    )
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, 3);
   } catch (
     error
   ) {
