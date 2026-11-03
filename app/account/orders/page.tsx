@@ -41,6 +41,7 @@ type Order = {
   order_number: string;
   total_pence: number;
   payment_status: string;
+  stripe_checkout_session_id: string | null;
   status: string;
   production_status: string;
   created_at: string;
@@ -378,6 +379,12 @@ export default async function CustomerOrdersPage() {
                           order.total_pence
                         )}
                       </strong>
+
+                      {order.stripe_checkout_session_id?.startsWith('cs_test_') && (
+                        <span style={{ display: 'inline-block', padding: '6px 10px', borderRadius: '8px', background: '#fff1d9', color: '#794813', fontWeight: 700 }}>
+                          Test order — no real payment
+                        </span>
+                      )}
 
                       <span
                         style={{
