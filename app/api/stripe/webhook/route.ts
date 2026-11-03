@@ -125,6 +125,13 @@ async function markOrderPaid(
   if (updateError) {
     throw updateError;
   }
+
+  try {
+    const email = await import('@/lib/orderConfirmationEmail');
+    await email.sendOrderConfirmation(orderId);
+  } catch (error) {
+    console.error('Order confirmation email failed:', error);
+  }
 }
 
 export async function POST(
