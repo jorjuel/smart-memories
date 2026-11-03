@@ -58,7 +58,7 @@ export async function uploadMemoryMedia(
 
 /** Parse the API response safely; do not show raw proxy HTML as JSON errors. */
 export async function readMemorySaveResult(response: Response):
-  Promise<{ code?: string; photoUrl?: string; audioUrl?: string;
+  Promise<{ code?: string; photoUrl?: string; photo_url?: string; audioUrl?: string; audio_url?: string;
     memory?: { code?: string; photoUrl?: string; photo_url?: string;
       audioUrl?: string; audio_url?: string }; error?: string }> {
   const mime = response.headers.get('content-type') || '';
