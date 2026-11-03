@@ -14,6 +14,7 @@ import {
 } from '../../lib/customerMemories';
 
 import AccountNav from '../../components/AccountNav';
+import { verifiedGuestOrderEmail } from '@/lib/customerOrderAccess';
 import MemoryLibrary from '../../components/MemoryLibrary';
 
 export const dynamic =
@@ -51,7 +52,8 @@ export default async function MyMemoriesPage() {
   try {
     memories =
       await getCustomerMemories(
-        user.id
+        user.id,
+        verifiedGuestOrderEmail(user)
       );
   } catch (
     error
