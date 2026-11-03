@@ -19,6 +19,7 @@ import {
 
 import AccountNav from '../../components/AccountNav';
 import MemoryCard from '../../components/MemoryCard';
+import { customerOrderProgress } from '@/lib/customerOrderProgress';
 
 export const dynamic =
   'force-dynamic';
@@ -28,6 +29,7 @@ type RecentOrder = {
   order_number: string;
   total_pence: number;
   status: string;
+  production_status: string;
   payment_status: string;
   created_at: string;
   order_items: {
@@ -136,6 +138,7 @@ export default async function AccountPage() {
             order_number,
             total_pence,
             status,
+            production_status,
             payment_status,
             created_at,
             order_items (
@@ -175,6 +178,7 @@ export default async function AccountPage() {
           order_number,
           total_pence,
           status,
+          production_status,
           payment_status,
           created_at,
           order_items (
@@ -427,9 +431,7 @@ export default async function AccountPage() {
                     </span>
 
                     <h3>
-                      {statusLabel(
-                        order.status
-                      )}
+                      {customerOrderProgress(order.payment_status, order.production_status)}
                     </h3>
                     <span
                       aria-label={order.payment_status === 'paid' ? 'Payment received' : 'Payment status'}
