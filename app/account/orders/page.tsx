@@ -472,13 +472,13 @@ export default async function CustomerOrdersPage() {
                             <div className="smOrderItemActions">
                               {item.memory_code && (
                                 <>
-                                  <Link
+                                  <a
                                     href={`/memories/${item.memory_code}`}
                                     className="btn"
                                   >
                                     View Smart
                                     Memory
-                                  </Link>
+                                  </a>
 
                                   <Link
                                     href={`/m/${item.memory_code}`}
