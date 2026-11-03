@@ -21,6 +21,7 @@ import {
 } from '../../../lib/productExperience';
 
 import AccountNav from '../../../components/AccountNav';
+import { customerOrderProgress } from '@/lib/customerOrderProgress';
 
 export const dynamic =
   'force-dynamic';
@@ -40,7 +41,9 @@ type Order = {
   order_number: string;
   total_pence: number;
   payment_status: string;
+  stripe_checkout_session_id: string | null;
   status: string;
+  production_status: string;
   created_at: string;
   order_items:
     OrderItem[];
@@ -178,6 +181,8 @@ export default async function CustomerOrdersPage() {
           total_pence,
           payment_status,
           status,
+          production_status,
+          stripe_checkout_session_id,
           created_at,
           order_items (
             id,
@@ -221,6 +226,8 @@ export default async function CustomerOrdersPage() {
         total_pence,
         payment_status,
         status,
+        production_status,
+        stripe_checkout_session_id,
         created_at,
         order_items (
           id,
@@ -359,9 +366,7 @@ export default async function CustomerOrdersPage() {
                       </span>
 
                       <h2>
-                        {statusLabel(
-                          order.status
-                        )}
+                        {customerOrderProgress(order.payment_status, order.production_status)}
                       </h2>
 
                       <p>
@@ -378,6 +383,12 @@ export default async function CustomerOrdersPage() {
                           order.total_pence
                         )}
                       </strong>
+
+                      {order.stripe_checkout_session_id?.startsWith('cs_test_') && (
+                        <span style={{ display: 'inline-block', padding: '6px 10px', borderRadius: '8px', background: '#fff1d9', color: '#794813', fontWeight: 700 }}>
+                          Test order — no real payment
+                        </span>
+                      )}
 
                       <span
                         style={{

@@ -23,6 +23,8 @@ type SearchParams = Promise<{
   issue?: string;
   memory?: string;
   product?: string;
+  payment?: string;
+  mode?: string;
 }>;
 
 type OrderItem = {
@@ -206,6 +208,9 @@ export default async function AdminOrdersPage({
   const productFilter =
     (params.product || '')
       .trim();
+
+  const paymentFilter = (params.payment || '').trim();
+  const modeFilter = (params.mode || '').trim();
 
   const admin =
     supabaseAdmin();
@@ -481,6 +486,20 @@ export default async function AdminOrdersPage({
           return false;
         }
 
+        if (paymentFilter && order.payment_status !== paymentFilter) {
+          return false;
+        }
+
+        const sessionId = order.stripe_checkout_session_id || '';
+        const orderMode = sessionId.startsWith('cs_test_')
+          ? 'test'
+          : sessionId.startsWith('cs_live_')
+          ? 'live'
+          : 'unverified';
+        if (modeFilter && orderMode !== modeFilter) {
+          return false;
+        }
+
         if (
           issueFilter &&
           order.issues.length ===
@@ -590,6 +609,27 @@ export default async function AdminOrdersPage({
             }
             placeholder="Order, customer, memory code, recipient or product"
           />
+        </label>
+
+        <label>
+          <span>Payment status</span>
+          <select name="payment" defaultValue={paymentFilter}>
+            <option value="">All payments</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="failed">Failed</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Payment environment</span>
+          <select name="mode" defaultValue={modeFilter}>
+            <option value="">All environments</option>
+            <option value="test">Stripe sandbox</option>
+            <option value="live">Stripe live</option>
+            <option value="unverified">Mode unverified</option>
+          </select>
         </label>
 
         <label>

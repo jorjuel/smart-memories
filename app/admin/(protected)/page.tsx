@@ -20,8 +20,9 @@ type ProductionStatus =
 
 type StatusRow = {
   id: string;
-  production_status:
-    ProductionStatus;
+  production_status: ProductionStatus;
+  payment_status: string;
+  stripe_checkout_session_id: string | null;
 };
 
 type DashboardOrderItem = {
@@ -124,7 +125,9 @@ export default async function AdminDashboardPage() {
         .select(
           `
             id,
-            production_status
+            production_status,
+            payment_status,
+            stripe_checkout_session_id
           `
         ),
 
@@ -201,16 +204,27 @@ export default async function AdminDashboardPage() {
       []) as unknown as
       DashboardOrder[];
 
-  const count =
-    (
-      status:
-        ProductionStatus
-    ) =>
-      statuses.filter(
-        (order) =>
-          order.production_status ===
-          status
-      ).length;
+  // Only confirmed live payments belong in the real-money
+  // production queue. Test and unverified orders remain visible below.
+  const livePaidOrders = statuses.filter(
+    (order) =>
+      order.payment_status === 'paid' &&
+      order.stripe_checkout_session_id?.startsWith('cs_live_')
+  );
+  const sandboxPaidOrders = statuses.filter(
+    (order) =>
+      order.payment_status === 'paid' &&
+      order.stripe_checkout_session_id?.startsWith('cs_test_')
+  ).length;
+  const unverifiedOrders = statuses.filter(
+    (order) =>
+      !order.stripe_checkout_session_id
+  ).length;
+
+  const count = (status: ProductionStatus) =>
+    livePaidOrders.filter(
+      (order) => order.production_status === status
+    ).length;
 
   const newOrders =
     count('new');
@@ -279,6 +293,25 @@ export default async function AdminDashboardPage() {
           className="btn"
         >
           View All Orders
+        </Link>
+      </div>
+
+      <div className="card" style={{ marginTop: '24px' }}>
+        <strong>Real-sales production queue</strong>
+        <p>
+          The production counts below include only orders confirmed as
+          paid by a live Stripe checkout. Sandbox payments and orders
+          without a verified checkout are excluded from real sales.
+        </p>
+        <p>
+          <strong>{livePaidOrders.length}</strong> confirmed live paid orders
+          {' · '}
+          <strong>{sandboxPaidOrders}</strong> confirmed sandbox test orders
+          {' · '}
+          <strong>{unverifiedOrders}</strong> orders with payment mode unverified
+        </p>
+        <Link href="/admin/orders?mode=test" className="btn secondary">
+          View Test Orders
         </Link>
       </div>
 
