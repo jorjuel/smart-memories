@@ -4,9 +4,16 @@
 
 The live Privacy Policy and Terms are currently provisional. UK distance-selling rules require clear information about the trader, delivery and cancellation arrangements before a customer places an order. The ICO requires an accurate notice of personal-data handling. Do not guess or publish missing information.
 
+## Confirmed business structure
+
+- Business location: United Kingdom
+- Legal structure: sole trader (not a limited company)
+- Trading name: Smart Memories
+- Legal owner name and public service address: to be confirmed before publication
+
 ## Identity and customer service
 
-- Trading legal name (and whether sole trader / limited company):
+- Sole trader's full legal name (for customer-facing disclosures and invoices):
 - Business contact email (shown on website):
 - Business geographical address suitable for public trader identification:
 - Customer complaints/returns address, if different:
