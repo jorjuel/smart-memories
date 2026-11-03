@@ -34,6 +34,7 @@ export default function AccountNav() {
       aria-label="Customer account"
     >
       <Link
+        prefetch={false}
         href="/memories"
         className={
           active(
@@ -47,6 +48,7 @@ export default function AccountNav() {
       </Link>
 
       <Link
+        prefetch={false}
         href="/account/orders"
         className={
           active(
@@ -60,6 +62,7 @@ export default function AccountNav() {
       </Link>
 
       <Link
+        prefetch={false}
         href="/account"
         className={
           active(
