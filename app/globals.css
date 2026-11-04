@@ -11271,3 +11271,77 @@ header.smSiteHeader {
     animation: none;
   }
 }
+
+
+/* Admin order card readability — separate customer details from product panels. */
+.smAdminOrderHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, max-content);
+  gap: 16px 28px;
+  align-items: start;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #eee1db;
+}
+.smAdminOrderCustomer {
+  min-width: 0;
+}
+.smAdminOrderCustomer h2 {
+  margin: 8px 0 12px;
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.smAdminOrderMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px 16px;
+  color: #71615c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.smAdminOrderEmail {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.smAdminOrderMeta time {
+  white-space: normal;
+}
+.smAdminOrderHeaderStatus {
+  min-width: 0;
+  max-width: 280px;
+  justify-items: end;
+  align-content: start;
+  gap: 8px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.smAdminOrderItems {
+  margin-top: 0;
+  clear: both;
+}
+.smAdminOrderItem,
+.smAdminOrderItemInfo,
+.smAdminOrderItemInfo h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .smAdminOrderHeader {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+  }
+  .smAdminOrderHeaderStatus {
+    max-width: 100%;
+    justify-items: start;
+    text-align: left;
+  }
+  .smAdminOrderMeta {
+    flex-direction: column;
+    gap: 3px;
+  }
+}
