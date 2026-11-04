@@ -853,23 +853,21 @@ export default function CheckoutPage() {
                 </h2>
 
                 <p>
-                  Secure payment will
-                  be handled by Stripe.
+                  Continue to Stripe for
+                  secure payment.
                 </p>
               </div>
             </div>
 
             <div className="paymentPreview">
               <strong>
-                Development order mode
+                Secure Stripe checkout
               </strong>
 
               <p>
-                Stripe is not connected
-                yet. For now this button
-                creates a real order in
-                Supabase with payment
-                status set to pending.
+                Your order is created first, then you continue
+                to Stripe to pay. Payment is only marked as paid
+                after Stripe confirms it.
               </p>
             </div>
           </section>
@@ -1024,7 +1022,7 @@ export default function CheckoutPage() {
             >
               {submitting
                 ? 'Creating order...'
-                : 'Create Order'}
+                : 'Continue to secure payment'}
             </button>
 
             <p
@@ -1036,10 +1034,17 @@ export default function CheckoutPage() {
                 opacity: 0.7,
               }}
             >
-              Development mode:
-              payment will remain
-              pending until Stripe
-              is connected.
+              Personalised products may not qualify for
+              change-of-mind cancellation. Your legal rights
+              for faulty or misdescribed goods still apply.
+            </p>
+
+            <p className="smCheckoutPolicyLinks">
+              Please review our{' '}
+              <Link href="/terms">terms</Link>,{' '}
+              <Link href="/returns">returns and cancellations</Link>,{' '}
+              <Link href="/delivery">delivery information</Link>, and{' '}
+              <Link href="/privacy">privacy notice</Link> before payment.
             </p>
 
             <Link
