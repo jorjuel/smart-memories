@@ -11148,16 +11148,16 @@ header.smSiteHeader {
   background: linear-gradient(170deg, #f9f0ed 0%, #fffaf6 55%, #f5e6e2 100%);
 }
 .smRecipientUnifiedFrame {
-  padding: clamp(20px, 4vw, 56px) 18px 30px;
+  padding: clamp(12px, 2vw, 24px) 12px 18px;
   display: flex;
   justify-content: center;
 }
 .smRecipientUnifiedCard {
   width: min(100%, 690px);
-  padding: clamp(22px, 4vw, 46px);
+  padding: clamp(16px, 2.4vw, 26px);
   background: #fffaf7;
   border: 1px solid #e8d6d2;
-  border-radius: 30px;
+  border-radius: 22px;
   box-shadow: 0 16px 55px rgba(71,39,43,.1);
   text-align: center;
   animation: smRecipientStoryReveal .55s ease both;
@@ -11173,11 +11173,11 @@ header.smSiteHeader {
   display: block;
   color: var(--sm-muted);
   font-size: 10px;
-  margin-top: 20px;
+  margin-top: 9px;
   letter-spacing: 1.4px;
 }
 .smRecipientUnifiedCard h2 {
-  margin: 6px auto 21px;
+  margin: 3px auto 11px;
   color: var(--sm-plum-dark);
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 400;
@@ -11188,32 +11188,38 @@ header.smSiteHeader {
 .smRecipientUnifiedPhoto {
   display: block;
   width: 100%;
-  max-height: min(44svh, 370px);
+  max-height: min(35svh, 295px);
   object-fit: contain;
   background: #f3eae5;
   border-radius: 18px;
 }
 .smRecipientUnifiedLetter {
-  margin-top: 18px;
-  padding: clamp(18px, 3vw, 30px);
+  margin-top: 10px;
+  padding: clamp(13px, 2vw, 20px);
   background: white;
   border: 1px solid #ecdeda;
-  border-radius: 18px;
+  border-radius: 14px;
+  min-height: 0;
+  height: auto;
+  overflow: visible;
 }
 .smRecipientUnifiedLetter .smRecipientMessageCompact {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(17px, 2.5vw, 21px);
-  line-height: 1.65;
+  font-size: clamp(16px, 2.2vw, 20px);
+  line-height: 1.5;
+  height: auto;
+  max-height: none;
+  overflow: visible;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 .smRecipientUnifiedVoice {
-  margin-top: 20px;
+  margin-top: 12px;
 }
 .smRecipientUnifiedVoice > span {
   display: block;
-  margin-bottom: 9px;
+  margin-bottom: 5px;
   color: var(--sm-muted);
   font-size: 10px;
   font-weight: 700;
@@ -11224,7 +11230,7 @@ header.smSiteHeader {
   min-height: 46px;
 }
 .smRecipientUnifiedSignature {
-  margin: 21px 0 0;
+  margin: 12px 0 0;
   color: var(--sm-plum-dark);
   font-size: 14px;
   overflow-wrap: anywhere;
@@ -11235,7 +11241,7 @@ header.smSiteHeader {
 }
 .smRecipientUnifiedRevisit {
   max-width: 460px;
-  margin: 20px auto 0;
+  margin: 12px auto 0;
   color: var(--sm-muted);
   font-size: 12px;
   line-height: 1.65;
@@ -11245,29 +11251,181 @@ header.smSiteHeader {
 }
 @media (max-width: 600px) {
   .smRecipientUnifiedFrame {
-    padding: 16px 10px 26px;
+    padding: 10px 8px 14px;
   }
   .smRecipientUnifiedCard {
-    padding: 19px 14px;
-    border-radius: 20px;
+    padding: 14px 12px;
+    border-radius: 17px;
   }
   .smRecipientUnifiedCard h2 {
-    margin-bottom: 14px;
+    margin-bottom: 9px;
   }
   .smRecipientUnifiedPhoto {
-    max-height: 36svh;
+    max-height: 31svh;
     border-radius: 13px;
   }
   .smRecipientUnifiedLetter {
-    margin-top: 12px;
-    padding: 19px 14px;
+    margin-top: 9px;
+    padding: 13px 12px;
   }
   .smRecipientUnifiedRevisit {
-    margin-top: 15px;
+    margin-top: 10px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .smRecipientUnifiedCard {
     animation: none;
+  }
+}
+ 
+
+/* Phase 9 recipient UX: one cohesive post-opening screen.
+   Standard memories fit one viewport; long messages remain readable
+   and expand vertically rather than being clipped or truncated. */
+.smRecipientUnifiedStory .smRecipientUnifiedFrame {
+  min-height: calc(100svh - 72px);
+  min-height: calc(100dvh - 72px);
+  padding: clamp(10px, 2vh, 18px) 14px;
+  align-items: center;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedCard {
+  width: min(100%, 1120px);
+  min-height: min(690px, calc(100dvh - 112px));
+  padding: clamp(15px, 2.3vh, 24px) clamp(17px, 2.7vw, 32px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(9px, 1.3vh, 16px);
+  text-align: center;
+}
+.smRecipientUnifiedHeading .smRecipientUnifiedEyebrow {
+  font-size: 10px;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedCard h2 {
+  font-size: clamp(25px, 3vw, 38px);
+  margin: 5px 0 0;
+}
+.smRecipientUnifiedBody {
+  display: grid;
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+  gap: clamp(12px, 2vw, 25px);
+  align-items: stretch;
+}
+.smRecipientUnifiedBodyNoPhoto {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 720px;
+  width: 100%;
+  margin-inline: auto;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedPhoto {
+  width: 100%;
+  height: 100%;
+  max-height: min(51dvh, 420px);
+  min-height: 190px;
+  object-fit: contain;
+  border-radius: 14px;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedLetter {
+  margin: 0;
+  padding: clamp(12px, 2vw, 23px);
+  min-width: 0;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(9px, 1.4vh, 16px);
+  overflow: visible;
+  text-align: center;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedLetter .smRecipientMessageCompact {
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.5;
+  max-height: none;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  flex: 0 0 auto;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedVoice {
+  margin: 0;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedVoice > span {
+  margin-bottom: 5px;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedSignature {
+  margin: 0;
+}
+.smRecipientUnifiedFooter {
+  padding-top: 7px;
+  border-top: 1px solid #ecdeda;
+  font-size: 11px;
+  color: var(--sm-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px 20px;
+}
+.smRecipientUnifiedFooter > div {
+  display: flex;
+  gap: 14px;
+}
+.smRecipientUnifiedFooter a {
+  color: var(--sm-rose);
+}
+.smRecipientUnifiedVideo .smRecipientVideoSection {
+  max-width: min(680px, 100%);
+  margin: 0 auto;
+  padding: 0;
+}
+.smRecipientUnifiedVideo video {
+  max-height: 200px;
+}
+@media (max-width: 700px) {
+  .smRecipientUnifiedStory .smRecipientUnifiedFrame {
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+    align-items: start;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedCard {
+    width: 100%;
+    min-height: calc(100dvh - 90px);
+    padding: 14px 12px;
+    gap: 9px;
+    justify-content: center;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedCard h2 {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+  .smRecipientUnifiedBody {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedPhoto {
+    height: auto;
+    max-height: min(25dvh, 210px);
+    min-height: 0;
+    object-fit: contain;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedLetter {
+    padding: 12px 10px;
+    gap: 10px;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedLetter .smRecipientMessageCompact {
+    font-size: clamp(15px, 3.9vw, 18px);
+    line-height: 1.45;
+  }
+  .smRecipientUnifiedFooter {
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 10px;
+  }
+}
+@media (max-height: 640px) and (min-width: 701px) {
+  .smRecipientUnifiedStory .smRecipientUnifiedCard {
+    min-height: 0;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedPhoto {
+    max-height: 41dvh;
   }
 }
