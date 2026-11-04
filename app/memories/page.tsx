@@ -113,11 +113,13 @@ export default async function MyMemoriesPage() {
         </Link>
       </section>
 
-      <p style={{margin:'20px 0'}}>
-        <a className="btn secondary" href="/account/drafts">
-          My Drafts — Resume an Unfinished Gift
-        </a>
-      </p>
+      {process.env.NEXT_PUBLIC_DRAFTS_ENABLED === 'true' && (
+        <p style={{margin:'20px 0'}}>
+          <a className="btn secondary" href="/account/drafts">
+            My Drafts — Resume an Unfinished Gift
+          </a>
+        </p>
+      )}
 
       {!loadFailed &&
         memories.length >
