@@ -53,3 +53,48 @@
 @media(max-width:900px){.smGiftTagHero{grid-template-columns:1fr}.smGiftTagHeroArt{max-width:590px;margin:auto;width:100%}.smGiftTagSteps{grid-template-columns:repeat(2,minmax(0,1fr))}.smGiftTagOptions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.smGiftTagHero{padding:56px 22px}.smGiftTagHeroArt{min-height:375px}.smGiftTagGiftBox{height:195px;bottom:35px}.smGiftTagHangingTag{min-height:270px;width:210px;transform:translate(23px,0) rotate(6deg)}.smGiftTagHangingTag strong{font-size:24px}.smGiftTagHeart{font-size:50px}.smGiftTagSteps,.smGiftTagOptions{grid-template-columns:1fr}.smGiftTagSteps{padding:15px 20px 60px}.smGiftTagCollection{padding:65px 20px}.smGiftTagOptionCopy p{min-height:0}.smGiftTagBottom{padding:65px 22px}}
 @media(prefers-reduced-motion:reduce){.smGiftTagPage *{scroll-behavior:auto}}
+
+
+/* Secure Gift Tag activation preview */
+.smGiftTagActivate {
+  min-height: 70vh;
+  display: grid;
+  place-items: start center;
+  background: linear-gradient(150deg, #fffaf6, #f5e8e7);
+  padding: clamp(35px, 7vw, 95px) 18px;
+  color: #482e3b;
+}
+.smGiftTagActivatePanel {
+  width: min(100%, 640px);
+  padding: clamp(24px, 5vw, 54px);
+  border: 1px solid #e9d4d7;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(72, 47, 59, .08);
+}
+.smGiftTagActivatePanel h1 {
+  font: 400 clamp(37px, 5vw, 57px)/1.12 Georgia, serif;
+  margin: 20px 0;
+}
+.smGiftTagActivatePanel > p { line-height: 1.7; }
+.smGiftTagActivateForm { display: grid; gap: 12px; margin: 30px 0 18px; }
+.smGiftTagActivateForm label { font-size: 14px; font-weight: 700; }
+.smGiftTagActivateForm input {
+  padding: 15px 16px;
+  border: 1px solid #cbb6bb;
+  border-radius: 10px;
+  font: inherit;
+  width: 100%;
+}
+.smGiftTagActivateForm input:focus-visible {
+  outline: 3px solid #b98493;
+  outline-offset: 2px;
+}
+.smGiftTagActivateForm button { margin-top: 10px; justify-self: start; }
+.smGiftTagActivateForm button:disabled { opacity: .6; cursor: wait; }
+.smGiftTagActivationStatus {
+  padding: 15px 18px;
+  border: 1px solid #d3c3c9;
+  background: #f9f3f4;
+  border-radius: 10px;
+}
