@@ -202,7 +202,7 @@ export default async function Shop({
       <p className="lead">
         {occasion
           ? `We’ve selected personalised gifts that work especially well for ${occasion}.`
-          : 'Choose personalised gifts, save with a bundle or explore corporate gifting.'}
+          : 'Explore personalised gifts, handcrafted cards with optional NFC memories, bundles and corporate gifting.'}
       </p>
 
       {occasion && (
@@ -333,6 +333,93 @@ export default async function Shop({
                 />
               ))}
             </div>
+          </div>
+        </details>
+
+        {/* ==========================================
+            HANDCRAFTED CARDS — TRADITIONAL & NFC
+            ========================================== */}
+
+        <details className="shopAccordionItem" open>
+          <summary className="shopAccordionSummary">
+            <div className="shopAccordionText">
+              <span className="eyebrow">
+                HANDCRAFTED CARDS
+              </span>
+
+              <h2>
+                A real card. A memory to keep.
+              </h2>
+
+              <p>
+                Choose a handmade-style card for your occasion.
+                Keep it classic or add a tap-to-open Smart Memory.
+              </p>
+            </div>
+
+            <div className="shopAccordionVisual smHandcraftedShopPreview" aria-hidden="true">
+              <div className="smHandcraftedShopPaper">
+                <span>MADE WITH LOVE</span>
+                <strong>For someone special</strong>
+                <span className="smHandcraftedShopHeart">♥</span>
+              </div>
+            </div>
+
+            <span className="shopAccordionArrow">+</span>
+          </summary>
+
+          <div className="shopAccordionContent">
+            <p className="smHandcraftedShopIntro">
+              Browse ten designs for each of twelve occasions. Choose the
+              message, colours and recipient, then select whether to include
+              the Smart Memories NFC and QR experience.
+            </p>
+
+            <div className="smHandcraftedShopOptions">
+              <article className="card smHandcraftedShopOption">
+                <div className="smHandcraftedShopIcon" aria-hidden="true">✉</div>
+                <span className="eyebrow">CLASSIC KEEPSAKE</span>
+                <h3>Personalised Handcrafted Card</h3>
+                <p>
+                  A physical handcrafted-style greeting card with your own
+                  message, occasion and design. No phone needed.
+                </p>
+                <strong>From £6.95</strong>
+                <Link className="btn small"
+                  href={`/cards/personalise?cardType=traditional&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>
+                  Personalise traditional card
+                </Link>
+                <Link href="/cards" className="smHandcraftedShopBrowse">
+                  Browse all card designs
+                </Link>
+              </article>
+
+              <article className="card smHandcraftedShopOption smHandcraftedShopOptionSmart">
+                <div className="smHandcraftedShopIcon" aria-hidden="true">♡</div>
+                <span className="eyebrow">WITH A SMART MEMORY</span>
+                <h3>NFC Handcrafted Memory Card</h3>
+                <p>
+                  The same personal card with a hidden NFC point and QR backup.
+                  The recipient taps their phone to open your voice message,
+                  photo and written memory.
+                </p>
+                <strong>From £11.95</strong>
+                <Link className="btn small"
+                  href={`/cards/personalise?cardType=smart&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>
+                  Personalise NFC card
+                </Link>
+                <Link href="/cards" className="smHandcraftedShopBrowse">
+                  Explore handcrafted designs
+                </Link>
+              </article>
+            </div>
+
+            <p className="smHandcraftedShopNote">
+              Optional printed photo costs £1.50 extra. Final price is
+              calculated when you personalise your card; delivery is added
+              at checkout. NFC tapping requires a compatible phone and the
+              QR code provides an alternative.
+            </p>
           </div>
         </details>
 
