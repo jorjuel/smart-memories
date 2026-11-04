@@ -793,28 +793,24 @@ export default async function AdminOrdersPage({
                 className="smAdminOrderCard"
               >
                 <header className="smAdminOrderHeader">
-                  <div>
+                  <div className="smAdminOrderCustomer">
                     <span className="eyebrow">
                       ORDER{' '}
-                      {
-                        order.order_number
-                      }
+                      {order.order_number}
                     </span>
 
                     <h2>
-                      {order.customer_name ||
-                        order.customer_email}
+                      {order.customer_name || 'Customer'}
                     </h2>
 
-                    <p>
-                      {
-                        order.customer_email
-                      }
-                      {' - '}
-                      {formatDate(
-                        order.created_at
-                      )}
-                    </p>
+                    <div className="smAdminOrderMeta">
+                      <span className="smAdminOrderEmail">
+                        {order.customer_email}
+                      </span>
+                      <time dateTime={order.created_at}>
+                        {formatDate(order.created_at)}
+                      </time>
+                    </div>
                   </div>
 
                   <div className="smAdminOrderHeaderStatus">
