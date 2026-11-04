@@ -11855,3 +11855,62 @@ header.smSiteHeader {
   .cardDesignPreview { transition: none; }
   .cardDesignItem:hover .cardDesignPreview { transform: none; }
 }
+
+
+/* Selected greeting-card style is reflected in the customer's live preview. */
+.liveCardPreview.smCardLiveFloral {
+  background: linear-gradient(155deg, #fff9f5, #f9e5e5);
+  color: #68424c;
+}
+.liveCardPreview.smCardLiveFloral::before,
+.liveCardPreview.smCardLiveClassic::before {
+  content: ""; position: absolute; inset: 16px; border: 1px solid rgba(160, 116, 113, .35);
+  border-radius: 3px; pointer-events: none;
+}
+.liveCardPreview.smCardLiveFloral .liveCardDecoration { color: #be7c8a; font-size: 74px; }
+.liveCardPreview.smCardLiveClassic {
+  background: linear-gradient(145deg, #fffaf1, #f1e7d5);
+  color: #574733;
+}
+.liveCardPreview.smCardLiveClassic .liveCardDecoration {
+  border: 1px solid #bda77d; outline: 4px solid #f6efdf;
+  border-radius: 50%; width: 100px; height: 100px;
+  font: italic 34px Georgia, serif;
+  display: grid; place-items: center;
+  color: #8e7750;
+}
+.liveCardPreview.smCardLiveMinimal { background: #f9f9f8; color: #292a31; }
+.liveCardPreview.smCardLiveMinimal h2 {
+  font-family: Arial, Helvetica, sans-serif; font-weight: 500; letter-spacing: -.045em;
+}
+.liveCardPreview.smCardLiveMinimal .liveCardDecoration { color: #b87984; font-size: 48px; }
+.liveCardPreview.smCardLivePhoto { background: linear-gradient(180deg, #ded9d3, #f8f4ee); color: #493d40; }
+.liveCardPreview.smCardLivePhoto .liveCardDecoration {
+  width: 80%; min-height: 170px;
+  background: linear-gradient(155deg, #bac8c5, #a58b89);
+  display: grid; place-items: center;
+  color: #fff; border: 8px solid white; box-shadow: 0 8px 25px rgba(64,49,50,.13);
+}
+.liveCardPreview.smCardLiveOwnWithArt {
+  min-height: 0; padding: 28px 26px 105px;
+  background: #faf7f5;
+}
+.liveCardPreview.smCardLiveOwnWithArt .smOwnArtworkLiveImage {
+  width: 100%;
+  height: auto;
+  max-height: 510px;
+  object-fit: contain;
+  border: 1px solid #e7dbd4;
+  box-shadow: 0 8px 22px rgba(64,49,50,.12);
+}
+.smCardOwnPreviewNote {
+  display: block;
+  max-width: 380px;
+  line-height: 1.6;
+  margin-top: 15px;
+  font-size: 12px;
+  color: #6a525c;
+}
+@media (max-width: 560px) {
+  .liveCardPreview.smCardLiveOwnWithArt { padding: 18px 16px 105px; }
+}
