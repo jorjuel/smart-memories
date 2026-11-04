@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import './gift-tags.css';
 
 export const metadata = {
   title: 'Smart Memory Gift Tags | Smart Memories',
