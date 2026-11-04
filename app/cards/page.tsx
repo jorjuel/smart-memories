@@ -22,52 +22,22 @@ const designs = [
   {
     name: 'Floral Keepsake',
     style: 'floral',
-    description: 'Soft florals with a warm handmade finish.',
+    description: 'Soft flowers and elegant handmade detailing.',
   },
   {
     name: 'Classic Elegance',
     style: 'classic',
-    description: 'Timeless typography and traditional detailing.',
-  },
-  {
-    name: 'Rustic Handmade',
-    style: 'rustic',
-    description: 'Natural textures and a handcrafted character.',
+    description: 'Traditional, timeless and beautifully understated.',
   },
   {
     name: 'Modern Minimal',
     style: 'minimal',
-    description: 'Clean, contemporary and beautifully simple.',
+    description: 'Clean typography, modern layout and a personal touch.',
   },
   {
     name: 'Photo Feature',
     style: 'photo',
-    description: 'Make a favourite photograph the centrepiece.',
-  },
-  {
-    name: 'Luxury Gold',
-    style: 'gold',
-    description: 'An elegant design inspired by luxury stationery.',
-  },
-  {
-    name: 'Watercolour',
-    style: 'watercolour',
-    description: 'Gentle painted details with a personal feel.',
-  },
-  {
-    name: 'Layered Paper',
-    style: 'layered',
-    description: 'A dimensional look inspired by paper craft.',
-  },
-  {
-    name: 'Contemporary Type',
-    style: 'type',
-    description: 'Bold typography for a modern celebration.',
-  },
-  {
-    name: 'Signature Bespoke',
-    style: 'signature',
-    description: 'A premium personalised design made to feel unique.',
+    description: 'Make a favourite picture the centre of the card.',
   },
 ];
 
@@ -131,8 +101,7 @@ export default function CardsPage() {
           <span className="v14Eyebrow">STEP 1</span>
           <h2>What is the occasion?</h2>
           <p>
-            Select an occasion to explore ten different handcrafted
-            design directions.
+            Choose from four easy styles, or upload your own card artwork.
           </p>
         </div>
 
@@ -161,7 +130,7 @@ export default function CardsPage() {
             </p>
           </div>
 
-          <span className="designCount">10 DESIGNS</span>
+          <span className="designCount">4 STYLES + YOUR DESIGN</span>
         </div>
 
         <div className="cardDesignGrid">
@@ -228,6 +197,27 @@ export default function CardsPage() {
               </div>
             </article>
           ))}
+          <article className="cardDesignItem smOwnCardDesign">
+            <div className="cardDesignPreview smOwnCardDesignPreview">
+              <div className="designArtwork">
+                <div className="smOwnCardUploadIcon" aria-hidden="true">＋</div>
+                <small>YOUR ARTWORK</small>
+                <h3>Designed by you</h3>
+                <p>Upload a JPG, PNG or WebP image</p>
+              </div>
+            </div>
+            <div className="cardDesignInfo">
+              <span>YOUR OWN DESIGN</span>
+              <h3>Upload your own artwork</h3>
+              <p>Already created a design? Upload the front of your card, then add your message and choose traditional or NFC.</p>
+              <Link
+                href={`/cards/personalise?occasion=${encodeURIComponent(occasion)}&design=Your%20Own%20Design`}
+                className="cardChooseButton"
+              >
+                Use my own design →
+              </Link>
+            </div>
+          </article>
         </div>
       </section>
 

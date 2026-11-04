@@ -53,6 +53,31 @@ function PersonaliseCardContent() {
   const [colour, setColour] = useState('Rose');
   const [includePhoto, setIncludePhoto] = useState(true);
 
+  const isOwnDesign = design === 'Your Own Design';
+  const [artworkFile, setArtworkFile] = useState<File | null>(null);
+  const [artworkPreview, setArtworkPreview] = useState<string | null>(null);
+  const [savedArtworkUrl, setSavedArtworkUrl] = useState<string | null>(null);
+
+  function handleArtwork(file: File | null) {
+    if (artworkPreview) URL.revokeObjectURL(artworkPreview);
+    if (!file) {
+      setArtworkFile(null);
+      setArtworkPreview(null);
+      return;
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+        file.size > 10 * 1024 * 1024) {
+      setArtworkFile(null);
+      setArtworkPreview(null);
+      setSaveError('Upload a JPG, PNG or WebP design under 10 MB.');
+      return;
+    }
+    setSaveError(null);
+    setSavedPersonalisationId(null);
+    setArtworkFile(file);
+    setArtworkPreview(URL.createObjectURL(file));
+  }
+
   /* =========================================================
      MEMORY PHOTO
      ========================================================= */
@@ -380,7 +405,8 @@ function PersonaliseCardContent() {
       design,
       recipient,
 
-      imageUrl: savedMemoryPhotoUrl,
+      imageUrl: savedArtworkUrl || savedMemoryPhotoUrl,
+      personalisation: savedArtworkUrl ? { printArtworkUrl: savedArtworkUrl } : undefined,
 
       price: Number(price),
       quantity: 1,
@@ -423,6 +449,11 @@ function PersonaliseCardContent() {
     setSaveError(null);
     setSaveSuccess(null);
 
+    if (isOwnDesign && !artworkFile) {
+      setSaveError('Please upload your own card design before saving.');
+      return;
+    }
+
     if (!recipient.trim()) {
       setSaveError(
         'Please enter the recipient name before saving.'
@@ -455,6 +486,9 @@ function PersonaliseCardContent() {
 
       formData.append('occasion', occasion);
       formData.append('designName', design);
+      if (isOwnDesign && artworkFile) {
+        formData.append('artworkFile', artworkFile);
+      }
       formData.append('cardType', cardType);
       formData.append('recipientName', recipient);
       formData.append('frontGreeting', frontGreeting);
@@ -536,6 +570,7 @@ function PersonaliseCardContent() {
       setSavedMemoryPhotoUrl(
         result.personalisation.memoryPhotoUrl || null
       );
+      setSavedArtworkUrl(result.personalisation.artworkUrl || null);
 
       setSaveSuccess(
         'Your personalised card and Smart Memory have been saved successfully.'
@@ -640,6 +675,31 @@ function PersonaliseCardContent() {
               </button>
             </div>
           </div>
+
+          {isOwnDesign && (
+            <div className="personaliseBlock">
+              <span className="personaliseStep">02</span>
+              <h2>Upload your card design</h2>
+              <p>Choose a clear image for the front of your printed card. JPG, PNG or WebP, up to 10 MB. This is separate from the photograph and voice used in an NFC memory.</p>
+              <label className="personaliseField">
+                <span>Your artwork (required)</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => handleArtwork(event.target.files?.[0] || null)}
+                />
+              </label>
+              {artworkPreview && (
+                <div className="smOwnArtworkPreview">
+                  <img src={artworkPreview} alt="Your uploaded card front artwork" />
+                  <button type="button" onClick={() => handleArtwork(null)}>
+                    Remove artwork
+                  </button>
+                </div>
+              )}
+              <small>Print colour and edge cropping may vary. Your original design will be reviewed before production.</small>
+            </div>
+          )}
 
           <div className="personaliseBlock">
             <span className="personaliseStep">
@@ -1040,9 +1100,11 @@ function PersonaliseCardContent() {
             <div
               className={`liveCardPreview colour-${colour.toLowerCase()}`}
             >
-              <div className="liveCardDecoration">
-                ♥
-              </div>
+              {isOwnDesign && artworkPreview ? (
+                <img className="smOwnArtworkLiveImage" src={artworkPreview} alt="Your custom front design" />
+              ) : (
+                <div className="liveCardDecoration">♥</div>
+              )}
 
               <small>
                 {occasion.toUpperCase()}

@@ -370,7 +370,7 @@ export default async function Shop({
 
           <div className="shopAccordionContent">
             <p className="smHandcraftedShopIntro">
-              Browse ten designs for each of twelve occasions. Choose the
+              Choose four designs per occasion, or upload your own design. Choose the
               message, colours and recipient, then select whether to include
               the Smart Memories NFC and QR experience.
             </p>
