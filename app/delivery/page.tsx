@@ -17,13 +17,13 @@ export default function DeliveryPage() {
       <p className="lead">Personalised gifts are prepared to order. Delivery charges are shown before you pay.</p>
       <div className="card">
         <h2>Delivery charges</h2>
-        <p>Standard delivery: <strong>{gbp(SHIPPING_PRICES_PENCE.standard)}</strong>.</p>
-        <p>Express delivery: <strong>{gbp(SHIPPING_PRICES_PENCE.express)}</strong>.</p>
-        <p>The checkout calculates the delivery price for your selected option and includes it in your final order total.</p>
+        <p>Standard UK delivery: <strong>{gbp(SHIPPING_PRICES_PENCE.standard)}</strong>.</p>
+        <p>Express UK delivery: <strong>{gbp(SHIPPING_PRICES_PENCE.express)}</strong>. This refers to the delivery service after your personalised gift is ready, not express manufacturing.</p>
+        <p>These are current flat checkout rates, not a carrier quote. We are reviewing the final packaging weight, dimensions and service coverage for larger gifts and bundles before switching on live payments. Any applicable delivery charge is included in your final checkout total before payment.</p>
         <h2>Production and delivery times</h2>
-        <p>Production time depends on the product and its personalisation. We have not yet published a verified production and transit-time promise. Estimated delivery dates must be confirmed before real-money checkout is enabled.</p>
+        <p>Every gift is made to order. Production time depends on its design and printing requirements. Standard and express options apply after production; neither is a guaranteed arrival date. Verified dispatch and delivery estimates will be published before live payments are enabled.</p>
         <h2>Order tracking</h2>
-        <p>Customers with an account can view their order status under My Orders. Where available, dispatch information is provided when the order is shipped.</p>
+        <p>Customers with an account can view their order status under My Orders. When a tracked parcel is actually dispatched, the dispatch email can include its carrier and tracking reference.</p>
         <h2>Problems with a delivery</h2>
         <p>If you have a question about delivery or a missing parcel, contact Smart Memories with your order number. Your statutory rights are not affected.</p>
       </div>
