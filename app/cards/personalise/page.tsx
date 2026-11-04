@@ -32,9 +32,12 @@ function PersonaliseCardContent() {
 
   const occasion = searchParams.get('occasion') || 'Birthday';
   const design = searchParams.get('design') || 'Floral Keepsake';
+  const initialCardType = searchParams.get('cardType') === 'traditional'
+    ? 'traditional'
+    : 'smart';
 
   const [cardType, setCardType] =
-    useState<'traditional' | 'smart'>('smart');
+    useState<'traditional' | 'smart'>(initialCardType);
 
   const [recipient, setRecipient] = useState('');
 
