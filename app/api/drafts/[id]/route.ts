@@ -18,7 +18,7 @@ async function getOwned(id:string) {
 export async function GET(_request:Request,{params}:Context) {
   const {id}=await params;
   const result=await getOwned(id);
-  if ('error' in result) return jsonError(result.error,result.status);
+  if ('error' in result) return jsonError(result.error || 'Draft not available.',result.status);
   if (result.draft.status!=='draft') return jsonError('Draft not found.',404);
   const storage=supabaseAdmin().storage.from('draft-media');
   const urls:{photoUrl?:string;audioUrl?:string}={};
@@ -34,7 +34,7 @@ export async function GET(_request:Request,{params}:Context) {
 export async function PATCH(request:Request,{params}:Context) {
   const {id}=await params;
   const result=await getOwned(id);
-  if ('error' in result) return jsonError(result.error,result.status);
+  if ('error' in result) return jsonError(result.error || 'Draft not available.',result.status);
   if (result.draft.status!=='draft') return jsonError('Draft not found.',404);
   const origin=request.headers.get('origin');
   if(origin&&origin!==new URL(request.url).origin)return jsonError('Invalid origin.',403);
