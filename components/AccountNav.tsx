@@ -45,6 +45,10 @@ export default function AccountNav() {
         Memories
       </a>
 
+      <a href="/account/drafts" className={active('/account/drafts') ? 'active' : ''}>
+        Drafts
+      </a>
+
       <a href="/account/orders"
         className={
           active(
