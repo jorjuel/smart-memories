@@ -94,6 +94,10 @@ export default async function AdminProtectedLayout({
               Orders
             </Link>
 
+            <Link href="/admin/products">
+              Product Photos
+            </Link>
+
             <Link href="/admin/memories">
               Memories
             </Link>
