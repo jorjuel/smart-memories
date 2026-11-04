@@ -11277,3 +11277,155 @@ header.smSiteHeader {
     animation: none;
   }
 }
+ 
+
+/* Phase 9 recipient UX: one cohesive post-opening screen.
+   Standard memories fit one viewport; long messages remain readable
+   and expand vertically rather than being clipped or truncated. */
+.smRecipientUnifiedStory .smRecipientUnifiedFrame {
+  min-height: calc(100svh - 72px);
+  min-height: calc(100dvh - 72px);
+  padding: clamp(10px, 2vh, 18px) 14px;
+  align-items: center;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedCard {
+  width: min(100%, 1120px);
+  min-height: min(690px, calc(100dvh - 112px));
+  padding: clamp(15px, 2.3vh, 24px) clamp(17px, 2.7vw, 32px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(9px, 1.3vh, 16px);
+  text-align: center;
+}
+.smRecipientUnifiedHeading .smRecipientUnifiedEyebrow {
+  font-size: 10px;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedCard h2 {
+  font-size: clamp(25px, 3vw, 38px);
+  margin: 5px 0 0;
+}
+.smRecipientUnifiedBody {
+  display: grid;
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+  gap: clamp(12px, 2vw, 25px);
+  align-items: stretch;
+}
+.smRecipientUnifiedBodyNoPhoto {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 720px;
+  width: 100%;
+  margin-inline: auto;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedPhoto {
+  width: 100%;
+  height: 100%;
+  max-height: min(51dvh, 420px);
+  min-height: 190px;
+  object-fit: contain;
+  border-radius: 14px;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedLetter {
+  margin: 0;
+  padding: clamp(12px, 2vw, 23px);
+  min-width: 0;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(9px, 1.4vh, 16px);
+  overflow: visible;
+  text-align: center;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedLetter .smRecipientMessageCompact {
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.5;
+  max-height: none;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  flex: 0 0 auto;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedVoice {
+  margin: 0;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedVoice > span {
+  margin-bottom: 5px;
+}
+.smRecipientUnifiedStory .smRecipientUnifiedSignature {
+  margin: 0;
+}
+.smRecipientUnifiedFooter {
+  padding-top: 7px;
+  border-top: 1px solid #ecdeda;
+  font-size: 11px;
+  color: var(--sm-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px 20px;
+}
+.smRecipientUnifiedFooter > div {
+  display: flex;
+  gap: 14px;
+}
+.smRecipientUnifiedFooter a {
+  color: var(--sm-rose);
+}
+.smRecipientUnifiedVideo .smRecipientVideoSection {
+  max-width: min(680px, 100%);
+  margin: 0 auto;
+  padding: 0;
+}
+.smRecipientUnifiedVideo video {
+  max-height: 200px;
+}
+@media (max-width: 700px) {
+  .smRecipientUnifiedStory .smRecipientUnifiedFrame {
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+    align-items: start;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedCard {
+    width: 100%;
+    min-height: calc(100dvh - 90px);
+    padding: 14px 12px;
+    gap: 9px;
+    justify-content: center;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedCard h2 {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+  .smRecipientUnifiedBody {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedPhoto {
+    height: auto;
+    max-height: min(25dvh, 210px);
+    min-height: 0;
+    object-fit: contain;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedLetter {
+    padding: 12px 10px;
+    gap: 10px;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedLetter .smRecipientMessageCompact {
+    font-size: clamp(15px, 3.9vw, 18px);
+    line-height: 1.45;
+  }
+  .smRecipientUnifiedFooter {
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 10px;
+  }
+}
+@media (max-height: 640px) and (min-width: 701px) {
+  .smRecipientUnifiedStory .smRecipientUnifiedCard {
+    min-height: 0;
+  }
+  .smRecipientUnifiedStory .smRecipientUnifiedPhoto {
+    max-height: 41dvh;
+  }
+}
