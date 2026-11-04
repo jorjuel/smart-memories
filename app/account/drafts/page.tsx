@@ -15,6 +15,9 @@ export default async function MyDraftsPage() {
   const client=await createSupabaseServerClient();
   const {data:{user}}=await client.auth.getUser();
   if(!user)redirect('/account/login');
+  if (process.env.NEXT_PUBLIC_DRAFTS_ENABLED !== 'true') {
+    return <main className="smAccountPage"><AccountNav/><h1>My Drafts</h1><p>This feature is not yet enabled.</p></main>;
+  }
   const {data,error}=await supabaseAdmin().from('memory_drafts')
     .select('id,product_slug,title,step_index,updated_at,photo_path,audio_path')
     .eq('user_id',user.id).eq('status','draft')
