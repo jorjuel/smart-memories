@@ -177,12 +177,12 @@ export default function Home() {
                 sounds like you.
               </h2>
 
-              <button
-                type="button"
+              <span
                 className="memoryHomePlay"
+                aria-label="Voice message illustrated preview"
               >
-                ▶ Play My Message
-              </button>
+                ▶ A personal voice message
+              </span>
 
               <p>
                 With love, always.
