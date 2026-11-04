@@ -12,12 +12,15 @@ export default function TermsPage() {
       </h1>
 
       <p className="lead">
-        These terms are being
-        prepared for the commercial
-        launch of Smart Memories.
+        Smart Memories is a UK sole-trader business in pre-launch testing.
+        Full trader details and final commercial terms will be published
+        before live orders are accepted.
       </p>
 
       <div className="card">
+        <h2>Business identity and contact</h2>
+        <p>Smart Memories is the trading name used for this sole-trader business. The trader’s legal name and business contact address will be added here before the business accepts real customer orders. For enquiries in the meantime, please use our contact form.</p>
+
         <h2>
           Personalised products
         </h2>
