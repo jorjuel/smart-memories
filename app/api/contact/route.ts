@@ -37,9 +37,10 @@ export async function POST(request: Request) {
   const email = field('email', 254);
   const companyName = field('companyName', 140);
   const message = field('message', 2000);
+  const enquiryType = field('enquiryType', 30) === 'corporate' ? 'corporate' : 'general';
 
-  if (!name || !companyName || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: 'Enter a company, contact name and valid email.' }, { status: 400 });
+  if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || (enquiryType === 'corporate' && !companyName) || !message) {
+    return NextResponse.json({ error: 'Enter your name, valid email and message (plus company name for corporate enquiries).' }, { status: 400 });
   }
 
   const apiKey = process.env.RESEND_API_KEY?.trim();
@@ -47,13 +48,13 @@ export async function POST(request: Request) {
   const to = (process.env.CONTACT_EMAIL_TO || '').trim();
   if (!apiKey || !from || !to) {
     return NextResponse.json(
-      { error: 'Corporate enquiries are not available online yet. Please try again later.' },
+      { error: 'Online enquiries are not available yet. Please try again later.' },
       { status: 503 }
     );
   }
 
   const lines = [
-    'Smart Memories corporate enquiry',
+    enquiryType === 'corporate' ? 'Smart Memories corporate enquiry' : 'Smart Memories customer enquiry',
     'Company: ' + companyName,
     'Contact: ' + name,
     'Email: ' + email,
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       from,
       to,
       replyTo: email,
-      subject: 'Smart Memories corporate enquiry',
+      subject: enquiryType === 'corporate' ? 'Smart Memories corporate enquiry' : 'Smart Memories customer enquiry',
       text: lines.join('\n'),
     });
     if (error) {
