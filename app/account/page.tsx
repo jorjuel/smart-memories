@@ -259,6 +259,12 @@ export default async function AccountPage() {
         </Link>
       </section>
 
+      <p style={{margin:'24px 0'}}>
+        <a className="btn secondary" href="/account/drafts">
+          My Drafts — Resume an Unfinished Gift
+        </a>
+      </p>
+
       <section className="smAccountOverview">
         <article>
           <strong>
