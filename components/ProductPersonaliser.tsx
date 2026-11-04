@@ -367,11 +367,12 @@ export default function ProductPersonaliser({
      Drafts are account-owned and saved in a private bucket.
      Guests may still create gifts without cloud drafts.
      ===================================================== */
+  const draftFeatureEnabled = process.env.NEXT_PUBLIC_DRAFTS_ENABLED === 'true';
   const draftRef = useRef(draftId || '');
   const [draftReady, setDraftReady] = useState(false);
   const [draftRevision, setDraftRevision] = useState(0);
   const [draftStatus, setDraftStatus] = useState('');
-  const [draftEnabled, setDraftEnabled] = useState(true);
+  const [draftEnabled, setDraftEnabled] = useState(draftFeatureEnabled);
   const draftPhotoBlob = useRef<Blob | null>(null);
   const draftAudioBlob = useRef<Blob | null>(null);
   const draftPhotoPath = useRef<string | null>(null);
@@ -381,6 +382,7 @@ export default function ProductPersonaliser({
   useEffect(() => {
     let cancelled = false;
     async function restore() {
+      if (!draftFeatureEnabled) return;
       if (!draftId) {
         draftRef.current = crypto.randomUUID();
         if (!cancelled) setDraftReady(true);
@@ -446,7 +448,7 @@ export default function ProductPersonaliser({
     void restore();
     return () => {cancelled=true;};
   // Load a draft once per product / draft ID, not on each form edit.
-  }, [draftId,slug,steps.length]);
+  }, [draftId,slug,steps.length,draftFeatureEnabled]);
 
   useEffect(() => {
     if (!draftReady || !draftEnabled || draftRevision === 0 || finalReview) return;
@@ -1255,16 +1257,16 @@ export default function ProductPersonaliser({
         </div>
       </div>
 
-      {draftStatus && (
+      {draftFeatureEnabled && draftStatus && (
         <p role="status" style={{margin:'10px 0',fontSize:'0.9rem'}}>
           {draftStatus}
         </p>
       )}
-      <p style={{margin:'10px 0',fontSize:'0.85rem'}}>
+      {draftFeatureEnabled && <p style={{margin:'10px 0',fontSize:'0.85rem'}}>
         Signed-in customers can save progress automatically and return from{' '}
         <a href="/account/drafts">My Drafts</a>. Photos and recordings are stored privately.
         Keep this page open until you see “Draft saved securely.”
-      </p>
+      </p>}
 
       <PersonaliserProgress
         steps={steps}
