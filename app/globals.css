@@ -11678,3 +11678,239 @@ header.smSiteHeader {
   display: block;
   border-radius: 8px;
 }
+
+
+/* Premium four-style handcrafted card gallery (intentional CSS artwork mockups). */
+.cardsGallerySection { max-width: 1240px; }
+.cardDesignGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 34px 26px; }
+.cardDesignItem { display: flex; flex-direction: column; }
+.cardDesignPreview {
+  isolation: isolate;
+  aspect-ratio: 0.83;
+  border-radius: 5px;
+  border: 1px solid rgba(86, 58, 68, .12);
+  box-shadow: 0 16px 32px rgba(65, 46, 48, .11);
+}
+.cardDesignPreview::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 13px;
+  border: 1px solid rgba(123, 93, 82, .16);
+  pointer-events: none;
+}
+.cardDesignPreview .designArtwork {
+  position: relative;
+  z-index: 1;
+  padding: 45px 23px 38px;
+}
+.cardDesignPreview .designArtwork h3 {
+  max-width: 300px;
+  font-size: clamp(26px, 2.45vw, 37px);
+  line-height: 1.14;
+  text-wrap: balance;
+}
+.cardDesignPreview .designArtwork small {
+  font-size: 10px;
+  letter-spacing: .19em;
+}
+.cardDesignPreview .designArtwork p {
+  font-size: 13px;
+  letter-spacing: .02em;
+}
+.cardDesignPreview.floral {
+  background: linear-gradient(160deg, #fefaf6, #fff1f0);
+  color: #70414e;
+}
+.smCardFloralArrangement {
+  position: relative;
+  width: 180px;
+  height: 120px;
+  margin: 0 0 20px;
+  flex: 0 0 auto;
+}
+.smCardRose {
+  position: absolute;
+  border-radius: 52% 48% 53% 47%;
+  width: 70px;
+  height: 70px;
+  background:
+    radial-gradient(ellipse 12px 20px at 49% 48%, #b8677c 0 55%, transparent 58%),
+    radial-gradient(ellipse 22px 32px at 34% 31%, #eab3bf 0 56%, transparent 60%),
+    radial-gradient(ellipse 24px 30px at 71% 33%, #db8fa4 0 58%, transparent 61%),
+    radial-gradient(ellipse 28px 25px at 26% 74%, #d27b91 0 61%, transparent 65%),
+    radial-gradient(ellipse 30px 25px at 77% 74%, #f0c4c5 0 58%, transparent 64%),
+    #df9cac;
+  box-shadow: inset 3px 5px 10px rgba(124, 55, 70, .14), 0 4px 7px rgba(125, 61, 80, .1);
+}
+.smCardRoseOne { left: 56px; top: 26px; z-index: 3; transform: rotate(24deg); }
+.smCardRoseTwo { left: 11px; top: 47px; z-index: 2; transform: rotate(-27deg) scale(.78); filter: saturate(.75) brightness(1.15); }
+.smCardRoseThree { left: 107px; top: 45px; z-index: 2; transform: rotate(13deg) scale(.72); }
+.smCardLeaf {
+  position: absolute;
+  width: 63px;
+  height: 24px;
+  background: linear-gradient(145deg, #9eb4a0, #557a68);
+  border-radius: 100% 0 100% 0;
+}
+.smCardLeafOne { top: 11px; left: 5px; transform: rotate(34deg); }
+.smCardLeafTwo { top: 8px; right: 6px; transform: rotate(-38deg) scaleX(-1); }
+.smCardLeafThree { bottom: 2px; left: 68px; transform: rotate(80deg); }
+.smCardBlossom {
+  position: absolute;
+  width: 17px; height: 17px;
+  z-index: 4;
+  border-radius: 50%;
+  background: #faf8f0;
+  box-shadow: 11px 2px 0 #fff, -10px 1px 0 #fff, 0 11px 0 #fff, 0 -11px 0 #fff;
+}
+.smCardBlossomOne { left: 10px; top: 24px; transform: scale(.75); }
+.smCardBlossomTwo { right: 12px; bottom: 20px; transform: scale(.6); }
+.cardDesignPreview.classic {
+  background: linear-gradient(155deg, #fffaf1, #f2e8d8);
+  border-color: #cab994;
+  color: #5c4c3b;
+}
+.cardDesignPreview.classic::before {
+  inset: 16px; border: 1px solid #bea776;
+}
+.cardDesignPreview.classic::after {
+  content: ""; position: absolute; inset: 22px;
+  border: 1px solid rgba(174, 146, 97, .43); pointer-events: none;
+}
+.smCardClassicCrest {
+  width: 95px; height: 95px;
+  border: 1px solid #a68a5c;
+  border-radius: 50%;
+  margin-bottom: 22px;
+  display: grid; place-items: center;
+  color: #92774a;
+  font: italic 32px Georgia, "Times New Roman", serif;
+  box-shadow: 0 0 0 5px #f7f0e1, 0 0 0 6px #bfa774;
+}
+.cardDesignPreview.minimal {
+  background: #fafafa;
+  color: #272c35;
+}
+.smCardMinimalRule {
+  display: flex; gap: 15px; align-items: center;
+  margin: 0 0 25px;
+  color: #a76b75; font-size: 24px;
+}
+.smCardMinimalRule span { display: block; width: 35px; height: 1px; background: #d2b3ba; }
+.cardDesignPreview.minimal .designArtwork h3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(24px, 2.3vw, 35px);
+  letter-spacing: -.04em;
+  font-weight: 500;
+}
+.cardDesignPreview.photo {
+  background: #f8f4ee;
+  color: #4d4143;
+}
+.smCardPhotoSample {
+  position: relative; overflow: hidden;
+  width: 95%; height: 40%; min-height: 110px;
+  background: linear-gradient(#c7cfd2 0%, #e7d5bf 53%, #a5b3a0 54%, #708b83 100%);
+  margin-bottom: 22px;
+  box-shadow: 0 0 0 7px #fff, 0 0 0 8px #d7c6bd;
+}
+.smCardPhotoSun {
+  position: absolute; right: 24%; top: 18%; width: 36px; height: 36px;
+  background: #f7e2bc; border-radius: 50%; filter: blur(2px);
+}
+.smCardPhotoMountain {
+  position: absolute; bottom: -10px; width: 160%; height: 70%;
+  clip-path: polygon(0 100%, 17% 35%, 30% 67%, 47% 9%, 66% 70%, 82% 40%, 100% 100%);
+}
+.smCardPhotoMountainOne { left: -17%; background: #86948c; opacity: .8; }
+.smCardPhotoMountainTwo { left: -33%; bottom: -31px; background: #526b60; opacity: .85; transform: scaleX(-1); }
+.cardDesignInfo { flex: 1; display: flex; flex-direction: column; padding: 22px 4px 0; }
+.cardDesignInfo p { min-height: 0; flex: 1; }
+.cardChooseButton {
+  display: inline-flex; align-items: center; align-self: flex-start;
+  min-height: 44px; padding: 11px 0;
+  text-decoration: underline; text-underline-offset: 4px;
+  font-size: 14px;
+}
+.cardChooseButton:focus-visible, .occasionTabs button:focus-visible {
+  outline: 3px solid #9b6877; outline-offset: 4px;
+}
+.smOwnCardDesignPreview {
+  background: repeating-linear-gradient(-45deg, #fff9f3 0 14px, #f8eee9 14px 28px);
+  border: 2px dashed #bb8b98;
+}
+.smOwnCardDesignPreview::before { border: 0; }
+.smOwnCardDesignPreview .designArtwork h3 { font-size: clamp(25px, 2.6vw, 36px); }
+@media (max-width: 900px) { .cardDesignGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 580px) {
+  .cardsGallerySection { padding: 58px 20px 80px; }
+  .cardDesignGrid { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+  .cardDesignPreview { aspect-ratio: 1 / 1.05; max-height: 450px; }
+  .cardDesignPreview .designArtwork h3 { font-size: clamp(27px, 8vw, 38px); }
+  .cardsGalleryHeading { margin-bottom: 28px; }
+  .designCount { line-height: 1.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cardDesignPreview { transition: none; }
+  .cardDesignItem:hover .cardDesignPreview { transform: none; }
+}
+
+
+/* Selected greeting-card style is reflected in the customer's live preview. */
+.liveCardPreview.smCardLiveFloral {
+  background: linear-gradient(155deg, #fff9f5, #f9e5e5);
+  color: #68424c;
+}
+.liveCardPreview.smCardLiveFloral::before,
+.liveCardPreview.smCardLiveClassic::before {
+  content: ""; position: absolute; inset: 16px; border: 1px solid rgba(160, 116, 113, .35);
+  border-radius: 3px; pointer-events: none;
+}
+.liveCardPreview.smCardLiveFloral .liveCardDecoration { color: #be7c8a; font-size: 74px; }
+.liveCardPreview.smCardLiveClassic {
+  background: linear-gradient(145deg, #fffaf1, #f1e7d5);
+  color: #574733;
+}
+.liveCardPreview.smCardLiveClassic .liveCardDecoration {
+  border: 1px solid #bda77d; outline: 4px solid #f6efdf;
+  border-radius: 50%; width: 100px; height: 100px;
+  font: italic 34px Georgia, serif;
+  display: grid; place-items: center;
+  color: #8e7750;
+}
+.liveCardPreview.smCardLiveMinimal { background: #f9f9f8; color: #292a31; }
+.liveCardPreview.smCardLiveMinimal h2 {
+  font-family: Arial, Helvetica, sans-serif; font-weight: 500; letter-spacing: -.045em;
+}
+.liveCardPreview.smCardLiveMinimal .liveCardDecoration { color: #b87984; font-size: 48px; }
+.liveCardPreview.smCardLivePhoto { background: linear-gradient(180deg, #ded9d3, #f8f4ee); color: #493d40; }
+.liveCardPreview.smCardLivePhoto .liveCardDecoration {
+  width: 80%; min-height: 170px;
+  background: linear-gradient(155deg, #bac8c5, #a58b89);
+  display: grid; place-items: center;
+  color: #fff; border: 8px solid white; box-shadow: 0 8px 25px rgba(64,49,50,.13);
+}
+.liveCardPreview.smCardLiveOwnWithArt {
+  min-height: 0; padding: 28px 26px 105px;
+  background: #faf7f5;
+}
+.liveCardPreview.smCardLiveOwnWithArt .smOwnArtworkLiveImage {
+  width: 100%;
+  height: auto;
+  max-height: 510px;
+  object-fit: contain;
+  border: 1px solid #e7dbd4;
+  box-shadow: 0 8px 22px rgba(64,49,50,.12);
+}
+.smCardOwnPreviewNote {
+  display: block;
+  max-width: 380px;
+  line-height: 1.6;
+  margin-top: 15px;
+  font-size: 12px;
+  color: #6a525c;
+}
+@media (max-width: 560px) {
+  .liveCardPreview.smCardLiveOwnWithArt { padding: 18px 16px 105px; }
+}
