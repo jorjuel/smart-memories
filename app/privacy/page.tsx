@@ -19,6 +19,9 @@ export default function PrivacyPage() {
       </p>
 
       <div className="card">
+        <h2>Who is responsible for your data?</h2>
+        <p>Smart Memories is operated as a UK sole-trader business. The final data controller identity and direct contact details are being confirmed for launch. This page is not yet a complete UK GDPR privacy notice.</p>
+
         <h2>
           Information you provide
         </h2>
