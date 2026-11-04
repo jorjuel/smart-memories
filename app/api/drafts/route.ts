@@ -47,7 +47,7 @@ export async function POST(request:Request) {
           .from('draft-media').info(value);
         if (error || !data) return jsonError('Draft media upload is missing.',400);
         const max = kind === 'photo' ? 10*1024*1024 : 25*1024*1024;
-        if (data.size < 1 || data.size > max || !data.contentType?.startsWith(kind === 'photo'?'image/':'audio/'))
+        if (Number(data.size || 0) < 1 || Number(data.size || 0) > max || !data.contentType?.startsWith(kind === 'photo'?'image/':'audio/'))
           return jsonError('Invalid draft media.',400);
       }
       if (kind === 'photo') media.photo_path = value;
