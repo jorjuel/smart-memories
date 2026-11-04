@@ -6,6 +6,7 @@ type Props = {
   }>;
   searchParams: Promise<{
     occasion?: string;
+    draft?: string;
   }>;
 };
 
@@ -14,12 +15,13 @@ export default async function PersonalisePage({
   searchParams,
 }: Props) {
   const { slug } = await params;
-  const { occasion } = await searchParams;
+  const { occasion, draft } = await searchParams;
 
   return (
     <ProductPersonaliser
       slug={slug}
       initialOccasion={occasion}
+      draftId={draft}
     />
   );
 }
