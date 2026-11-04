@@ -1,0 +1,100 @@
+
+.smGiftTagPage { overflow: hidden; color: #432f39; }
+.smGiftTagPage h1,.smGiftTagPage h2,.smGiftTagPage h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+.smGiftTagHero { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); align-items:center; gap: clamp(30px,5vw,90px); padding:clamp(66px,8vw,120px) max(30px,6vw); background:linear-gradient(145deg,#fffbf7,#f3e5e3); }
+.smGiftTagHeroCopy {max-width:650px;}
+.smGiftTagHero h1 {font-size:clamp(49px,5.3vw,82px);line-height:1.08;letter-spacing:-.035em;margin:18px 0 24px;}
+.smGiftTagHero h1 em {font-weight:400;color:#9b5d74;}
+.smGiftTagHeroCopy > p {font-size:clamp(16px,1.5vw,19px);line-height:1.75;}
+.smGiftTagHeroActions {display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin:30px 0 16px;}
+.smGiftTagTextLink {display:inline-block;font-weight:700;color:#875169;text-underline-offset:4px;margin:12px;}
+.smGiftTagPrelaunch {font-size:13px!important;color:#725e66;line-height:1.65!important;}
+.smGiftTagHeroArt {position:relative;isolation:isolate;min-height:500px;display:flex;align-items:center;justify-content:center;}
+.smGiftTagHeroArt::before {content:"";position:absolute;width:min(85%,440px);aspect-ratio:1;border-radius:50%;background:#edd4d4;filter:blur(16px);}
+.smGiftTagGiftBox {position:absolute;bottom:63px;left:9%;width:75%;height:240px;background:linear-gradient(125deg,#e7b6a9,#cf9d99);border-radius:8px;transform:rotate(-8deg);box-shadow:18px 22px 35px #79595b40;}
+.smGiftTagGiftBox::after {content:"";position:absolute;inset:0 40%;background:#f6e3d0;}
+.smGiftTagGiftBox span {position:absolute;inset:37% 0 37%;background:#f6e3d0;z-index:1;}
+.smGiftTagGiftRibbon {position:absolute;z-index:1;top:57px;left:44%;height:108px;width:47px;background:#efd3b7;transform:rotate(-10deg);border-radius:40% 40% 0 0;}
+.smGiftTagHangingTag {position:relative;z-index:3;width:min(64%,270px);min-height:350px;transform:translate(50px,-4px) rotate(7deg);padding:44px 18px 30px;background:#fffaf3;border:1px solid #ddc6ad;box-shadow:12px 14px 20px #5b3f4a38;clip-path:polygon(10% 0,90% 0,100% 8%,100% 100%,0 100%,0 8%);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:12px;}
+.smGiftTagHole {width:16px;height:16px;border:4px solid #b9a092;border-radius:50%;background:#e9d1d0;position:absolute;top:18px;left:calc(50% - 8px);}
+.smGiftTagBrand {font-size:10px;letter-spacing:.18em;color:#89576a;font-weight:800;}
+.smGiftTagHeart {font-size:75px;color:#b97487;line-height:1;}
+.smGiftTagHangingTag strong {font:italic 28px Georgia,serif;line-height:1.15;}
+.smGiftTagHangingTag small {font-size:12px;letter-spacing:.1em;}
+.smGiftTagTapSymbol {font-size:30px;color:#975d6f;}
+.smGiftTagIntro {text-align:center;padding:90px 24px 36px;}
+.smGiftTagIntro h2,.smGiftTagCollection h2,.smGiftTagBottom h2 {font-size:clamp(36px,4.2vw,55px);margin:16px auto;max-width:850px;}
+.smGiftTagIntro p {margin:auto;max-width:680px;line-height:1.7;}
+.smGiftTagSteps {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;max-width:1280px;margin:0 auto;padding:24px 30px 100px;}
+.smGiftTagStep {background:#fffaf8;border:1px solid #ecdedf;border-radius:18px;padding:28px 24px;}
+.smGiftTagStep>span {color:#ad7287;letter-spacing:.14em;font-weight:800;font-size:13px;}
+.smGiftTagStep h3 {font-size:25px;margin:16px 0 8px;}
+.smGiftTagStep p {font-size:14px;line-height:1.65;color:#685760;}
+.smGiftTagCollection {background:#f8f1ef;text-align:center;padding:90px 30px 80px;}
+.smGiftTagOptions {max-width:1240px;margin:42px auto 24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;text-align:left;}
+.smGiftTagOption {overflow:hidden;border-radius:17px;background:#fff;box-shadow:0 12px 28px #4f34400d;}
+.smGiftTagOptionArt {height:285px;background:linear-gradient(135deg,#e7c4c9,#b8a19a);display:grid;place-items:center;}
+.smGiftTagOptionArt--keepsake {background:linear-gradient(140deg,#e7dbc8,#d2baa5);}
+.smGiftTagOptionArt--bundle {background:linear-gradient(140deg,#cfadb8,#e7d7d0);}
+.smGiftTagMiniTag {width:144px;height:190px;transform:rotate(-7deg);padding:35px 13px 17px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#fff9f2;border:1px solid #d5b8b2;box-shadow:8px 12px 22px #42303936;clip-path:polygon(13% 0,87% 0,100% 10%,100% 100%,0 100%,0 10%);}
+.smGiftTagOptionArt--keepsake .smGiftTagMiniTag {border:3px solid #bb9e78;border-radius:20px;clip-path:none;}
+.smGiftTagOptionArt--bundle .smGiftTagMiniTag {box-shadow:14px 12px 0 -3px #f3e5dc, 26px 21px 0 -5px #fff3e8, 33px 29px 23px #42303926;}
+.smGiftTagMiniTag span {font-size:44px;color:#aa6e82;}
+.smGiftTagMiniTag strong {font:italic 17px Georgia,serif;text-align:center;}
+.smGiftTagMiniTag small {font-size:10px;}
+.smGiftTagOptionCopy {padding:24px 24px 30px;display:flex;flex-direction:column;gap:8px;}
+.smGiftTagOptionCopy h3 {font-size:27px;margin:0;}
+.smGiftTagOptionCopy p {margin:0;line-height:1.6;flex:1;min-height:72px;}
+.smGiftTagOptionCopy>strong {font-size:22px;}
+.smGiftTagOptionCopy>small {color:#79666f;}
+.smGiftTagBottom {text-align:center;padding:90px 25px 110px;max-width:830px;margin:auto;}
+.smGiftTagBottom p {font-size:16px;line-height:1.7;}
+.smGiftTagBottom .btn {display:inline-block;margin:20px 15px;}
+@media(max-width:900px){.smGiftTagHero{grid-template-columns:1fr}.smGiftTagHeroArt{max-width:590px;margin:auto;width:100%}.smGiftTagSteps{grid-template-columns:repeat(2,minmax(0,1fr))}.smGiftTagOptions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.smGiftTagHero{padding:56px 22px}.smGiftTagHeroArt{min-height:375px}.smGiftTagGiftBox{height:195px;bottom:35px}.smGiftTagHangingTag{min-height:270px;width:210px;transform:translate(23px,0) rotate(6deg)}.smGiftTagHangingTag strong{font-size:24px}.smGiftTagHeart{font-size:50px}.smGiftTagSteps,.smGiftTagOptions{grid-template-columns:1fr}.smGiftTagSteps{padding:15px 20px 60px}.smGiftTagCollection{padding:65px 20px}.smGiftTagOptionCopy p{min-height:0}.smGiftTagBottom{padding:65px 22px}}
+@media(prefers-reduced-motion:reduce){.smGiftTagPage *{scroll-behavior:auto}}
+
+
+/* Secure Gift Tag activation preview */
+.smGiftTagActivate {
+  min-height: 70vh;
+  display: grid;
+  place-items: start center;
+  background: linear-gradient(150deg, #fffaf6, #f5e8e7);
+  padding: clamp(35px, 7vw, 95px) 18px;
+  color: #482e3b;
+}
+.smGiftTagActivatePanel {
+  width: min(100%, 640px);
+  padding: clamp(24px, 5vw, 54px);
+  border: 1px solid #e9d4d7;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(72, 47, 59, .08);
+}
+.smGiftTagActivatePanel h1 {
+  font: 400 clamp(37px, 5vw, 57px)/1.12 Georgia, serif;
+  margin: 20px 0;
+}
+.smGiftTagActivatePanel > p { line-height: 1.7; }
+.smGiftTagActivateForm { display: grid; gap: 12px; margin: 30px 0 18px; }
+.smGiftTagActivateForm label { font-size: 14px; font-weight: 700; }
+.smGiftTagActivateForm input {
+  padding: 15px 16px;
+  border: 1px solid #cbb6bb;
+  border-radius: 10px;
+  font: inherit;
+  width: 100%;
+}
+.smGiftTagActivateForm input:focus-visible {
+  outline: 3px solid #b98493;
+  outline-offset: 2px;
+}
+.smGiftTagActivateForm button { margin-top: 10px; justify-self: start; }
+.smGiftTagActivateForm button:disabled { opacity: .6; cursor: wait; }
+.smGiftTagActivationStatus {
+  padding: 15px 18px;
+  border: 1px solid #d3c3c9;
+  background: #f9f3f4;
+  border-radius: 10px;
+}

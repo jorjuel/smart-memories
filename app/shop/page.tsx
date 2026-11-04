@@ -202,7 +202,7 @@ export default async function Shop({
       <p className="lead">
         {occasion
           ? `We’ve selected personalised gifts that work especially well for ${occasion}.`
-          : 'Explore personalised gifts, handcrafted cards with optional NFC memories, bundles and corporate gifting.'}
+          : 'Explore personalised gifts, handcrafted cards with optional NFC memories, standalone Memory Gift Tags, bundles and corporate gifting.'}
       </p>
 
       {occasion && (
@@ -333,6 +333,53 @@ export default async function Shop({
                 />
               ))}
             </div>
+          </div>
+        </details>
+
+        {/* ==========================================
+            STANDALONE MEMORY GIFT TAGS
+            ========================================== */}
+
+        <details className="shopAccordionItem" open>
+          <summary className="shopAccordionSummary">
+            <div className="shopAccordionText">
+              <span className="eyebrow">NEW CONCEPT · SMART MEMORY GIFT TAGS</span>
+              <h2>A little tag. A lasting memory.</h2>
+              <p>
+                Already have the perfect present? Add a tap-to-open personal
+                voice message, photo and memory with a separate gift tag.
+              </p>
+            </div>
+            <div className="shopAccordionVisual smHandcraftedShopPreview" aria-hidden="true">
+              <div className="smHandcraftedShopPaper">
+                <span>ONE LITTLE TAP</span>
+                <strong>Made more personal</strong>
+                <span className="smHandcraftedShopHeart">♡</span>
+              </div>
+            </div>
+            <span className="shopAccordionArrow">+</span>
+          </summary>
+          <div className="shopAccordionContent">
+            <div className="smHandcraftedShopOptions">
+              <article className="card smHandcraftedShopOption">
+                <span className="eyebrow">STANDALONE MEMORY TAG</span>
+                <h3>Everyday Memory Tag</h3>
+                <p>Attach to a present you bought elsewhere. One thoughtful tap opens the personal memory.</p>
+                <strong>Proposed £8.95</strong>
+                <Link className="btn small" href="/gift-tags">Discover Memory Gift Tags</Link>
+              </article>
+              <article className="card smHandcraftedShopOption smHandcraftedShopOptionSmart">
+                <span className="eyebrow">KEEP IT FOREVER</span>
+                <h3>Keepsake Memory Tag</h3>
+                <p>A more durable tag designed to stay with the recipient after their present has been opened.</p>
+                <strong>Proposed £11.95</strong>
+                <Link className="btn small" href="/gift-tags">Explore tag options</Link>
+              </article>
+            </div>
+            <p className="smHandcraftedShopNote">
+              Gift tags are in development. Prices and materials are provisional.
+              Checkout and activation are not yet enabled.
+            </p>
           </div>
         </details>
 
