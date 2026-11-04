@@ -1233,12 +1233,8 @@ export default function ProductPersonaliser({
           Create Your Smart Memory
         </h1>
 
-        <p>
-          Turn your
-          personalised gift
-          into something they
-          can see, hear and
-          relive.
+        <p className="smWizardIntro">
+          Personalise your gift, add a photo and share a memory.
         </p>
 
         <div className="smWizardProductName">
@@ -1257,16 +1253,12 @@ export default function ProductPersonaliser({
         </div>
       </div>
 
-      {draftFeatureEnabled && draftStatus && (
-        <p role="status" style={{margin:'10px 0',fontSize:'0.9rem'}}>
-          {draftStatus}
-        </p>
+      {draftFeatureEnabled && (
+        <div className="smWizardDraftNotice" role="status" aria-live="polite">
+          <span>{draftStatus || 'Your progress saves automatically when signed in.'}</span>
+          <a href="/account/drafts">My Drafts</a>
+        </div>
       )}
-      {draftFeatureEnabled && <p style={{margin:'10px 0',fontSize:'0.85rem'}}>
-        Signed-in customers can save progress automatically and return from{' '}
-        <a href="/account/drafts">My Drafts</a>. Photos and recordings are stored privately.
-        Keep this page open until you see “Draft saved securely.”
-      </p>}
 
       <PersonaliserProgress
         steps={steps}
@@ -1276,7 +1268,7 @@ export default function ProductPersonaliser({
       />
 
       <div className="smWizardShell">
-        <div className="smWizardStepContent">
+        <div className="smWizardStepContent" id="smWizardFields" role="region" aria-label={`${steps[stepIndex]?.label || 'Gift'} details`}>
 
           {/* =========================================
               STEP 1 — YOUR GIFT
