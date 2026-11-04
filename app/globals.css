@@ -11539,3 +11539,101 @@ header.smSiteHeader {
     max-width: 220px;
   }
 }
+
+
+/* Handcrafted card category in the Smart Memories shop */
+.smHandcraftedShopPreview {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #efe0d7, #faf4ec);
+  overflow: hidden;
+}
+.smHandcraftedShopPaper {
+  width: 74%;
+  min-height: 130px;
+  transform: rotate(-7deg);
+  padding: 15px 10px;
+  border: 1px solid #d7bfae;
+  border-radius: 5px;
+  box-shadow: 7px 9px 18px rgba(76, 51, 58, .16);
+  background: #fffaf5;
+  color: #65404e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  text-align: center;
+}
+.smHandcraftedShopPaper > span:first-child {
+  font-size: 9px;
+  letter-spacing: .14em;
+}
+.smHandcraftedShopPaper strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(14px, 1.5vw, 19px);
+  font-weight: 500;
+}
+.smHandcraftedShopHeart {
+  font-size: 22px;
+  color: #b47483;
+}
+.smHandcraftedShopIntro,
+.smHandcraftedShopNote {
+  max-width: 760px;
+  line-height: 1.65;
+  color: var(--sm-muted, #705f66);
+}
+.smHandcraftedShopOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 24px);
+  margin: 24px 0 18px;
+}
+.smHandcraftedShopOption {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 32px);
+}
+.smHandcraftedShopOption h3,
+.smHandcraftedShopOption p {
+  margin: 0;
+}
+.smHandcraftedShopOption h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(22px, 2.4vw, 30px);
+}
+.smHandcraftedShopOption p {
+  line-height: 1.6;
+  flex: 1;
+}
+.smHandcraftedShopOption > strong {
+  font-size: 23px;
+}
+.smHandcraftedShopOption > .btn {
+  align-self: flex-start;
+}
+.smHandcraftedShopOptionSmart {
+  border-color: #ce9fac;
+  background: linear-gradient(150deg, #fff9f8, #f8eef0);
+}
+.smHandcraftedShopIcon {
+  font-size: 35px;
+  line-height: 1;
+  color: #985b70;
+}
+.smHandcraftedShopBrowse {
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 680px) {
+  .smHandcraftedShopOptions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .smHandcraftedShopOption > .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
