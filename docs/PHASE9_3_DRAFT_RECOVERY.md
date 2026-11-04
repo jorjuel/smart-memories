@@ -8,7 +8,7 @@
 - Unfinished drafts are not orders. Existing My Orders and paid memory pages are unchanged.
 
 ## Important activation requirement — must complete in Supabase
-**The GitHub deployment does not migrate Supabase.** In the connected Smart Memories Supabase project, open **SQL Editor** and execute the SQL in `docs/phase9-3-memory-drafts.sql` once.
+**The feature is OFF by default to protect existing gift creation until database setup is complete.** After applying the migration, set Vercel environment variable `NEXT_PUBLIC_DRAFTS_ENABLED=true` and redeploy for the appropriate environment. Do not enable it before applying the migration. **The GitHub deployment does not migrate Supabase.** In the connected Smart Memories Supabase project, open **SQL Editor** and execute the SQL in `docs/phase9-3-memory-drafts.sql` once.
 
 The migration creates `memory_drafts` with owner-scoped RLS and a **private** `draft-media` storage bucket. Do not change the existing `memory-media` bucket's visibility. Without this SQL, gift creation still works but My Drafts displays an unavailable message and autosave reports a storage error. Do not claim recovery works until the migration and a real browser test pass.
 
