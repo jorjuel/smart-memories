@@ -54,12 +54,21 @@ function PersonaliseCardContent() {
   const [includePhoto, setIncludePhoto] = useState(true);
 
   const isOwnDesign = design === 'Your Own Design';
+  const previewDesignClass =
+    design === 'Floral Keepsake' ? 'smCardLiveFloral' :
+    design === 'Classic Elegance' ? 'smCardLiveClassic' :
+    design === 'Modern Minimal' ? 'smCardLiveMinimal' :
+    design === 'Photo Feature' ? 'smCardLivePhoto' : 'smCardLiveOwn';
+
   const [artworkFile, setArtworkFile] = useState<File | null>(null);
   const [artworkPreview, setArtworkPreview] = useState<string | null>(null);
   const [savedArtworkUrl, setSavedArtworkUrl] = useState<string | null>(null);
 
   function handleArtwork(file: File | null) {
     if (artworkPreview) URL.revokeObjectURL(artworkPreview);
+    setSavedPersonalisationId(null);
+    setSavedArtworkUrl(null);
+    setSaveSuccess(null);
     if (!file) {
       setArtworkFile(null);
       setArtworkPreview(null);
@@ -1098,32 +1107,35 @@ function PersonaliseCardContent() {
             </div>
 
             <div
-              className={`liveCardPreview colour-${colour.toLowerCase()}`}
+              className={`liveCardPreview colour-${colour.toLowerCase()} ${previewDesignClass} ${isOwnDesign && artworkPreview ? 'smCardLiveOwnWithArt' : ''}`}
             >
               {isOwnDesign && artworkPreview ? (
-                <img className="smOwnArtworkLiveImage" src={artworkPreview} alt="Your custom front design" />
+                <img className="smOwnArtworkLiveImage" src={artworkPreview} alt="Preview of your uploaded printed card front" />
               ) : (
-                <div className="liveCardDecoration">♥</div>
+                <div className="liveCardDecoration" aria-hidden="true">
+                  {design === 'Floral Keepsake' ? '❀' :
+                   design === 'Classic Elegance' ? 'SM' :
+                   design === 'Modern Minimal' ? '♥' :
+                   design === 'Photo Feature' ? '▧' : '♥'}
+                </div>
               )}
 
-              <small>
-                {occasion.toUpperCase()}
-              </small>
-
-              {recipient && (
-                <span className="previewRecipient">
-                  FOR {recipient}
-                </span>
+              {!(isOwnDesign && artworkPreview) && (
+                <>
+                  <small>{occasion.toUpperCase()}</small>
+                  {recipient && <span className="previewRecipient">FOR {recipient}</span>}
+                  <h2>{frontGreeting || 'Your greeting'}</h2>
+                  <p>Made especially for you</p>
+                </>
               )}
 
-              <h2>
-                {frontGreeting ||
-                  'Your greeting'}
-              </h2>
-
-              <p>
-                Made especially for you
-              </p>
+              {isOwnDesign && artworkPreview && (
+                <small className="smCardOwnPreviewNote">
+                  Your uploaded artwork is shown as a full front print.
+                  Text entered here is for your card message and order instructions,
+                  not automatically overlaid on that image.
+                </small>
+              )}
 
               {cardType === 'smart' && (
                 <div className="previewSmartMark">
