@@ -2,6 +2,7 @@
 
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import Link from 'next/link';
+import { SHIPPING_PRICES_PENCE } from '@/lib/pricing';
 import { useSearchParams } from 'next/navigation';
 
 import {
@@ -184,10 +185,7 @@ export default function CheckoutPage() {
     );
 
   const delivery =
-    deliveryMethod ===
-    'express'
-      ? 6.95
-      : 3.95;
+    SHIPPING_PRICES_PENCE[deliveryMethod] / 100;
 
   const total =
     subtotal + delivery;
@@ -796,14 +794,13 @@ export default function CheckoutPage() {
                   </strong>
 
                   <span>
-                    Usually 3-5
-                    working days
-                    after production
+                    Delivery estimate depends
+                    on the item and destination
                   </span>
                 </div>
 
                 <b>
-                  £3.95
+                  £{(SHIPPING_PRICES_PENCE.standard / 100).toFixed(2)}
                 </b>
               </button>
 
@@ -827,16 +824,21 @@ export default function CheckoutPage() {
                   </strong>
 
                   <span>
-                    Priority dispatch
+                    Priority delivery service
                     after production
                   </span>
                 </div>
 
                 <b>
-                  £6.95
+                  £{(SHIPPING_PRICES_PENCE.express / 100).toFixed(2)}
                 </b>
               </button>
             </div>
+            <p className="smDeliveryEstimateNote">
+              Personalised gifts are made to order. Delivery speed applies
+              after production, and a delivery date is not guaranteed.
+              <Link href="/delivery"> Read delivery information</Link>.
+            </p>
           </section>
 
           <section className="checkoutCard paymentPlaceholder">
