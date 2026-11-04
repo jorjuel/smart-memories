@@ -998,7 +998,7 @@ export default async function AdminOrderDetailPage({
                     </div>
                   </div>
 
-                  {item.personalisation &&
+                  {Boolean(item.personalisation) &&
                     typeof item.personalisation === 'object' &&
                     'printArtworkUrl' in item.personalisation &&
                     typeof item.personalisation.printArtworkUrl === 'string' &&
