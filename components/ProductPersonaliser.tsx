@@ -4,6 +4,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useEffect,
 } from 'react';
 
 import Link from 'next/link';
@@ -25,10 +26,13 @@ import ConfiguredProductPreview from './ConfiguredProductPreview';
 import PersonaliserProgress from './PersonaliserProgress';
 import SmartMemoryLivePreview from './SmartMemoryLivePreview';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
+import { persistDraft, retrieveDraft, uploadPrivateDraftMedia, completeDraft } from '@/lib/draftClient';
+import type { DraftDetails } from '@/lib/memoryDrafts';
 
 type Props = {
   slug: string;
   initialOccasion?: string;
+  draftId?: string;
 };
 
 type StepKey =
@@ -69,6 +73,7 @@ function formatTime(
 export default function ProductPersonaliser({
   slug,
   initialOccasion = '',
+  draftId,
 }: Props) {
   const product =
     getPersonalisationProduct(
@@ -357,6 +362,136 @@ export default function ProductPersonaliser({
     occasion ||
     'Smart Memory';
 
+  /* =====================================================
+     PRIVATE CUSTOMER DRAFT RECOVERY
+     Drafts are account-owned and saved in a private bucket.
+     Guests may still create gifts without cloud drafts.
+     ===================================================== */
+  const draftFeatureEnabled = process.env.NEXT_PUBLIC_DRAFTS_ENABLED === 'true';
+  const draftRef = useRef(draftId || '');
+  const [draftReady, setDraftReady] = useState(false);
+  const [draftRevision, setDraftRevision] = useState(0);
+  const [draftStatus, setDraftStatus] = useState('');
+  const [draftEnabled, setDraftEnabled] = useState(draftFeatureEnabled);
+  const draftPhotoBlob = useRef<Blob | null>(null);
+  const draftAudioBlob = useRef<Blob | null>(null);
+  const draftPhotoPath = useRef<string | null>(null);
+  const draftAudioPath = useRef<string | null>(null);
+  const draftQueue = useRef<Promise<void>>(Promise.resolve());
+
+  useEffect(() => {
+    let cancelled = false;
+    async function restore() {
+      if (!draftFeatureEnabled) return;
+      if (!draftId) {
+        draftRef.current = crypto.randomUUID();
+        if (!cancelled) setDraftReady(true);
+        return;
+      }
+      try {
+        const result = await retrieveDraft(draftId);
+        if (cancelled) return;
+        if (result.draft.product_slug !== slug) {
+          throw new Error('This draft belongs to a different gift.');
+        }
+        const d = result.draft.details || {};
+        if (d.mode) setMode(d.mode);
+        if (d.designSource) setDesignSource(d.designSource);
+        if (d.occasion !== undefined) setOccasion(d.occasion);
+        if (d.size !== undefined) setSize(d.size);
+        if (d.orientation && ['portrait','landscape','square'].includes(d.orientation)) setOrientation(d.orientation as 'portrait' | 'landscape' | 'square');
+        if (d.template !== undefined) setTemplate(d.template);
+        if (d.textLayout) setTextLayout(d.textLayout as TextLayout);
+        if (d.topText !== undefined) setTopText(d.topText);
+        if (d.bottomText !== undefined) setBottomText(d.bottomText);
+        if (d.paragraph !== undefined) setParagraph(d.paragraph);
+        if (d.accessory !== undefined) setAccessory(d.accessory);
+        if (d.recipient !== undefined) setRecipient(d.recipient);
+        if (d.sender !== undefined) setSender(d.sender);
+        if (d.memoryMessage !== undefined) setMemoryMessage(d.memoryMessage);
+        const media = await Promise.all([
+          result.photoUrl ? fetch(result.photoUrl).then(r => {
+            if (!r.ok) throw new Error('Could not restore your saved photo.');
+            return r.blob();
+          }) : Promise.resolve(null),
+          result.audioUrl ? fetch(result.audioUrl).then(r => {
+            if (!r.ok) throw new Error('Could not restore your saved recording.');
+            return r.blob();
+          }) : Promise.resolve(null),
+        ]);
+        if (cancelled) return;
+        if (media[0]) {
+          const savedPhoto = new File([media[0]],'draft-photo',{
+            type:media[0].type || 'image/jpeg'
+          });
+          setPhoto(savedPhoto);
+          setPhotoUrl(URL.createObjectURL(savedPhoto));
+          draftPhotoBlob.current = savedPhoto;
+        }
+        if (media[1]) {
+          setAudio(media[1]);
+          setAudioUrl(URL.createObjectURL(media[1]));
+          draftAudioBlob.current = media[1];
+        }
+        draftPhotoPath.current=result.draft.photo_path;
+        draftAudioPath.current=result.draft.audio_path;
+        setStepIndex(Math.min(steps.length - 2, Math.max(0,result.draft.step_index)));
+        setDraftStatus('Draft restored successfully.');
+        setDraftReady(true);
+      } catch (err) {
+        if (!cancelled) {
+          setDraftEnabled(false);
+          setDraftStatus(err instanceof Error ? err.message : 'Could not restore draft.');
+        }
+      }
+    }
+    void restore();
+    return () => {cancelled=true;};
+  // Load a draft once per product / draft ID, not on each form edit.
+  }, [draftId,slug,steps.length,draftFeatureEnabled]);
+
+  useEffect(() => {
+    if (!draftReady || !draftEnabled || draftRevision === 0 || finalReview) return;
+    const snapshot: DraftDetails = {
+      mode,designSource,occasion,size,orientation,template,textLayout,
+      topText,bottomText,paragraph,accessory,recipient,sender,memoryMessage,
+    };
+    const currentId = draftRef.current;
+    const currentPhoto = photo;
+    const currentAudio = audio;
+    const currentStep = stepIndex;
+    setDraftStatus('Saving draft securely…');
+    const timer = setTimeout(() => {
+      draftQueue.current = draftQueue.current.catch(()=>{}).then(async () => {
+        const base = {id:currentId,slug,stepIndex:currentStep,details:snapshot};
+        await persistDraft(base);
+        if (currentPhoto !== draftPhotoBlob.current) {
+          const path = currentPhoto
+            ? await uploadPrivateDraftMedia(currentId,currentPhoto,'photo')
+            : null;
+          await persistDraft({...base,photoPath:path});
+          draftPhotoBlob.current=currentPhoto;
+          draftPhotoPath.current=path;
+        }
+        if (currentAudio !== draftAudioBlob.current) {
+          const path = currentAudio
+            ? await uploadPrivateDraftMedia(currentId,currentAudio,'audio')
+            : null;
+          await persistDraft({...base,audioPath:path});
+          draftAudioBlob.current=currentAudio;
+          draftAudioPath.current=path;
+        }
+        setDraftStatus('Draft saved securely.');
+      }).catch(err=>{
+        const message=err instanceof Error ? err.message : 'Could not save draft.';
+        setDraftStatus(message);
+        if (message.includes('Sign in')) setDraftEnabled(false);
+      });
+    },1200);
+    return ()=>clearTimeout(timer);
+  }, [draftReady,draftEnabled,draftRevision,finalReview,slug,stepIndex,mode,designSource,occasion,size,orientation,template,
+    textLayout,topText,bottomText,paragraph,accessory,recipient,sender,memoryMessage,photo,audio]);
+
   function scrollToTop() {
     window.scrollTo({
       top: 0,
@@ -366,6 +501,7 @@ export default function ProductPersonaliser({
   }
 
   function markChanged() {
+    setDraftRevision(n => n + 1);
     setFinalReview(false);
     setStepError('');
   }
@@ -373,6 +509,7 @@ export default function ProductPersonaliser({
   function changeStep(
     index: number
   ) {
+    setDraftRevision(n => n + 1);
     setStepIndex(index);
     setStepError('');
     scrollToTop();
@@ -865,6 +1002,11 @@ export default function ProductPersonaliser({
           null
       );
 
+      setDraftEnabled(false);
+      await draftQueue.current.catch(()=>{});
+      if (draftReady && draftRevision > 0) {
+        try { await completeDraft(draftRef.current); } catch { /* A saved memory must not fail because draft cleanup failed. */ }
+      }
       setFinalReview(
         true
       );
@@ -1114,6 +1256,17 @@ export default function ProductPersonaliser({
           )}
         </div>
       </div>
+
+      {draftFeatureEnabled && draftStatus && (
+        <p role="status" style={{margin:'10px 0',fontSize:'0.9rem'}}>
+          {draftStatus}
+        </p>
+      )}
+      {draftFeatureEnabled && <p style={{margin:'10px 0',fontSize:'0.85rem'}}>
+        Signed-in customers can save progress automatically and return from{' '}
+        <a href="/account/drafts">My Drafts</a>. Photos and recordings are stored privately.
+        Keep this page open until you see “Draft saved securely.”
+      </p>}
 
       <PersonaliserProgress
         steps={steps}

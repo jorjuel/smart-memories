@@ -45,6 +45,12 @@ export default function AccountNav() {
         Memories
       </a>
 
+      {process.env.NEXT_PUBLIC_DRAFTS_ENABLED === 'true' && (
+        <a href="/account/drafts" className={active('/account/drafts') ? 'active' : ''}>
+          Drafts
+        </a>
+      )}
+
       <a href="/account/orders"
         className={
           active(
