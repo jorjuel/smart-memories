@@ -1007,7 +1007,7 @@ export default async function AdminOrderDetailPage({
                         <strong>Customer-uploaded card front artwork</strong>
                         <p>Use this file for the printed front of the card. The NFC memory photo is separate.</p>
                         <a
-                          href={item.personalisation.printArtworkUrl}
+                          href={String(item.personalisation.printArtworkUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
