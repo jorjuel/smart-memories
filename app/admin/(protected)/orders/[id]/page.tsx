@@ -908,6 +908,13 @@ export default async function AdminOrderDetailPage({
                 getPersonalisationEntries(
                   item.personalisation
                 );
+              const printArtworkUrl =
+                item.personalisation !== null &&
+                typeof item.personalisation === 'object' &&
+                'printArtworkUrl' in item.personalisation &&
+                typeof item.personalisation.printArtworkUrl === 'string'
+                  ? item.personalisation.printArtworkUrl
+                  : null;
 
               const savedItem =
                 itemProductionData[
@@ -998,23 +1005,19 @@ export default async function AdminOrderDetailPage({
                     </div>
                   </div>
 
-                  {Boolean(item.personalisation) &&
-                    typeof item.personalisation === 'object' &&
-                    'printArtworkUrl' in item.personalisation &&
-                    typeof item.personalisation.printArtworkUrl === 'string' &&
-                    /^https:\/\//.test(item.personalisation.printArtworkUrl) && (
-                      <div className="card" style={{ margin: '12px 0' }}>
-                        <strong>Customer-uploaded card front artwork</strong>
-                        <p>Use this file for the printed front of the card. The NFC memory photo is separate.</p>
-                        <a
-                          href={String(item.personalisation.printArtworkUrl)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          View print artwork
-                        </a>
-                      </div>
-                    )}
+                  {printArtworkUrl && /^https:\/\//.test(printArtworkUrl) && (
+                    <div className="card" style={{ margin: '12px 0' }}>
+                      <strong>Customer-uploaded card front artwork</strong>
+                      <p>Use this file for the printed front of the card. The NFC memory photo is separate.</p>
+                      <a
+                        href={printArtworkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View print artwork
+                      </a>
+                    </div>
+                  )}
 
                   {personalisation.length >
                     0 && (
