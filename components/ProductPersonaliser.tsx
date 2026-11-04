@@ -397,7 +397,7 @@ export default function ProductPersonaliser({
         if (d.designSource) setDesignSource(d.designSource);
         if (d.occasion !== undefined) setOccasion(d.occasion);
         if (d.size !== undefined) setSize(d.size);
-        if (d.orientation !== undefined) setOrientation(d.orientation);
+        if (d.orientation && ['portrait','landscape','square'].includes(d.orientation)) setOrientation(d.orientation as 'portrait' | 'landscape' | 'square');
         if (d.template !== undefined) setTemplate(d.template);
         if (d.textLayout) setTextLayout(d.textLayout as TextLayout);
         if (d.topText !== undefined) setTopText(d.topText);
