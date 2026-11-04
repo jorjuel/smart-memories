@@ -10890,3 +10890,253 @@ header.smSiteHeader {
   color: white !important;
   border-color: var(--sm-rose) !important;
 }
+
+/* =========================================================
+   Personaliser UX — compact, viewport-first workflow
+   Keep step actions visible while fields are completed.
+   ========================================================= */
+.smWizardPage {
+  padding: 18px clamp(16px, 2.4vw, 32px) 48px;
+}
+.smWizardHeader {
+  max-width: 1180px;
+  margin: 0 auto 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 7px 18px;
+  text-align: left;
+}
+.smWizardBackToProduct {
+  grid-row: 1 / span 3;
+  margin: 0;
+  padding: 10px;
+  white-space: nowrap;
+}
+.smWizardHeader > .v14Eyebrow {
+  display: none;
+}
+.smWizardHeader h1 {
+  margin: 0;
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -.5px;
+}
+.smWizardHeader > p.smWizardIntro {
+  grid-column: 2;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.smWizardProductName {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  margin: 0;
+  justify-content: flex-end;
+  gap: 7px;
+  font-size: 13px;
+}
+.smWizardDraftNotice {
+  max-width: 1180px;
+  margin: 0 auto 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  color: var(--sm-muted);
+  font-size: 12px;
+}
+.smWizardDraftNotice a {
+  color: var(--sm-rose);
+  font-weight: 700;
+}
+.smWizardProgress {
+  margin-bottom: 14px;
+}
+.smWizardDesktopSteps > div {
+  padding: 6px 7px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.smWizardDesktopSteps span {
+  margin: 0;
+  height: 20px;
+  width: 20px;
+  flex-shrink: 0;
+}
+.smWizardDesktopSteps strong {
+  font-size: 12px;
+}
+.smWizardShell {
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 315px);
+}
+.smWizardStepHeading {
+  margin-bottom: 13px;
+}
+.smWizardStepHeading h2 {
+  font-size: clamp(26px, 2.8vw, 36px);
+  margin: 4px 0 6px;
+}
+.smWizardStepHeading p {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.smWizardSection,
+.smWizardUploadCard,
+.smWizardVoiceCard {
+  margin-bottom: 10px;
+  padding: 15px 19px;
+  border-radius: 15px;
+}
+.smWizardSection h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+.smWizardFields {
+  gap: 11px;
+}
+.smWizardFields label {
+  gap: 5px;
+}
+.smWizardUploadButton {
+  min-height: 132px;
+  padding: 16px;
+  gap: 5px;
+}
+.smWizardPhotoReady {
+  gap: 14px;
+}
+.smWizardPhotoReady img {
+  max-height: 210px;
+}
+.smWizardPromptIdeas {
+  padding: 14px;
+  margin-top: 12px;
+}
+.smWizardStickyPreview {
+  top: 86px;
+  padding: 12px;
+  border-radius: 16px;
+  max-height: calc(100dvh - 110px);
+  overflow-y: auto;
+}
+.smWizardMiniSummary {
+  margin-top: 9px;
+  padding-top: 8px;
+}
+.smWizardNavigation {
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  margin: 12px -5px 0;
+  padding: 10px;
+  background: rgba(255, 250, 247, .97);
+  border: 1px solid var(--sm-border);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(45,30,31,.12);
+  align-items: center;
+}
+.smWizardNavigation .btn {
+  min-height: 42px;
+}
+.smWizardNavigation .btn.big {
+  font-size: 15px;
+  padding: 11px 18px;
+}
+@media (min-width: 1100px) and (min-height: 660px) {
+  .smWizardPage {
+    min-height: calc(100dvh - 72px);
+  }
+  .smWizardStepContent {
+    max-height: calc(100dvh - 260px);
+    min-height: 310px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 9px 2px 0;
+    scrollbar-gutter: stable;
+  }
+}
+@media (max-width: 1099px) {
+  .smWizardHeader {
+    grid-template-columns: 1fr auto;
+    gap: 5px 12px;
+  }
+  .smWizardBackToProduct {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    padding: 0;
+    margin-bottom: 3px;
+  }
+  .smWizardHeader h1,
+  .smWizardHeader > p.smWizardIntro {
+    grid-column: 1;
+  }
+  .smWizardProductName {
+    grid-column: 2;
+    grid-row: 2 / 4;
+  }
+}
+@media (max-width: 980px) {
+  .smWizardPage {
+    padding: 14px 16px 90px;
+  }
+  .smWizardShell {
+    gap: 12px;
+  }
+  .smWizardStickyPreview {
+    order: 0;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .smWizardMobileProgress {
+    padding: 10px 13px;
+  }
+  .smWizardProgress {
+    margin-bottom: 12px;
+  }
+  .smWizardNavigation {
+    bottom: max(8px, env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 600px) {
+  .smWizardHeader {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .smWizardHeader h1 {
+    font-size: 27px;
+    margin: 6px 0 5px;
+  }
+  .smWizardProductName {
+    justify-content: flex-start;
+    margin-top: 6px;
+  }
+  .smWizardDraftNotice {
+    margin-bottom: 10px;
+  }
+  .smWizardSection,
+  .smWizardUploadCard,
+  .smWizardVoiceCard {
+    padding: 14px;
+  }
+  .smWizardStickyPreview {
+    padding: 10px;
+  }
+  .smWizardNavigation {
+    margin: 12px -3px 0;
+    padding: 8px;
+  }
+  .smWizardNavigation .btn {
+    min-height: 46px;
+    font-size: 14px;
+  }
+  .smWizardReady {
+    padding: 24px 16px;
+  }
+}
