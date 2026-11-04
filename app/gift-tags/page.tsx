@@ -47,6 +47,7 @@ export default function MemoryGiftTagsPage() {
             <Link className="smGiftTagTextLink" href="/how-it-works">How Smart Memories work</Link>
           </div>
           <p className="smGiftTagPrelaunch">Coming soon · Designs and prices are being finalised. Not available to purchase yet.</p>
+          <Link className="smGiftTagTextLink" href="/gift-tags/activate">Already purchased a tag? See the activation process</Link>
         </div>
         <div className="smGiftTagHeroArt" role="img" aria-label="Illustration of a ribbon-tied gift with an elegant Smart Memories gift tag">
           <div className="smGiftTagGiftBox"><span /></div>
