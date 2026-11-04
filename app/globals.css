@@ -11140,3 +11140,134 @@ header.smSiteHeader {
     padding: 24px 16px;
   }
 }
+
+
+/* Recipient memory: retain the full-screen cover, then present
+   photograph, message, voice and signature together as one letter. */
+.smRecipientUnifiedStory {
+  background: linear-gradient(170deg, #f9f0ed 0%, #fffaf6 55%, #f5e6e2 100%);
+}
+.smRecipientUnifiedFrame {
+  padding: clamp(20px, 4vw, 56px) 18px 30px;
+  display: flex;
+  justify-content: center;
+}
+.smRecipientUnifiedCard {
+  width: min(100%, 690px);
+  padding: clamp(22px, 4vw, 46px);
+  background: #fffaf7;
+  border: 1px solid #e8d6d2;
+  border-radius: 30px;
+  box-shadow: 0 16px 55px rgba(71,39,43,.1);
+  text-align: center;
+  animation: smRecipientStoryReveal .55s ease both;
+}
+.smRecipientUnifiedEyebrow {
+  display: block;
+  font-size: 10px;
+  color: var(--sm-rose);
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+.smRecipientUnifiedFor {
+  display: block;
+  color: var(--sm-muted);
+  font-size: 10px;
+  margin-top: 20px;
+  letter-spacing: 1.4px;
+}
+.smRecipientUnifiedCard h2 {
+  margin: 6px auto 21px;
+  color: var(--sm-plum-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.1;
+  font-size: clamp(30px, 5vw, 48px);
+  overflow-wrap: anywhere;
+}
+.smRecipientUnifiedPhoto {
+  display: block;
+  width: 100%;
+  max-height: min(44svh, 370px);
+  object-fit: contain;
+  background: #f3eae5;
+  border-radius: 18px;
+}
+.smRecipientUnifiedLetter {
+  margin-top: 18px;
+  padding: clamp(18px, 3vw, 30px);
+  background: white;
+  border: 1px solid #ecdeda;
+  border-radius: 18px;
+}
+.smRecipientUnifiedLetter .smRecipientMessageCompact {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(17px, 2.5vw, 21px);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.smRecipientUnifiedVoice {
+  margin-top: 20px;
+}
+.smRecipientUnifiedVoice > span {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--sm-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.smRecipientUnifiedVoice .smRecipientAudioCompact {
+  width: min(100%, 420px);
+  min-height: 46px;
+}
+.smRecipientUnifiedSignature {
+  margin: 21px 0 0;
+  color: var(--sm-plum-dark);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.smRecipientUnifiedSignature span {
+  color: var(--sm-rose);
+  font-size: 17px;
+}
+.smRecipientUnifiedRevisit {
+  max-width: 460px;
+  margin: 20px auto 0;
+  color: var(--sm-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.smRecipientUnifiedStory .smRecipientFooter {
+  border-top: 1px solid #ecdeda;
+}
+@media (max-width: 600px) {
+  .smRecipientUnifiedFrame {
+    padding: 16px 10px 26px;
+  }
+  .smRecipientUnifiedCard {
+    padding: 19px 14px;
+    border-radius: 20px;
+  }
+  .smRecipientUnifiedCard h2 {
+    margin-bottom: 14px;
+  }
+  .smRecipientUnifiedPhoto {
+    max-height: 36svh;
+    border-radius: 13px;
+  }
+  .smRecipientUnifiedLetter {
+    margin-top: 12px;
+    padding: 19px 14px;
+  }
+  .smRecipientUnifiedRevisit {
+    margin-top: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smRecipientUnifiedCard {
+    animation: none;
+  }
+}
