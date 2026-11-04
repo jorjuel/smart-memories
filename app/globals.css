@@ -11496,3 +11496,46 @@ header.smSiteHeader {
     max-height: 41dvh;
   }
 }
+
+/* Phase 11 — product photography and small-screen admin usability */
+.memoryHomePlay {
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+  line-height: 1.4;
+}
+.adminProduct,
+.adminProduct > div {
+  min-width: 0;
+}
+.adminProduct h2,
+.adminProduct p {
+  overflow-wrap: anywhere;
+}
+.smContactLaunchNote {
+  font-size: 0.8rem;
+  color: var(--sm-muted, #705f66);
+  line-height: 1.5;
+}
+@media (max-width: 760px) {
+  .adminProducts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .adminProduct {
+    grid-template-columns: minmax(88px, 35%) minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+  .adminProductPreview {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+@media (max-width: 400px) {
+  .adminProduct {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .adminProductPreview {
+    max-width: 220px;
+  }
+}
