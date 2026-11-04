@@ -97,6 +97,7 @@ function ContactContent() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
+          enquiryType: isCorporate ? 'corporate' : 'general',
           companyName, contactName, email, phone, quantity, bundle,
           budget, requiredDate, branding, message, companyWebsite,
         }),
@@ -411,25 +412,31 @@ function ContactContent() {
           {sendStatus && <p role="status">{sendStatus}</p>}
         </form>
       ) : (
-        <div
-          className="card"
-          style={{
-            maxWidth:
-              '720px',
-          }}
-        >
-          <h2>
-            How can we help?
-          </h2>
+        <form onSubmit={handleSubmit} className="card" style={{ maxWidth: '720px' }}>
+          <h2>Send Smart Memories a message</h2>
+          <p>Questions about an order, personalisation or a gift? Use this form and include your order reference where relevant. Please do not send passwords or payment card details.</p>
 
-          <p>
-            For general questions, personalised orders or support, please use this contact page.
-          </p>
+          <label htmlFor="supportName">Your name</label>
+          <input id="supportName" type="text" autoComplete="name" value={contactName} onChange={(event) => setContactName(event.target.value)} required maxLength={120} />
 
-          <p>
-            For business orders, branded products and larger quantities, choose Corporate Gifting from the Shop.
-          </p>
-        </div>
+          <label htmlFor="supportEmail">Email address</label>
+          <input id="supportEmail" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required maxLength={254} />
+
+          <label htmlFor="supportMessage">Your message</label>
+          <textarea id="supportMessage" rows={6} value={message} onChange={(event) => setMessage(event.target.value)} required maxLength={2000} placeholder="How can we help?" />
+
+          <div style={{ position: 'absolute', left: '-10000px' }} aria-hidden="true">
+            <label htmlFor="generalWebsite">Website</label>
+            <input id="generalWebsite" tabIndex={-1} autoComplete="off" value={companyWebsite} onChange={(event) => setCompanyWebsite(event.target.value)} />
+          </div>
+
+          <button type="submit" className="btn big" disabled={sending}>
+            {sending ? 'Sending...' : 'Send message'}
+          </button>
+          {sendStatus && <p role="status">{sendStatus}</p>}
+          <p className="smContactLaunchNote">Smart Memories is preparing its sole-trader business contact details for public launch. This enquiry form is not a substitute for the full trader identity and address that must be published before live orders begin.</p>
+          <p>For bulk, event or corporate gifts, use our <a href="/contact?type=corporate">corporate enquiry form</a>.</p>
+        </form>
       )}
     </section>
   );
