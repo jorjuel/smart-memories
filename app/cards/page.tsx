@@ -60,9 +60,9 @@ export default function CardsPage() {
           <span className="v14Eyebrow">HANDCRAFTED SMART CARDS</span>
 
           <h1>
-            A real card.
+            Made by hand.
             <br />
-            A hidden memory.
+            Remembered with a tap.
           </h1>
 
           <p>
@@ -125,8 +125,8 @@ export default function CardsPage() {
             <span className="v14Eyebrow">STEP 2</span>
             <h2>{occasion} card designs</h2>
             <p>
-              Choose the style you love. Each design can then be personalised
-              with names, colours, greetings, photographs and your message.
+              Four thoughtfully chosen looks, plus the freedom to upload your own artwork.
+              Every card can be traditional or include an NFC Smart Memory.
             </p>
           </div>
 
@@ -142,16 +142,32 @@ export default function CardsPage() {
                 </span>
 
                 <div className="designArtwork">
-                  {design.style === 'floral' && <div className="flowerMark">✿</div>}
-                  {design.style === 'classic' && <div className="classicMark">SM</div>}
-                  {design.style === 'rustic' && <div className="rusticMark">♥</div>}
-                  {design.style === 'minimal' && <div className="minimalMark">— ♥ —</div>}
-                  {design.style === 'photo' && <div className="photoMark">YOUR PHOTO</div>}
-                  {design.style === 'gold' && <div className="goldMark">✦</div>}
-                  {design.style === 'watercolour' && <div className="paintMark">♥</div>}
-                  {design.style === 'layered' && <div className="layerMark">♥</div>}
-                  {design.style === 'type' && <div className="typeMark">LOVE</div>}
-                  {design.style === 'signature' && <div className="signatureMark">For you</div>}
+                  {design.style === 'floral' && (
+                    <div className="smCardFloralArrangement" aria-hidden="true">
+                      <span className="smCardRose smCardRoseOne" />
+                      <span className="smCardRose smCardRoseTwo" />
+                      <span className="smCardRose smCardRoseThree" />
+                      <span className="smCardLeaf smCardLeafOne" />
+                      <span className="smCardLeaf smCardLeafTwo" />
+                      <span className="smCardLeaf smCardLeafThree" />
+                      <span className="smCardBlossom smCardBlossomOne" />
+                      <span className="smCardBlossom smCardBlossomTwo" />
+                    </div>
+                  )}
+                  {design.style === 'classic' && (
+                    <div className="smCardClassicCrest" aria-hidden="true">SM</div>
+                  )}
+                  {design.style === 'minimal' && (
+                    <div className="smCardMinimalRule" aria-hidden="true"><span />♥<span /></div>
+                  )}
+                  {design.style === 'photo' && (
+                    <div className="smCardPhotoSample" aria-hidden="true">
+                      <span className="smCardPhotoHorizon" />
+                      <span className="smCardPhotoSun" />
+                      <span className="smCardPhotoMountain smCardPhotoMountainOne" />
+                      <span className="smCardPhotoMountain smCardPhotoMountainTwo" />
+                    </div>
+                  )}
 
                   <small>{occasion.toUpperCase()}</small>
                   <h3>
@@ -192,7 +208,7 @@ export default function CardsPage() {
                   )}&design=${encodeURIComponent(design.name)}`}
                   className="cardChooseButton"
                 >
-                  Personalise this design →
+                  Choose this design →
                 </Link>
               </div>
             </article>
