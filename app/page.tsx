@@ -45,10 +45,12 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="smHeroMemoryShowcase" aria-label="Example photo slate, recipient phone memory and Smart Memories tap tag">
-          <div className="smHeroSlate" role="img" aria-label="Example personalised photographic slate">
-            <div className="smHeroSlatePrint" />
-          </div>
+        <div className="smHeroMemoryShowcase" aria-label="Premium gift-wrapped keepsake and recipient phone memory preview">
+          <div
+            className="smHeroLuxuryGift"
+            role="img"
+            aria-label="Luxury cream gift with rose-copper satin ribbon and Smart Memories gift tag"
+          />
 
           <div className="smHeroRecipientPhone" aria-label="Example recipient Smart Memory phone screen">
             <div className="smHeroPhoneSpeaker" aria-hidden="true" />
@@ -62,11 +64,6 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="smHeroNfcTag" aria-label="Illustration of a Smart Memories NFC tap tag">
-            <span className="smHeroTagSignal" aria-hidden="true">◖))</span>
-            <span className="smHeroTagBrand">SMART MEMORIES <span aria-hidden="true">♥</span></span>
-            <strong>Tap here</strong>
-          </div>
         </div>
       </section>
 
