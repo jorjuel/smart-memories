@@ -68,6 +68,10 @@
   font-weight: 800;
 }
 
+.shopToggle {
+  appearance: none;
+}
+
 .shopGrid {
   box-sizing: border-box;
   display: grid;
