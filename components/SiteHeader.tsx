@@ -66,9 +66,6 @@ export default function SiteHeader() {
           <Link href="/cart" className="smCartLink">
             Basket
           </Link>
-          <Link href="/shop" className="smMobileQuickShop">
-            Shop
-          </Link>
           <Link href="/menu" className="smMobileToggle" aria-label="View menu">
             Menu
           </Link>

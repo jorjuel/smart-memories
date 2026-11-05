@@ -11816,8 +11816,7 @@ header.smSiteHeader {
   }
 }
 
-/* Mobile-first navigation redesign: no dropdown overlay. */
-.smMobileQuickShop { display: none; }
+/* Mobile-first navigation: only the Menu control appears beside the brand. */
 .smStandaloneMenu {
   width: min(100%, 900px);
   margin: 0 auto;
@@ -11838,17 +11837,11 @@ header.smSiteHeader {
 @media (max-width: 980px) {
   header.smSiteHeader .smHeaderInner { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
   header.smSiteHeader .smHeaderUtilities { display: flex; align-items: center; gap: 8px; }
-  header.smSiteHeader .smMobileQuickShop {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-height: 42px; padding: 8px 13px; background: #a6535c;
-    border-radius: 999px; color: white; text-decoration: none; font-weight: 800; font-size: 13px;
-  }
   header.smSiteHeader .smMobileToggle { display: inline-flex; }
 }
 @media (max-width: 390px) {
   header.smSiteHeader .smHeaderBrand { font-size: 12px; letter-spacing: 1px; }
   header.smSiteHeader .smHeaderUtilities { gap: 5px; }
-  header.smSiteHeader .smMobileQuickShop { padding: 8px 10px; }
 }
 
 /* New mobile-first shop. Deliberately avoids legacy accordion selectors. */
