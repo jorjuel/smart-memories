@@ -12320,33 +12320,39 @@ header.smSiteHeader {
   .smCompactHome .smHeroPhoneScreen small { display: none; }
 }
 
-/* Premium gift-tag hero: replace drawn slate / flat NFC card with a
-   photographed ribbon-wrapped keepsake, retaining the memory phone demo. */
-.smCompactHome .smHeroLuxuryGift {
-  position: absolute;
-  top: 39px;
-  left: 1%;
-  width: 74%;
-  aspect-ratio: 521 / 395;
-  z-index: 1;
-  border: 5px solid #fffaf7;
-  border-radius: 20px;
-  background: #f0ddcb url('/images/luxury-smart-memories-gift.webp?v=2') center / cover no-repeat;
-  box-shadow: 0 24px 50px rgba(54,32,31,.2);
-  transform: rotate(-5deg);
+/* Home hero: genuine photo slate left, existing phone right,
+   isolated rose-gold satin bow and hanging tag underneath. */
+.smCompactHome .smHeroMemoryShowcase {
+  height: 455px;
+  overflow: visible;
 }
+.smCompactHome .smHeroBowTag {
+  position: absolute;
+  z-index: 3;
+  left: 12%;
+  bottom: 0;
+  width: 75%;
+  height: 118px;
+  background: url('/images/satin-bow-memory-tag.webp') center / contain no-repeat;
+  pointer-events: none;
+  filter: drop-shadow(0 7px 6px rgba(73, 34, 32, .13));
+}
+.smCompactHome .smHeroSlate { z-index: 1; }
+.smCompactHome .smHeroRecipientPhone { z-index: 2; }
 @media (max-width: 1050px) and (min-width: 761px) {
-  .smCompactHome .smHeroLuxuryGift { top: 29px; width: 77%; }
+  .smCompactHome .smHeroMemoryShowcase { height: 420px; }
+  .smCompactHome .smHeroBowTag { width: 82%; left: 7%; height: 110px; bottom: 0; }
 }
 @media (max-width: 760px) {
-  .smCompactHome .smHeroLuxuryGift {
-    top: 23px;
-    left: 1%;
-    width: 74%;
-    border-width: 4px;
-    border-radius: 14px;
+  .smCompactHome .smHeroMemoryShowcase { height: 345px; }
+  .smCompactHome .smHeroBowTag {
+    left: 4%;
+    width: 93%;
+    height: 78px;
+    bottom: 1px;
   }
 }
 @media (max-width: 380px) {
-  .smCompactHome .smHeroLuxuryGift { top: 20px; width: 73%; }
+  .smCompactHome .smHeroMemoryShowcase { height: 310px; }
+  .smCompactHome .smHeroBowTag { height: 69px; left: 4%; width: 91%; }
 }

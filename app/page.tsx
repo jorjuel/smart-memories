@@ -46,11 +46,9 @@ export default function Home() {
         </div>
 
         <div className="smHeroMemoryShowcase" aria-label="Premium gift-wrapped keepsake and recipient phone memory preview">
-          <div
-            className="smHeroLuxuryGift"
-            role="img"
-            aria-label="Luxury cream gift with rose-copper satin ribbon and Smart Memories gift tag"
-          />
+          <div className="smHeroSlate" role="img" aria-label="Personalised photo slate of a couple">
+            <div className="smHeroSlatePrint" />
+          </div>
 
           <div className="smHeroRecipientPhone" aria-label="Example recipient Smart Memory phone screen">
             <div className="smHeroPhoneSpeaker" aria-hidden="true" />
@@ -64,6 +62,11 @@ export default function Home() {
             </div>
           </div>
 
+          <div
+            className="smHeroBowTag"
+            role="img"
+            aria-label="Rose-gold satin ribbon bow with a Smart Memories hanging gift tag"
+          />
         </div>
       </section>
 
