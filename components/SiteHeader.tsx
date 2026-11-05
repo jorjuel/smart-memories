@@ -403,6 +403,14 @@ if (
             Create a Memory
           </Link>
 
+          <Link
+            href="/shop"
+            onClick={closeMenus}
+            className="smMobileShopDirectLink"
+          >
+            View all gifts
+          </Link>
+
           <button
             type="button"
             className="smMobileShopToggle"
