@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import ProductCard from '../../components/ProductCard';
 import { products } from '../../lib/products';
@@ -97,6 +96,7 @@ const occasions = [
   'Just Because',
 ];
 
+
 const bundles = [
   {
     slug: 'birthday-bundle',
@@ -163,6 +163,7 @@ const corporateBundles = [
   },
 ];
 
+
 function money(value: number) {
   return `£${value.toFixed(2)}`;
 }
@@ -170,454 +171,136 @@ function money(value: number) {
 export default async function Shop({
   searchParams,
 }: {
-  searchParams: Promise<{
-    occasion?: string;
-  }>;
+  searchParams: Promise<{ occasion?: string }>;
 }) {
-  const { occasion } = await searchParams;
-
-  const allowedProducts =
-    occasion && occasionProducts[occasion]
-      ? occasionProducts[occasion]
-      : null;
-
-  const filteredProducts = allowedProducts
-    ? products.filter((product) =>
-        allowedProducts.includes(product.slug)
-      )
-    : products;
+  const params = await searchParams;
+  const occasion = params.occasion && occasionProducts[params.occasion] ? params.occasion : null;
+  const allowed = occasion ? occasionProducts[occasion] : null;
+  const filtered = allowed ? products.filter((p) => allowed.includes(p.slug)) : products;
 
   return (
-    <section className="wrap">
-      <span className="eyebrow">
-        SMART MEMORIES SHOP
-      </span>
-
-      <h1>
-        {occasion
-          ? `Gifts for ${occasion}`
-          : 'Shop Smart Memories'}
-      </h1>
-
-      <p className="lead">
-        {occasion
-          ? `We’ve selected personalised gifts that work especially well for ${occasion}.`
-          : 'Explore personalised gifts, handcrafted cards with optional NFC memories, bundles and corporate gifting.'}
-      </p>
-
-      {occasion && (
-        <div style={{ marginBottom: '28px' }}>
-          <Link href="/shop">
-            ← View full shop
-          </Link>
-
-          {' · '}
-
-          <Link href="/occasions">
-            Choose another occasion
-          </Link>
+    <section className="smSimpleShop">
+      <div className="smSimpleShopHero">
+        <span className="eyebrow">SMART MEMORIES · PERSONALISED GIFTS</span>
+        <h1>{occasion ? `Gifts for ${occasion}` : 'Find a gift. Make a memory.'}</h1>
+        <p>Discover thoughtful gifts with your own photos, messages and memories. Choose a product to start creating.</p>
+        <div className="smSimpleShopActions">
+          <Link href="#gifts" className="btn">Shop gifts</Link>
+          <Link href="/cards" className="btn secondary">Handcrafted cards</Link>
         </div>
+      </div>
+
+      <div className="smSimpleShopShortcuts" aria-label="Shop categories">
+        <Link href="#gifts">Personalised gifts</Link>
+        <Link href="#occasions">By occasion</Link>
+        <Link href="#cards">Cards</Link>
+        {!occasion && <Link href="#bundles">Bundles</Link>}
+        {!occasion && <Link href="#corporate">Corporate gifts</Link>}
+      </div>
+
+      <section id="gifts" className="smSimpleShopSection">
+        <div className="smSimpleShopSectionHead">
+          <span className="eyebrow">{occasion ? 'YOUR SELECTED OCCASION' : 'OUR PRODUCTS'}</span>
+          <h2>{occasion ? `Recommended for ${occasion}` : 'Choose your personalised gift'}</h2>
+          <p>Choose your gift, then personalise it with your photo or message.</p>
+        </div>
+        <div className="smSimpleShopProducts">
+          {filtered.length ? filtered.map((p) => <ProductCard key={p.slug} p={p} occasion={occasion ?? undefined} />) : (
+            <p>There are no gifts in this category yet. <Link href="/shop">Browse all gifts.</Link></p>
+          )}
+        </div>
+      </section>
+
+      <section id="occasions" className="smSimpleShopSection">
+        <div className="smSimpleShopSectionHead">
+          <span className="eyebrow">MAKE IT PERSONAL</span>
+          <h2>Shop by occasion</h2>
+        </div>
+        <div className="smSimpleShopOccasions">
+          <Link href="/shop" aria-current={!occasion ? 'page' : undefined}>All gifts</Link>
+          {occasions.map((item) => (
+            <Link
+              key={item}
+              href={`/shop?occasion=${encodeURIComponent(item)}`}
+              aria-current={occasion === item ? 'page' : undefined}
+            >{item}</Link>
+          ))}
+        </div>
+      </section>
+
+      <section id="cards" className="smSimpleShopSection">
+        <div className="smSimpleShopSectionHead">
+          <span className="eyebrow">HANDCRAFTED CARDS</span>
+          <h2>A real card. A memory to keep.</h2>
+          <p>Choose a traditional printed card or add a tap-to-open Smart Memory.</p>
+        </div>
+        <div className="smSimpleShopFeatureGrid">
+          <article className="card">
+            <span className="eyebrow">CLASSIC CARD</span>
+            <h3>Handcrafted keepsake card</h3>
+            <p>Personalise your design and written message. No phone needed.</p>
+            <strong>From £6.95</strong>
+            <Link className="btn small" href={`/cards/personalise?cardType=traditional&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>Personalise card</Link>
+          </article>
+          <article className="card">
+            <span className="eyebrow">WITH A SMART MEMORY</span>
+            <h3>NFC Memory card</h3>
+            <p>Include a private voice message, photo and written memory that opens with a tap or QR scan.</p>
+            <strong>From £11.95</strong>
+            <Link className="btn small" href={`/cards/personalise?cardType=smart&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>Personalise Smart card</Link>
+          </article>
+        </div>
+        <p className="smSimpleShopNote">Optional printed photo costs £1.50 extra. Delivery is calculated at checkout.</p>
+        <Link href="/cards">Browse all card designs</Link>
+      </section>
+
+      {!occasion && (
+        <section id="bundles" className="smSimpleShopSection">
+          <div className="smSimpleShopSectionHead">
+            <span className="eyebrow">GIFT COLLECTIONS</span>
+            <h2>More gifts, better value</h2>
+            <p>Explore matching personalised gifts for the people who matter.</p>
+          </div>
+          <div className="smSimpleShopFeatureGrid">
+            {bundles.map((bundle) => (
+              <article className="card" key={bundle.slug}>
+                <span className="eyebrow">GIFT BUNDLE</span>
+                <h3>{bundle.name}</h3>
+                <p>{bundle.description}</p>
+                <strong>{money(bundle.bundlePrice)}</strong>
+                <p className="smSimpleShopNote">Save {money(bundle.normalPrice - bundle.bundlePrice)}</p>
+                <Link className="btn small" href={`/bundles/${bundle.slug}`}>View bundle</Link>
+              </article>
+            ))}
+            <article className="card">
+              <span className="eyebrow">BUILD YOUR OWN</span>
+              <h3>Create your own bundle</h3>
+              <p>Mix and match personalised gifts.</p>
+              <Link className="btn small" href="/bundles/build-your-own">Build my bundle</Link>
+            </article>
+          </div>
+        </section>
       )}
 
-      <div className="shopAccordion">
-
-        {/* ==========================================
-            PERSONALISED GIFTS
-            ========================================== */}
-
-        <details
-          className="shopAccordionItem"
-          open
-        >
-          <summary className="shopAccordionSummary">
-            <div className="shopAccordionText">
-              <span className="eyebrow">
-                PERSONALISED GIFTS
-              </span>
-
-              <h2>
-                Shop your way
-              </h2>
-
-              <p>
-                Browse individual products or start with the occasion.
-              </p>
-            </div>
-
-            <div className="shopAccordionVisual">
-              <Image
-                src="/shop-sections/individual-gifts.png"
-                alt="Personalised Smart Memories gifts"
-                fill
-                sizes="220px"
-              />
-            </div>
-
-            <span className="shopAccordionArrow">
-              +
-            </span>
-          </summary>
-
-          <div className="shopAccordionContent">
-
-            {!occasion && (
-              <>
-                <div
-                  style={{
-                    marginBottom: '22px',
-                  }}
-                >
-                  <span className="eyebrow">
-                    SHOP BY OCCASION
-                  </span>
-
-                  <h2>
-                    What are you celebrating?
-                  </h2>
-
-                  <p>
-                    Choose an occasion and we’ll narrow down the most suitable gifts.
-                  </p>
-                </div>
-
-                <div className="occasionQuickGrid">
-                  {occasions.map((item) => (
-                    <Link
-                      key={item}
-                      href={`/shop?occasion=${encodeURIComponent(
-                        item
-                      )}`}
-                      className="occasionQuickCard"
-                    >
-                      {item}
-                    </Link>
-                  ))}
-                </div>
-
-                <hr
-                  style={{
-                    margin: '34px 0',
-                  }}
-                />
-              </>
-            )}
-
-            <div
-              style={{
-                marginBottom: '22px',
-              }}
-            >
-              <span className="eyebrow">
-                {occasion
-                  ? 'RECOMMENDED PRODUCTS'
-                  : 'SHOP BY PRODUCT'}
-              </span>
-
-              <h2>
-                {occasion
-                  ? `Best gifts for ${occasion}`
-                  : 'Choose your gift'}
-              </h2>
-
-              <p>
-                Personalise the product with your photo, wording and Smart Memory.
-              </p>
-            </div>
-
-            <div className="products">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.slug}
-                  p={product}
-                  occasion={occasion}
-                />
-              ))}
-            </div>
+      {!occasion && (
+        <section id="corporate" className="smSimpleShopSection">
+          <div className="smSimpleShopSectionHead">
+            <span className="eyebrow">BUSINESS GIFTING</span>
+            <h2>Corporate and event gifts</h2>
+            <p>Personalised gift packs for teams, events and clients.</p>
           </div>
-        </details>
-
-        {/* ==========================================
-            HANDCRAFTED CARDS — TRADITIONAL & NFC
-            ========================================== */}
-
-        <details className="shopAccordionItem" open>
-          <summary className="shopAccordionSummary">
-            <div className="shopAccordionText">
-              <span className="eyebrow">
-                HANDCRAFTED CARDS
-              </span>
-
-              <h2>
-                A real card. A memory to keep.
-              </h2>
-
-              <p>
-                Choose a handmade-style card for your occasion.
-                Keep it classic or add a tap-to-open Smart Memory.
-              </p>
-            </div>
-
-            <div className="shopAccordionVisual smHandcraftedShopPreview" aria-hidden="true">
-              <div className="smHandcraftedShopPaper">
-                <span>MADE WITH LOVE</span>
-                <strong>For someone special</strong>
-                <span className="smHandcraftedShopHeart">♥</span>
-              </div>
-            </div>
-
-            <span className="shopAccordionArrow">+</span>
-          </summary>
-
-          <div className="shopAccordionContent">
-            <p className="smHandcraftedShopIntro">
-              Choose four designs per occasion, or upload your own design. Choose the
-              message, colours and recipient, then select whether to include
-              the Smart Memories NFC and QR experience.
-            </p>
-
-            <div className="smHandcraftedShopOptions">
-              <article className="card smHandcraftedShopOption">
-                <div className="smHandcraftedShopIcon" aria-hidden="true">✉</div>
-                <span className="eyebrow">CLASSIC KEEPSAKE</span>
-                <h3>Personalised Handcrafted Card</h3>
-                <p>
-                  A physical handcrafted-style greeting card with your own
-                  message, occasion and design. No phone needed.
-                </p>
-                <strong>From £6.95</strong>
-                <Link className="btn small"
-                  href={`/cards/personalise?cardType=traditional&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>
-                  Personalise traditional card
-                </Link>
-                <Link href="/cards" className="smHandcraftedShopBrowse">
-                  Browse all card designs
-                </Link>
+          <div className="smSimpleShopFeatureGrid">
+            {corporateBundles.map((bundle) => (
+              <article className="card" key={bundle.name}>
+                <span className="eyebrow">CORPORATE</span>
+                <h3>{bundle.name}</h3>
+                <p>{bundle.description}</p>
+                <Link className="btn small" href={`/contact?type=corporate&bundle=${encodeURIComponent(bundle.name)}`}>Request a quote</Link>
               </article>
-
-              <article className="card smHandcraftedShopOption smHandcraftedShopOptionSmart">
-                <div className="smHandcraftedShopIcon" aria-hidden="true">♡</div>
-                <span className="eyebrow">WITH A SMART MEMORY</span>
-                <h3>NFC Handcrafted Memory Card</h3>
-                <p>
-                  The same personal card with a hidden NFC point and QR backup.
-                  The recipient taps their phone to open your voice message,
-                  photo and written memory.
-                </p>
-                <strong>From £11.95</strong>
-                <Link className="btn small"
-                  href={`/cards/personalise?cardType=smart&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>
-                  Personalise NFC card
-                </Link>
-                <Link href="/cards" className="smHandcraftedShopBrowse">
-                  Explore handcrafted designs
-                </Link>
-              </article>
-            </div>
-
-            <p className="smHandcraftedShopNote">
-              Optional printed photo costs £1.50 extra. Final price is
-              calculated when you personalise your card; delivery is added
-              at checkout. NFC tapping requires a compatible phone and the
-              QR code provides an alternative.
-            </p>
+            ))}
           </div>
-        </details>
-
-        {/* ==========================================
-            SPECIAL BUNDLES
-            ========================================== */}
-
-        {!occasion && (
-          <details className="shopAccordionItem">
-            <summary className="shopAccordionSummary">
-              <div className="shopAccordionText">
-                <span className="eyebrow">
-                  SPECIAL BUNDLES
-                </span>
-
-                <h2>
-                  More gifts, better value
-                </h2>
-
-                <p>
-                  Ready-made personalised collections at a discounted price.
-                </p>
-              </div>
-
-              <div className="shopAccordionVisual">
-                <Image
-                  src="/shop-sections/special-bundles.png"
-                  alt="Personalised Smart Memories bundles"
-                  fill
-                  sizes="220px"
-                />
-              </div>
-
-              <span className="shopAccordionArrow">
-                +
-              </span>
-            </summary>
-
-            <div className="shopAccordionContent">
-              <div className="products">
-                {bundles.map((bundle) => {
-                  const saving =
-                    bundle.normalPrice -
-                    bundle.bundlePrice;
-
-                  return (
-                    <article
-                      className="card"
-                      key={bundle.slug}
-                    >
-                      <span className="eyebrow">
-                        GIFT COLLECTION
-                      </span>
-
-                      <h3>
-                        {bundle.name}
-                      </h3>
-
-                      <p>
-                        {bundle.description}
-                      </p>
-
-                      <p
-                        style={{
-                          textDecoration: 'line-through',
-                          opacity: 0.6,
-                        }}
-                      >
-                        Normally {money(bundle.normalPrice)}
-                      </p>
-
-                      <p
-                        style={{
-                          fontSize: '1.5rem',
-                          fontWeight: 800,
-                          marginBottom: '4px',
-                        }}
-                      >
-                        {money(bundle.bundlePrice)}
-                      </p>
-
-                      <p style={{ fontWeight: 700 }}>
-                        Save {money(saving)}
-                      </p>
-
-                      <Link
-                        href={`/bundles/${bundle.slug}`}
-                        className="btn small"
-                      >
-                        View bundle →
-                      </Link>
-                    </article>
-                  );
-                })}
-
-                <article className="card">
-                  <span className="eyebrow">
-                    BUILD YOUR OWN
-                  </span>
-
-                  <h3>
-                    Create Your Own Bundle
-                  </h3>
-
-                  <p>
-                    Mix and match products and unlock a bundle discount.
-                  </p>
-
-                  <Link
-                    href="/bundles/build-your-own"
-                    className="btn small"
-                  >
-                    Build my bundle →
-                  </Link>
-                </article>
-              </div>
-            </div>
-          </details>
-        )}
-
-        {/* ==========================================
-            CORPORATE BUNDLES
-            ========================================== */}
-
-        {!occasion && (
-          <details className="shopAccordionItem">
-            <summary className="shopAccordionSummary">
-              <div className="shopAccordionText">
-                <span className="eyebrow">
-                  CORPORATE BUNDLES
-                </span>
-
-                <h2>
-                  Gifts for teams, clients and events
-                </h2>
-
-                <p>
-                  Branded gift packs for businesses, staff and customers.
-                </p>
-              </div>
-
-              <div className="shopAccordionVisual">
-                <Image
-                  src="/shop-sections/corporate-bundles.png"
-                  alt="Corporate Smart Memories gift collection"
-                  fill
-                  sizes="220px"
-                />
-              </div>
-
-              <span className="shopAccordionArrow">
-                +
-              </span>
-            </summary>
-
-            <div className="shopAccordionContent">
-              <div className="products">
-                {corporateBundles.map((bundle) => {
-                  const quoteUrl =
-                    `/contact?type=corporate&bundle=${encodeURIComponent(
-                      bundle.name
-                    )}`;
-
-                  return (
-                    <article
-                      className="card"
-                      key={bundle.name}
-                    >
-                      <span className="eyebrow">
-                        CORPORATE
-                      </span>
-
-                      <h3>
-                        {bundle.name}
-                      </h3>
-
-                      <p>
-                        {bundle.description}
-                      </p>
-
-                      <p>
-                        Pricing depends on quantity, branding and delivery requirements.
-                      </p>
-
-                      <Link
-                        href={quoteUrl}
-                        className="btn small"
-                      >
-                        Request a quote →
-                      </Link>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          </details>
-        )}
-      </div>
+        </section>
+      )}
     </section>
   );
 }
