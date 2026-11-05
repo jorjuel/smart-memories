@@ -12331,7 +12331,7 @@ header.smSiteHeader {
   z-index: 1;
   border: 5px solid #fffaf7;
   border-radius: 20px;
-  background: #f0ddcb url('/images/luxury-smart-memories-gift.webp') center / cover no-repeat;
+  background: #f0ddcb url('/images/luxury-smart-memories-gift.webp?v=2') center / cover no-repeat;
   box-shadow: 0 24px 50px rgba(54,32,31,.2);
   transform: rotate(-5deg);
 }
