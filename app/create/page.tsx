@@ -18,6 +18,7 @@ import {
 import {
   products,
 } from '../../lib/products';
+import Link from 'next/link';
 
 import CreateMemoryJourney from '../../components/CreateMemoryJourney';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
@@ -28,6 +29,9 @@ function CreateContent() {
 
   const productSlug =
     searchParams.get('product');
+  const mode = searchParams.get('mode');
+  const memoryOnly = mode === 'tag';
+  const memoryWithGift = mode === 'gift';
 
   const product = productSlug
     ? products.find(
@@ -284,6 +288,11 @@ setSavedPhotoUrl(permanentPhotoUrl);
       
 
       setSaved(true);
+      if (memoryOnly) {
+        // The memory is persisted before the customer chooses their bow.
+        // Only the non-sensitive code is carried through the address bar.
+        router.push(`/create/bow?code=${encodeURIComponent(code)}`);
+      }
     } catch (error) {
       alert(
         error instanceof Error
@@ -295,9 +304,9 @@ setSavedPhotoUrl(permanentPhotoUrl);
     }
   }
 
-  function addToBasket() {
+  function addToBasket(chosenProduct = product) {
     if (
-      !product ||
+      !chosenProduct ||
       !savedCode
     ) {
       return;
@@ -310,16 +319,16 @@ setSavedPhotoUrl(permanentPhotoUrl);
         'product',
 
       productSlug:
-        product.slug,
+        chosenProduct.slug,
 
       memoryCode:
         savedCode,
 
       name:
-        product.name,
+        chosenProduct.name,
 
       category:
-        product.category,
+        chosenProduct.category,
 
       recipient,
 
@@ -327,7 +336,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
   savedPhotoUrl || null,
 
       price:
-        product.price,
+        chosenProduct.price,
 
       quantity: 1,
     };
@@ -370,6 +379,8 @@ setSavedPhotoUrl(permanentPhotoUrl);
   }
   const directMode =
     Boolean(productSlug) ||
+    memoryOnly ||
+    memoryWithGift ||
     searchParams.get(
       'direct'
     ) === '1';
@@ -419,9 +430,16 @@ setSavedPhotoUrl(permanentPhotoUrl);
           </>
         ) : (
           <>
+            <span className="v14Eyebrow">MAKE YOUR MEMORY</span>
             <h1>
               Create a Special Memory
             </h1>
+            {(memoryOnly || memoryWithGift) && (
+              <p className="smMemoryRouteChoice">
+                <strong>{memoryOnly ? 'Memory Only' : 'Memory + Gift'}</strong>
+                <Link href="/create">Change your choice</Link>
+              </p>
+            )}
 
             <p className="lead">
               Your memory is saved
@@ -607,25 +625,34 @@ setSavedPhotoUrl(permanentPhotoUrl);
               )}
 
               {product ? (
-                <button
-                  type="button"
-                  className="personaliseBasketButton"
-                  onClick={
-                    addToBasket
-                  }
-                >
+                <button type="button" className="personaliseBasketButton"
+                  onClick={() => addToBasket()}>
                   Add {product.name} to basket
                 </button>
+              ) : memoryWithGift ? (
+                <div className="smAfterMemoryGift">
+                  <h2>Now choose the gift for your memory</h2>
+                  <p>Your memory is safely saved. Select a gift below; it will be linked to the memory you have just created.</p>
+                  <div className="smAfterMemoryGiftGrid">
+                    {products.map((item) => (
+                      <article key={item.slug} className="smAfterMemoryGiftCard">
+                        <span aria-hidden="true">{item.emoji}</span>
+                        <strong>{item.name}</strong>
+                        <small>£{item.price.toFixed(2)}</small>
+                        <button type="button" className="btn small"
+                          onClick={() => addToBasket(item)}>
+                          Select this gift
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                  <Link href={`/m/${encodeURIComponent(savedCode || '')}`}>
+                    View saved memory
+                  </Link>
+                </div>
               ) : (
-                <button
-                  type="button"
-                  className="personaliseBasketButton"
-                  onClick={() =>
-                    router.push(
-                      `/m/${savedCode}`
-                    )
-                  }
-                >
+                <button type="button" className="personaliseBasketButton"
+                  onClick={() => router.push(`/m/${savedCode}`)}>
                   View Memory
                 </button>
               )}
