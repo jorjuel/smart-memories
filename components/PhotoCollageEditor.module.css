@@ -1,0 +1,21 @@
+.editor{min-width:0;display:grid;gap:15px;padding:16px;border:1px solid #eadbd5;border-radius:16px;background:#fff}
+.intro{display:grid;gap:6px}.intro p{font-size:13px;line-height:1.55;color:#705f66;margin:0}
+.artwork{position:relative;width:100%;max-width:100%;min-width:0;overflow:hidden;background:white;border:5px solid white;box-shadow:0 4px 18px #0002;border-radius:10px;touch-action:none}
+.cell,.cellActive{position:absolute;overflow:hidden;touch-action:none;cursor:grab;background:#e3d9d7;outline:0}
+.cell:active,.cellActive:active{cursor:grabbing}
+.cellActive{box-shadow:inset 0 0 0 3px #a6535c;z-index:1}
+.cell img,.cellActive img{pointer-events:none}
+.cell:focus-visible,.cellActive:focus-visible{outline:3px solid #352b2b;outline-offset:-3px}
+.cellNumber{position:absolute;bottom:4px;left:4px;background:#ffffffde;color:#4b3037;border-radius:30px;font-size:10px;padding:2px 6px;pointer-events:none}
+.thumbnails{display:flex;flex-wrap:wrap;gap:9px}
+.thumb,.thumbActive{display:grid;gap:3px;justify-items:center;padding:5px;min-width:56px;max-width:84px;border:2px solid #eadbd5;background:#fff;border-radius:10px;cursor:grab}
+.thumbActive{border-color:#a6535c;background:#fff4f2}
+.thumb img,.thumbActive img{display:block;width:54px;height:54px;object-fit:cover;border-radius:5px;pointer-events:none}
+.thumb span,.thumbActive span{font-size:11px;color:#4b3037;font-weight:700}
+.controls{display:grid;gap:10px;padding:12px;background:#fff8f5;border-radius:12px}
+.controls label{display:grid;gap:6px;color:#4b3037;font-size:12px;font-weight:700}
+.controls input[type=range]{width:100%;accent-color:#a6535c;min-height:24px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{border:1px solid #dac6c5;border-radius:9px;padding:9px 12px;background:#fff;color:#4b3037;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+.actions button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:600px){.editor{padding:10px}.thumb img,.thumbActive img{width:44px;height:44px}.thumb,.thumbActive{min-width:52px}}
