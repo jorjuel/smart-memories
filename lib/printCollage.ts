@@ -1,5 +1,6 @@
 /** Assemble printable collage artwork from the customer's actual photos. */
-export type PhotoLayout = 'single' | 'grid' | 'strip';
+import { getCollageRects, type PhotoLayout } from './collageLayouts';
+export type { PhotoLayout } from './collageLayouts';
 
 function loadPhoto(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -28,33 +29,17 @@ export async function composePrintArtwork(files: File[], layout: PhotoLayout, wi
   if (!ctx) throw new Error('Your browser cannot prepare collage artwork.');
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
-  const count = images.length;
-  const gap = count > 1 ? 12 : 0;
-  const cells: {x:number;y:number;w:number;h:number}[] = [];
-  if (layout === 'strip' && count > 1) {
-    for (let i = 0; i < count; i++) {
-      const w = (width - gap * (count - 1)) / count;
-      cells.push({x:i*(w+gap),y:0,w,h:height});
-    }
-  } else {
-    const cols = count === 1 ? 1 : count === 2 ? 2 : count <= 4 ? 2 : 3;
-    const rows = Math.ceil(count / cols);
-    const w = (width - gap * (cols - 1)) / cols;
-    const h = (height - gap * (rows - 1)) / rows;
-    for (let i = 0; i < count; i++) {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      // Stretch the last cell when a row has just one photo.
-      const lastRowCount = count - row * cols;
-      const cellWidth = row === rows - 1 && lastRowCount < cols
-        ? (width - gap * (lastRowCount - 1)) / lastRowCount : w;
-      const cellCol = row === rows - 1 && lastRowCount < cols ? i - row * cols : col;
-      cells.push({x:cellCol*(cellWidth+gap),y:row*(h+gap),w:cellWidth,h});
-    }
-  }
+  const gap = images.length > 1 ? Math.max(6, Math.round(Math.min(width,height)*.006)) : 0;
+  const cells = getCollageRects(images.length,layout);
   images.forEach((img,i) => {
-    const cell=cells[i];
-    drawCover(ctx,img,cell.x,cell.y,cell.w,cell.h);
+    const cell = cells[i];
+    // Half a gutter on shared edges; preserve the full outer edges.
+    const left = cell.x === 0 ? 0 : gap/2;
+    const top = cell.y === 0 ? 0 : gap/2;
+    const right = cell.x + cell.w >= 1 ? 0 : gap/2;
+    const bottom = cell.y + cell.h >= 1 ? 0 : gap/2;
+    drawCover(ctx,img,cell.x*width+left,cell.y*height+top,
+      cell.w*width-left-right,cell.h*height-top-bottom);
   });
   const blob = await new Promise<Blob>((resolve,reject) => {
     canvas.toBlob((value) => value ? resolve(value) : reject(new Error('Could not create print artwork.')), 'image/jpeg', 0.9);
