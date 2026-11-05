@@ -48,9 +48,8 @@ export default function CheckoutPage() {
   const sessionId =
     searchParams.get('session_id');
 
-  const paymentSuccessful =
-    paymentStatus === 'success' &&
-    Boolean(sessionId);
+  const [verificationStatus, setVerificationStatus] = useState<'checking'|'paid'|'pending'|'error'>('checking');
+  const paymentSuccessful = paymentStatus === 'success' && verificationStatus === 'paid';
   const [
     items,
     setItems,
@@ -154,6 +153,21 @@ export default function CheckoutPage() {
       setLoaded(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (paymentStatus !== 'success' || !sessionId) return;
+    let active = true;
+    fetch(`/api/stripe/verify-session?session_id=${encodeURIComponent(sessionId)}`, {
+      cache: 'no-store',
+    }).then(async response => {
+      const result = await response.json();
+      if (!active) return;
+      setVerificationStatus(response.ok
+        ? (result.status === 'paid' ? 'paid' : 'pending')
+        : 'error');
+    }).catch(() => { if (active) setVerificationStatus('error'); });
+    return () => {active = false;};
+  }, [paymentStatus, sessionId]);
 
   useEffect(() => {
     if (!paymentSuccessful) {
@@ -351,6 +365,30 @@ export default function CheckoutPage() {
       setSubmitting(false);
     }
   }
+    if (paymentStatus === 'success' && !paymentSuccessful) {
+      return (
+        <section className="narrow">
+          <span className="v14Eyebrow">SECURE PAYMENT</span>
+          <h1>{verificationStatus === 'checking' ? 'Checking your payment…' : 'Your payment is being verified'}</h1>
+          <div className="card">
+            <p>
+              {verificationStatus === 'pending'
+                ? 'Stripe has not yet confirmed a completed payment. Your order is not marked as paid.'
+                : verificationStatus === 'error'
+                ? 'We could not verify your Stripe payment just now. Do not pay twice until you have checked your Stripe receipt or order status.'
+                : 'We are checking the payment directly with Stripe.'}
+            </p>
+            <div className="actions">
+              <button className="btn" type="button" onClick={() => window.location.reload()}>
+                Check payment again
+              </button>
+              <Link href="/account/orders" className="btn secondary">My Orders</Link>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     if (paymentSuccessful) {
     return (
       <section className="narrow">
