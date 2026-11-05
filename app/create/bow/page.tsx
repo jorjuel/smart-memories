@@ -51,6 +51,37 @@ function BowColourContent() {
     return () => { active = false; };
   }, []);
 
+  function buyDigitalMemory() {
+    if (!validCode || submitting) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const existing = JSON.parse(localStorage.getItem('smart-memories-cart') || '[]');
+      const basket = Array.isArray(existing) ? existing : [];
+      const index = basket.findIndex((item: {productSlug?:string;memoryCode?:string}) =>
+        item.productSlug === 'digital-memory' && item.memoryCode === code);
+      const line = {
+        id: index >= 0 && typeof basket[index]?.id === 'string' ? basket[index].id : crypto.randomUUID(),
+        productType:'product',
+        productSlug:'digital-memory',
+        name:'Smart Memory — Digital Only',
+        category:'Digital Memories',
+        memoryCode:code,
+        imageUrl:null,
+        price:5,
+        quantity:1,
+        personalisation:{digitalOnly:true,memoryCode:code},
+      };
+      if(index>=0) basket[index]=line;
+      else basket.push(line);
+      localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
+      router.push('/checkout');
+    } catch {
+      setSubmitting(false);
+      setError('Unable to open checkout. Please check your browser settings.');
+    }
+  }
+
   function continueToPayment() {
     if (!validCode || !pricePence || submitting) return;
     const selected = colours.find(item => item.id === colour);
@@ -104,10 +135,22 @@ function BowColourContent() {
   return <main className="smBowPage">
     <div className="smBowIntro">
       <span className="v14Eyebrow">MEMORY ONLY · FINAL STEP</span>
-      <h1>Choose your bow colour</h1>
-      <p>Your memory is saved. Pick the bow colour and continue directly to payment.</p>
+      <h1>Your Smart Memory is ready</h1>
+      <p>Buy the digital memory on its own for £5, or choose a decorative satin bow and physical gift tag.</p>
       <p className="smBowMemoryReference">Memory reference: <strong>{code}</strong> · <Link href={`/m/${code}`}>View memory</Link></p>
     </div>
+    <section className="smDigitalMemoryCheckout">
+      <div>
+        <span className="v14Eyebrow">SMART MEMORY ALONE</span>
+        <h2>Digital Smart Memory — £5.00</h2>
+        <p>Photo, personal message and voice memory. No physical tag, bow or delivery charge.</p>
+      </div>
+      <button type="button" className="btn big" disabled={submitting}
+        onClick={buyDigitalMemory}>
+        {submitting ? 'Opening checkout…' : 'Pay £5 — Digital Memory Only'}
+      </button>
+    </section>
+    <p className="smPhysicalBowDivider">Prefer a physical gift? Choose a bow colour below.</p>
     <div className="smBowLayout">
       <div className="smBowPreview">
         <div className="smBowPreviewArt" role="img" aria-label="Smart Memories decorative satin ribbon bow and hanging gift tag" />
