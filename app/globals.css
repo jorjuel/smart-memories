@@ -11755,3 +11755,63 @@ header.smSiteHeader {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Mobile navigation: block layout avoids legacy nav flex sizing and
+   prevents a tall empty panel from pushing the first link below the fold. */
+@media (max-width: 980px) {
+  header.smSiteHeader .smMobileMenu {
+    position: fixed;
+    top: 82px;
+    left: 12px;
+    right: 12px;
+    bottom: auto;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    max-height: calc(100dvh - 94px);
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 12px;
+    margin: 0;
+    z-index: 1000;
+  }
+  header.smSiteHeader .smMobileMenu > a,
+  header.smSiteHeader .smMobileMenu > button {
+    display: flex;
+    width: 100%;
+    min-height: 48px;
+    height: auto;
+    flex: none;
+    margin: 0 0 6px;
+    padding: 12px 15px;
+    align-items: center;
+    justify-content: space-between;
+    position: static;
+  }
+  header.smSiteHeader .smMobileMenu > .smMobileCreate {
+    justify-content: center;
+  }
+  header.smSiteHeader .smMobileMenu > .smMobileShopDirectLink {
+    font-weight: 800;
+    color: var(--sm-plum-dark);
+  }
+  header.smSiteHeader .smMobileShop {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    margin: 0 0 6px;
+    align-content: start;
+  }
+}
+@media (max-width: 600px) {
+  header.smSiteHeader .smMobileMenu {
+    top: 80px;
+    left: 8px;
+    right: 8px;
+    max-height: calc(100dvh - 90px);
+  }
+}
