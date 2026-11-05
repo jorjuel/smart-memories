@@ -24,6 +24,7 @@ import {
 
 import ConfiguredProductPreview from './ConfiguredProductPreview';
 import { composePrintArtwork, type PhotoLayout } from '@/lib/printCollage';
+import { collageLayoutOptions, getCollageRects } from '@/lib/collageLayouts';
 import PersonaliserProgress from './PersonaliserProgress';
 import SmartMemoryLivePreview from './SmartMemoryLivePreview';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
@@ -205,7 +206,7 @@ export default function ProductPersonaliser({
 
   // Original print photographs are kept separately from the recipient's main memory photo.
   const [giftPhotos, setGiftPhotos] = useState<{file:File;url:string}[]>([]);
-  const [photoLayout, setPhotoLayout] = useState<PhotoLayout>('grid');
+  const [photoLayout, setPhotoLayout] = useState<PhotoLayout>('mosaic');
   const [savedPrintPhotoUrls, setSavedPrintPhotoUrls] = useState<string[]>([]);
   const [savedPrintArtworkUrl, setSavedPrintArtworkUrl] = useState<string | null>(null);
 
@@ -2045,16 +2046,33 @@ export default function ProductPersonaliser({
                   )}
                   {!isCoaster && selectedGiftPhotos.length > 1 && (
                     <div className="smMultiPhotoLayouts">
-                      <strong>Choose your collage layout</strong>
-                      <div className="choiceRow">
-                        {(['grid','strip'] as PhotoLayout[]).map(layout => (
-                          <button key={layout} type="button"
-                            className={photoLayout === layout ? 'optionPill active' : 'optionPill'}
-                            onClick={() => {setPhotoLayout(layout);markChanged();}}>
-                            {layout === 'grid' ? 'Photo grid' : 'Photo strip'}
+                      <strong>Choose a collage format ({selectedGiftPhotos.length} photos)</strong>
+                      <div className="smCollageTemplateOptions">
+                        {collageLayoutOptions.map(({value,label}) => (
+                          <button
+                            key={value}
+                            type="button"
+                            className={photoLayout === value ? 'smCollageTemplate active' : 'smCollageTemplate'}
+                            aria-pressed={photoLayout === value}
+                            onClick={() => { setPhotoLayout(value); markChanged(); }}
+                          >
+                            <span className="smCollageTemplateGraphic" aria-hidden="true">
+                              {getCollageRects(selectedGiftPhotos.length,value).map((rect,index) => (
+                                <span key={index} style={{
+                                  left: `${rect.x*100 + (rect.x ? .35 : 0)}%`,
+                                  top: `${rect.y*100 + (rect.y ? .35 : 0)}%`,
+                                  width: `${rect.w*100 - (rect.x ? .35 : 0) - (rect.x+rect.w < .999 ? .35 : 0)}%`,
+                                  height: `${rect.h*100 - (rect.y ? .35 : 0) - (rect.y+rect.h < .999 ? .35 : 0)}%`,
+                                  position: 'absolute',
+                                  background: index%2 ? '#bdaeb6' : '#8f9da8'
+                                }} />
+                              ))}
+                            </span>
+                            <span>{label}</span>
                           </button>
                         ))}
                       </div>
+                      <small>Layouts adapt to 2–6 photos. The selected arrangement is used for the printed gift.</small>
                     </div>
                   )}
                 </div>
