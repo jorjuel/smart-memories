@@ -15,7 +15,7 @@ export const SHIPPING_PRICES_PENCE = {
 export function getProductPricePence(
   slug: string
 ) {
-  if (slug === 'memory-tag') return 500;
+  if (slug === 'memory-tag' || slug === 'digital-memory') return 500;
 
   const product =
     products.find(
