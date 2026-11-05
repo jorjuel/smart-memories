@@ -11850,3 +11850,40 @@ header.smSiteHeader {
   header.smSiteHeader .smHeaderUtilities { gap: 5px; }
   header.smSiteHeader .smMobileQuickShop { padding: 8px 10px; }
 }
+
+/* New mobile-first shop. Deliberately avoids legacy accordion selectors. */
+.smSimpleShop { width: min(100%, 1180px); margin: 0 auto; padding: 24px 20px 72px; min-width: 0; }
+.smSimpleShopHero { padding: clamp(24px, 4vw, 52px); background: linear-gradient(130deg,#fff8f5,#f4e7e1); border: 1px solid #eadbd5; border-radius: 22px; }
+.smSimpleShopHero h1 { margin: 10px 0 16px; font-family: Georgia,serif; font-size: clamp(32px, 5vw, 60px); font-weight: 400; line-height: 1.08; }
+.smSimpleShopHero p { max-width: 650px; color: #705f66; line-height: 1.65; font-size: 17px; }
+.smSimpleShopActions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.smSimpleShopShortcuts { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+.smSimpleShopShortcuts a { display: inline-flex; align-items: center; min-height: 42px; padding: 9px 14px; color: #4b3037; background: #fff; border: 1px solid #eadbd5; border-radius: 999px; font-weight: 700; text-decoration: none; font-size: 13px; }
+.smSimpleShopSection { min-width: 0; padding: 34px 0; scroll-margin-top: 100px; }
+.smSimpleShopSectionHead { margin-bottom: 22px; }
+.smSimpleShopSectionHead h2 { font-family: Georgia,serif; font-size: clamp(27px, 3.8vw, 42px); font-weight: 400; margin: 8px 0 12px; line-height: 1.2; }
+.smSimpleShopSectionHead p { max-width: 700px; color: #705f66; line-height: 1.6; }
+.smSimpleShopProducts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.smSimpleShopProducts > * { min-width: 0; }
+.smSimpleShopOccasions { display: flex; flex-wrap: wrap; gap: 9px; }
+.smSimpleShopOccasions a { display: inline-flex; min-height: 42px; align-items: center; padding: 10px 14px; border: 1px solid #eadbd5; border-radius: 12px; background: #fff; color: #4b3037; font-size: 13px; font-weight: 700; text-decoration: none; }
+.smSimpleShopOccasions a[aria-current="page"] { background: #4b3037; color: #fff; }
+.smSimpleShopFeatureGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+.smSimpleShopFeatureGrid .card { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; overflow-wrap: anywhere; }
+.smSimpleShopFeatureGrid h3,.smSimpleShopFeatureGrid p { margin: 0; }
+.smSimpleShopFeatureGrid p { color: #705f66; line-height: 1.6; }
+.smSimpleShopFeatureGrid strong { font-size: 22px; }
+.smSimpleShopFeatureGrid .btn { margin-top: auto; }
+.smSimpleShopNote { font-size: 13px; color: #705f66; }
+@media (max-width: 800px) {
+  .smSimpleShopProducts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 600px) {
+  .smSimpleShop { padding: 12px 14px 54px; }
+  .smSimpleShopHero { padding: 24px 18px; }
+  .smSimpleShopHero p { font-size: 15px; }
+  .smSimpleShopSection { padding: 28px 0; }
+  .smSimpleShopProducts, .smSimpleShopFeatureGrid { grid-template-columns: minmax(0,1fr); gap: 14px; }
+  .smSimpleShopFeatureGrid .btn { width: 100%; text-align: center; }
+  .smSimpleShopShortcuts { gap: 8px; }
+}
