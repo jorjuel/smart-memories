@@ -12001,3 +12001,116 @@ header.smSiteHeader {
 @media (max-width: 600px) {
   .smCollageTemplateOptions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Compact homepage: fewer repeated messages, less scrolling. Scoped to / only. */
+.smCompactHome { overflow: clip; }
+.smCompactHome .memoryHomeHero {
+  min-height: 0;
+  padding: clamp(28px,4vw,52px) 30px clamp(30px,4vw,52px);
+  gap: clamp(20px,4vw,55px);
+}
+.smCompactHome .memoryHomeHero h1 {
+  font-size: clamp(38px,4.6vw,64px);
+  line-height: 1.06;
+  letter-spacing: -1.8px;
+  margin: 13px 0 18px;
+}
+.smCompactHome .memoryHomeHeroLead {
+  font-size: clamp(15px,1.4vw,18px);
+  line-height: 1.6;
+  max-width: 530px;
+}
+.smCompactHome .memoryHomeHeroCopy .actions { margin-top: 24px; gap: 12px; }
+.smCompactHome .memoryHomeHeroTrust { margin-top: 20px; gap: 8px; }
+.smCompactHome .memoryHomeHeroTrust span { padding: 7px 11px; }
+.smCompactHome .memoryHomeHeroExperience {
+  min-height: 390px;
+  width: 100%;
+}
+.smCompactHome .memoryHomeGiftCard {
+  top: 15px; min-height: 315px; padding: 13px; border-radius: 18px;
+}
+.smCompactHome .memoryHomeGiftPhoto { height: 280px; border-radius: 13px; }
+.smCompactHome .memoryHomeTapPoint {
+  width: 64px; height: 64px; right: -13px; bottom: 25px; border-width: 5px;
+}
+.smCompactHome .memoryHomePhone {
+  min-height: 320px; border-width: 6px; border-radius: 27px; padding: 8px;
+}
+.smCompactHome .memoryHomePhonePhoto { height: 130px; border-radius: 15px; }
+.smCompactHome .memoryHomePhoneContent { padding: 12px 8px 8px; }
+.smCompactHome .memoryHomePhoneContent h2 {
+  margin: 8px 0 12px; font-size: clamp(16px,2vw,21px);
+}
+.smCompactHome .memoryHomeProducts {
+  padding-top: clamp(30px,4vw,52px);
+  padding-bottom: clamp(34px,4vw,54px);
+}
+.smCompactHome .memoryHomeProducts .sectionHead { margin-bottom: 22px; }
+.smCompactHome .memoryHomeProducts .sectionHead h2 {
+  font-size: clamp(29px,3.5vw,43px);
+}
+.smCompactHome .memoryHomeHow {
+  padding: clamp(32px,4vw,56px) max(24px,5vw);
+}
+.smCompactHome .memoryHomeSectionIntro {
+  margin-bottom: 24px;
+}
+.smCompactHome .memoryHomeSectionIntro h2 {
+  font-size: clamp(28px,3.6vw,44px);
+  margin: 8px 0 12px;
+}
+.smCompactHome .memoryHomeSteps {
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  max-width: 1100px; gap: 12px; margin-bottom: 20px;
+}
+.smCompactHome .memoryHomeSteps article {
+  min-height: 0; padding: 20px; border-radius: 15px;
+}
+.smCompactHome .memoryHomeSteps article > span { font-size: 23px; }
+.smCompactHome .memoryHomeSteps h3 { margin: 9px 0 7px; font-size: 17px; }
+.smCompactHome .memoryHomeSteps p { line-height: 1.5; font-size: 14px; }
+.smCompactHome .memoryHomeOccasions {
+  padding: clamp(32px,4vw,55px) max(20px,5vw);
+}
+.smHomeOccasionLinks {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr));
+  max-width: 1050px; gap: 10px; margin: 0 auto;
+}
+.smHomeOccasionLinks a {
+  display: flex; align-items: center; justify-content: space-between;
+  min-width: 0; min-height: 58px; padding: 13px 17px;
+  border: 1px solid var(--sm-border);
+  border-radius: 13px; background: white; color: var(--sm-plum-dark);
+  font-weight: 700; text-decoration: none;
+}
+.smHomeOccasionLinks a:hover, .smHomeOccasionLinks a:focus-visible {
+  border-color: var(--sm-rose); background: #fff5f2;
+}
+.smHomeOccasionLinks a span { color: var(--sm-rose); }
+.smCompactHome .memoryHomeCentreAction { margin-top: 18px; }
+@media (max-width: 1050px) {
+  .smCompactHome .memoryHomeHero { grid-template-columns: 1fr 1fr; }
+  .smCompactHome .memoryHomeHeroExperience { min-height: 365px; }
+}
+@media (max-width: 760px) {
+  .smCompactHome .memoryHomeHero {
+    grid-template-columns: 1fr; padding: 34px 18px 30px;
+  }
+  .smCompactHome .memoryHomeHero h1 { font-size: clamp(36px,8vw,49px); }
+  /* The static phone and gift illustration repeats the hero copy and adds
+     over 600px of scrolling on small phones; preserve it on desktop only. */
+  .smCompactHome .memoryHomeHeroExperience { display: none; }
+  .smCompactHome .memoryHomeHeroTrust span { font-size: 10px; }
+  .smCompactHome .memoryHomeProducts { padding: 28px 16px 34px; }
+  .smCompactHome .memoryHomeSteps { grid-template-columns: 1fr; gap: 9px; }
+  .smCompactHome .memoryHomeSteps article { padding: 15px 18px; }
+  .smCompactHome .memoryHomeHow,
+  .smCompactHome .memoryHomeOccasions { padding: 34px 17px; }
+  .smHomeOccasionLinks { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+  .smHomeOccasionLinks a { padding: 10px 12px; min-height: 51px; font-size: 13px; }
+}
+@media (max-width: 380px) {
+  .smCompactHome .memoryHomeHero .actions { flex-direction: column; align-items: stretch; }
+  .smCompactHome .memoryHomeHero .actions a { text-align: center; }
+}
