@@ -361,7 +361,7 @@ export default function ProductPersonaliser({
     isMug ||
     isCoaster;
 
-  const coasterCount = isCoaster ? (size === 'Single' ? 1 : Number(size.match(/\\d+/)?.[0] || 1)) : 1;
+  const coasterCount = isCoaster ? (size === 'Single' ? 1 : Number(size.match(/[0-9]+/)?.[0] || 1)) : 1;
   const maxGiftPhotos = isCoaster ? coasterCount : 6;
   const selectedGiftPhotos = giftPhotos.slice(0, maxGiftPhotos);
 
@@ -986,8 +986,8 @@ export default function ProductPersonaliser({
       let printArtworkUrl: string | null = null;
       if (!isCoaster && printPhotos.length > 1) {
         const collage = await composePrintArtwork(printPhotos, photoLayout,
-          product.slug === 'mouse-mat' || product.slug === 'photo-mug' ? 3000 : 2400,
-          product.slug === 'mouse-mat' || product.slug === 'photo-mug' ? 2000 : 2400);
+          slug === 'mouse-mat' || slug === 'photo-mug' ? 3000 : 2400,
+          slug === 'mouse-mat' || slug === 'photo-mug' ? 2000 : 2400);
         printArtworkUrl = publicPhoto(await uploadMemoryMedia(collage, 'photo'));
       }
       setSavedPrintPhotoUrls(galleryUrls);
@@ -1642,7 +1642,7 @@ export default function ProductPersonaliser({
                             onClick={() => {
                               setSize(item);
                               if (isCoaster) {
-                                const nextMax = item === 'Single' ? 1 : Number(item.match(/\\d+/)?.[0] || 1);
+                                const nextMax = item === 'Single' ? 1 : Number(item.match(/[0-9]+/)?.[0] || 1);
                                 if (giftPhotos.length > nextMax) {
                                   const keep = giftPhotos.slice(0, nextMax);
                                   giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
