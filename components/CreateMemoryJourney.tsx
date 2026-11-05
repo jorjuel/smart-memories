@@ -1,50 +1,6 @@
 import Link from 'next/link';
 
-const memoryChoices = [
-  {
-    symbol: '♥',
-    title: 'Love & Couples',
-    text:
-      'Celebrate your story together, from weddings to anniversaries and everything between.',
-    href: '/shop?occasion=Anniversary',
-  },
-  {
-    symbol: 'R',
-    title: 'Remember Someone',
-    text:
-      'Create something meaningful that keeps their photograph, words and voice close.',
-    href: '/shop?occasion=Remembrance',
-  },
-  {
-    symbol: 'P',
-    title: 'Pet Memory',
-    text:
-      'Preserve the photographs and little moments that captured their personality.',
-    href: '/shop?occasion=Pet%20Memory',
-  },
-  {
-    symbol: 'B',
-    title: 'Baby Memory',
-    text:
-      'Save the beginnings, first moments and messages you never want to forget.',
-    href: '/shop?occasion=New%20Baby',
-  },
-  {
-    symbol: 'F',
-    title: 'Family Memory',
-    text:
-      'Bring photographs, messages and family voices together in one place.',
-    href: '/shop?occasion=Family%20Memory',
-  },
-  {
-    symbol: 'C',
-    title: 'Celebration',
-    text:
-      'Make birthdays, graduations and important milestones more personal.',
-    href: '/shop?occasion=Birthday',
-  },
-];
-
+/* Previous occasion links now live in the shop; the memory flow starts with two clear choices. */
 export default function CreateMemoryJourney() {
   return (
     <>
@@ -69,100 +25,22 @@ export default function CreateMemoryJourney() {
         </div>
       </section>
 
-      <section className="createMemoryChoices">
-        <div className="createMemoryChoiceGrid">
-          {memoryChoices.map((choice) => (
-            <Link
-              key={choice.title}
-              href={choice.href}
-              className="createMemoryChoice"
-            >
-              <div className="createMemoryChoiceSymbol">
-                {choice.symbol}
-              </div>
-
-              <h2>{choice.title}</h2>
-
-              <p>{choice.text}</p>
-
-              <strong>
-                Begin this memory →
-              </strong>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="createMemoryGuide">
-        <div>
-          <span className="v14Eyebrow light">
-            HOW IT COMES TO LIFE
-          </span>
-
-          <h2>
-            Your story first.
-            <br />
-            The gift comes next.
-          </h2>
-
-          <p>
-            Choose the kind of memory you are creating, select a physical
-            gift, then personalise it with your photograph, words and voice.
-          </p>
-
-          <Link
-            href="/how-it-works"
-            className="createMemoryGuideLink"
-          >
-            See How It Works →
+      <section className="smMemoryPathSection" aria-labelledby="memory-path-title">
+        <span className="v14Eyebrow">CHOOSE HOW YOUR MEMORY IS PRESENTED</span>
+        <h2 id="memory-path-title">How would you like to share your memory?</h2>
+        <p>Both choices use the same photo, voice and message creator. Make your memory first, then choose how it is presented.</p>
+        <div className="smMemoryPathGrid">
+          <Link href="/create?mode=tag" className="smMemoryPathCard">
+            <span className="smMemoryPathIcon" aria-hidden="true">🎀</span>
+            <h3>Memory Only</h3>
+            <p>Create your digital memory, then choose a satin bow colour for a decorative gift tag that opens the memory.</p>
+            <strong>Create memory &amp; tag →</strong>
           </Link>
-        </div>
-
-        <div className="createMemoryMiniSteps">
-          <article>
-            <span>01</span>
-            <strong>Choose the story</strong>
-          </article>
-
-          <article>
-            <span>02</span>
-            <strong>Choose the gift</strong>
-          </article>
-
-          <article>
-            <span>03</span>
-            <strong>Add photos, words and voice</strong>
-          </article>
-
-          <article>
-            <span>04</span>
-            <strong>They tap and relive it</strong>
-          </article>
-        </div>
-      </section>
-
-      <section className="createMemoryDirect">
-        <span className="v14Eyebrow">
-          ALREADY KNOW WHAT YOU NEED?
-        </span>
-
-        <h2>
-          Choose how you want to begin.
-        </h2>
-
-        <div className="actions">
-          <Link
-            href="/shop"
-            className="btn big"
-          >
-            Browse All Smart Gifts
-          </Link>
-
-          <Link
-            href="/create?direct=1"
-            className="createMemoryDirectLink"
-          >
-            Create a standalone digital memory →
+          <Link href="/create?mode=gift" className="smMemoryPathCard">
+            <span className="smMemoryPathIcon" aria-hidden="true">🎁</span>
+            <h3>Memory + Gift</h3>
+            <p>Create your digital memory first, then choose a personalised gift to carry it.</p>
+            <strong>Create memory &amp; choose gift →</strong>
           </Link>
         </div>
       </section>
