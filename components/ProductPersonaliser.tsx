@@ -23,6 +23,7 @@ import {
 } from '../lib/storage';
 
 import ConfiguredProductPreview from './ConfiguredProductPreview';
+import { composePrintArtwork, type PhotoLayout } from '@/lib/printCollage';
 import PersonaliserProgress from './PersonaliserProgress';
 import SmartMemoryLivePreview from './SmartMemoryLivePreview';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
@@ -202,6 +203,12 @@ export default function ProductPersonaliser({
     setPhotoUrl,
   ] = useState('');
 
+  // Original print photographs are kept separately from the recipient's main memory photo.
+  const [giftPhotos, setGiftPhotos] = useState<{file:File;url:string}[]>([]);
+  const [photoLayout, setPhotoLayout] = useState<PhotoLayout>('grid');
+  const [savedPrintPhotoUrls, setSavedPrintPhotoUrls] = useState<string[]>([]);
+  const [savedPrintArtworkUrl, setSavedPrintArtworkUrl] = useState<string | null>(null);
+
   /* =====================================================
      AUDIO
      ===================================================== */
@@ -354,6 +361,10 @@ export default function ProductPersonaliser({
     isMug ||
     isCoaster;
 
+  const coasterCount = isCoaster ? (size === 'Single' ? 1 : Number(size.match(/\\d+/)?.[0] || 1)) : 1;
+  const maxGiftPhotos = isCoaster ? coasterCount : 6;
+  const selectedGiftPhotos = giftPhotos.slice(0, maxGiftPhotos);
+
   const finalMemoryMessage =
     memoryMessage.trim() ||
     paragraph.trim() ||
@@ -425,7 +436,9 @@ export default function ProductPersonaliser({
             type:media[0].type || 'image/jpeg'
           });
           setPhoto(savedPhoto);
-          setPhotoUrl(URL.createObjectURL(savedPhoto));
+          const restoredUrl = URL.createObjectURL(savedPhoto);
+          setPhotoUrl(restoredUrl);
+          setGiftPhotos([{file:savedPhoto,url:restoredUrl}]);
           draftPhotoBlob.current = savedPhoto;
         }
         if (media[1]) {
@@ -588,60 +601,60 @@ export default function ProductPersonaliser({
      PHOTO
      ===================================================== */
 
-  function choosePhoto(
-    event:
-      React.ChangeEvent<HTMLInputElement>
-  ) {
-    const file =
-      event.target
-        .files?.[0];
-
-    if (!file) {
-      return;
-    }
-
+  function setChosenPhotos(files: File[]) {
     setStepError('');
-
-    if (
-      file.size >
-      MAX_PHOTO_BYTES
-    ) {
-      setStepError(
-        'This photo is too large. The current maximum is 10 MB.'
-      );
-
-      event.target.value =
-        '';
-
+    if (!files.length) return;
+    if (files.length > maxGiftPhotos) {
+      setStepError(`Choose no more than ${maxGiftPhotos} photo${maxGiftPhotos === 1 ? '' : 's'} for this gift.`);
       return;
     }
-
-    if (photoUrl) {
-      URL.revokeObjectURL(
-        photoUrl
-      );
+    if (files.some((file) => !file.type.startsWith('image/') || file.size > MAX_PHOTO_BYTES || !file.size)) {
+      setStepError('Each photo must be an image of 10 MB or smaller.');
+      return;
     }
+    const newPhotos = files.map((file) => ({file, url: URL.createObjectURL(file)}));
+    giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
+    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
+    setGiftPhotos(newPhotos);
+    setPhoto(newPhotos[0].file);
+    setPhotoUrl(newPhotos[0].url);
+    setSavedPrintPhotoUrls([]);
+    setSavedPrintArtworkUrl(null);
+    markChanged();
+  }
 
-    setPhoto(file);
+  function choosePhoto(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    if (files.length) setChosenPhotos(files.slice(0,1));
+    event.target.value = '';
+  }
 
-    setPhotoUrl(
-      URL.createObjectURL(
-        file
-      )
-    );
+  function chooseGiftPhotos(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    if (files.length) setChosenPhotos(files);
+    event.target.value = '';
+  }
 
+  function removeGiftPhoto(index: number) {
+    const remaining = giftPhotos.filter((_,i) => i !== index);
+    const removed = giftPhotos[index];
+    if (removed) URL.revokeObjectURL(removed.url);
+    setGiftPhotos(remaining);
+    setPhoto(remaining[0]?.file ?? null);
+    setPhotoUrl(remaining[0]?.url ?? '');
+    setSavedPrintPhotoUrls([]);
+    setSavedPrintArtworkUrl(null);
     markChanged();
   }
 
   function removePhoto() {
-    if (photoUrl) {
-      URL.revokeObjectURL(
-        photoUrl
-      );
-    }
-
+    giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
+    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
+    setGiftPhotos([]);
     setPhoto(null);
     setPhotoUrl('');
+    setSavedPrintPhotoUrls([]);
+    setSavedPrintArtworkUrl(null);
     markChanged();
   }
 
@@ -959,6 +972,27 @@ export default function ProductPersonaliser({
       const photoPath = await uploadMemoryMedia(photo, 'photo');
       formData.set('photoPath', photoPath);
 
+      // Save original full-resolution files for fulfilment. The first image
+      // remains the Smart Memory photo; a collage is additional print artwork.
+      const printPhotos = selectedGiftPhotos.length ? selectedGiftPhotos.map(item => item.file) : [photo];
+      const printPaths = await Promise.all(printPhotos.map((file, index) =>
+        index === 0 ? Promise.resolve(photoPath) : uploadMemoryMedia(file, 'photo')
+      ));
+      const storageBase = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!storageBase) throw new Error('Photo storage is not configured.');
+      const publicPhoto = (path: string) =>
+        `${storageBase}/storage/v1/object/public/memory-media/${path.split('/').map(encodeURIComponent).join('/')}`;
+      const galleryUrls = printPaths.map(publicPhoto);
+      let printArtworkUrl: string | null = null;
+      if (!isCoaster && printPhotos.length > 1) {
+        const collage = await composePrintArtwork(printPhotos, photoLayout,
+          product.slug === 'mouse-mat' || product.slug === 'photo-mug' ? 3000 : 2400,
+          product.slug === 'mouse-mat' || product.slug === 'photo-mug' ? 2000 : 2400);
+        printArtworkUrl = publicPhoto(await uploadMemoryMedia(collage, 'photo'));
+      }
+      setSavedPrintPhotoUrls(galleryUrls);
+      setSavedPrintArtworkUrl(printArtworkUrl);
+
       if (audio) {
         const audioPath = await uploadMemoryMedia(audio, 'audio');
         formData.set('audioPath', audioPath);
@@ -1141,6 +1175,12 @@ export default function ProductPersonaliser({
           'coaster-set'
             ? size
             : null,
+
+        // Production assets: original photographs and optional assembled collage.
+        printPhotoUrls: savedPrintPhotoUrls,
+        printArtworkUrl: savedPrintArtworkUrl,
+        photoLayout: isCoaster ? 'individual-coasters' : (selectedGiftPhotos.length > 1 ? photoLayout : 'single'),
+        printPhotoCount: savedPrintPhotoUrls.length,
       },
     };
 
@@ -1600,9 +1640,17 @@ export default function ProductPersonaliser({
                                 : 'optionPill'
                             }
                             onClick={() => {
-                              setSize(
-                                item
-                              );
+                              setSize(item);
+                              if (isCoaster) {
+                                const nextMax = item === 'Single' ? 1 : Number(item.match(/\\d+/)?.[0] || 1);
+                                if (giftPhotos.length > nextMax) {
+                                  const keep = giftPhotos.slice(0, nextMax);
+                                  giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
+                                  setGiftPhotos(keep);
+                                  setPhoto(keep[0]?.file ?? null);
+                                  setPhotoUrl(keep[0]?.url ?? '');
+                                }
+                              }
                               markChanged();
                             }}
                           >
@@ -1973,16 +2021,43 @@ export default function ProductPersonaliser({
                   Maximum 10 MB
                 </small>
 
-                {isCoaster && (
+                <div className="smMultiPhotoPicker">
+                  <h3>{isCoaster ? 'Choose your coaster photos' : 'Create a photo collage'}</h3>
                   <p>
-                    The current
-                    coaster creator
-                    uses the same
-                    photograph or
-                    design across
-                    the set.
+                    {isCoaster
+                      ? `Select 1 to ${maxGiftPhotos} different photos for your ${size.toLowerCase()}. If you select fewer than the coasters in the set, photos repeat in order.`
+                      : 'Choose 1 to 6 photos. A single photo fills the gift; two or more create a collage.'}
                   </p>
-                )}
+                  <label className="optionPill smMultiPhotoPickButton">
+                    {giftPhotos.length ? 'Change selected photos' : 'Choose photos'}
+                    <input className="smHiddenFileInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic" multiple onChange={chooseGiftPhotos} />
+                  </label>
+                  <small>{selectedGiftPhotos.length} of {maxGiftPhotos} photos selected · 10 MB each</small>
+                  {selectedGiftPhotos.length > 0 && (
+                    <div className="smMultiPhotoThumbs">
+                      {selectedGiftPhotos.map(({url}, index) => (
+                        <div key={url} className="smMultiPhotoThumb">
+                          <img src={url} alt={`Selected photo ${index + 1}`} />
+                          <button type="button" onClick={() => removeGiftPhoto(index)} aria-label={`Remove photo ${index + 1}`}>×</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {!isCoaster && selectedGiftPhotos.length > 1 && (
+                    <div className="smMultiPhotoLayouts">
+                      <strong>Choose your collage layout</strong>
+                      <div className="choiceRow">
+                        {(['grid','strip'] as PhotoLayout[]).map(layout => (
+                          <button key={layout} type="button"
+                            className={photoLayout === layout ? 'optionPill active' : 'optionPill'}
+                            onClick={() => {setPhotoLayout(layout);markChanged();}}>
+                            {layout === 'grid' ? 'Photo grid' : 'Photo strip'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {allowsOwnDesign &&
                   designSource ===
@@ -2326,6 +2401,9 @@ export default function ProductPersonaliser({
                     photoUrl={
                       photoUrl
                     }
+                    photos={selectedGiftPhotos.map(item => item.url)}
+                    photoLayout={photoLayout}
+                    coasterCount={coasterCount}
                     orientation={
                       orientation
                     }
@@ -2681,6 +2759,9 @@ export default function ProductPersonaliser({
                 photoUrl={
                   photoUrl
                 }
+                photos={selectedGiftPhotos.map(item => item.url)}
+                photoLayout={photoLayout}
+                coasterCount={coasterCount}
                 orientation={
                   orientation
                 }
