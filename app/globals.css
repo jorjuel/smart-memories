@@ -12114,3 +12114,22 @@ header.smSiteHeader {
   .smCompactHome .memoryHomeHero .actions { flex-direction: column; align-items: stretch; }
   .smCompactHome .memoryHomeHero .actions a { text-align: center; }
 }
+
+/* Homepage: show the same real photographic memory on the gift and phone.
+   One example demonstrates the physical-to-digital experience without
+   introducing any user-generated content or altering customer memories. */
+.smCompactHome .memoryHomeGiftPhoto,
+.smCompactHome .memoryHomePhonePhoto {
+  background-image: linear-gradient(180deg,rgba(36,23,24,0.02),rgba(36,23,24,0.19)), url("https://images.unsplash.com/photo-1766202509814-7e10c995ade0?auto=format&fit=crop&w=1000&q=82");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center 45%;
+}
+.smCompactHome .memoryHomeGiftPhoto {
+  box-shadow: inset 0 0 0 1px rgba(85,48,53,.1);
+}
+.smCompactHome .memoryHomePhonePhoto {
+  background-position: center 38%;
+}
+.smCompactHome .memoryHomeGiftPhoto span,
+.smCompactHome .memoryHomePhonePhoto span { display: none; }
