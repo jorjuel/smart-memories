@@ -11678,3 +11678,162 @@ header.smSiteHeader {
   display: block;
   border-radius: 8px;
 }
+
+
+/* =========================================================
+   Mobile usability correction — 2026-11-05.
+   These rules follow the compact desktop wizard overrides above,
+   so they cannot be overwritten by the desktop grid declaration.
+   ========================================================= */
+@media (max-width: 980px) {
+  .smWizardPage .smWizardShell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+  }
+
+  .smWizardPage .smWizardStepContent,
+  .smWizardPage .smWizardStickyPreview {
+    grid-column: 1 / -1;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .smWizardPage .smWizardStepContent {
+    overflow: visible;
+    max-height: none;
+    overflow-wrap: break-word;
+  }
+
+  .smWizardPage .smWizardStickyPreview {
+    position: static;
+    order: 1;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .smWizardPage .smWizardStepContent {
+    order: 0;
+  }
+
+  .smMobileMenu {
+    box-sizing: border-box;
+    z-index: 200;
+    width: auto;
+    max-height: min(78dvh, 740px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .smMobileMenu .smMobileShopDirect {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    min-height: 48px;
+    padding: 12px 15px;
+    border-radius: 12px;
+    background: #fff4ef;
+    color: var(--sm-plum-dark);
+    font-weight: 800;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .smMobileMenu .smMobileShop {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 14px;
+    background: #fff8f5;
+    border: 1px solid #eee2dc;
+    border-radius: 14px;
+  }
+
+  .smMobileMenu .smMobileShopGroup {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .smMobileMenu .smMobileShopGroup strong {
+    color: var(--sm-plum-dark);
+    margin: 0 0 4px;
+    font-size: 12px;
+  }
+
+  .smMobileMenu .smMobileShopGroup a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 4px;
+    color: #58494f;
+    font-size: 13px;
+    line-height: 1.35;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .smMobileMenu .smMobileShopGroup a:focus-visible,
+  .smMobileMenu .smMobileShopDirect:focus-visible {
+    outline: 3px solid #a75e74;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 600px) {
+  .smWizardPage {
+    max-width: 100%;
+    padding-inline: 15px;
+  }
+
+  .smWizardPage .smWizardShell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .smWizardPage .smWizardStepHeading h2 {
+    font-size: clamp(26px, 8vw, 35px);
+    overflow-wrap: normal;
+  }
+
+  .smWizardPage .smWizardSection,
+  .smWizardPage .smWizardUploadCard,
+  .smWizardPage .smWizardVoiceCard {
+    min-width: 0;
+    width: 100%;
+    padding: 16px;
+  }
+
+  .smWizardPage .smWizardNavigation {
+    width: 100%;
+    margin-inline: 0;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+  }
+
+  .smWizardPage .smWizardNavigation .btn {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .smMobileMenu .smMobileShop {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .smMobileMenu .smMobileShopGroup {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e8d9d4;
+  }
+}
