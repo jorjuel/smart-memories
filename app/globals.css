@@ -12484,3 +12484,21 @@ header.smSiteHeader {
   .smBowPreviewArt { height: 125px; }
   .smBowPage { padding-top: 18px; }
 }
+
+/* Digital-only £5 Smart Memory: prominent, concise checkout choice. */
+.smDigitalMemoryCheckout {
+  display:flex; justify-content:space-between; align-items:center; gap:20px;
+  padding:clamp(15px,2.5vw,24px); margin:0 auto 12px; border:1px solid #dcb5b5;
+  border-radius:16px; background:#fff5f1;
+}
+.smDigitalMemoryCheckout h2 {
+  font:400 clamp(23px,2.8vw,31px)/1.2 Georgia,serif;
+  margin:5px 0 7px; color:var(--sm-plum-dark);
+}
+.smDigitalMemoryCheckout p {margin:0; color:var(--sm-muted); font-size:14px; line-height:1.5;}
+.smDigitalMemoryCheckout .btn {flex-shrink:0;}
+.smPhysicalBowDivider {text-align:center; color:var(--sm-muted); font-size:14px; margin:13px 0 17px;}
+@media(max-width:680px) {
+ .smDigitalMemoryCheckout {flex-direction:column; align-items:stretch; gap:14px;}
+ .smDigitalMemoryCheckout .btn {width:100%; text-align:center;}
+}
