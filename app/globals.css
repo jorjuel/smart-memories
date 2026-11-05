@@ -12319,3 +12319,34 @@ header.smSiteHeader {
   .smCompactHome .smHeroPhoneScreen h2 { font-size: 13px; }
   .smCompactHome .smHeroPhoneScreen small { display: none; }
 }
+
+/* Premium gift-tag hero: replace drawn slate / flat NFC card with a
+   photographed ribbon-wrapped keepsake, retaining the memory phone demo. */
+.smCompactHome .smHeroLuxuryGift {
+  position: absolute;
+  top: 39px;
+  left: 1%;
+  width: 74%;
+  aspect-ratio: 521 / 395;
+  z-index: 1;
+  border: 5px solid #fffaf7;
+  border-radius: 20px;
+  background: #f0ddcb url('/images/luxury-smart-memories-gift.webp') center / cover no-repeat;
+  box-shadow: 0 24px 50px rgba(54,32,31,.2);
+  transform: rotate(-5deg);
+}
+@media (max-width: 1050px) and (min-width: 761px) {
+  .smCompactHome .smHeroLuxuryGift { top: 29px; width: 77%; }
+}
+@media (max-width: 760px) {
+  .smCompactHome .smHeroLuxuryGift {
+    top: 23px;
+    left: 1%;
+    width: 74%;
+    border-width: 4px;
+    border-radius: 14px;
+  }
+}
+@media (max-width: 380px) {
+  .smCompactHome .smHeroLuxuryGift { top: 20px; width: 73%; }
+}
