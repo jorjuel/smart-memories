@@ -1,5 +1,6 @@
 /** Assemble printable collage artwork from the customer's actual photos. */
 import { getCollageRects, type PhotoLayout } from './collageLayouts';
+import { calculatePhotoCrop, type PhotoCrop } from './photoCrop';
 export type { PhotoLayout } from './collageLayouts';
 
 function loadPhoto(file: File): Promise<HTMLImageElement> {
@@ -12,15 +13,13 @@ function loadPhoto(file: File): Promise<HTMLImageElement> {
   });
 }
 
-function drawCover(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, w: number, h: number) {
-  const ratio = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-  const sw = w / ratio;
-  const sh = h / ratio;
-  ctx.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) / 2, sw, sh, x, y, w, h);
+function drawCover(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, w: number, h: number, crop?: PhotoCrop) {
+  const {sx,sy,sw,sh} = calculatePhotoCrop(img.naturalWidth,img.naturalHeight,w,h,crop);
+  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
 }
 
 /** Make one full-resolution print image, avoiding storing data: URLs in the basket. */
-export async function composePrintArtwork(files: File[], layout: PhotoLayout, width = 2400, height = 2400): Promise<File> {
+export async function composePrintArtwork(files: File[], layout: PhotoLayout, width = 2400, height = 2400, crops: PhotoCrop[] = []): Promise<File> {
   if (files.length < 1 || files.length > 6) throw new Error('Choose between 1 and 6 photos.');
   const images = await Promise.all(files.map(loadPhoto));
   const canvas = document.createElement('canvas');
@@ -39,7 +38,7 @@ export async function composePrintArtwork(files: File[], layout: PhotoLayout, wi
     const right = cell.x + cell.w >= 1 ? 0 : gap/2;
     const bottom = cell.y + cell.h >= 1 ? 0 : gap/2;
     drawCover(ctx,img,cell.x*width+left,cell.y*height+top,
-      cell.w*width-left-right,cell.h*height-top-bottom);
+      cell.w*width-left-right,cell.h*height-top-bottom,crops[i]);
   });
   const blob = await new Promise<Blob>((resolve,reject) => {
     canvas.toBlob((value) => value ? resolve(value) : reject(new Error('Could not create print artwork.')), 'image/jpeg', 0.9);
