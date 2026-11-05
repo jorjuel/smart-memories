@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import mobileStyles from './MobileNavigation.module.css';
 
 import {
   useEffect,
@@ -389,13 +390,14 @@ if (
       </div>
 
       {mobileOpen && (
-        <nav
-          className="smMobileMenu"
+        <div
+          className={mobileStyles.panel}
+          role="navigation"
           aria-label="Mobile navigation"
         >
           <Link
             href="/create"
-            className="smMobileCreate"
+            className={mobileStyles.create}
             onClick={
               closeMenus
             }
@@ -406,14 +408,14 @@ if (
           <Link
             href="/shop"
             onClick={closeMenus}
-            className="smMobileShopDirectLink"
+            className={mobileStyles.allGifts}
           >
             View all gifts
           </Link>
 
           <button
             type="button"
-            className="smMobileShopToggle"
+            className={mobileStyles.shopToggle}
             aria-expanded={
               mobileShopOpen
             }
@@ -436,7 +438,7 @@ if (
           </button>
 
           {mobileShopOpen && (
-            <div className="smMobileShop">
+            <div className={mobileStyles.shopGrid}>
               {shopGroups.map(
                 (
                   group
@@ -445,7 +447,7 @@ if (
                     key={
                       group.title
                     }
-                    className="smMobileShopGroup"
+                    className={mobileStyles.group}
                   >
                     <strong>
                       {
@@ -478,7 +480,7 @@ if (
                 )
               )}
 
-              <div className="smMobileShopGroup">
+              <div className={mobileStyles.group}>
                 <strong>
                   Explore
                 </strong>
@@ -545,7 +547,7 @@ if (
           >
             Basket
           </Link>
-        </nav>
+        </div>
       )}
     </header>
   );
