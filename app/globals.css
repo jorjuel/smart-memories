@@ -5309,6 +5309,10 @@ body {
 /* HEADER */
 
 header.smSiteHeader {
+  /* The legacy global header is flex; it must not lay out the
+     mobile menu as a sibling beside the full-width header bar. */
+  display: block;
+  width: 100%;
   height: auto;
   min-height: 78px;
   padding: 0;
