@@ -403,12 +403,17 @@ if (
             Create a Memory
           </Link>
 
+          <Link href="/shop" className="smMobileShopDirect" onClick={closeMenus}>
+            View all gifts
+          </Link>
+
           <button
             type="button"
             className="smMobileShopToggle"
             aria-expanded={
               mobileShopOpen
             }
+            aria-controls="sm-mobile-shop-links"
             onClick={() =>
               setMobileShopOpen(
                 (current) =>
@@ -428,7 +433,7 @@ if (
           </button>
 
           {mobileShopOpen && (
-            <div className="smMobileShop">
+            <div className="smMobileShop" id="sm-mobile-shop-links">
               {shopGroups.map(
                 (
                   group
