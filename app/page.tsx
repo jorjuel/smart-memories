@@ -45,23 +45,27 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="memoryHomeHeroExperience" aria-label="Illustration of a gift connecting to a memory on a phone">
-          <div className="memoryHomeGiftCard">
-            <div className="memoryHomeGiftPhoto">
-              <span>YOUR FAVOURITE PHOTO</span>
-            </div>
-            <div className="memoryHomeTapPoint"><span>TAP</span></div>
+        <div className="smHeroMemoryShowcase" aria-label="Example photo slate, recipient phone memory and Smart Memories tap tag">
+          <div className="smHeroSlate" role="img" aria-label="Example personalised photographic slate">
+            <div className="smHeroSlatePrint" />
           </div>
-          <div className="memoryHomePhone">
-            <div className="memoryHomePhoneTop">SMART MEMORY</div>
-            <div className="memoryHomePhonePhoto">
-              <span>A MEMORY FOR SOMEONE SPECIAL</span>
-            </div>
-            <div className="memoryHomePhoneContent">
-              <small>A PERSONAL MESSAGE</small>
+
+          <div className="smHeroRecipientPhone" aria-label="Example recipient Smart Memory phone screen">
+            <div className="smHeroPhoneSpeaker" aria-hidden="true" />
+            <div className="smHeroPhoneScreen">
+              <span className="smHeroPhoneBrand">SMART MEMORIES</span>
+              <div className="smHeroPhonePhoto" role="img" aria-label="Photo inside a Smart Memory" />
+              <span className="smHeroPhoneEyebrow">A MESSAGE JUST FOR YOU</span>
               <h2>A moment worth keeping.</h2>
-              <span className="memoryHomePlay">▶ Listen to their voice</span>
+              <span className="smHeroPhoneVoice" aria-label="Illustration of an audio message">▶ &nbsp; A voice to remember</span>
+              <small>With love, always ♡</small>
             </div>
+          </div>
+
+          <div className="smHeroNfcTag" aria-label="Illustration of a Smart Memories NFC tap tag">
+            <span className="smHeroTagSignal" aria-hidden="true">◖))</span>
+            <span className="smHeroTagBrand">SMART MEMORIES <span aria-hidden="true">♥</span></span>
+            <strong>Tap here</strong>
           </div>
         </div>
       </section>
