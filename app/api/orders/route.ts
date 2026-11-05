@@ -229,6 +229,18 @@ export async function POST(
                 );
               }
 
+              if (item.productSlug === 'digital-memory') {
+                if (typeof item.memoryCode !== 'string' ||
+                    !/^[A-HJ-NP-Z2-9]{8}$/.test(item.memoryCode)) {
+                  throw new Error('A valid saved Smart Memory is required.');
+                }
+                const {data:linkedMemory,error:lookupError} = await admin
+                  .from('memories').select('code')
+                  .eq('code',item.memoryCode).maybeSingle();
+                if (lookupError || !linkedMemory) {
+                  throw new Error('This Smart Memory could not be verified.');
+                }
+              }
               if (item.productSlug === 'memory-tag') {
                 const personalisation =
                   item.personalisation && typeof item.personalisation === 'object'
@@ -384,10 +396,13 @@ export async function POST(
         0
       );
 
-    const deliveryPence =
-      getShippingPricePence(
-        deliveryMethod
-      );
+    // Digital-only orders are delivered online: never charge postage.
+    const digitalOnly = pricedCart.length > 0 &&
+      pricedCart.every(item =>
+        item.productType === 'product' && item.productSlug === 'digital-memory');
+    const deliveryPence = digitalOnly
+      ? 0
+      : getShippingPricePence(deliveryMethod);
 
     const totalPence =
       subtotalPence +
