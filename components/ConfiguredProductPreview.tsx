@@ -1,10 +1,12 @@
 'use client';
 
+import { getCollageRects, type PhotoLayout } from '@/lib/collageLayouts';
+
 type Props = {
   slug: string;
   photoUrl: string;
   photos?: string[];
-  photoLayout?: 'single' | 'grid' | 'strip';
+  photoLayout?: PhotoLayout;
   coasterCount?: number;
   orientation: string;
   topText: string;
@@ -26,18 +28,33 @@ export default function ConfiguredProductPreview({
   textLayout,
 }: Props) {
   const activePhotos = photos.length ? photos : (photoUrl ? [photoUrl] : []);
-  const renderPhoto = (src: string, index: number) => (
-    <img key={src + index} src={src} alt={`Photo ${index + 1}`} />
-  );
-
   const imageContent = (
     <>
       {activePhotos.length > 1 && slug !== 'coaster-set' ? (
-        <div
-          className={`smPrintCollage ${photoLayout === 'strip' ? 'smPrintCollageStrip' : ''}`}
-          style={{'--sm-photo-count': activePhotos.length} as React.CSSProperties}
-        >
-          {activePhotos.map(renderPhoto)}
+        <div className="smPrintCollage">
+          {getCollageRects(activePhotos.length, photoLayout).map((cell, index) => {
+            const gap = 0.65; // Percentage of the outer artwork dimensions.
+            const left = cell.x === 0 ? 0 : gap / 2;
+            const top = cell.y === 0 ? 0 : gap / 2;
+            const right = cell.x + cell.w >= 0.999 ? 0 : gap / 2;
+            const bottom = cell.y + cell.h >= 0.999 ? 0 : gap / 2;
+            return (
+              <img
+                key={activePhotos[index] + index}
+                src={activePhotos[index]}
+                alt={`Collage photo ${index + 1}`}
+                style={{
+                  position: 'absolute',
+                  left: `${cell.x*100 + left}%`,
+                  top: `${cell.y*100 + top}%`,
+                  width: `${cell.w*100 - left - right}%`,
+                  height: `${cell.h*100 - top - bottom}%`,
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+              />
+            );
+          })}
         </div>
       ) : photoUrl ? (
         <img
