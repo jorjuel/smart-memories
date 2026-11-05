@@ -25,6 +25,8 @@ import {
 import ConfiguredProductPreview from './ConfiguredProductPreview';
 import { composePrintArtwork, type PhotoLayout } from '@/lib/printCollage';
 import { collageLayoutOptions, getCollageRects } from '@/lib/collageLayouts';
+import PhotoCollageEditor from './PhotoCollageEditor';
+import { defaultPhotoCrop, normalisePhotoCrop, type PhotoCrop } from '@/lib/photoCrop';
 import PersonaliserProgress from './PersonaliserProgress';
 import SmartMemoryLivePreview from './SmartMemoryLivePreview';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
@@ -207,6 +209,7 @@ export default function ProductPersonaliser({
   // Original print photographs are kept separately from the recipient's main memory photo.
   const [giftPhotos, setGiftPhotos] = useState<{file:File;url:string}[]>([]);
   const [photoLayout, setPhotoLayout] = useState<PhotoLayout>('mosaic');
+  const [photoCrops, setPhotoCrops] = useState<PhotoCrop[]>([]);
   const [savedPrintPhotoUrls, setSavedPrintPhotoUrls] = useState<string[]>([]);
   const [savedPrintArtworkUrl, setSavedPrintArtworkUrl] = useState<string | null>(null);
 
@@ -440,6 +443,7 @@ export default function ProductPersonaliser({
           const restoredUrl = URL.createObjectURL(savedPhoto);
           setPhotoUrl(restoredUrl);
           setGiftPhotos([{file:savedPhoto,url:restoredUrl}]);
+          setPhotoCrops([defaultPhotoCrop()]);
           draftPhotoBlob.current = savedPhoto;
         }
         if (media[1]) {
@@ -617,6 +621,7 @@ export default function ProductPersonaliser({
     giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
     if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
     setGiftPhotos(newPhotos);
+    setPhotoCrops(newPhotos.map(defaultPhotoCrop));
     setPhoto(newPhotos[0].file);
     setPhotoUrl(newPhotos[0].url);
     setSavedPrintPhotoUrls([]);
@@ -641,6 +646,7 @@ export default function ProductPersonaliser({
     const removed = giftPhotos[index];
     if (removed) URL.revokeObjectURL(removed.url);
     setGiftPhotos(remaining);
+    setPhotoCrops(prev => prev.filter((_,i) => i !== index));
     setPhoto(remaining[0]?.file ?? null);
     setPhotoUrl(remaining[0]?.url ?? '');
     setSavedPrintPhotoUrls([]);
@@ -652,6 +658,7 @@ export default function ProductPersonaliser({
     giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
     if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
     setGiftPhotos([]);
+    setPhotoCrops([]);
     setPhoto(null);
     setPhotoUrl('');
     setSavedPrintPhotoUrls([]);
@@ -988,7 +995,8 @@ export default function ProductPersonaliser({
       if (!isCoaster && printPhotos.length > 1) {
         const collage = await composePrintArtwork(printPhotos, photoLayout,
           slug === 'mouse-mat' || slug === 'photo-mug' ? 3000 : 2400,
-          slug === 'mouse-mat' || slug === 'photo-mug' ? 2000 : 2400);
+          slug === 'mouse-mat' || slug === 'photo-mug' ? 2000 : 2400,
+          photoCrops);
         printArtworkUrl = publicPhoto(await uploadMemoryMedia(collage, 'photo'));
       }
       setSavedPrintPhotoUrls(galleryUrls);
@@ -1182,6 +1190,7 @@ export default function ProductPersonaliser({
         printArtworkUrl: savedPrintArtworkUrl,
         photoLayout: isCoaster ? 'individual-coasters' : (selectedGiftPhotos.length > 1 ? photoLayout : 'single'),
         printPhotoCount: savedPrintPhotoUrls.length,
+        photoCrops: photoCrops.map(normalisePhotoCrop),
       },
     };
 
@@ -1648,6 +1657,7 @@ export default function ProductPersonaliser({
                                   const keep = giftPhotos.slice(0, nextMax);
                                   giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
                                   setGiftPhotos(keep);
+                                  setPhotoCrops(prev => prev.slice(0,nextMax));
                                   setPhoto(keep[0]?.file ?? null);
                                   setPhotoUrl(keep[0]?.url ?? '');
                                 }
@@ -2075,6 +2085,32 @@ export default function ProductPersonaliser({
                       <small>Layouts adapt to 2–6 photos. The selected arrangement is used for the printed gift.</small>
                     </div>
                   )}
+                  {!isCoaster && selectedGiftPhotos.length > 1 && (
+                    <PhotoCollageEditor
+                      photos={selectedGiftPhotos.map(item => item.url)}
+                      layout={photoLayout}
+                      aspectRatio={slug === 'mouse-mat' || slug === 'photo-mug' ? 1.5 : 1}
+                      crops={photoCrops}
+                      onCropChange={(index,nextCrop) => {
+                        setPhotoCrops(prev => selectedGiftPhotos.map((_,i) => i === index
+                          ? normalisePhotoCrop(nextCrop)
+                          : normalisePhotoCrop(prev[i])));
+                        markChanged();
+                      }}
+                      onSwap={(first,second) => {
+                        if (first === second) return;
+                        const next = [...giftPhotos];
+                        [next[first],next[second]] = [next[second],next[first]];
+                        const nextCrops = selectedGiftPhotos.map((_,i)=>normalisePhotoCrop(photoCrops[i]));
+                        [nextCrops[first],nextCrops[second]] = [nextCrops[second],nextCrops[first]];
+                        setGiftPhotos(next);
+                        setPhotoCrops(nextCrops);
+                        setPhoto(next[0].file);
+                        setPhotoUrl(next[0].url);
+                        markChanged();
+                      }}
+                    />
+                  )}
                 </div>
 
                 {allowsOwnDesign &&
@@ -2421,6 +2457,7 @@ export default function ProductPersonaliser({
                     }
                     photos={selectedGiftPhotos.map(item => item.url)}
                     photoLayout={photoLayout}
+                    photoCrops={photoCrops}
                     coasterCount={coasterCount}
                     orientation={
                       orientation
@@ -2779,6 +2816,7 @@ export default function ProductPersonaliser({
                 }
                 photos={selectedGiftPhotos.map(item => item.url)}
                 photoLayout={photoLayout}
+                photoCrops={photoCrops}
                 coasterCount={coasterCount}
                 orientation={
                   orientation

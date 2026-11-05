@@ -1,6 +1,8 @@
 'use client';
 
 import { getCollageRects, type PhotoLayout } from '@/lib/collageLayouts';
+import { useState } from 'react';
+import { getPhotoCropStyle, type PhotoCrop } from '@/lib/photoCrop';
 
 type Props = {
   slug: string;
@@ -8,6 +10,7 @@ type Props = {
   photos?: string[];
   photoLayout?: PhotoLayout;
   coasterCount?: number;
+  photoCrops?: PhotoCrop[];
   orientation: string;
   topText: string;
   bottomText: string;
@@ -15,12 +18,32 @@ type Props = {
   textLayout: string;
 };
 
+function CroppedPrintPhoto({src,index,frameWidth,frameHeight,crop}:{
+  src:string;index:number;frameWidth:number;frameHeight:number;crop?:PhotoCrop;
+}) {
+  const [size,setSize] = useState<{width:number;height:number}|null>(null);
+  return (
+    <img
+      src={src}
+      alt={`Collage photo ${index + 1}`}
+      onLoad={e=>{
+        const image=e.currentTarget;
+        setSize({width:image.naturalWidth,height:image.naturalHeight});
+      }}
+      style={size
+        ? getPhotoCropStyle(size.width,size.height,frameWidth,frameHeight,crop)
+        : {position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}
+    />
+  );
+}
+
 export default function ConfiguredProductPreview({
   slug,
   photoUrl,
   photos = [],
   photoLayout = 'grid',
   coasterCount = 1,
+  photoCrops = [],
   orientation,
   topText,
   bottomText,
@@ -28,10 +51,11 @@ export default function ConfiguredProductPreview({
   textLayout,
 }: Props) {
   const activePhotos = photos.length ? photos : (photoUrl ? [photoUrl] : []);
+  const printAspect = slug === 'mouse-mat' || slug === 'photo-mug' ? 1.5 : 1;
   const imageContent = (
     <>
       {activePhotos.length > 1 && slug !== 'coaster-set' ? (
-        <div className="smPrintCollage">
+        <div className="smPrintCollage" style={{aspectRatio:String(printAspect)}}>
           {getCollageRects(activePhotos.length, photoLayout).map((cell, index) => {
             const gap = 0.65; // Percentage of the outer artwork dimensions.
             const left = cell.x === 0 ? 0 : gap / 2;
@@ -39,20 +63,25 @@ export default function ConfiguredProductPreview({
             const right = cell.x + cell.w >= 0.999 ? 0 : gap / 2;
             const bottom = cell.y + cell.h >= 0.999 ? 0 : gap / 2;
             return (
-              <img
+              <div
                 key={activePhotos[index] + index}
-                src={activePhotos[index]}
-                alt={`Collage photo ${index + 1}`}
                 style={{
                   position: 'absolute',
                   left: `${cell.x*100 + left}%`,
                   top: `${cell.y*100 + top}%`,
                   width: `${cell.w*100 - left - right}%`,
                   height: `${cell.h*100 - top - bottom}%`,
-                  objectFit: 'cover',
-                  display: 'block',
+                  overflow: 'hidden',
                 }}
-              />
+              >
+                <CroppedPrintPhoto
+                  src={activePhotos[index]}
+                  index={index}
+                  frameWidth={cell.w * printAspect}
+                  frameHeight={cell.h}
+                  crop={photoCrops[index]}
+                />
+              </div>
             );
           })}
         </div>
