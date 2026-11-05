@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import mobileStyles from './MobileNavigation.module.css';
 
 import {
   useEffect,
@@ -133,20 +132,8 @@ const hideForRecipientMemory =
     setShopOpen,
   ] = useState(false);
 
-  const [
-    mobileOpen,
-    setMobileOpen,
-  ] = useState(false);
-
-  const [
-    mobileShopOpen,
-    setMobileShopOpen,
-  ] = useState(false);
-
   useEffect(() => {
     setShopOpen(false);
-    setMobileOpen(false);
-    setMobileShopOpen(false);
   }, [pathname]);
 
 if (
@@ -157,8 +144,6 @@ if (
 
   function closeMenus() {
     setShopOpen(false);
-    setMobileOpen(false);
-    setMobileShopOpen(false);
   }
 
   return (
@@ -364,191 +349,15 @@ if (
             Basket
           </Link>
 
-          <button
-            type="button"
-            className="smMobileToggle"
-            aria-expanded={
-              mobileOpen
-            }
-            aria-label={
-              mobileOpen
-                ? 'Close menu'
-                : 'Open menu'
-            }
-            onClick={() =>
-              setMobileOpen(
-                (current) =>
-                  !current
-              )
-            }
-          >
-            {mobileOpen
-              ? 'Close'
-              : 'Menu'}
-          </button>
+          <Link href="/shop" className="smMobileQuickShop" onClick={closeMenus}>
+            Shop
+          </Link>
+          <Link href="/menu" className="smMobileToggle" onClick={closeMenus}>
+            Menu
+          </Link>
         </div>
       </div>
 
-      {mobileOpen && (
-        <div
-          className={mobileStyles.panel}
-          role="navigation"
-          aria-label="Mobile navigation"
-        >
-          <Link
-            href="/create"
-            className={mobileStyles.create}
-            onClick={
-              closeMenus
-            }
-          >
-            Create a Memory
-          </Link>
-
-          <Link
-            href="/shop"
-            onClick={closeMenus}
-            className={mobileStyles.allGifts}
-          >
-            View all gifts
-          </Link>
-
-          <button
-            type="button"
-            className={mobileStyles.shopToggle}
-            aria-expanded={
-              mobileShopOpen
-            }
-            onClick={() =>
-              setMobileShopOpen(
-                (current) =>
-                  !current
-              )
-            }
-          >
-            <span>
-              Shop
-            </span>
-
-            <span>
-              {mobileShopOpen
-                ? '−'
-                : '+'}
-            </span>
-          </button>
-
-          {mobileShopOpen && (
-            <div className={mobileStyles.shopGrid}>
-              {shopGroups.map(
-                (
-                  group
-                ) => (
-                  <div
-                    key={
-                      group.title
-                    }
-                    className={mobileStyles.group}
-                  >
-                    <strong>
-                      {
-                        group.title
-                      }
-                    </strong>
-
-                    {group.items.map(
-                      (
-                        item
-                      ) => (
-                        <Link
-                          key={
-                            item.label
-                          }
-                          href={
-                            item.href
-                          }
-                          onClick={
-                            closeMenus
-                          }
-                        >
-                          {
-                            item.label
-                          }
-                        </Link>
-                      )
-                    )}
-                  </div>
-                )
-              )}
-
-              <div className={mobileStyles.group}>
-                <strong>
-                  Explore
-                </strong>
-
-                <Link
-                  href="/cards"
-                  onClick={
-                    closeMenus
-                  }
-                >
-                  Smart Cards
-                </Link>
-
-                <Link
-                  href="/shop"
-                  onClick={
-                    closeMenus
-                  }
-                >
-                  All Gifts
-                </Link>
-              </div>
-            </div>
-          )}
-
-          <Link
-            href="/how-it-works"
-            onClick={
-              closeMenus
-            }
-          >
-            How It Works
-          </Link>
-
-          <a href="/memories"
-            onClick={
-              closeMenus
-            }
-          >
-            My Memories
-          </a>
-
-          <a href="/account/orders"
-            onClick={
-              closeMenus
-            }
-          >
-            My Orders
-          </a>
-
-          <a href="/account"
-            onClick={
-              closeMenus
-            }
-          >
-            Account
-          </a>
-
-          <Link
-            href="/cart"
-            onClick={
-              closeMenus
-            }
-          >
-            Basket
-          </Link>
-        </div>
-      )}
     </header>
   );
 }
