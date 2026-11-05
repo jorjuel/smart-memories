@@ -15,6 +15,15 @@ export const SHIPPING_PRICES_PENCE = {
 export function getProductPricePence(
   slug: string
 ) {
+  if (slug === 'memory-tag') {
+    const configured = process.env.MEMORY_TAG_PRICE_PENCE;
+    const pricePence = configured ? Number(configured) : NaN;
+    if (!Number.isInteger(pricePence) || pricePence <= 0) {
+      throw new Error('Memory tag ordering is not yet available.');
+    }
+    return pricePence;
+  }
+
   const product =
     products.find(
       (item) =>
