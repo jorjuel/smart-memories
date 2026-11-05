@@ -229,6 +229,29 @@ export async function POST(
                 );
               }
 
+              if (item.productSlug === 'memory-tag') {
+                const personalisation =
+                  item.personalisation && typeof item.personalisation === 'object'
+                    ? item.personalisation as Record<string, unknown>
+                    : {};
+                const allowedBowColours = [
+                  'rose-gold', 'champagne', 'ivory', 'blush', 'burgundy', 'sage',
+                ];
+                if (
+                  typeof item.memoryCode !== 'string' ||
+                  !/^[A-HJ-NP-Z2-9]{8}$/.test(item.memoryCode) ||
+                  !allowedBowColours.includes(String(personalisation.bowColourId || ''))
+                ) {
+                  throw new Error('Select a saved memory and valid bow colour before ordering a memory tag.');
+                }
+                const { data: linkedMemory, error: memoryLookupError } =
+                  await admin.from('memories').select('code')
+                    .eq('code', item.memoryCode).maybeSingle();
+                if (memoryLookupError || !linkedMemory) {
+                  throw new Error('The memory linked to your gift tag could not be verified.');
+                }
+              }
+
               unitPricePence =
                 getProductPricePence(
                   item.productSlug
