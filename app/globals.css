@@ -12411,3 +12411,76 @@ header.smSiteHeader {
   .smMemoryPathCard {padding:20px}
   .smBowPreviewArt {height:190px}
 }
+
+/* Shorter Make Your Memory pages: reduce unnecessary vertical scrolling.
+   Scoped to memory journey, editor and bow checkout. */
+.createMemoryHero {
+  padding: clamp(25px, 3.6vw, 46px) 20px 12px;
+}
+.createMemoryHero h1 {
+  font-size: clamp(34px, 4.6vw, 57px);
+  max-width: 850px;
+  margin: 10px auto 12px;
+  line-height: 1.12;
+}
+.createMemoryHero > p {
+  font-size: clamp(14px, 1.6vw, 17px);
+  line-height: 1.5;
+}
+.createMemoryBrandLine {
+  margin-top: 12px;
+  font-size: 17px;
+}
+.smMemoryPathSection {
+  padding: 16px 0 clamp(30px, 4vw, 50px);
+}
+.smMemoryPathSection h2 {
+  font-size: clamp(27px, 3vw, 38px);
+  margin: 7px auto 10px;
+}
+.smMemoryPathSection > p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 17px;
+}
+.smMemoryPathGrid { gap: 13px; }
+.smMemoryPathCard { padding: clamp(15px, 2.3vw, 24px); gap: 7px; }
+.smMemoryPathIcon { font-size: 28px; }
+.smMemoryPathCard h3 { font-size: 24px; }
+.smMemoryPathCard p { line-height: 1.45; font-size: 14px; margin-bottom: 4px; }
+.smCompactMemoryForm {
+  padding-top: clamp(20px, 3vw, 38px);
+  padding-bottom: clamp(25px, 4vw, 48px);
+}
+.smCompactMemoryForm h1 { margin: 8px 0 12px; font-size: clamp(32px, 4vw, 48px); }
+.smCompactMemoryForm .lead { line-height: 1.5; margin: 0 0 16px; }
+.smCompactMemoryForm .form.card { padding: clamp(16px, 2.5vw, 26px); }
+.smCompactMemoryForm .form.card > label { gap: 6px; margin-bottom: 12px; }
+.smCompactMemoryForm .form.card input:not([type=file]),
+.smCompactMemoryForm .form.card textarea { padding: 10px 12px; }
+.smCompactMemoryForm .form.card textarea { min-height: 100px; }
+.smCompactMemoryForm .preview { max-height: 180px; width: auto; max-width: 100%; object-fit: contain; }
+.smBowPage { padding: clamp(16px, 2.7vw, 33px) 0 42px; }
+.smBowIntro { margin-bottom: 16px; }
+.smBowPage h1 { font-size: clamp(30px, 3.5vw, 42px); margin: 8px auto 10px; }
+.smBowIntro > p { margin: 8px 0; line-height: 1.45; font-size: 14px; }
+.smBowLayout { gap: 15px; }
+.smBowPreview, .smBowSelection { padding: 15px; }
+.smBowPreviewArt { height: clamp(155px, 22vw, 215px); }
+.smBowPreview small { line-height: 1.4; }
+.smBowSelection h2 { font-size: 25px; margin-bottom: 10px; }
+.smBowColourGrid { gap: 8px; margin-bottom: 12px; }
+.smBowColour { padding: 8px; }
+.smBowSwatch { width: 30px; height: 30px; }
+.smBowConfirmed { gap: 7px; }
+@media (max-width: 680px) {
+  .createMemoryHero { padding: 23px 17px 7px; }
+  .createMemoryHero h1 { font-size: clamp(32px, 8vw, 41px); }
+  .smMemoryPathSection { padding-top: 14px; }
+  .smMemoryPathGrid { gap: 10px; }
+  .smMemoryPathCard { padding: 16px; }
+  .smBowLayout { gap: 12px; }
+  .smBowPreview { padding: 10px; }
+  .smBowPreviewArt { height: 125px; }
+  .smBowPage { padding-top: 18px; }
+}

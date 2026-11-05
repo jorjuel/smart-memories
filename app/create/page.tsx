@@ -391,7 +391,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
     );
   }
   return (
-    <section className="wrap">
+    <section className="wrap smCompactMemoryForm">
       <div
         style={{
           maxWidth:
