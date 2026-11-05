@@ -11954,3 +11954,50 @@ header.smSiteHeader {
   .smCoasterPhotoGrid { gap: 7px; padding: 4px; }
   .smCoasterPhoto { border-width: 2px; }
 }
+
+/* Selectable framed mosaics: proportional thumbnails for 2–6 customer photos. */
+.smCollageTemplateOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+.smCollageTemplate {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border: 2px solid #eadbd5;
+  border-radius: 12px;
+  background: #fff;
+  color: #4b3037;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+.smCollageTemplate.active {
+  border-color: #a6535c;
+  box-shadow: 0 0 0 2px #a6535c22;
+  background: #fff8f5;
+}
+.smCollageTemplateGraphic {
+  position: relative;
+  display: block;
+  width: min(100%, 112px);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #fff;
+  border: 5px solid #fff;
+  box-shadow: 0 1px 7px #44333344;
+}
+.smCollageTemplateGraphic > span { display: block; }
+.smCollageTemplate > span:last-child { text-align: center; }
+.smPrintCollage { position: relative; width: 100%; max-width: 100%; aspect-ratio: 4 / 3; display: block; overflow: hidden; }
+.smPrintCollage img { max-width: none; }
+@media (max-width: 600px) {
+  .smCollageTemplateOptions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
