@@ -19,7 +19,7 @@ function BowColourContent() {
   const code = query.get('code')?.trim() || '';
   const validCode = /^[A-HJ-NP-Z2-9]{8}$/.test(code);
   const [colour, setColour] = useState<string>('rose-gold');
-  const [confirmed, setConfirmed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [pricePence, setPricePence] = useState<number|null>(null);
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState('');
@@ -31,7 +31,7 @@ function BowColourContent() {
       const parsed = stored ? JSON.parse(stored) : null;
       if (colours.some(item => item.id === parsed?.colour)) {
         setColour(parsed.colour);
-        setConfirmed(true);
+
       }
     } catch { /* No prior selection on this device. */ }
   }, [code, validCode]);
@@ -51,32 +51,29 @@ function BowColourContent() {
     return () => { active = false; };
   }, []);
 
-  function confirmColour() {
-    if (!validCode) return;
-    try {
-      localStorage.setItem(`sm-bow-choice:${code}`, JSON.stringify({colour,code}));
-      setConfirmed(true);
-      setError('');
-    } catch {
-      setError('Unable to save this choice on your device. Please check browser storage permissions.');
-    }
-  }
-
-  function addToBasket() {
-    if (!validCode || !confirmed || !pricePence) return;
+  function continueToPayment() {
+    if (!validCode || !pricePence || submitting) return;
     const selected = colours.find(item => item.id === colour);
     if (!selected) return;
+    setSubmitting(true);
+    setError('');
     try {
+      localStorage.setItem(`sm-bow-choice:${code}`, JSON.stringify({colour,code}));
       const existing = JSON.parse(localStorage.getItem('smart-memories-cart') || '[]');
       const basket = Array.isArray(existing) ? existing : [];
-      basket.push({
-        id: crypto.randomUUID(),
+      // Replace an earlier unfinished entry for this exact memory tag so a
+      // returning customer does not accidentally buy two copies.
+      const previous = basket.findIndex((item: {productSlug?: string;memoryCode?: string}) =>
+        item.productSlug === 'memory-tag' && item.memoryCode === code
+      );
+      const line = {
+        id: previous >= 0 && typeof basket[previous]?.id === 'string'
+          ? basket[previous].id : crypto.randomUUID(),
         productType:'product',
         productSlug:'memory-tag',
         name:'Smart Memory Tag with Decorative Bow',
         category:'Smart Memory Tags',
         memoryCode: code,
-        recipient: '',
         imageUrl: null,
         price:pricePence/100,
         quantity:1,
@@ -86,11 +83,14 @@ function BowColourContent() {
           finish:'decorative satin bow',
           memoryCode:code,
         },
-      });
+      };
+      if (previous >= 0) basket[previous] = line;
+      else basket.push(line);
       localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
-      router.push('/cart');
+      router.push('/checkout');
     } catch {
-      setError('We could not add the memory tag to your basket. Please try again.');
+      setError('Could not prepare checkout. Please check your browser storage settings and try again.');
+      setSubmitting(false);
     }
   }
 
@@ -104,15 +104,15 @@ function BowColourContent() {
   return <main className="smBowPage">
     <div className="smBowIntro">
       <span className="v14Eyebrow">MEMORY ONLY · FINAL STEP</span>
-      <h1>Choose your satin bow colour</h1>
-      <p>Your memory has been saved. Choose the finishing touch for its personalised gift tag.</p>
+      <h1>Choose your bow colour</h1>
+      <p>Your memory is saved. Pick the bow colour and continue directly to payment.</p>
       <p className="smBowMemoryReference">Memory reference: <strong>{code}</strong> · <Link href={`/m/${code}`}>View memory</Link></p>
     </div>
     <div className="smBowLayout">
       <div className="smBowPreview">
         <div className="smBowPreviewArt" role="img" aria-label="Smart Memories decorative satin ribbon bow and hanging gift tag" />
         <strong>{colours.find(item=>item.id===colour)?.name} satin bow</strong>
-        <small>Illustration shows the rose-gold design. Other colours are represented by swatches until product photography is available.</small>
+        <small>Rose-gold example. Choose your preferred colour on the right.</small>
       </div>
       <div className="smBowSelection">
         <h2>Select a colour</h2>
@@ -121,7 +121,7 @@ function BowColourContent() {
             <button type="button" key={item.id}
               aria-pressed={colour===item.id}
               className={colour===item.id ? 'smBowColour active' : 'smBowColour'}
-              onClick={() => {setColour(item.id);setConfirmed(false);}}
+              onClick={() => setColour(item.id)}
             >
               <span className="smBowSwatch" style={{backgroundColor:item.value}} aria-hidden="true" />
               <strong>{item.name}</strong>
@@ -129,24 +129,16 @@ function BowColourContent() {
           ))}
         </div>
         {error && <p role="alert" className="smBowError">{error}</p>}
-        {!confirmed ? (
-          <button className="btn big" type="button" onClick={confirmColour}>Confirm bow colour</button>
-        ) : (
-          <div className="smBowConfirmed">
-            <p role="status">✓ Your {colours.find(item=>item.id===colour)?.name} bow is selected.</p>
-            {pricePence ? (
-              <>
-                <strong>£{(pricePence/100).toFixed(2)} excluding delivery</strong>
-                <button type="button" className="btn big" onClick={addToBasket}>Add Memory Tag to basket</button>
-              </>
-            ) : checking ? <p>Checking availability and price…</p> : (
-              <>
-                <p>The physical Memory Tag is not available for online checkout until its price has been configured. Your digital memory is saved and your bow choice is kept on this device.</p>
-                <Link href="/contact?type=memory-tag" className="btn">Enquire about your gift tag</Link>
-              </>
-            )}
-          </div>
-        )}
+        <div className="smBowConfirmed">
+          <strong>Memory Tag with satin bow — £5.00</strong>
+          <small>Delivery is calculated at checkout.</small>
+          <button className="btn big" type="button"
+            disabled={checking || !pricePence || submitting}
+            onClick={continueToPayment}>
+            {submitting ? 'Opening checkout…' : checking ? 'Checking price…' : 'Continue to payment — £5.00'}
+          </button>
+          <Link href={`/m/${code}`}>View your saved memory</Link>
+        </div>
       </div>
     </div>
   </main>;
