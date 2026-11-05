@@ -198,8 +198,8 @@ export default function CheckoutPage() {
       [items]
     );
 
-  const delivery =
-    SHIPPING_PRICES_PENCE[deliveryMethod] / 100;
+  const digitalOnly = items.length > 0 && items.every(item => item.productType === 'product' && item.productSlug === 'digital-memory');
+  const delivery = digitalOnly ? 0 : SHIPPING_PRICES_PENCE[deliveryMethod] / 100;
 
   const total =
     subtotal + delivery;
@@ -212,14 +212,12 @@ export default function CheckoutPage() {
     email.trim() &&
     firstName.trim() &&
     lastName.trim() &&
-    address1.trim() &&
-    town.trim() &&
-    postcode.trim();
+    (digitalOnly || (address1.trim() && town.trim() && postcode.trim()));
 
   async function createOrder() {
     if (!formReady) {
       setOrderError(
-        'Please complete your name, email and delivery address.'
+        digitalOnly ? 'Please complete your name and email.' : 'Please complete your name, email and delivery address.'
       );
 
       return;
@@ -675,7 +673,7 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          <section className="checkoutCard">
+          {!digitalOnly &&           <section className="checkoutCard">
             <div className="checkoutSectionHeading">
               <span>
                 02
@@ -790,9 +788,9 @@ export default function CheckoutPage() {
                 />
               </label>
             </div>
-          </section>
+          </section>}
 
-          <section className="checkoutCard">
+          {!digitalOnly &&           <section className="checkoutCard">
             <div className="checkoutSectionHeading">
               <span>
                 03
@@ -877,7 +875,7 @@ export default function CheckoutPage() {
               after production, and a delivery date is not guaranteed.
               <Link href="/delivery"> Read delivery information</Link>.
             </p>
-          </section>
+          </section>}
 
           <section className="checkoutCard paymentPlaceholder">
             <div className="checkoutSectionHeading">
