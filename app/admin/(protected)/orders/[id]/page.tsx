@@ -916,6 +916,16 @@ export default async function AdminOrderDetailPage({
                   ? item.personalisation.printArtworkUrl
                   : null;
 
+              const printPhotoUrls =
+                item.personalisation &&
+                typeof item.personalisation === 'object' &&
+                'printPhotoUrls' in item.personalisation &&
+                Array.isArray(item.personalisation.printPhotoUrls)
+                  ? item.personalisation.printPhotoUrls.filter(
+                      (url): url is string => typeof url === 'string' && /^https:\/\//.test(url)
+                    ).slice(0, 6)
+                  : [];
+
               const savedItem =
                 itemProductionData[
                   item.id
@@ -1016,6 +1026,21 @@ export default async function AdminOrderDetailPage({
                       >
                         View print artwork
                       </a>
+                    </div>
+                  )}
+
+                  {printPhotoUrls.length > 0 && (
+                    <div className="card" style={{ margin: '12px 0' }}>
+                      <strong>Original print photos ({printPhotoUrls.length})</strong>
+                      <p>For coaster sets, print each photo on its corresponding coaster. Repeat images in order if fewer were supplied than coasters.</p>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 12 }}>
+                        {printPhotoUrls.map((url, index) => (
+                          <a key={url + index} href={url} target="_blank" rel="noopener noreferrer">
+                            <img src={url} alt={`Original photo ${index + 1}`} style={{ display:'block', width:'100%', aspectRatio:'1', objectFit:'cover', borderRadius:8 }} />
+                            Download photo {index + 1}
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   )}
 
