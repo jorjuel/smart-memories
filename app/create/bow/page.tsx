@@ -153,7 +153,14 @@ function BowColourContent() {
     <p className="smPhysicalBowDivider">Prefer a physical gift? Choose a bow colour below.</p>
     <div className="smBowLayout">
       <div className="smBowPreview">
-        <div className="smBowPreviewArt" role="img" aria-label="Smart Memories decorative satin ribbon bow and hanging gift tag" />
+        <img
+          className="smBowPreviewArt"
+          src="/images/smart-memories-bow-selection.webp"
+          width={360}
+          height={240}
+          alt="Smart Memories cream gift tag with a large rose-gold satin bow, displayed beside flowers and wrapped gifts"
+          decoding="async"
+        />
         <strong>{colours.find(item=>item.id===colour)?.name} satin bow</strong>
         <small>Rose-gold example. Choose your preferred colour on the right.</small>
       </div>
