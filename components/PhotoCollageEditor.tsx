@@ -14,11 +14,12 @@ type Props = {
   crops: PhotoCrop[];
   onCropChange: (index: number, crop: PhotoCrop) => void;
   onSwap: (first: number, second: number) => void;
+  lockFirstPhoto?: boolean;
 };
 type ImageSize = { width: number; height: number };
 
 export default function PhotoCollageEditor({
-  photos, layout, aspectRatio, crops, onCropChange, onSwap,
+  photos, layout, aspectRatio, crops, onCropChange, onSwap, lockFirstPhoto = false,
 }: Props) {
   const [selected, setSelected] = useState(0);
   const [dimensions, setDimensions] = useState<Record<string,ImageSize>>({});
@@ -32,6 +33,7 @@ export default function PhotoCollageEditor({
 
   function swap(first: number, second: number) {
     if (first === second || first < 0 || second < 0 || second >= photos.length) return;
+    if (lockFirstPhoto && (first === 0 || second === 0)) return;
     onSwap(first,second);
     setSelected(second);
   }
@@ -40,7 +42,9 @@ export default function PhotoCollageEditor({
     <section className={styles.editor} aria-label="Edit your photo collage">
       <div className={styles.intro}>
         <strong>Arrange your photographs</strong>
-        <p>Select a photo to zoom or reposition it. Drag the photo inside its frame to move the crop; drag a thumbnail onto another to swap their positions.</p>
+        <p>{lockFirstPhoto
+          ? 'The main photo stays in position 1. Select any photo to adjust its crop, or rearrange the extra photos.'
+          : 'Select a photo to zoom or reposition it. Drag the photo inside its frame to move the crop; drag a thumbnail onto another to swap their positions.'}</p>
       </div>
 
       <div className={styles.artwork} style={{aspectRatio: String(aspectRatio)}}>
@@ -111,11 +115,20 @@ export default function PhotoCollageEditor({
           <button
             type="button"
             key={url}
-            draggable
+            draggable={!lockFirstPhoto || index !== 0}
             className={selectedIndex===index ? styles.thumbActive : styles.thumb}
             onClick={() => setSelected(index)}
-            onDragStart={e => {setDragFrom(index);e.dataTransfer.setData('text/plain',String(index));e.dataTransfer.effectAllowed='move';}}
-            onDragOver={e => {e.preventDefault();e.dataTransfer.dropEffect='move';}}
+            onDragStart={e => {
+              if (lockFirstPhoto && index === 0) { e.preventDefault(); return; }
+              setDragFrom(index);
+              e.dataTransfer.setData('text/plain',String(index));
+              e.dataTransfer.effectAllowed='move';
+            }}
+            onDragOver={e => {
+              if (lockFirstPhoto && index === 0) return;
+              e.preventDefault();
+              e.dataTransfer.dropEffect='move';
+            }}
             onDrop={e => {
               e.preventDefault();
               const first=Number(e.dataTransfer.getData('text/plain'));
@@ -123,7 +136,9 @@ export default function PhotoCollageEditor({
               setDragFrom(null);
             }}
             onDragEnd={() => setDragFrom(null)}
-            aria-label={`Select photo ${index+1}; drag to reorder`}
+            aria-label={lockFirstPhoto && index === 0
+              ? 'Main photo, fixed in position 1'
+              : `Select photo ${index+1}; drag to reorder`}
             aria-pressed={selectedIndex===index}
             style={dragFrom===index ? {opacity:.5}:undefined}
           >
@@ -152,8 +167,8 @@ export default function PhotoCollageEditor({
         </label>
         <div className={styles.actions}>
           <button type="button" onClick={()=>onCropChange(selectedIndex,{zoom:1,x:0,y:0})}>Reset photo</button>
-          <button type="button" disabled={selectedIndex===0} onClick={()=>swap(selectedIndex,selectedIndex-1)}>Move left</button>
-          <button type="button" disabled={selectedIndex===photos.length-1} onClick={()=>swap(selectedIndex,selectedIndex+1)}>Move right</button>
+          <button type="button" disabled={selectedIndex===0 || (lockFirstPhoto && selectedIndex <= 1)} onClick={()=>swap(selectedIndex,selectedIndex-1)}>Move left</button>
+          <button type="button" disabled={selectedIndex===photos.length-1 || (lockFirstPhoto && selectedIndex === 0)} onClick={()=>swap(selectedIndex,selectedIndex+1)}>Move right</button>
         </div>
       </div>
     </section>
