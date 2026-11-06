@@ -33,7 +33,7 @@ test('creation method precedes the design dropdown, direction and gift wording',
 test('tapping a quick template changes the live gift preview without modifying the uploaded images', () => {
   const code = read('components/ProductPersonaliser.tsx');
   const preview = read('components/ConfiguredProductPreview.tsx');
-  assert.match(code, /onClick=\{\(\) => \{\s*\/\/ The live gift mockup reacts[\s\S]*?setTemplate\(item\)/);
+  assert.match(code, /onClick=\{\(\) => \{\s*setTemplate\(item\)/);
   assert.match(code, /template=\{mode === 'quick' && designSource === 'ours' \? template : null\}/);
   assert.match(preview, /data-template-theme=\{templateTheme \|\| undefined\}/);
 });
