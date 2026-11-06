@@ -29,8 +29,8 @@ test('slate builder retains photo controls and print uses the same composition o
  assert.match(review,/printArtworkUrl:url\(printPath\)/);
 });
 test('written and recorded memories are composed together before a separate review page',()=>{
- assert.match(source,/Smart Memory message \(optional\)/);
- assert.match(source,/Smart Memory voice recording \(optional\)/);
+ assert.match(source,/Written message/);
+ assert.match(source,/Voice message/);
  assert.match(source,/navigator\.mediaDevices\.getUserMedia/);
  assert.match(source,/MediaRecorder/);
  assert.match(source,/storeSlateDraft\(draft\)/);
