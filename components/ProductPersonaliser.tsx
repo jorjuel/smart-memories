@@ -1448,6 +1448,7 @@ export default function ProductPersonaliser({
                 </div>
               </div>
 
+              {!isCoaster && (
               <div className="smWizardSection">
                 <h3>
                   What is it for?
@@ -1540,6 +1541,7 @@ export default function ProductPersonaliser({
                   )}
                 </select>
               </div>
+              )}
 
               {allowsOwnDesign && (
                 <div className="smWizardSection">
@@ -1695,8 +1697,7 @@ export default function ProductPersonaliser({
                                   giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
                                   setGiftPhotos(keep);
                                   setPhotoCrops(prev => prev.slice(0,nextMax));
-                                  setPhoto(keep[0]?.file ?? null);
-                                  setPhotoUrl(keep[0]?.url ?? '');
+                                  // Removing surplus extra images must not modify the main photo.
                                 }
                               }
                               markChanged();
@@ -2055,7 +2056,7 @@ export default function ProductPersonaliser({
                             removePhoto
                           }
                         >
-                          Remove
+                          Remove all photos
                         </button>
                       </div>
                     </div>
@@ -2135,15 +2136,11 @@ export default function ProductPersonaliser({
                         markChanged();
                       }}
                       onSwap={(first,second) => {
-                        if (first === second) return;
-                        const next = [...giftPhotos];
-                        [next[first],next[second]] = [next[second],next[first]];
-                        const nextCrops = selectedGiftPhotos.map((_,i)=>normalisePhotoCrop(photoCrops[i]));
-                        [nextCrops[first],nextCrops[second]] = [nextCrops[second],nextCrops[first]];
-                        setGiftPhotos(next);
-                        setPhotoCrops(nextCrops);
-                        setPhoto(next[0].file);
-                        setPhotoUrl(next[0].url);
+                        if (first === second || first === 0 || second === 0) return;
+                        const crops = selectedGiftPhotos.map((_,i)=>normalisePhotoCrop(photoCrops[i]));
+                        setGiftPhotos(reorderExtraPhotos(giftPhotos, first, second));
+                        setPhotoCrops(reorderExtraPhotos(crops, first, second));
+                        // Slot one remains the main Smart Memory photo.
                         markChanged();
                       }}
                     />
