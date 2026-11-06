@@ -13026,3 +13026,269 @@ header.smSiteHeader {
   }
   .smDesignPickerArtwork .smCoasterPhoto { max-width: 42px; }
 }
+
+/* FIX: The phone mockup was forced into 96–110px-high containers.
+   Let the physical gift keep its own proportions instead of clipping
+   the customer's main photo, and avoid overlapping form controls. */
+.smWizardPage .smDesignPickerResult {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  padding: clamp(12px, 2vw, 18px);
+  overflow: visible;
+}
+.smWizardPage .smDesignPickerInfo {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+}
+.smWizardPage .smDesignPickerInfo strong {
+  font-size: clamp(19px, 2.4vw, 25px);
+}
+.smWizardPage .smDesignPickerArtwork,
+.smWizardPage .smWizardPhonePreviewArtwork,
+.smFullGiftPreviewArtwork {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  align-items: center;
+  justify-content: center;
+  padding: 9px;
+  background: #f5efeb;
+  border-radius: 12px;
+}
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork) > .configuredPreview,
+.smFullGiftPreviewArtwork > .configuredPreview {
+  position: relative;
+  width: min(100%, 350px) !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin: auto !important;
+  transform: none !important;
+}
+/* A slate/plaque is portrait or landscape; never squash either into a short strip. */
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  > .configuredPreview:is(.slateConfigured,.plaqueConfigured,.mouseConfigured,.genericConfigured),
+.smFullGiftPreviewArtwork
+  > .configuredPreview:is(.slateConfigured,.plaqueConfigured,.mouseConfigured,.genericConfigured) {
+  aspect-ratio: 4 / 5;
+}
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  > .configuredPreview.configuredLandscape,
+.smFullGiftPreviewArtwork > .configuredPreview.configuredLandscape {
+  aspect-ratio: 5 / 4;
+}
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  > .configuredPreview.mouseConfigured,
+.smFullGiftPreviewArtwork > .configuredPreview.mouseConfigured {
+  aspect-ratio: 3 / 2;
+}
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  :is(.slateConfigured,.plaqueConfigured,.mouseConfigured,.genericConfigured) > .configuredSurface,
+.smFullGiftPreviewArtwork
+  :is(.slateConfigured,.plaqueConfigured,.mouseConfigured,.genericConfigured) > .configuredSurface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #e9e4e0;
+  border: 4px solid #44403e;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+/* Show the entire original image in the inspectable on-screen preview.
+   Saved crop/print-collage controls remain unchanged. */
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  .configuredPreviewImage,
+.smFullGiftPreviewArtwork .configuredPreviewImage {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center;
+}
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  :is(.mugConfigured,.shirtConfigured,.keyringConfigured,.coasterConfigured),
+.smFullGiftPreviewArtwork
+  :is(.mugConfigured,.shirtConfigured,.keyringConfigured,.coasterConfigured) {
+  aspect-ratio: auto;
+  min-height: 210px !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+/* A coaster grid needs room for the actual individual coaster faces. */
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  .smCoasterPhotoGrid,
+.smFullGiftPreviewArtwork .smCoasterPhotoGrid {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  gap: 9px;
+}
+.smWizardPage :is(.smDesignPickerArtwork,.smWizardPhonePreviewArtwork)
+  .smCoasterPhoto,
+.smFullGiftPreviewArtwork .smCoasterPhoto {
+  width: 100%;
+  max-width: 115px;
+  border-width: 3px;
+}
+.smWizardPage .smPreviewOpenButton {
+  min-height: 43px;
+  padding: 9px 16px;
+  border: 1px solid #bb8792;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--sm-plum-dark);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.smWizardPage .smPreviewOpenButton:hover,
+.smWizardPage .smPreviewOpenButton:focus-visible {
+  background: #f3e3e4;
+  outline-offset: 3px;
+}
+/* The existing desktop sidebar remains sticky. No duplicate preview is shown
+   during the Design step on phone; this single inline preview is primary. */
+@media (max-width: 980px) {
+  .smWizardPage .smWizardPhoneLivePreview {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    min-height: 0;
+    max-height: none;
+    padding: 13px;
+    margin: 0 0 15px;
+    overflow: visible;
+  }
+  .smWizardPage .smWizardPhonePreviewHeading {
+    display: flex;
+    width: 100%;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+  .smWizardPage .smWizardPhonePreviewHeading small {
+    font-size: 13px;
+  }
+  .smWizardPage .smWizardPhonePreviewArtwork {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    width: 100%;
+    padding: 10px;
+    overflow: visible;
+  }
+  .smWizardPage .smWizardNavigation {
+    position: static;
+    bottom: auto;
+    margin: 15px 0 0;
+    z-index: auto;
+  }
+}
+@media (max-width: 600px) {
+  .smWizardPage .smDesignPickerArtwork {
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    padding: 8px;
+  }
+  .smWizardPage .smDesignPickerArtwork > .configuredPreview {
+    max-width: min(100%, 295px) !important;
+    height: auto !important;
+  }
+  .smWizardPage .smWizardPhonePreviewArtwork {
+    height: auto;
+  }
+  .smWizardPage .smWizardPhonePreviewArtwork > .configuredPreview {
+    height: auto !important;
+    max-width: min(100%, 295px) !important;
+  }
+  .smWizardPage .smDesignPickerInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .smWizardPage .smDesignPickerInfo strong { font-size: 21px; }
+  .smWizardPage .smDesignPickerResult { padding: 10px; }
+}
+
+/* Native dialog provides an unclipped, accessible full-size preview.
+   Press Escape, or use the Close control, to return to the form. */
+.smFullGiftPreviewDialog {
+  width: min(94vw, 540px);
+  max-width: min(94vw, 540px);
+  max-height: min(89dvh, 900px);
+  padding: clamp(14px, 3vw, 24px);
+  border: 1px solid #e1c7ca;
+  border-radius: 20px;
+  background: #fffaf7;
+  color: var(--sm-plum-dark);
+  box-shadow: 0 20px 70px rgba(25,17,21,.3);
+  overflow-y: auto;
+}
+.smFullGiftPreviewDialog::backdrop {
+  background: rgba(25,17,21,.76);
+}
+.smFullGiftPreviewHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.smFullGiftPreviewHeader h2 {
+  font: 400 24px/1.16 Georgia,serif;
+  margin: 6px 0 4px;
+}
+.smFullGiftPreviewHeader p {
+  font-size: 13px;
+  color: var(--sm-muted);
+  margin: 0;
+}
+.smFullGiftPreviewClose {
+  flex: none;
+  min-width: 45px;
+  min-height: 45px;
+  border: 1px solid var(--sm-border);
+  border-radius: 100%;
+  background: #fff;
+  color: var(--sm-plum-dark);
+  font-size: 29px;
+  line-height: 1;
+  cursor: pointer;
+}
+.smFullGiftPreviewArtwork {
+  padding: 14px;
+  max-width: 100%;
+}
+.smFullGiftPreviewArtwork > .configuredPreview {
+  width: min(100%, 430px) !important;
+}
+.smFullGiftPreviewNote {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--sm-muted);
+}
