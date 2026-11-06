@@ -4,6 +4,7 @@ type SignedUpload = { path: string; token: string; error?: string };
 
 const MAX_PHOTO = 10 * 1024 * 1024;
 const MAX_AUDIO = 25 * 1024 * 1024;
+const MAX_VIDEO = 60 * 1024 * 1024;
 
 /**
  * Send large files straight to Supabase instead of including them
@@ -11,19 +12,21 @@ const MAX_AUDIO = 25 * 1024 * 1024;
  */
 export async function uploadMemoryMedia(
   file: Blob,
-  kind: 'photo' | 'audio'
+  kind: 'photo' | 'audio' | 'video'
 ): Promise<string> {
-  const maxBytes = kind === 'photo' ? MAX_PHOTO : MAX_AUDIO;
+  const maxBytes = kind === 'photo' ? MAX_PHOTO : kind === 'audio' ? MAX_AUDIO : MAX_VIDEO;
   if (!file.size || file.size > maxBytes) {
     throw new Error(kind === 'photo'
       ? 'Please choose a photo of 10 MB or smaller.'
-      : 'Please choose audio of 25 MB or smaller.');
+      : kind === 'audio' ? 'Please choose audio of 25 MB or smaller.'
+      : 'Please choose a video of 60 MB or smaller.');
   }
 
   const contentType = file.type.toLowerCase().split(';')[0] ||
-    (kind === 'photo' ? 'image/jpeg' : 'audio/webm');
+    (kind === 'photo' ? 'image/jpeg' : kind === 'audio' ? 'audio/webm' : 'video/mp4');
+  const videoTypeAllowed = ['video/mp4', 'video/quicktime', 'video/webm'].includes(contentType);
   if (!(kind === 'photo' ? contentType.startsWith('image/')
-    : contentType.startsWith('audio/'))) {
+    : kind === 'audio' ? contentType.startsWith('audio/') : videoTypeAllowed)) {
     throw new Error('Please select a supported ' + kind + ' file.');
   }
 
