@@ -23,15 +23,15 @@ const WAYS:{value:Wording;label:string}[]=[
 type Crop={zoom:number;dx:number;dy:number};
 const PRICE=24.99; // Retain existing slate base price until size-specific prices are configured.
 
-function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string){
- const cw=900,ch=Math.round(cw*sz.height/sz.width);
+function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900){
+ const ch=Math.round(cw*sz.height/sz.width);
  const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
  const w=cw,h=ch;
  ctx.fillStyle='#191919';ctx.fillRect(0,0,w,h);
  // Subtle organic slate edges and an inset white printable face.
  ctx.fillStyle='#f8f8f4';ctx.fillRect(w*.025,h*.018,w*.95,h*.964);
  const inset=w*.09,topPadding=h*.07,bottomPadding=h*.075;
- const fontSize=Math.max(23,Math.min(37,w*.036));
+ const fontSize=w*.036;
  ctx.textAlign='center';ctx.fillStyle='#222222';
  const topSpace=(way==='top'||way==='both')?fontSize*2.0:0;
  const bottomSpace=(way==='bottom'||way==='both')?fontSize*2.3:way==='paragraph'?fontSize*4.0:0;
@@ -122,10 +122,12 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
   if(saving)return;
   setSaving(true);setError('');
   try{
-   // Render exactly the canvas artwork the customer has approved.
-   draw();
-   const canvas=canvasRef.current;
-   if(!canvas)throw Error('Preview unavailable.');
+   // Render the same composition at approximately 300 DPI for actual slate printing.
+   // Preview stays at 900 pixels wide for quick editing and mobile performance.
+   const canvas=document.createElement('canvas');
+   const printCtx=canvas.getContext('2d');
+   if(!printCtx)throw Error('Could not prepare print artwork.');
+   paint(printCtx,image,size,crop,wording,topText,bottomText,dedication,Math.round(size.width/2.54*300));
    const artwork=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export your design.')),'image/jpeg',.94));
    const artworkFile=new File([artwork],'smart-slate-print.jpg',{type:'image/jpeg'});
    const [photoPath,artworkPath]=await Promise.all([
