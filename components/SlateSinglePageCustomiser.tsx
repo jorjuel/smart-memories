@@ -217,11 +217,11 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
    window.location.assign('/slate/review');
   }catch(err){setError(err instanceof Error?err.message:'Could not prepare the review.');setSaving(false);}
  }
- return <section className="slateStudio" aria-label="Personalise your photo slate">
-  <div className="slateStudioHeading"><span className="eyebrow">SMART MEMORIES · PHOTO SLATE</span>
-    <h1>Create your personalised slate</h1><p>Choose your size, add a photo and watch your gift come to life.</p></div>
+ return <section className="slateStudio smWizardPage" aria-label="Personalise your photo slate">
+  <div className="slateStudioHeading smWizardStepHeading"><span>CREATE YOUR SMART MEMORY</span>
+    <h2>Design Your Personalised Slate</h2><p>Choose your photo slate and add the message they'll experience when they tap their gift.</p></div>
   <div className="slateStudioGrid">
-   <div className="slateStudioControls">
+   <div className="slateStudioControls smWizardFields">
     <label>Occasion
      <select value={occasion} onChange={e=>{setOccasion(e.target.value);setAdded(false);}}>
       <option value="">Choose an occasion (optional)</option>
@@ -279,31 +279,32 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
      {wording==='paragraph'&&<label>Dedication
        <textarea rows={3} maxLength={160} value={dedication} placeholder="A special moment to remember" onChange={e=>{setDedication(e.target.value);setAdded(false);}}/></label>}
     </fieldset>
-    <label>Smart Memory message (optional)
-     <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a message to open when someone taps the gift, or leave blank."/>
+    <label><strong>Written message <span className="slateOptional">(optional)</span></strong>
+     <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a few words if you wish…"/>
     </label>
-    <fieldset><legend>Smart Memory voice recording (optional)</legend>
+    <fieldset className="slateVoiceCard smWizardVoiceCard"><legend>Voice message</legend>
       <p className="slateHelp">Record a message that plays when the recipient opens their Smart Memory, or upload an audio recording.</p>
       <div className="slateSizes">
-       {!recording?<button type="button" onClick={()=>void startRecording()}>Record voice</button>
-         :<button type="button" onClick={stopRecording}>Stop recording</button>}
+       {!recording?<button type="button" onClick={()=>void startRecording()}>● Record My Voice</button>
+         :<button type="button" onClick={stopRecording}>■ Stop Recording</button>}
        {audio&&<button type="button" onClick={()=>{
          if(audioUrl)URL.revokeObjectURL(audioUrl);
          setAudio(null);setAudioUrl('');setRecordingStatus('Recording removed.');
        }}>Remove audio</button>}
       </div>
-      <label>Or upload audio <input type="file" accept="audio/*" disabled={recording}
+      <label><strong>Or upload audio</strong><input type="file" accept="audio/*" disabled={recording}
        onChange={e=>{chooseAudio(e.currentTarget.files?.[0]);e.currentTarget.value='';}}/></label>
       {recordingStatus&&<p role="status" className="slateHelp">{recordingStatus}</p>}
       {audioUrl&&<audio src={audioUrl} controls preload="metadata" style={{width:'100%'}}/>}
     </fieldset>
-    <div className="slatePersonFields">
-     <label>Recipient's name (optional)<input value={recipient} maxLength={100} onChange={e=>{setRecipient(e.target.value);setAdded(false);}}/></label>
-     <label>From (optional)<input value={sender} maxLength={100} onChange={e=>{setSender(e.target.value);setAdded(false);}}/></label>
+    <p className="slateHelp">Your photo, voice recording or written message can tell the story. Leave the written message blank if you prefer.</p>
+    <div className="slatePersonFields smWizardFields">
+     <label>Recipient name<input value={recipient} placeholder="e.g. Sarah" maxLength={100} onChange={e=>{setRecipient(e.target.value);setAdded(false);}}/></label>
+     <label>From (optional)<input value={sender} placeholder="e.g. Leo" maxLength={100} onChange={e=>{setSender(e.target.value);setAdded(false);}}/></label>
     </div>
    </div>
    <aside className="slateStudioPreview">
-    <h2>Your live preview</h2>
+    <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>Your live preview</h2>
     <p className="slateHelp">Photo only uses almost the full slate. If your photo has its own frame, choose Fit whole photo to keep every edge.</p>
     <div className="slatePreviewWrap">
       <canvas ref={canvasRef} width={900} height={1200} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
