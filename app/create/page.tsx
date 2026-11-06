@@ -22,6 +22,7 @@ import Link from 'next/link';
 
 import CreateMemoryJourney from '../../components/CreateMemoryJourney';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
+import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
 
 function CreateContent() {
   const router = useRouter();
@@ -262,6 +263,17 @@ function CreateContent() {
 
     if (memoryOnly && tagMediaMode === 'video' && !video) {
       alert('Please choose a video with sound, or switch back to the photo option.');
+      return;
+    }
+
+    const usingVideo = memoryOnly && tagMediaMode === 'video';
+    if (!hasMeaningfulMemoryContent({
+      message,
+      photo: !usingVideo && Boolean(photo),
+      audio: !usingVideo && Boolean(audio),
+      video: usingVideo && Boolean(video),
+    })) {
+      alert('Add a photograph, voice recording, video or written message before saving your memory.');
       return;
     }
 
@@ -515,24 +527,6 @@ setSavedPhotoUrl(permanentPhotoUrl);
           </label>
 
           <label>
-            Personal message
-
-            <textarea
-              value={
-                message
-              }
-              onChange={(
-                event
-              ) =>
-                setMessage(
-                  event.target.value
-                )
-              }
-              placeholder="Write something meaningful..."
-            />
-          </label>
-
-          <label>
             From
 
             <input
@@ -663,6 +657,22 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </div>
           )}
 
+          <label className="smOptionalMemoryMessage">
+            <span className="smOptionalMemoryMessageHeading">
+              Written message <small>(optional)</small>
+            </span>
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              placeholder="Add a few words if you wish…"
+              aria-describedby="sm-written-message-help"
+            />
+            <small id="sm-written-message-help">
+              Your photo, voice recording or video can tell the whole story.
+              Leave this blank if you prefer. If you have no media, write a message instead.
+            </small>
+          </label>
+
           {!saved && (
             <button
               disabled={
@@ -687,11 +697,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
               </strong>
 
               <p>
-                Your photograph,
-                message and voice
-                recording are now
-                stored in Smart
-                Memories.
+                Your chosen memory content is now saved in Smart Memories.
               </p>
 
               {savedCode && (
