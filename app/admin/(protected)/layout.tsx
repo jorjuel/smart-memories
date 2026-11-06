@@ -98,6 +98,8 @@ export default async function AdminProtectedLayout({
               Product Photos
             </Link>
 
+            <Link href="/admin/templates">Frame Templates</Link>
+
             <Link href="/admin/memories">
               Memories
             </Link>
