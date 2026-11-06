@@ -1,3 +1,4 @@
+import SlateSinglePageCustomiser from '../../../components/SlateSinglePageCustomiser';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -29,6 +30,8 @@ export default async function ProductPage({
   if (!product) {
     notFound();
   }
+
+  if (slug === 'smart-photo-slate') return <SlateSinglePageCustomiser initialOccasion={occasion} />;
 
   const personaliseHref = occasion
     ? `/personalise/${product.slug}?occasion=${encodeURIComponent(
