@@ -12502,3 +12502,50 @@ header.smSiteHeader {
  .smDigitalMemoryCheckout {flex-direction:column; align-items:stretch; gap:14px;}
  .smDigitalMemoryCheckout .btn {width:100%; text-align:center;}
 }
+
+/* MOBILE CHECKOUT: Details first, then order summary and the final pay action.
+   Previous `order: -1` placed the payment button above the contact form. */
+@media (max-width: 950px) {
+  .checkoutLayout > .checkoutSummary {
+    order: 0;
+  }
+  .checkoutSummarySticky {
+    position: static;
+    display: flex;
+    flex-direction: column;
+  }
+  .checkoutSummarySticky > .smCheckoutFinalPayment {
+    order: 10;
+    margin-top: 20px;
+  }
+  .smCheckoutFinalPayment .personaliseBasketButton {
+    width: 100%;
+    min-height: 52px;
+  }
+  /* This was only an explanatory placeholder, not the actual payment button. */
+  .checkoutMain > .paymentPlaceholder {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .checkoutPage {
+    padding-top: 25px;
+    padding-bottom: 36px;
+  }
+  .checkoutHeader {
+    margin-bottom: 22px;
+  }
+  .checkoutHeader h1 {
+    font-size: clamp(35px, 8vw, 46px);
+    margin: 9px 0 10px;
+  }
+  .checkoutHeader p { font-size: 14px; }
+  .checkoutLayout { gap: 14px; }
+  .checkoutMain { gap: 14px; }
+  .checkoutCard { padding: 20px 16px; }
+  .checkoutSectionHeading { margin-bottom: 16px; }
+  .checkoutSummarySticky {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+}
