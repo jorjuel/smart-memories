@@ -1622,7 +1622,6 @@ export default function ProductPersonaliser({
                             bottomText={designSource === 'own' ? '' : bottomText}
                             paragraph={designSource === 'own' ? '' : paragraph}
                             textLayout={designSource === 'own' ? 'photo-only' : textLayout}
-                            template={template}
                           />
                         </div>
                         <button type="button" className="smPreviewOpenButton"
