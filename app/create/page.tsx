@@ -113,8 +113,8 @@ function CreateContent() {
       e.target.value = '';
       return;
     }
-    if (file.size > 60 * 1024 * 1024) {
-      alert('Please choose a video smaller than 60 MB. Short MP4 clips play fastest.');
+    if (file.size > 40 * 1024 * 1024) {
+      alert('Please choose a video smaller than 40 MB. Short MP4 clips play fastest.');
       e.target.value = '';
       return;
     }
@@ -585,7 +585,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
                 <input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
                   onChange={chooseVideo} />
               </label>
-              <small>Choose a short MP4 or iPhone MOV clip, maximum 60 MB.
+              <small>Choose a short MP4 or iPhone MOV clip, maximum 40 MB.
                 Short videos start playing faster, especially on mobile data.</small>
               {videoUrl && (
                 <video className="smTagVideoPreview" controls playsInline preload="metadata"
