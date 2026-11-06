@@ -18,18 +18,26 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
     // The recipient deliberately taps Open Memory. Start sound from that
     // user gesture instead of attempting blocked autoplay on page load.
     flushSync(() => setOpened(true));
+    if (memory.videoUrl) {
+      // A video needs to be in view when Safari begins audible playback.
+      // This still runs within the visitor's original button tap.
+      document.getElementById('recipient-memory-video')
+        ?.scrollIntoView({behavior:'auto',block:'center'});
+    }
     const media = memory.videoUrl ? videoPlayer.current : audioPlayer.current;
     if (media) {
       void media.play().catch(() => {
         // Browser restrictions/slow networks: native player remains available.
       });
     }
-    window.setTimeout(()=>{
-      const target=document.getElementById('memory-story');
-      if(!target)return;
-      const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      target.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
-    },120);
+    if (!memory.videoUrl) {
+      window.setTimeout(()=>{
+        const target=document.getElementById('memory-story');
+        if(!target)return;
+        const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        target.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
+      },120);
+    }
   }
 
   return (
@@ -62,6 +70,12 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
                 <h2>For {memory.recipient?.trim() || 'someone special'}</h2>
               </header>
 
+              {memory.videoUrl && (
+                <div id="recipient-memory-video" className="smRecipientUnifiedVideo">
+                  <MemoryVideo src={memory.videoUrl} mediaRef={videoPlayer} />
+                </div>
+              )}
+
               <div className={memory.photoUrl ? 'smRecipientUnifiedBody' : 'smRecipientUnifiedBody smRecipientUnifiedBodyNoPhoto'}>
                 {memory.photoUrl && (
                   <img
@@ -90,12 +104,6 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
                   )}
                 </div>
               </div>
-
-              {memory.videoUrl && (
-                <div className="smRecipientUnifiedVideo">
-                  <MemoryVideo src={memory.videoUrl} mediaRef={videoPlayer} />
-                </div>
-              )}
 
               <footer className="smRecipientUnifiedFooter">
                 <span>Tap your gift anytime to revisit this memory ♡</span>
