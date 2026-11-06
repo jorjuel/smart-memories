@@ -47,6 +47,7 @@ export default function SlateReviewPage(){
  },[draft,image,dimensions?.width,dimensions?.height]);
  async function addToBasket(){
   if(!draft||!image||!size||!dimensions||saving||success)return;
+  if(!draft.sender.trim()){setError('Please enter your name in the From field before confirming.');return;}
   setSaving(true);setError('');
   try{
    const canvas=document.createElement('canvas');
@@ -116,9 +117,11 @@ export default function SlateReviewPage(){
     <article>
      <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span>
      <div className="slateFinalArtwork">
+     <div className="slateStoneShell">
       <canvas ref={canvasRef} width={900} height={1200}
        style={{aspectRatio:String(dimensions.width)+' / '+String(dimensions.height)}}
        aria-label="Finished personalised photo slate" role="img"/>
+     </div>
      </div>
      <p className="slateFinalSize"><strong>{size.label}</strong> · {draft.direction==='landscape'?'Landscape':'Vertical'}</p>
     </article>
