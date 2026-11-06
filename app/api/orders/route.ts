@@ -18,8 +18,9 @@ import {
   getBundlePricePence,
   getCardPricePence,
   getProductPricePence,
-  getShippingPricePence,
 } from '@/lib/pricing';
+
+import { getCartShippingPricePence } from '@/lib/shippingPricing';
 
 export const runtime =
   'nodejs';
@@ -396,13 +397,12 @@ export async function POST(
         0
       );
 
-    // Digital-only orders are delivered online: never charge postage.
-    const digitalOnly = pricedCart.length > 0 &&
-      pricedCart.every(item =>
-        item.productType === 'product' && item.productSlug === 'digital-memory');
-    const deliveryPence = digitalOnly
-      ? 0
-      : getShippingPricePence(deliveryMethod);
+    // Server-authoritative postage: digital £0, single envelope-sized
+    // memory tag Royal Mail Large Letter, otherwise regular gift delivery.
+    const deliveryPence = getCartShippingPricePence(
+      pricedCart,
+      deliveryMethod
+    );
 
     const totalPence =
       subtotalPence +
