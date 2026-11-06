@@ -449,6 +449,37 @@ setSavedPhotoUrl(permanentPhotoUrl);
       );
     }
   }
+  function payForDigitalMemory() {
+    if (!savedCode) return;
+    try {
+      const previous = localStorage.getItem('smart-memories-cart');
+      const decoded = previous ? JSON.parse(previous) : [];
+      const items = Array.isArray(decoded) ? decoded : [];
+      const index = items.findIndex((item: { productSlug?: string; memoryCode?: string }) =>
+        item.productSlug === 'digital-memory' && item.memoryCode === savedCode
+      );
+      const lineItem = {
+        id: index >= 0 && typeof items[index]?.id === 'string'
+          ? items[index].id : crypto.randomUUID(),
+        productType: 'product',
+        productSlug: 'digital-memory',
+        memoryCode: savedCode,
+        name: 'Smart Memory — Digital Only',
+        category: 'Digital Memories',
+        imageUrl: savedPhotoUrl || null,
+        price: 5,
+        quantity: 1,
+        personalisation: { digitalOnly: true, memoryCode: savedCode },
+      };
+      if (index >= 0) items[index] = lineItem;
+      else items.push(lineItem);
+      localStorage.setItem('smart-memories-cart', JSON.stringify(items));
+      router.push('/checkout');
+    } catch {
+      alert('Your memory was saved, but checkout could not open. Please try again.');
+    }
+  }
+
   return (
     <section className="wrap smCompactMemoryForm">
       <div
@@ -739,27 +770,59 @@ setSavedPhotoUrl(permanentPhotoUrl);
                   onClick={() => addToBasket()}>
                   Add {product.name} to basket
                 </button>
-              ) : memoryWithGift ? (
-                <div className="smAfterMemoryGift">
-                  <h2>Now choose the gift for your memory</h2>
-                  <p>Your memory is safely saved. Select a gift below; it will be linked to the memory you have just created.</p>
-                  <div className="smAfterMemoryGiftGrid">
-                    {products.map((item) => (
-                      <article key={item.slug} className="smAfterMemoryGiftCard">
-                        <span aria-hidden="true">{item.emoji}</span>
-                        <strong>{item.name}</strong>
-                        <small>£{item.price.toFixed(2)}</small>
-                        <button type="button" className="btn small"
-                          onClick={() => addToBasket(item)}>
-                          Select this gift
+              ) : (memoryWithGift || unifiedJourney) ? (
+                <section className="smUnifiedChooseFinish" aria-labelledby="sm-memory-finish-heading">
+                  <span className="v14Eyebrow">STEP 2 · CHOOSE HOW TO SHARE</span>
+                  <h2 id="sm-memory-finish-heading">Your memory comes first. Your gift is optional.</h2>
+                  <p className="smUnifiedFinishIntro">
+                    Your memory has been saved. Choose just the digital memory, a tag with a satin bow,
+                    or add a personalised gift. Only your chosen option is added to checkout.
+                  </p>
+                  {unifiedJourney && (
+                    <div className="smUnifiedFinishChoices">
+                      <article className="smUnifiedFinishOption">
+                        <span aria-hidden="true" className="smUnifiedOptionIcon">♡</span>
+                        <h3>Smart Memory only</h3>
+                        <p>Share by link. No physical product or delivery.</p>
+                        <strong>£5.00</strong>
+                        <button className="btn" type="button" onClick={payForDigitalMemory}>
+                          Pay £5 for digital memory
                         </button>
                       </article>
-                    ))}
+                      <article className="smUnifiedFinishOption">
+                        <span aria-hidden="true" className="smUnifiedOptionIcon">🎀</span>
+                        <h3>Memory gift tag</h3>
+                        <p>A decorative satin bow and tag to open your memory.</p>
+                        <strong>£5.00 + postage</strong>
+                        <button className="btn secondary" type="button"
+                          onClick={() => router.push(`/create/bow?code=${encodeURIComponent(savedCode || '')}&choice=tag`)}>
+                          Choose your bow colour
+                        </button>
+                      </article>
+                    </div>
+                  )}
+                  <div className="smAfterMemoryGift" id="memory-gifts">
+                    <span className="v14Eyebrow">OPTIONAL GIFT ADD-ONS</span>
+                    <h2>{occasion && occasionGiftSlugs[occasion]
+                      ? `Add a gift for ${occasion}`
+                      : 'Add a personalised gift to your memory'}</h2>
+                    <p>These gifts include your saved Smart Memory. Choose a gift only if you want something physical.</p>
+                    <div className="smAfterMemoryGiftGrid">
+                      {giftProducts.map((item) => (
+                        <article key={item.slug} className="smAfterMemoryGiftCard">
+                          <span aria-hidden="true">{item.emoji}</span>
+                          <strong>{item.name}</strong>
+                          <small>£{item.price.toFixed(2)}</small>
+                          <button type="button" className="btn small"
+                            onClick={() => addToBasket(item)}>
+                            Add this gift
+                          </button>
+                        </article>
+                      ))}
+                    </div>
+                    {occasion && <Link href="/create" className="smAllMemoryGiftsLink">See all gift add-ons</Link>}
                   </div>
-                  <Link href={`/m/${encodeURIComponent(savedCode || '')}`}>
-                    View saved memory
-                  </Link>
-                </div>
+                </section>
               ) : (
                 <button type="button" className="personaliseBasketButton"
                   onClick={() => router.push(`/m/${savedCode}`)}>
