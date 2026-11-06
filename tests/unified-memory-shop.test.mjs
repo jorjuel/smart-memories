@@ -31,7 +31,7 @@ test('the unified creator always starts with a message and offers gifts after sa
   assert.match(create, /STEP 1 OF 2 · YOUR MEMORY FIRST/);
   assert.match(create, /STEP 2 · CHOOSE HOW TO SHARE/);
   assert.match(create, /Your memory comes first\. Your gift is optional/);
-  assert.match(create, /Pay £5 for digital memory/);
+  assert.match(create, /Choose digital memory — £5/);
   assert.match(create, /Choose your bow colour/);
   assert.match(create, /Add this gift/);
   assert.match(create, /onClick=\{\(\) => addToBasket\(item\)\}/);
