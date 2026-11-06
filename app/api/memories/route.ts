@@ -279,6 +279,8 @@ export async function POST(
       | string
       | null = null;
 
+    let videoUrl: string | null = null;
+
     /* =====================================================
        PHOTO
        ===================================================== */
@@ -450,6 +452,7 @@ export async function POST(
     for (const entry of [
       { field: 'photoPath', kind: 'image', maxBytes: 10 * 1024 * 1024 },
       { field: 'audioPath', kind: 'audio', maxBytes: 25 * 1024 * 1024 },
+      { field: 'videoPath', kind: 'video', maxBytes: 60 * 1024 * 1024 },
     ]) {
       const path = String(form.get(entry.field) || '').trim();
       if (!path) continue;
@@ -475,6 +478,7 @@ export async function POST(
         .from('memory-media').getPublicUrl(path);
       if (entry.kind === 'image') photoUrl = publicFile.publicUrl;
       if (entry.kind === 'audio') audioUrl = publicFile.publicUrl;
+      if (entry.kind === 'video') videoUrl = publicFile.publicUrl;
     }
 
     /* =====================================================
@@ -506,6 +510,9 @@ export async function POST(
 
   audio_url:
     audioUrl,
+
+  video_url:
+    videoUrl,
 })
       .select(
         'code, recipient_name, message, sender_name, created_at, photo_url, audio_url, video_url'
