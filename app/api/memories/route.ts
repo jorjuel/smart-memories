@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { randomBytes } from 'crypto';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createSupabaseServerClient,} from '@/lib/supabaseServer';
+import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
 
 export const runtime = 'nodejs';
 
@@ -481,6 +482,20 @@ export async function POST(
       if (entry.kind === 'image') photoUrl = publicFile.publicUrl;
       if (entry.kind === 'audio') audioUrl = publicFile.publicUrl;
       if (entry.kind === 'video') videoUrl = publicFile.publicUrl;
+    }
+
+    // A voice recording or video is a complete memory on its own.
+    // Prevent empty recipient-only memories, but never require written text.
+    if (!hasMeaningfulMemoryContent({
+      message,
+      photo: Boolean(photoUrl),
+      audio: Boolean(audioUrl),
+      video: Boolean(videoUrl),
+    })) {
+      return NextResponse.json(
+        { error: 'Please add a photo, voice recording, video or written message.' },
+        { status: 400 }
+      );
     }
 
     /* =====================================================
