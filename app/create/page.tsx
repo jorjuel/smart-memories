@@ -58,6 +58,11 @@ function CreateContent() {
   const [photoUrl, setPhotoUrl] =
     useState('');
 
+  // Video with sound is a small first trial for Memory Tag customers only.
+  const [tagMediaMode, setTagMediaMode] = useState<'photo' | 'video'>('photo');
+  const [video, setVideo] = useState<File>();
+  const [videoUrl, setVideoUrl] = useState('');
+
   const [audio, setAudio] =
     useState<Blob>();
 
@@ -99,6 +104,33 @@ function CreateContent() {
     }
   }
 
+  function chooseVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ['video/mp4', 'video/quicktime', 'video/webm'];
+    if (!allowed.includes(file.type.toLowerCase()) || file.size > 30 * 1024 * 1024 || file.size === 0) {
+      alert('Please choose an MP4, MOV or WebM video of 30 MB or smaller. MP4 (H.264/AAC) works best across phones.');
+      e.target.value = '';
+      return;
+    }
+    setVideo(file);
+    setVideoUrl(URL.createObjectURL(file));
+  }
+
+  function selectTagMediaMode(next: 'photo' | 'video') {
+    if (recording) return;
+    setTagMediaMode(next);
+    if (next === 'video') {
+      setPhoto(undefined);
+      setPhotoUrl('');
+      setAudio(undefined);
+      setAudioUrl('');
+    } else {
+      setVideo(undefined);
+      setVideoUrl('');
+    }
+  }
+
   function chooseAudio(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -125,10 +157,12 @@ function CreateContent() {
 
       chunks.current = [];
 
+      // AAC in MP4 is generally the most reliable format on iPhone.
+      // Prefer it when supported; keep WebM/Opus for other browsers.
       const types = [
+        'audio/mp4',
         'audio/webm;codecs=opus',
         'audio/webm',
-        'audio/mp4',
       ];
 
       const mimeType =
@@ -226,6 +260,11 @@ function CreateContent() {
       return;
     }
 
+    if (memoryOnly && tagMediaMode === 'video' && !video) {
+      alert('Please choose a video with sound, or switch back to the photo option.');
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -260,9 +299,14 @@ function CreateContent() {
         formData.set('photoPath', photoPath);
       }
 
-      if (audio) {
+      if (audio && (!memoryOnly || tagMediaMode === 'photo')) {
         const audioPath = await uploadMemoryMedia(audio, 'audio');
         formData.set('audioPath', audioPath);
+      }
+
+      if (memoryOnly && tagMediaMode === 'video' && video) {
+        const videoPath = await uploadMemoryMedia(video, 'video');
+        formData.set('videoPath', videoPath);
       }
 
       const response =
@@ -506,6 +550,28 @@ setSavedPhotoUrl(permanentPhotoUrl);
             />
           </label>
 
+          {memoryOnly && (
+            <fieldset className="smTagMediaSelector">
+              <legend>Choose how the recipient will experience the memory</legend>
+              <div className="smTagMediaOptions">
+                <button type="button" className={tagMediaMode === 'photo' ? 'active' : ''}
+                  aria-pressed={tagMediaMode === 'photo'} disabled={recording}
+                  onClick={() => selectTagMediaMode('photo')}>
+                  <strong>📷 Photo + voice</strong>
+                  <small>Add a photo, then record or upload your message.</small>
+                </button>
+                <button type="button" className={tagMediaMode === 'video' ? 'active' : ''}
+                  aria-pressed={tagMediaMode === 'video'} disabled={recording}
+                  onClick={() => selectTagMediaMode('video')}>
+                  <strong>🎬 Video with sound</strong>
+                  <small>Upload a short video with its own audio.</small>
+                </button>
+              </div>
+            </fieldset>
+          )}
+
+          {(!memoryOnly || tagMediaMode === 'photo') && (
+            <>
           <label>
             Photograph
 
@@ -578,6 +644,24 @@ setSavedPhotoUrl(permanentPhotoUrl);
               />
             </label>
           </div>
+
+            </>
+          )}
+
+          {memoryOnly && tagMediaMode === 'video' && (
+            <div className="smTagVideoUpload">
+              <label htmlFor="tag-memory-video">Upload your video with sound</label>
+              <p>Choose a short video from your phone. MP4 works best across iPhone and Android. MOV and WebM are accepted for this trial. Maximum 30 MB.</p>
+              <input id="tag-memory-video" type="file"
+                accept="video/mp4,video/quicktime,video/webm"
+                onChange={chooseVideo} />
+              {videoUrl && (
+                <video src={videoUrl} controls playsInline preload="metadata"
+                  className="smTagVideoPreview" aria-label="Preview your video memory" />
+              )}
+              {video && <small className="success">✓ Video ready: {video.name} ({(video.size / (1024 * 1024)).toFixed(1)} MB)</small>}
+            </div>
+          )}
 
           {!saved && (
             <button
