@@ -1383,6 +1383,7 @@ export default function ProductPersonaliser({
               <div className="smWizardPhonePreviewArtwork">
                 <ConfiguredProductPreview
                   slug={product.slug}
+                  template={mode === 'quick' && designSource === 'ours' ? template : null}
                   photoUrl={photoUrl}
                   photos={selectedGiftPhotos.map(item => item.url)}
                   photoLayout={photoLayout}
@@ -1600,6 +1601,7 @@ export default function ProductPersonaliser({
                         <div className="smDesignPickerArtwork">
                           <ConfiguredProductPreview
                             slug={product.slug}
+                            template={mode === 'quick' && designSource === 'ours' ? template : null}
                             photoUrl={photoUrl}
                             photos={selectedGiftPhotos.map(photo => photo.url)}
                             photoLayout={photoLayout}
@@ -2926,6 +2928,7 @@ export default function ProductPersonaliser({
         <div className="smFullGiftPreviewArtwork">
           <ConfiguredProductPreview
             slug={product.slug}
+            template={mode === 'quick' && designSource === 'ours' ? template : null}
             photoUrl={photoUrl}
             photos={selectedGiftPhotos.map(item => item.url)}
             photoLayout={photoLayout}
