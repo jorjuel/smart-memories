@@ -38,13 +38,13 @@ test('tapping a quick template changes the live gift preview without modifying t
   assert.match(preview, /data-template-theme=\{templateTheme \|\| undefined\}/);
 });
 
-test('mobile preview remains visible and uses the current photos and design', () => {
+test('mobile preview uses current photos without floating over the design form', () => {
   const source = read('components/ProductPersonaliser.tsx');
   const css = read('app/globals.css');
   assert.match(source, /smWizardPhoneLivePreview/);
   assert.match(source, /smWizardPhonePreviewArtwork/);
-  assert.match(css, /\.smWizardPhoneLivePreview \{\s*position: sticky;/);
-  assert.match(css, /top: 79px;/);
+  assert.match(css, /\.smWizardPage \.smWizardPhoneLivePreview \{\s*position: static;/);
+  assert.match(source, /currentStep !== 'preview' && currentStep !== 'ready' && currentStep !== 'gift'/);
 });
 
 test('recognisable ready-made styles map to different visual themes', () => {
