@@ -91,6 +91,17 @@ export default function ProductPersonaliser({
         item.slug === slug
     );
 
+  const [cloudFrames,setCloudFrames] = useState<{id:string;name:string;productSlugs:string[];orientation:string}[]>([]);
+  useEffect(() => {
+    let live=true;
+    fetch('/api/admin-frame-templates',{cache:'no-store'})
+      .then(async r=>r.ok?r.json():{templates:[]})
+      .then(data=>{if(live)setCloudFrames((data.templates||[]).filter(
+        (t:{productSlugs:string[];orientation:string})=>t.productSlugs.includes(slug)
+      ));}).catch(()=>{});
+    return ()=>{live=false;};
+  },[slug]);
+
   /* =====================================================
      PRODUCT OPTIONS
      ===================================================== */
@@ -1559,7 +1570,7 @@ export default function ProductPersonaliser({
                     <div className="smDesignPicker">
                       <label className="smDesignPickerLabel" htmlFor="sm-select-gift-design">
                         <strong>Browse all designs</strong>
-                        <small>{product.templates.length} ready-made styles available for this gift</small>
+                        <small>{product.templates.length + cloudFrames.length} ready-made styles available for this gift</small>
                       </label>
                       <div className="smDesignPickerSelectWrap">
                         <select
@@ -1576,6 +1587,7 @@ export default function ProductPersonaliser({
                           {product.templates.map((item) => (
                             <option key={item} value={item}>{item}</option>
                           ))}
+                          {cloudFrames.map(frame=><option key={frame.id} value={`sm:${frame.id}`}>{frame.name} ({frame.orientation})</option>)}
                         </select>
                         <span className="smDesignPickerChevron" aria-hidden="true">⌄</span>
                       </div>
