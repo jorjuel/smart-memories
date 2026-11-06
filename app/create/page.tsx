@@ -2,6 +2,7 @@
 
 import {
   Suspense,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -105,6 +106,19 @@ function CreateContent() {
 
   const chunks =
     useRef<Blob[]>([]);
+
+  // On mobile, advance to the newly revealed add-on choices without asking
+  // the customer to search around the form after a successful save.
+  useEffect(() => {
+    if (!saved || !(unifiedJourney || memoryWithGift)) return;
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById('sm-memory-finish-heading');
+      if (!target) return;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [saved, unifiedJourney, memoryWithGift]);
 
   function choosePhoto(
     e: React.ChangeEvent<HTMLInputElement>
@@ -786,7 +800,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
                         <p>Share by link. No physical product or delivery.</p>
                         <strong>£5.00</strong>
                         <button className="btn" type="button" onClick={payForDigitalMemory}>
-                          Pay £5 for digital memory
+                          Choose digital memory — £5
                         </button>
                       </article>
                       <article className="smUnifiedFinishOption">
@@ -801,6 +815,13 @@ setSavedPhotoUrl(permanentPhotoUrl);
                       </article>
                     </div>
                   )}
+                  {tagMediaMode === 'video' && unifiedJourney ? (
+                    <p className="smUnifiedVideoTrialNote">
+                      Video memories are currently being trialled as digital memories and
+                      satin-bow tags. For a printed gift, please choose the Photo + Voice
+                      format and create a new memory.
+                    </p>
+                  ) : (
                   <div className="smAfterMemoryGift" id="memory-gifts">
                     <span className="v14Eyebrow">OPTIONAL GIFT ADD-ONS</span>
                     <h2>{occasion && occasionGiftSlugs[occasion]
@@ -822,6 +843,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
                     </div>
                     {occasion && <Link href="/create" className="smAllMemoryGiftsLink">See all gift add-ons</Link>}
                   </div>
+                  )}
                 </section>
               ) : (
                 <button type="button" className="personaliseBasketButton"
