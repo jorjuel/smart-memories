@@ -12720,3 +12720,168 @@ header.smSiteHeader {
     font-size: 13px;
   }
 }
+
+/* Product builder: always-visible compact gift preview on phones/tablets.
+   Desktop retains its existing sticky side preview. */
+.smWizardPhoneLivePreview { display: none; }
+@media (max-width: 980px) {
+  .smWizardPage .smWizardStickyPreview { display: none; }
+  .smWizardPhoneLivePreview {
+    position: sticky;
+    top: 79px;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    min-height: 115px;
+    max-height: 148px;
+    margin-bottom: 14px;
+    border: 1px solid #e6cdcc;
+    border-radius: 15px;
+    background: rgba(255,250,247,.97);
+    box-shadow: 0 7px 20px rgba(49,31,38,.12);
+    overflow: hidden;
+  }
+  .smWizardPhonePreviewHeading {
+    flex: 0 0 37%;
+    min-width: 0;
+    display: grid;
+    gap: 8px;
+    color: var(--sm-plum-dark);
+  }
+  .smWizardPhonePreviewHeading strong {
+    font-size: 11px;
+    letter-spacing: 1px;
+    line-height: 1.4;
+  }
+  .smWizardPhonePreviewHeading small {
+    color: var(--sm-muted);
+    font-size: 11px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .smWizardPhonePreviewArtwork {
+    width: 58%;
+    height: 118px;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .smWizardPhonePreviewArtwork .configuredPreview {
+    width: 100% !important;
+    max-width: 220px !important;
+    height: 112px !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    overflow: hidden !important;
+  }
+  .smWizardPhonePreviewArtwork .configuredSurface,
+  .smWizardPhonePreviewArtwork .configuredMug,
+  .smWizardPhonePreviewArtwork .configuredMugPrint,
+  .smWizardPhonePreviewArtwork .configuredShirt,
+  .smWizardPhonePreviewArtwork .configuredShirtPrint,
+  .smWizardPhonePreviewArtwork .configuredKeyring,
+  .smWizardPhonePreviewArtwork .smCoasterPhotoGrid {
+    max-height: 110px;
+  }
+  .smWizardPhonePreviewArtwork .smCoasterPhotoGrid {
+    gap: 4px;
+    padding: 3px;
+  }
+  .smWizardPhonePreviewArtwork .smCoasterPhoto {
+    width: min(100%, 54px);
+    border-width: 2px;
+    border-radius: 5px;
+  }
+  .smWizardPhonePreviewArtwork .previewTopText,
+  .smWizardPhonePreviewArtwork .previewBottomText {
+    font-size: 10px;
+  }
+}
+@media (max-width: 600px) {
+  .smWizardPhoneLivePreview {
+    top: 77px;
+    min-height: 98px;
+    max-height: 117px;
+    padding: 7px 10px;
+    border-radius: 12px;
+  }
+  .smWizardPhonePreviewArtwork { height: 99px; }
+  .smWizardPhonePreviewArtwork .configuredPreview {
+    height: 96px !important;
+  }
+  .smWizardPhonePreviewHeading strong { font-size: 10px; }
+  .smWizardPhonePreviewHeading small { font-size: 10px; }
+}
+
+/* Applying a quick template updates the live mock-up immediately.
+   Motifs are previews of the style; production artwork is still reviewed. */
+.configuredPreview[data-template-theme] .configuredSurface,
+.configuredPreview[data-template-theme] .configuredMugPrint,
+.configuredPreview[data-template-theme] .configuredKeyring,
+.configuredPreview[data-template-theme] .configuredShirtPrint,
+.configuredPreview[data-template-theme] .smCoasterPhoto {
+  position: relative;
+  isolation: isolate;
+}
+.configuredPreview[data-template-theme] .configuredSurface::after,
+.configuredPreview[data-template-theme] .configuredMugPrint::after,
+.configuredPreview[data-template-theme] .configuredKeyring::after,
+.configuredPreview[data-template-theme] .configuredShirtPrint::after,
+.configuredPreview[data-template-theme] .smCoasterPhoto::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  z-index: 4;
+  inset: 4%;
+  border-radius: 3px;
+  border: 3px solid var(--sm-preview-frame, transparent);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.55);
+}
+.configuredPreview[data-template-theme="floral"] {
+  --sm-preview-frame: #b06f7b;
+}
+.configuredPreview[data-template-theme="floral"] :is(.configuredSurface,.configuredMugPrint,.configuredKeyring,.configuredShirtPrint,.smCoasterPhoto)::after {
+  border-radius: 20% 3% 20% 3%;
+  background: radial-gradient(circle at 4% 7%, #e4b9c4 0 5%, transparent 6%),
+    radial-gradient(circle at 94% 91%, #e4b9c4 0 6%, transparent 7%);
+}
+.configuredPreview[data-template-theme="wedding"] { --sm-preview-frame:#bb907e; }
+.configuredPreview[data-template-theme="elegant"] { --sm-preview-frame:#bda88e; }
+.configuredPreview[data-template-theme="memorial"] { --sm-preview-frame:#d0cab9; }
+.configuredPreview[data-template-theme="pet"] { --sm-preview-frame:#9f8d78; }
+.configuredPreview[data-template-theme="celebration"] { --sm-preview-frame:#bc7484; }
+.configuredPreview[data-template-theme="festive"] { --sm-preview-frame:#648472; }
+.configuredPreview[data-template-theme="modern"] { --sm-preview-frame:#d4d9dc; }
+.configuredPreview[data-template-theme="family"] { --sm-preview-frame:#a5a9b8; }
+.configuredPreview[data-template-theme="classic"] { --sm-preview-frame:#c7b5ab; }
+.configuredPreview[data-template-theme="modern"] :is(.configuredSurface,.configuredMugPrint,.configuredKeyring,.configuredShirtPrint,.smCoasterPhoto)::after {
+  inset: 2%; border-width: 1px; border-radius: 0;
+}
+.templateCard[aria-pressed="true"] { box-shadow: 0 0 0 2px rgba(179,107,112,.27); }
+.templateMiniPreview[data-template-preview*="Floral" i],
+.templateMiniPreview[data-template-preview*="Rose" i] {
+  background: radial-gradient(circle at 13% 15%,#dcabb6 0 12%,transparent 14%),
+    radial-gradient(circle at 85% 82%,#d8a0ae 0 12%,transparent 14%),
+    linear-gradient(135deg,#fff9f3,#edccd5);
+}
+.templateMiniPreview[data-template-preview*="Wedding" i],
+.templateMiniPreview[data-template-preview*="Anniversary" i] {
+  background: linear-gradient(140deg,#faf6ef 25%,#d7b9a5 65%,#f6e5e1);
+}
+.templateMiniPreview[data-template-preview*="Birthday" i] {
+  background: radial-gradient(circle at 20% 20%,#db9da7 0 6%,transparent 7%),
+    radial-gradient(circle at 85% 30%,#e6c68e 0 8%,transparent 9%),
+    linear-gradient(130deg,#ffe4e1,#eee0b9);
+}
+.templateMiniPreview[data-template-preview*="Memorial" i] {
+  background: linear-gradient(135deg,#ece9e2,#fdfdf8,#d5ddd9);
+}
+.templateMiniPreview[data-template-preview*="Modern" i],
+.templateMiniPreview[data-template-preview*="Minimal" i] {
+  background: linear-gradient(135deg,#f5f8f9,#c7d2d8);
+}

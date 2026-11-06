@@ -307,18 +307,21 @@ export default function ProductPersonaliser({
       const result:
         WizardStep[] = [
         {
-          key: 'gift',
-          label: 'Gift',
+          key: 'photo',
+          label: 'Photos',
         },
         {
-          key: 'photo',
-          label: 'Photo',
+          key: 'gift',
+          label: 'Design',
         },
       ];
 
-      if (
-        product?.smartMemory
-      ) {
+      result.push({
+        key: 'message',
+        label: 'Message',
+      });
+
+      if (product?.smartMemory) {
         result.push({
           key: 'voice',
           label: 'Voice',
@@ -326,10 +329,6 @@ export default function ProductPersonaliser({
       }
 
       result.push(
-        {
-          key: 'message',
-          label: 'Message',
-        },
         {
           key: 'preview',
           label: 'Preview',
@@ -352,7 +351,7 @@ export default function ProductPersonaliser({
 
   const currentStep =
     steps[stepIndex]?.key ||
-    'gift';
+    'photo';
 
   const isMug =
     product?.slug ===
@@ -1321,7 +1320,7 @@ export default function ProductPersonaliser({
         </h1>
 
         <p className="smWizardIntro">
-          Personalise your gift, add a photo and share a memory.
+          Start with photos, choose your design and write the memory message.
         </p>
 
         <div className="smWizardProductName">
@@ -1356,9 +1355,34 @@ export default function ProductPersonaliser({
 
       <div className="smWizardShell">
         <div className="smWizardStepContent" id="smWizardFields" role="region" aria-label={`${steps[stepIndex]?.label || 'Gift'} details`}>
+          {currentStep !== 'preview' && currentStep !== 'ready' && (
+            <div className="smWizardPhoneLivePreview" aria-label="Live preview of your personalised product">
+              <div className="smWizardPhonePreviewHeading">
+                <strong>LIVE GIFT PREVIEW</strong>
+                <small>{mode === 'quick' && designSource === 'ours' ? template : 'Your own design'}</small>
+              </div>
+              <div className="smWizardPhonePreviewArtwork">
+                <ConfiguredProductPreview
+                  slug={product.slug}
+                  photoUrl={photoUrl}
+                  photos={selectedGiftPhotos.map(item => item.url)}
+                  photoLayout={photoLayout}
+                  photoCrops={photoCrops}
+                  coasterCount={coasterCount}
+                  orientation={orientation}
+                  topText={designSource === 'own' ? '' : topText}
+                  bottomText={designSource === 'own' ? '' : bottomText}
+                  paragraph={designSource === 'own' ? '' : paragraph}
+                  textLayout={designSource === 'own' ? 'photo-only' : textLayout}
+                  template={mode === 'quick' && designSource === 'ours' ? template : null}
+                />
+              </div>
+            </div>
+          )}
+
 
           {/* =========================================
-              STEP 1 — YOUR GIFT
+              STEP 2 — DESIGN YOUR GIFT
               ========================================= */}
 
           {currentStep ===
@@ -1372,13 +1396,11 @@ export default function ProductPersonaliser({
                 </span>
 
                 <h2>
-                  Your Gift
+                  Design Your Gift
                 </h2>
 
                 <p>
-                  Start by making
-                  the physical
-                  gift yours.
+                  Choose how to create it, then personalise the design, direction and wording.
                 </p>
               </div>
 
@@ -1447,101 +1469,6 @@ export default function ProductPersonaliser({
                   </button>
                 </div>
               </div>
-
-              {!isCoaster && (
-              <div className="smWizardSection">
-                <h3>
-                  What is it for?
-                </h3>
-
-                {initialOccasion && (
-                  <div className="smWizardOccasionNotice">
-                    You arrived
-                    through:{' '}
-                    <strong>
-                      {
-                        initialOccasion
-                      }
-                    </strong>
-                  </div>
-                )}
-
-                <div className="occasionGrid">
-                  {product.occasions
-                    .slice(
-                      0,
-                      12
-                    )
-                    .map(
-                      (
-                        item
-                      ) => (
-                        <button
-                          type="button"
-                          key={
-                            item
-                          }
-                          className={
-                            occasion ===
-                            item
-                              ? 'optionPill active'
-                              : 'optionPill'
-                          }
-                          onClick={() => {
-                            setOccasion(
-                              item
-                            );
-                            markChanged();
-                          }}
-                        >
-                          {
-                            item
-                          }
-                        </button>
-                      )
-                    )}
-                </div>
-
-                <select
-                  value={
-                    occasion
-                  }
-                  onChange={(
-                    event
-                  ) => {
-                    setOccasion(
-                      event.target
-                        .value
-                    );
-                    markChanged();
-                  }}
-                >
-                  <option value="">
-                    More
-                    occasions...
-                  </option>
-
-                  {product.occasions.map(
-                    (
-                      item
-                    ) => (
-                      <option
-                        key={
-                          item
-                        }
-                        value={
-                          item
-                        }
-                      >
-                        {
-                          item
-                        }
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-              )}
 
               {allowsOwnDesign && (
                 <div className="smWizardSection">
@@ -1638,15 +1565,15 @@ export default function ProductPersonaliser({
                                 ? 'templateCard active'
                                 : 'templateCard'
                             }
+                            aria-pressed={template === item}
                             onClick={() => {
-                              setTemplate(
-                                item
-                              );
+                              // The live gift mockup reacts as soon as the design is tapped.
+                              setTemplate(item);
                               markChanged();
                             }}
                           >
-                            <div className="templateMiniPreview">
-                              ♥
+                            <div className="templateMiniPreview" data-template-preview={item}>
+                              <span aria-hidden="true">♥</span>
                             </div>
 
                             <strong>
@@ -1654,58 +1581,6 @@ export default function ProductPersonaliser({
                                 item
                               }
                             </strong>
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-                )}
-
-              {product.sizes &&
-                product.sizes
-                  .length >
-                  0 && (
-                  <div className="smWizardSection">
-                    <h3>
-                      {isCoaster
-                        ? 'How many coasters would you like?'
-                        : 'Choose the size'}
-                    </h3>
-
-                    <div className="choiceRow">
-                      {product.sizes.map(
-                        (
-                          item
-                        ) => (
-                          <button
-                            type="button"
-                            key={
-                              item
-                            }
-                            className={
-                              size ===
-                              item
-                                ? 'optionPill active'
-                                : 'optionPill'
-                            }
-                            onClick={() => {
-                              setSize(item);
-                              if (isCoaster) {
-                                const nextMax = item === 'Single' ? 1 : Number(item.match(/[0-9]+/)?.[0] || 1);
-                                if (giftPhotos.length > nextMax) {
-                                  const keep = giftPhotos.slice(0, nextMax);
-                                  giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
-                                  setGiftPhotos(keep);
-                                  setPhotoCrops(prev => prev.slice(0,nextMax));
-                                  // Removing surplus extra images must not modify the main photo.
-                                }
-                              }
-                              markChanged();
-                            }}
-                          >
-                            {
-                              item
-                            }
                           </button>
                         )
                       )}
@@ -1924,6 +1799,102 @@ export default function ProductPersonaliser({
                   </div>
                 )}
 
+              {/* Optional occasion comes after the core photo/design/wording choices. */}
+              {!isCoaster && (
+              <div className="smWizardSection">
+                <h3>
+                  What is it for?
+                </h3>
+
+                {initialOccasion && (
+                  <div className="smWizardOccasionNotice">
+                    You arrived
+                    through:{' '}
+                    <strong>
+                      {
+                        initialOccasion
+                      }
+                    </strong>
+                  </div>
+                )}
+
+                <div className="occasionGrid">
+                  {product.occasions
+                    .slice(
+                      0,
+                      12
+                    )
+                    .map(
+                      (
+                        item
+                      ) => (
+                        <button
+                          type="button"
+                          key={
+                            item
+                          }
+                          className={
+                            occasion ===
+                            item
+                              ? 'optionPill active'
+                              : 'optionPill'
+                          }
+                          onClick={() => {
+                            setOccasion(
+                              item
+                            );
+                            markChanged();
+                          }}
+                        >
+                          {
+                            item
+                          }
+                        </button>
+                      )
+                    )}
+                </div>
+
+                <select
+                  value={
+                    occasion
+                  }
+                  onChange={(
+                    event
+                  ) => {
+                    setOccasion(
+                      event.target
+                        .value
+                    );
+                    markChanged();
+                  }}
+                >
+                  <option value="">
+                    More
+                    occasions...
+                  </option>
+
+                  {product.occasions.map(
+                    (
+                      item
+                    ) => (
+                      <option
+                        key={
+                          item
+                        }
+                        value={
+                          item
+                        }
+                      >
+                        {
+                          item
+                        }
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+              )}
+
               {product.accessories &&
                 product
                   .accessories
@@ -1971,7 +1942,7 @@ export default function ProductPersonaliser({
           )}
 
           {/* =========================================
-              STEP 2 — MAIN PHOTO
+              STEP 1 — ADD PHOTOS
               ========================================= */}
 
           {currentStep ===
@@ -1985,19 +1956,66 @@ export default function ProductPersonaliser({
                 </span>
 
                 <h2>
-                  Choose Your Main
-                  Photo
+                  Add Photos for Your Gift
                 </h2>
 
                 <p>
-                  This is the image
-                  that will appear
-                  on your
-                  personalised gift
-                  and current Smart
-                  Memory page.
+                  Choose your main picture first, then add any extra collage or coaster photos. See your changes in the live preview.
                 </p>
               </div>
+
+              {/* Select quantity/size before extra photos so the limit is correct. */}
+              {product.sizes &&
+                product.sizes
+                  .length >
+                  0 && (
+                  <div className="smWizardSection">
+                    <h3>
+                      {isCoaster
+                        ? 'How many coasters would you like?'
+                        : 'Choose the size'}
+                    </h3>
+
+                    <div className="choiceRow">
+                      {product.sizes.map(
+                        (
+                          item
+                        ) => (
+                          <button
+                            type="button"
+                            key={
+                              item
+                            }
+                            className={
+                              size ===
+                              item
+                                ? 'optionPill active'
+                                : 'optionPill'
+                            }
+                            onClick={() => {
+                              setSize(item);
+                              if (isCoaster) {
+                                const nextMax = item === 'Single' ? 1 : Number(item.match(/[0-9]+/)?.[0] || 1);
+                                if (giftPhotos.length > nextMax) {
+                                  const keep = giftPhotos.slice(0, nextMax);
+                                  giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
+                                  setGiftPhotos(keep);
+                                  setPhotoCrops(prev => prev.slice(0,nextMax));
+                                  // Removing surplus extra images must not modify the main photo.
+                                }
+                              }
+                              markChanged();
+                            }}
+                          >
+                            {
+                              item
+                            }
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
 
               <div className="smWizardUploadCard">
                 {!photoUrl ? (
@@ -2502,6 +2520,7 @@ export default function ProductPersonaliser({
                     slug={
                       product.slug
                     }
+                    template={mode === 'quick' && designSource === 'ours' ? template : null}
                     photoUrl={
                       photoUrl
                     }
@@ -2861,6 +2880,7 @@ export default function ProductPersonaliser({
                 slug={
                   product.slug
                 }
+                    template={mode === 'quick' && designSource === 'ours' ? template : null}
                 photoUrl={
                   photoUrl
                 }
