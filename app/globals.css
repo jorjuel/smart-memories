@@ -12684,3 +12684,39 @@ header.smSiteHeader {
   font-weight: 700;
   line-height: 1.2;
 }
+
+/* Compact wording-placement selector: four giant stacked cards on narrow
+   screens created unnecessary scrolling on the personalisation wizard.
+   Scope this to the wording step; other choice cards stay unchanged. */
+.smWizardPage .smWizardTextLayoutChoices {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.smWizardPage .smWizardTextLayoutChoices .smWizardTextLayoutOption {
+  min-height: 50px;
+  padding: 9px 8px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.3;
+}
+.smWizardPage .smWizardTextLayoutChoices .smWizardTextLayoutOption strong {
+  font-size: 13px;
+  font-weight: 700;
+}
+@media (max-width: 700px) {
+  .smWizardPage .smWizardTextLayoutChoices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .smWizardPage .smWizardTextLayoutChoices .smWizardTextLayoutOption {
+    min-height: 48px;
+    padding: 9px 7px;
+    border-radius: 10px;
+  }
+  .smWizardPage .smWizardTextLayoutChoices .smWizardTextLayoutOption strong {
+    font-size: 13px;
+  }
+}
