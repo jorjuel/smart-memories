@@ -4,7 +4,7 @@ type SignedUpload = { path: string; token: string; error?: string };
 
 const MAX_PHOTO = 10 * 1024 * 1024;
 const MAX_AUDIO = 25 * 1024 * 1024;
-const MAX_VIDEO = 60 * 1024 * 1024;
+const MAX_VIDEO = 40 * 1024 * 1024;
 
 /**
  * Send large files straight to Supabase instead of including them
@@ -19,7 +19,7 @@ export async function uploadMemoryMedia(
     throw new Error(kind === 'photo'
       ? 'Please choose a photo of 10 MB or smaller.'
       : kind === 'audio' ? 'Please choose audio of 25 MB or smaller.'
-      : 'Please choose a video of 60 MB or smaller.');
+      : 'Please choose a video of 40 MB or smaller.');
   }
 
   const contentType = file.type.toLowerCase().split(';')[0] ||
