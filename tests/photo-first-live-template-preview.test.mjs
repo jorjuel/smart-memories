@@ -14,7 +14,7 @@ test('wizard starts with product photos, then design, memory message, and option
   assert.match(code, /Select quantity\/size before extra photos/);
 });
 
-test('creation method precedes template, orientation, wording and optional occasion', () => {
+test('creation method precedes the design dropdown, direction and gift wording', () => {
   const code = read('components/ProductPersonaliser.tsx');
   const start = code.indexOf("currentStep ===\n            'gift'");
   const end = code.indexOf("currentStep ===\n            'photo'", start);
@@ -24,10 +24,10 @@ test('creation method precedes template, orientation, wording and optional occas
     'Choose a\n                      design',
     'Which\n                      direction?',
     'Words on the\n                      physical gift',
-    'What is it for?',
   ].map(text => design.indexOf(text));
   assert.ok(order.every(pos => pos >= 0), 'All builder controls must remain available');
   assert.ok(order.every((pos, i) => i === 0 || pos > order[i - 1]), 'Builder controls must be in requested order');
+  assert.doesNotMatch(design, /What is it for\?/);
 });
 
 test('tapping a quick template changes the live gift preview without modifying the uploaded images', () => {
