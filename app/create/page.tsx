@@ -55,6 +55,11 @@ function CreateContent() {
   const [photo, setPhoto] =
     useState<File>();
 
+  // Video-with-sound is initially offered only in the Memory Only journey.
+  const [memoryFormat, setMemoryFormat] = useState<'photo' | 'video'>('photo');
+  const [video, setVideo] = useState<File>();
+  const [videoUrl, setVideoUrl] = useState('');
+
   const [photoUrl, setPhotoUrl] =
     useState('');
 
@@ -99,6 +104,42 @@ function CreateContent() {
     }
   }
 
+  function chooseVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const kind = file.type.toLowerCase().split(';')[0];
+    if (!['video/mp4', 'video/quicktime', 'video/webm'].includes(kind)) {
+      alert('Please choose an MP4, iPhone MOV or WebM video. MP4 is best for sharing.');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 60 * 1024 * 1024) {
+      alert('Please choose a video smaller than 60 MB. Short MP4 clips play fastest.');
+      e.target.value = '';
+      return;
+    }
+    setVideo(file);
+    setVideoUrl(previous => {
+      if (previous) URL.revokeObjectURL(previous);
+      return URL.createObjectURL(file);
+    });
+  }
+
+  function selectMemoryFormat(next: 'photo' | 'video') {
+    if (recording) stop();
+    setMemoryFormat(next);
+    // Only upload the currently selected format; do not include stale files.
+    if (next === 'video') {
+      setPhoto(undefined);
+      setPhotoUrl('');
+      setAudio(undefined);
+      setAudioUrl('');
+    } else {
+      setVideo(undefined);
+      setVideoUrl('');
+    }
+  }
+
   function chooseAudio(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -125,10 +166,12 @@ function CreateContent() {
 
       chunks.current = [];
 
+      // Prefer AAC in MP4 (particularly on iPhone/Safari) to avoid
+      // WebM audio opening as a download on unsupported phones.
       const types = [
+        'audio/mp4',
         'audio/webm;codecs=opus',
         'audio/webm',
-        'audio/mp4',
       ];
 
       const mimeType =
@@ -255,14 +298,22 @@ function CreateContent() {
         sender
       );
 
-      if (photo) {
-        const photoPath = await uploadMemoryMedia(photo, 'photo');
-        formData.set('photoPath', photoPath);
-      }
-
-      if (audio) {
-        const audioPath = await uploadMemoryMedia(audio, 'audio');
-        formData.set('audioPath', audioPath);
+      if (memoryOnly && memoryFormat === 'video') {
+        if (!video) {
+          alert('Choose a short video with sound before saving your memory.');
+          return;
+        }
+        const videoPath = await uploadMemoryMedia(video, 'video');
+        formData.set('videoPath', videoPath);
+      } else {
+        if (photo) {
+          const photoPath = await uploadMemoryMedia(photo, 'photo');
+          formData.set('photoPath', photoPath);
+        }
+        if (audio) {
+          const audioPath = await uploadMemoryMedia(audio, 'audio');
+          formData.set('audioPath', audioPath);
+        }
       }
 
       const response =
@@ -506,6 +557,43 @@ setSavedPhotoUrl(permanentPhotoUrl);
             />
           </label>
 
+          {memoryOnly && (
+            <fieldset className="smTagMediaFormat">
+              <legend>How should your memory appear?</legend>
+              <div className="smTagMediaFormatOptions">
+                <label>
+                  <input type="radio" name="tag-media-format" value="photo"
+                    checked={memoryFormat === 'photo'}
+                    onChange={() => selectMemoryFormat('photo')} />
+                  <span>Photo + voice message</span>
+                </label>
+                <label>
+                  <input type="radio" name="tag-media-format" value="video"
+                    checked={memoryFormat === 'video'}
+                    onChange={() => selectMemoryFormat('video')} />
+                  <span>Video with sound</span>
+                </label>
+              </div>
+              <small>For this first trial, the video option is available with a Memory Tag only.</small>
+            </fieldset>
+          )}
+
+          {memoryOnly && memoryFormat === 'video' ? (
+            <div className="smTagVideoUpload">
+              <label>
+                Add your video (with sound)
+                <input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+                  onChange={chooseVideo} />
+              </label>
+              <small>Choose a short MP4 or iPhone MOV clip, maximum 60 MB.
+                Short videos start playing faster, especially on mobile data.</small>
+              {videoUrl && (
+                <video className="smTagVideoPreview" controls playsInline preload="metadata"
+                  src={videoUrl} aria-label="Preview your chosen video with sound" />
+              )}
+            </div>
+          ) : (
+          <>
           <label>
             Photograph
 
@@ -578,6 +666,8 @@ setSavedPhotoUrl(permanentPhotoUrl);
               />
             </label>
           </div>
+          </>
+          )}
 
           {!saved && (
             <button
