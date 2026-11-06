@@ -13,6 +13,9 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
   const [opened,setOpened]=useState(false);
   const audioPlayer=useRef<HTMLAudioElement>(null);
   const videoPlayer=useRef<HTMLVideoElement>(null);
+  const hasWrittenMessage = Boolean(memory.message?.trim());
+  const hasLetterContent = hasWrittenMessage || Boolean(memory.audioUrl) || Boolean(memory.sender?.trim());
+  const hasStoryBody = Boolean(memory.photoUrl) || hasLetterContent;
 
   function openMemory() {
     // The recipient deliberately taps Open Memory. Start sound from that
@@ -76,7 +79,14 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
                 </div>
               )}
 
-              <div className={memory.photoUrl ? 'smRecipientUnifiedBody' : 'smRecipientUnifiedBody smRecipientUnifiedBodyNoPhoto'}>
+              {hasStoryBody && (
+              <div className={
+                !memory.photoUrl
+                  ? 'smRecipientUnifiedBody smRecipientUnifiedBodyNoPhoto'
+                  : !hasLetterContent
+                    ? 'smRecipientUnifiedBody smRecipientUnifiedBodyPhotoOnly'
+                    : 'smRecipientUnifiedBody'
+              }>
                 {memory.photoUrl && (
                   <img
                     className="smRecipientUnifiedPhoto"
@@ -87,8 +97,11 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
                   />
                 )}
 
+                {hasLetterContent && (
                 <div className="smRecipientUnifiedLetter">
-                  <MemoryMessage message={memory.message} variant="compact" />
+                  {hasWrittenMessage && (
+                    <MemoryMessage message={memory.message} variant="compact" />
+                  )}
 
                   {memory.audioUrl && (
                     <div className="smRecipientUnifiedVoice">
@@ -103,7 +116,9 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
                     </p>
                   )}
                 </div>
+                )}
               </div>
+              )}
 
               <footer className="smRecipientUnifiedFooter">
                 <span>Tap your gift anytime to revisit this memory ♡</span>
