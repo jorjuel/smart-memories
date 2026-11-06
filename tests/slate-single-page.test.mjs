@@ -31,3 +31,22 @@ test('optional Smart Memory message saves with photo and basket has no immediate
  assert.match(source,/setAdded\(true\)/);
  assert.doesNotMatch(source,/window\.location\.href/);
 });
+
+test('photo-only uses an expanded print area instead of the wide wording border',()=>{
+ assert.match(source,/const photoOnly=way==='none'/);
+ assert.match(source,/const inset=photoOnly\?w\*\.027:w\*\.072/);
+ assert.match(source,/const topPadding=photoOnly\?h\*\.026:h\*\.047/);
+});
+test('framed photos default to contain and never force crop',()=>{
+ assert.match(source,/useState<PhotoFit>\('contain'\)/);
+ assert.match(source,/fit==='cover'\?Math\.max\(pw\/iw,ph\/ih\):Math\.min\(pw\/iw,ph\/ih\)/);
+ assert.match(source,/Fit whole photo/);
+ assert.match(source,/Fill area \(may crop\)/);
+});
+test('portrait and landscape slate direction and photo rotation can be selected',()=>{
+ assert.match(source,/Slate direction/);
+ assert.match(source,/Rotate left/);
+ assert.match(source,/Rotate right/);
+ assert.match(source,/slateOrientation:direction,photoFit:fit,photoRotation:rotation/);
+ assert.match(source,/ctx\.rotate\(rotation\*Math\.PI\/180\)/);
+});
