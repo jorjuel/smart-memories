@@ -18,7 +18,7 @@ test('slate product renders single-page customiser rather than a wizard',()=>{
  assert.match(legacy,/slug === 'smart-photo-slate'\) return <SlateSinglePageCustomiser/);
  assert.doesNotMatch(source,/Next step|Next button|setStepIndex|<ProductPersonaliser/);
  assert.match(source,/className="slateStudioPreview"/);
- assert.match(source,/className="slateStudioControls"/);
+ assert.match(source,/className="slateStudioControls smWizardFields"/);
 });
 test('slate builder retains photo controls and print uses the same composition on review',()=>{
  assert.match(source,/fit==='cover'\?Math\.max\(pw\/iw,ph\/ih\):Math\.min\(pw\/iw,ph\/ih\)/);
@@ -35,9 +35,11 @@ test('written and recorded memories are composed together before a separate revi
  assert.match(source,/MediaRecorder/);
  assert.match(source,/storeSlateDraft\(draft\)/);
  assert.match(source,/window\.location\.assign\('\/slate\/review'\)/);
- assert.match(review,/What opens when they tap the gift/);
+ assert.match(review,/B. THEIR SMART MEMORY/);
+ assert.match(review,/A. YOUR PHYSICAL GIFT/);
+ assert.match(review,/<SmartMemoryLivePreview/);
  assert.match(review,/draft\.message/);
- assert.match(review,/<audio src=\{audioUrl\} controls/);
+ assert.match(review,/audioUrl=\{audioUrl\}/);
  assert.match(review,/uploadMemoryMedia\(draft\.audio,'audio'\)/);
  assert.match(review,/form\.set\('audioPath',audioPath\)/);
  assert.match(review,/form\.set\('message',draft\.message\.trim\(\)\)/);
@@ -63,4 +65,17 @@ test('portrait and landscape slate direction and photo rotation can be selected'
  assert.match(source,/Rotate right/);
  assert.match(review,/slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation/);
  assert.match(source,/ctx\.rotate\(rotation\*Math\.PI\/180\)/);
+});
+
+test('slate uses same dual preview and brand styling as other products',()=>{
+ const css=read('app/globals.css');
+ assert.match(review,/className="smWizardDualPreview"/);
+ assert.match(review,/className="smWizardStepHeading"/);
+ assert.match(review,/className="smWizardReviewSummary"/);
+ assert.match(source,/className="slateStudio smWizardPage"/);
+ assert.match(source,/Record My Voice/);
+ assert.match(source,/Written message/);
+ assert.match(css,/\.slateStudio\.smWizardPage/);
+ assert.match(css,/var\(--sm-rose\)/);
+ assert.match(css,/\.slateReview \.smWizardDualPreview/);
 });
