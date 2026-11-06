@@ -2,7 +2,6 @@
 
 import {
   Suspense,
-  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -21,6 +20,7 @@ import {
 } from '../../lib/products';
 import Link from 'next/link';
 
+import CreateMemoryJourney from '../../components/CreateMemoryJourney';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
 import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
 
@@ -40,23 +40,6 @@ function CreateContent() {
           item.slug === productSlug
       )
     : undefined;
-  // Shop and Create a Memory now share this one memory-first experience.
-  // Existing direct product links and old tag/gift URLs remain compatible.
-  const unifiedJourney = !productSlug && !memoryOnly && !memoryWithGift;
-  const allowTagVideoTrial = memoryOnly || unifiedJourney;
-  const occasion = searchParams.get('occasion');
-  const occasionGiftSlugs: Record<string, string[]> = {
-    Birthday: ['photo-mug', 'smart-photo-slate', 'coaster-set', 'keyring', 'white-t-shirt'],
-    Wedding: ['smart-photo-slate', 'smart-memory-plaque', 'photo-mug', 'coaster-set', 'keyring'],
-    Anniversary: ['smart-photo-slate', 'smart-memory-plaque', 'photo-mug', 'keyring'],
-    Retirement: ['photo-mug', 'smart-photo-slate', 'mouse-mat', 'keyring'],
-    'Pet Memory': ['smart-photo-slate', 'keyring', 'photo-mug', 'coaster-set', 'mouse-mat'],
-    'Family Memory': ['smart-photo-slate', 'photo-mug', 'coaster-set', 'smart-memory-plaque'],
-    'New Baby': ['smart-photo-slate', 'photo-mug', 'smart-memory-plaque', 'keyring'],
-  };
-  const giftProducts = occasion && occasionGiftSlugs[occasion]
-    ? products.filter((item) => occasionGiftSlugs[occasion].includes(item.slug))
-    : products;
 
   const [recipient, setRecipient] =
     useState('');
@@ -106,19 +89,6 @@ function CreateContent() {
 
   const chunks =
     useRef<Blob[]>([]);
-
-  // On mobile, advance to the newly revealed add-on choices without asking
-  // the customer to search around the form after a successful save.
-  useEffect(() => {
-    if (!saved || !(unifiedJourney || memoryWithGift)) return;
-    const frame = window.requestAnimationFrame(() => {
-      const target = document.getElementById('sm-memory-finish-heading');
-      if (!target) return;
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [saved, unifiedJourney, memoryWithGift]);
 
   function choosePhoto(
     e: React.ChangeEvent<HTMLInputElement>
@@ -291,12 +261,12 @@ function CreateContent() {
       return;
     }
 
-    if (allowTagVideoTrial && tagMediaMode === 'video' && !video) {
+    if (memoryOnly && tagMediaMode === 'video' && !video) {
       alert('Please choose a video with sound, or switch back to the photo option.');
       return;
     }
 
-    const usingVideo = allowTagVideoTrial && tagMediaMode === 'video';
+    const usingVideo = memoryOnly && tagMediaMode === 'video';
     if (!hasMeaningfulMemoryContent({
       message,
       photo: !usingVideo && Boolean(photo),
@@ -341,12 +311,12 @@ function CreateContent() {
         formData.set('photoPath', photoPath);
       }
 
-      if (audio && (!allowTagVideoTrial || tagMediaMode === 'photo')) {
+      if (audio && (!memoryOnly || tagMediaMode === 'photo')) {
         const audioPath = await uploadMemoryMedia(audio, 'audio');
         formData.set('audioPath', audioPath);
       }
 
-      if (allowTagVideoTrial && tagMediaMode === 'video' && video) {
+      if (memoryOnly && tagMediaMode === 'video' && video) {
         const videoPath = await uploadMemoryMedia(video, 'video');
         formData.set('videoPath', videoPath);
       }
@@ -463,37 +433,19 @@ setSavedPhotoUrl(permanentPhotoUrl);
       );
     }
   }
-  function payForDigitalMemory() {
-    if (!savedCode) return;
-    try {
-      const previous = localStorage.getItem('smart-memories-cart');
-      const decoded = previous ? JSON.parse(previous) : [];
-      const items = Array.isArray(decoded) ? decoded : [];
-      const index = items.findIndex((item: { productSlug?: string; memoryCode?: string }) =>
-        item.productSlug === 'digital-memory' && item.memoryCode === savedCode
-      );
-      const lineItem = {
-        id: index >= 0 && typeof items[index]?.id === 'string'
-          ? items[index].id : crypto.randomUUID(),
-        productType: 'product',
-        productSlug: 'digital-memory',
-        memoryCode: savedCode,
-        name: 'Smart Memory — Digital Only',
-        category: 'Digital Memories',
-        imageUrl: savedPhotoUrl || null,
-        price: 5,
-        quantity: 1,
-        personalisation: { digitalOnly: true, memoryCode: savedCode },
-      };
-      if (index >= 0) items[index] = lineItem;
-      else items.push(lineItem);
-      localStorage.setItem('smart-memories-cart', JSON.stringify(items));
-      router.push('/checkout');
-    } catch {
-      alert('Your memory was saved, but checkout could not open. Please try again.');
-    }
-  }
+  const directMode =
+    Boolean(productSlug) ||
+    memoryOnly ||
+    memoryWithGift ||
+    searchParams.get(
+      'direct'
+    ) === '1';
 
+  if (!directMode) {
+    return (
+      <CreateMemoryJourney />
+    );
+  }
   return (
     <section className="wrap smCompactMemoryForm">
       <div
@@ -534,17 +486,10 @@ setSavedPhotoUrl(permanentPhotoUrl);
           </>
         ) : (
           <>
-            <span className="v14Eyebrow">STEP 1 OF 2 · YOUR MEMORY FIRST</span>
+            <span className="v14Eyebrow">MAKE YOUR MEMORY</span>
             <h1>
-              Create a Smart Memory
+              Create a Special Memory
             </h1>
-            {unifiedJourney && (
-              <p className="smUnifiedJourneyIntro">
-                Start with the person and the message. Add a photo, voice recording
-                or video if you wish. <strong>Choose a digital memory, a gift tag
-                or a personalised gift after saving.</strong>
-              </p>
-            )}
             {(memoryOnly || memoryWithGift) && (
               <p className="smMemoryRouteChoice">
                 <strong>{memoryOnly ? 'Memory Only' : 'Memory + Gift'}</strong>
@@ -552,21 +497,16 @@ setSavedPhotoUrl(permanentPhotoUrl);
               </p>
             )}
 
-            {!unifiedJourney && (
-              <p className="lead">
-                Your memory is saved online so the same link works from QR, NFC and email.
-              </p>
-            )}
+            <p className="lead">
+              Your memory is saved
+              securely online so the
+              same link works from
+              email, QR and NFC.
+            </p>
           </>
         )}
 
-        {unifiedJourney && (
-          <div className="smUnifiedJourneySteps" aria-label="Your creation steps">
-            <span><b>1.</b> Create your memory</span>
-            <span><b>2.</b> Add a gift, or keep it digital</span>
-          </div>
-        )}
-        <div className="form card smUnifiedMemoryEditor">
+        <div className="form card">
 
           <label>
             Recipient name
@@ -584,22 +524,6 @@ setSavedPhotoUrl(permanentPhotoUrl);
               }
               placeholder="e.g. Sarah"
             />
-          </label>
-
-          <label className="smOptionalMemoryMessage">
-            <span className="smOptionalMemoryMessageHeading">
-              Written message <small>(optional)</small>
-            </span>
-            <textarea
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              placeholder="Add a few words if you wish…"
-              aria-describedby="sm-written-message-help"
-            />
-            <small id="sm-written-message-help">
-              Your photo, voice recording or video can tell the whole story.
-              Leave this blank if you prefer. If you have no media, write a message instead.
-            </small>
           </label>
 
           <label>
@@ -620,7 +544,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             />
           </label>
 
-          {allowTagVideoTrial && (
+          {memoryOnly && (
             <fieldset className="smTagMediaSelector">
               <legend>Choose how the recipient will experience the memory</legend>
               <div className="smTagMediaOptions">
@@ -640,7 +564,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </fieldset>
           )}
 
-          {(!allowTagVideoTrial || tagMediaMode === 'photo') && (
+          {(!memoryOnly || tagMediaMode === 'photo') && (
             <>
           <label>
             Photograph
@@ -718,7 +642,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </>
           )}
 
-          {allowTagVideoTrial && tagMediaMode === 'video' && (
+          {memoryOnly && tagMediaMode === 'video' && (
             <div className="smTagVideoUpload">
               <label htmlFor="tag-memory-video">Upload your video with sound</label>
               <p>Choose a short video from your phone. MP4 works best across iPhone and Android. MOV and WebM are accepted for this trial. Maximum 30 MB.</p>
@@ -733,11 +657,22 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </div>
           )}
 
-          {!saved && unifiedJourney && (
-            <p className="smUnifiedNoGiftYet">
-              Your memory comes first. Gift options appear after you save it.
-            </p>
-          )}
+          <label className="smOptionalMemoryMessage">
+            <span className="smOptionalMemoryMessageHeading">
+              Written message <small>(optional)</small>
+            </span>
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              placeholder="Add a few words if you wish…"
+              aria-describedby="sm-written-message-help"
+            />
+            <small id="sm-written-message-help">
+              Your photo, voice recording or video can tell the whole story.
+              Leave this blank if you prefer. If you have no media, write a message instead.
+            </small>
+          </label>
+
           {!saved && (
             <button
               disabled={
@@ -784,67 +719,27 @@ setSavedPhotoUrl(permanentPhotoUrl);
                   onClick={() => addToBasket()}>
                   Add {product.name} to basket
                 </button>
-              ) : (memoryWithGift || unifiedJourney) ? (
-                <section className="smUnifiedChooseFinish" aria-labelledby="sm-memory-finish-heading">
-                  <span className="v14Eyebrow">STEP 2 · CHOOSE HOW TO SHARE</span>
-                  <h2 id="sm-memory-finish-heading">Your memory comes first. Your gift is optional.</h2>
-                  <p className="smUnifiedFinishIntro">
-                    Your memory has been saved. Choose just the digital memory, a tag with a satin bow,
-                    or add a personalised gift. Only your chosen option is added to checkout.
-                  </p>
-                  {unifiedJourney && (
-                    <div className="smUnifiedFinishChoices">
-                      <article className="smUnifiedFinishOption">
-                        <span aria-hidden="true" className="smUnifiedOptionIcon">♡</span>
-                        <h3>Smart Memory only</h3>
-                        <p>Share by link. No physical product or delivery.</p>
-                        <strong>£5.00</strong>
-                        <button className="btn" type="button" onClick={payForDigitalMemory}>
-                          Choose digital memory — £5
+              ) : memoryWithGift ? (
+                <div className="smAfterMemoryGift">
+                  <h2>Now choose the gift for your memory</h2>
+                  <p>Your memory is safely saved. Select a gift below; it will be linked to the memory you have just created.</p>
+                  <div className="smAfterMemoryGiftGrid">
+                    {products.map((item) => (
+                      <article key={item.slug} className="smAfterMemoryGiftCard">
+                        <span aria-hidden="true">{item.emoji}</span>
+                        <strong>{item.name}</strong>
+                        <small>£{item.price.toFixed(2)}</small>
+                        <button type="button" className="btn small"
+                          onClick={() => addToBasket(item)}>
+                          Select this gift
                         </button>
                       </article>
-                      <article className="smUnifiedFinishOption">
-                        <span aria-hidden="true" className="smUnifiedOptionIcon">🎀</span>
-                        <h3>Memory gift tag</h3>
-                        <p>A decorative satin bow and tag to open your memory.</p>
-                        <strong>£5.00 + postage</strong>
-                        <button className="btn secondary" type="button"
-                          onClick={() => router.push(`/create/bow?code=${encodeURIComponent(savedCode || '')}&choice=tag`)}>
-                          Choose your bow colour
-                        </button>
-                      </article>
-                    </div>
-                  )}
-                  {tagMediaMode === 'video' && unifiedJourney ? (
-                    <p className="smUnifiedVideoTrialNote">
-                      Video memories are currently being trialled as digital memories and
-                      satin-bow tags. For a printed gift, please choose the Photo + Voice
-                      format and create a new memory.
-                    </p>
-                  ) : (
-                  <div className="smAfterMemoryGift" id="memory-gifts">
-                    <span className="v14Eyebrow">OPTIONAL GIFT ADD-ONS</span>
-                    <h2>{occasion && occasionGiftSlugs[occasion]
-                      ? `Add a gift for ${occasion}`
-                      : 'Add a personalised gift to your memory'}</h2>
-                    <p>These gifts include your saved Smart Memory. Choose a gift only if you want something physical.</p>
-                    <div className="smAfterMemoryGiftGrid">
-                      {giftProducts.map((item) => (
-                        <article key={item.slug} className="smAfterMemoryGiftCard">
-                          <span aria-hidden="true">{item.emoji}</span>
-                          <strong>{item.name}</strong>
-                          <small>£{item.price.toFixed(2)}</small>
-                          <button type="button" className="btn small"
-                            onClick={() => addToBasket(item)}>
-                            Add this gift
-                          </button>
-                        </article>
-                      ))}
-                    </div>
-                    {occasion && <Link href="/create" className="smAllMemoryGiftsLink">See all gift add-ons</Link>}
+                    ))}
                   </div>
-                  )}
-                </section>
+                  <Link href={`/m/${encodeURIComponent(savedCode || '')}`}>
+                    View saved memory
+                  </Link>
+                </div>
               ) : (
                 <button type="button" className="personaliseBasketButton"
                   onClick={() => router.push(`/m/${savedCode}`)}>

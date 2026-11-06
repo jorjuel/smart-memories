@@ -17,7 +17,6 @@ function BowColourContent() {
   const router = useRouter();
   const query = useSearchParams();
   const code = query.get('code')?.trim() || '';
-  const tagSelected = query.get('choice') === 'tag';
   const validCode = /^[A-HJ-NP-Z2-9]{8}$/.test(code);
   const [colour, setColour] = useState<string>('rose-gold');
   const [submitting, setSubmitting] = useState(false);
@@ -136,13 +135,11 @@ function BowColourContent() {
   return <main className="smBowPage">
     <div className="smBowIntro">
       <span className="v14Eyebrow">MEMORY ONLY · FINAL STEP</span>
-      <h1>{tagSelected ? 'Choose the bow for your memory tag' : 'Your Smart Memory is ready'}</h1>
-      <p>{tagSelected
-        ? 'Your memory is saved. Choose a satin bow colour for your £5 gift tag, then continue to checkout.'
-        : 'Buy the digital memory on its own for £5, or choose a decorative satin bow and physical gift tag.'}</p>
+      <h1>Your Smart Memory is ready</h1>
+      <p>Buy the digital memory on its own for £5, or choose a decorative satin bow and physical gift tag.</p>
       <p className="smBowMemoryReference">Memory reference: <strong>{code}</strong> · <Link href={`/m/${code}`}>View memory</Link></p>
     </div>
-    {!tagSelected && <section className="smDigitalMemoryCheckout">
+    <section className="smDigitalMemoryCheckout">
       <div>
         <span className="v14Eyebrow">SMART MEMORY ALONE</span>
         <h2>Digital Smart Memory — £5.00</h2>
@@ -152,8 +149,8 @@ function BowColourContent() {
         onClick={buyDigitalMemory}>
         {submitting ? 'Opening checkout…' : 'Pay £5 — Digital Memory Only'}
       </button>
-    </section>}
-    {!tagSelected && <p className="smPhysicalBowDivider">Prefer a physical gift? Choose a bow colour below.</p>}
+    </section>
+    <p className="smPhysicalBowDivider">Prefer a physical gift? Choose a bow colour below.</p>
     <div className="smBowLayout">
       <div className="smBowPreview">
         <div className="smBowPreviewArt" role="img" aria-label="Smart Memories decorative satin ribbon bow and hanging gift tag" />

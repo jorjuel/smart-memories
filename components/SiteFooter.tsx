@@ -53,15 +53,19 @@ export default function SiteFooter() {
           </strong>
 
           <Link href="/create">
-            Create a Memory &amp; Gifts
+            Create a Memory
+          </Link>
+
+          <Link href="/shop">
+            Smart Gifts
           </Link>
 
           <Link href="/cards">
-            Handmade Cards
+            Smart Cards
           </Link>
 
           <Link href="/occasions">
-            Create by Occasion
+            Shop by Occasion
           </Link>
         </div>
 
