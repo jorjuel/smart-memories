@@ -3,23 +3,42 @@ import Link from 'next/link';
 const steps = [
   {
     number: '01',
-    title: 'Create your Smart Memory',
-    text: 'Start with the person and your message. Add a photo, voice recording or video if you wish.',
+    title:
+      'Choose your gift',
+    text:
+      'Choose the physical gift that feels right for the person, occasion or memory.',
   },
+
   {
     number: '02',
-    title: 'Save the memory',
-    text: 'Your personal memory gets a unique link for sharing and connecting to a gift.',
+    title:
+      'Add your story',
+    text:
+      'Add your photographs, personal message, voice recording and video where available.',
   },
+
   {
     number: '03',
-    title: 'Choose how to share',
-    text: 'Keep it digital for £5, choose a satin-bow gift tag, or add a personalised keepsake.',
+    title:
+      'We create your Smart Gift',
+    text:
+      'Your physical gift is personalised and connected to its unique Smart Memory.',
   },
+
   {
     number: '04',
-    title: 'They open and relive it',
-    text: 'A link, phone tap or QR scan opens the memory in their browser. No app is needed.',
+    title:
+      'They tap it',
+    text:
+      'The recipient simply taps the Smart Memory point with a compatible phone or scans the QR backup.',
+  },
+
+  {
+    number: '05',
+    title:
+      'The memory opens',
+    text:
+      'Their Smart Memory opens in the browser so they can see, hear and relive the moments you created for them.',
   },
 ];
 
@@ -32,13 +51,17 @@ export default function HowItWorksPage() {
         </span>
 
         <h1>
-          Your memory comes first.
-          The gift is your choice.
+          From a meaningful gift
+          to a memory they can
+          relive.
         </h1>
 
         <p>
-          Create the story you want them to keep,
-          then share it digitally or attach it to a personalised gift.
+          Smart Memories connects a
+          personalised physical gift
+          to the photographs, words,
+          voices and moments behind
+          it.
         </p>
 
         <div className="howMemoryNoApp">
