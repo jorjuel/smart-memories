@@ -12627,3 +12627,37 @@ header.smSiteHeader {
   .smCompactMemoryForm .smTagMediaOptions strong {font-size:13px}
   .smCompactMemoryForm .smTagVideoPreview {max-height:240px}
 }
+
+/* Optional written memories: concise helper and no blank photo-only column. */
+.smCompactMemoryForm .smOptionalMemoryMessage {
+  display: grid;
+  gap: 7px;
+}
+.smOptionalMemoryMessageHeading {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+.smOptionalMemoryMessageHeading small {
+  font-weight: 400;
+  color: var(--sm-muted, #696469);
+}
+.smCompactMemoryForm .smOptionalMemoryMessage > small {
+  display: block;
+  color: var(--sm-muted, #696469);
+  font-weight: 400;
+  line-height: 1.45;
+  font-size: 12px;
+}
+.smRecipientUnifiedBodyPhotoOnly {
+  display: block;
+  max-width: 720px;
+  width: 100%;
+  margin-inline: auto;
+}
+.smRecipientUnifiedBodyPhotoOnly .smRecipientUnifiedPhoto {
+  max-width: 100%;
+  width: auto;
+  margin-inline: auto;
+}
