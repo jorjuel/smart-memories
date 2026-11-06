@@ -20,7 +20,6 @@ import {
 } from '../../lib/products';
 import Link from 'next/link';
 
-import CreateMemoryJourney from '../../components/CreateMemoryJourney';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
 import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
 
@@ -40,6 +39,23 @@ function CreateContent() {
           item.slug === productSlug
       )
     : undefined;
+  // Shop and Create a Memory now share this one memory-first experience.
+  // Existing direct product links and old tag/gift URLs remain compatible.
+  const unifiedJourney = !productSlug && !memoryOnly && !memoryWithGift;
+  const allowTagVideoTrial = memoryOnly || unifiedJourney;
+  const occasion = searchParams.get('occasion');
+  const occasionGiftSlugs: Record<string, string[]> = {
+    Birthday: ['photo-mug', 'smart-photo-slate', 'coaster-set', 'keyring', 'white-t-shirt'],
+    Wedding: ['smart-photo-slate', 'smart-memory-plaque', 'photo-mug', 'coaster-set', 'keyring'],
+    Anniversary: ['smart-photo-slate', 'smart-memory-plaque', 'photo-mug', 'keyring'],
+    Retirement: ['photo-mug', 'smart-photo-slate', 'mouse-mat', 'keyring'],
+    'Pet Memory': ['smart-photo-slate', 'keyring', 'photo-mug', 'coaster-set', 'mouse-mat'],
+    'Family Memory': ['smart-photo-slate', 'photo-mug', 'coaster-set', 'smart-memory-plaque'],
+    'New Baby': ['smart-photo-slate', 'photo-mug', 'smart-memory-plaque', 'keyring'],
+  };
+  const giftProducts = occasion && occasionGiftSlugs[occasion]
+    ? products.filter((item) => occasionGiftSlugs[occasion].includes(item.slug))
+    : products;
 
   const [recipient, setRecipient] =
     useState('');
@@ -261,12 +277,12 @@ function CreateContent() {
       return;
     }
 
-    if (memoryOnly && tagMediaMode === 'video' && !video) {
+    if (allowTagVideoTrial && tagMediaMode === 'video' && !video) {
       alert('Please choose a video with sound, or switch back to the photo option.');
       return;
     }
 
-    const usingVideo = memoryOnly && tagMediaMode === 'video';
+    const usingVideo = allowTagVideoTrial && tagMediaMode === 'video';
     if (!hasMeaningfulMemoryContent({
       message,
       photo: !usingVideo && Boolean(photo),
@@ -311,12 +327,12 @@ function CreateContent() {
         formData.set('photoPath', photoPath);
       }
 
-      if (audio && (!memoryOnly || tagMediaMode === 'photo')) {
+      if (audio && (!allowTagVideoTrial || tagMediaMode === 'photo')) {
         const audioPath = await uploadMemoryMedia(audio, 'audio');
         formData.set('audioPath', audioPath);
       }
 
-      if (memoryOnly && tagMediaMode === 'video' && video) {
+      if (allowTagVideoTrial && tagMediaMode === 'video' && video) {
         const videoPath = await uploadMemoryMedia(video, 'video');
         formData.set('videoPath', videoPath);
       }
@@ -433,19 +449,6 @@ setSavedPhotoUrl(permanentPhotoUrl);
       );
     }
   }
-  const directMode =
-    Boolean(productSlug) ||
-    memoryOnly ||
-    memoryWithGift ||
-    searchParams.get(
-      'direct'
-    ) === '1';
-
-  if (!directMode) {
-    return (
-      <CreateMemoryJourney />
-    );
-  }
   return (
     <section className="wrap smCompactMemoryForm">
       <div
@@ -486,10 +489,17 @@ setSavedPhotoUrl(permanentPhotoUrl);
           </>
         ) : (
           <>
-            <span className="v14Eyebrow">MAKE YOUR MEMORY</span>
+            <span className="v14Eyebrow">STEP 1 OF 2 · YOUR MEMORY FIRST</span>
             <h1>
-              Create a Special Memory
+              Create a Smart Memory
             </h1>
+            {unifiedJourney && (
+              <p className="smUnifiedJourneyIntro">
+                Start with the person and the message. Add a photo, voice recording
+                or video if you wish. <strong>Choose a digital memory, a gift tag
+                or a personalised gift after saving.</strong>
+              </p>
+            )}
             {(memoryOnly || memoryWithGift) && (
               <p className="smMemoryRouteChoice">
                 <strong>{memoryOnly ? 'Memory Only' : 'Memory + Gift'}</strong>
@@ -497,16 +507,21 @@ setSavedPhotoUrl(permanentPhotoUrl);
               </p>
             )}
 
-            <p className="lead">
-              Your memory is saved
-              securely online so the
-              same link works from
-              email, QR and NFC.
-            </p>
+            {!unifiedJourney && (
+              <p className="lead">
+                Your memory is saved online so the same link works from QR, NFC and email.
+              </p>
+            )}
           </>
         )}
 
-        <div className="form card">
+        {unifiedJourney && (
+          <div className="smUnifiedJourneySteps" aria-label="Your creation steps">
+            <span><b>1.</b> Create your memory</span>
+            <span><b>2.</b> Add a gift, or keep it digital</span>
+          </div>
+        )}
+        <div className="form card smUnifiedMemoryEditor">
 
           <label>
             Recipient name
@@ -524,6 +539,22 @@ setSavedPhotoUrl(permanentPhotoUrl);
               }
               placeholder="e.g. Sarah"
             />
+          </label>
+
+          <label className="smOptionalMemoryMessage">
+            <span className="smOptionalMemoryMessageHeading">
+              Written message <small>(optional)</small>
+            </span>
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              placeholder="Add a few words if you wish…"
+              aria-describedby="sm-written-message-help"
+            />
+            <small id="sm-written-message-help">
+              Your photo, voice recording or video can tell the whole story.
+              Leave this blank if you prefer. If you have no media, write a message instead.
+            </small>
           </label>
 
           <label>
@@ -544,7 +575,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             />
           </label>
 
-          {memoryOnly && (
+          {allowTagVideoTrial && (
             <fieldset className="smTagMediaSelector">
               <legend>Choose how the recipient will experience the memory</legend>
               <div className="smTagMediaOptions">
@@ -564,7 +595,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </fieldset>
           )}
 
-          {(!memoryOnly || tagMediaMode === 'photo') && (
+          {(!allowTagVideoTrial || tagMediaMode === 'photo') && (
             <>
           <label>
             Photograph
@@ -642,7 +673,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </>
           )}
 
-          {memoryOnly && tagMediaMode === 'video' && (
+          {allowTagVideoTrial && tagMediaMode === 'video' && (
             <div className="smTagVideoUpload">
               <label htmlFor="tag-memory-video">Upload your video with sound</label>
               <p>Choose a short video from your phone. MP4 works best across iPhone and Android. MOV and WebM are accepted for this trial. Maximum 30 MB.</p>
@@ -657,22 +688,11 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </div>
           )}
 
-          <label className="smOptionalMemoryMessage">
-            <span className="smOptionalMemoryMessageHeading">
-              Written message <small>(optional)</small>
-            </span>
-            <textarea
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              placeholder="Add a few words if you wish…"
-              aria-describedby="sm-written-message-help"
-            />
-            <small id="sm-written-message-help">
-              Your photo, voice recording or video can tell the whole story.
-              Leave this blank if you prefer. If you have no media, write a message instead.
-            </small>
-          </label>
-
+          {!saved && unifiedJourney && (
+            <p className="smUnifiedNoGiftYet">
+              Your memory comes first. Gift options appear after you save it.
+            </p>
+          )}
           {!saved && (
             <button
               disabled={
