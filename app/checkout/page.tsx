@@ -1029,6 +1029,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            <div className="smCheckoutFinalPayment" id="checkout-payment-action" aria-label="Complete secure payment">
             {orderError && (
               <div
                 style={{
@@ -1060,6 +1061,8 @@ export default function CheckoutPage() {
                 ? 'Creating order...'
                 : 'Continue to secure payment'}
             </button>
+
+            </div>
 
             <p
               style={{
