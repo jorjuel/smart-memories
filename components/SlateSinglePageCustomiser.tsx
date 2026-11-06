@@ -1,11 +1,11 @@
 'use client';
 
 import {useCallback,useEffect,useRef,useState} from 'react';
-import Link from 'next/link';
-import {uploadMemoryMedia,readMemorySaveResult} from '@/lib/memoryMediaUpload';
+import {storeSlateDraft,loadSlateDraft} from '@/lib/slateReviewDraft';
+import type {SlateReviewDraft} from '@/lib/slateReviewDraft';
 
 type SlateSize={label:string;width:number;height:number};
-const SIZES:SlateSize[]=[
+export const SIZES:SlateSize[]=[
  {label:'14 × 14 cm',width:14,height:14},
  {label:'19 × 19 cm',width:19,height:19},
  {label:'14 × 19 cm',width:14,height:19},
@@ -23,9 +23,9 @@ const WAYS:{value:Wording;label:string}[]=[
 type Crop={zoom:number;dx:number;dy:number};
 type PhotoFit='contain'|'cover';
 type SlateDirection='portrait'|'landscape';
-const PRICE=24.99; // Retain existing slate base price until size-specific prices are configured.
+export const PRICE=24.99; // Retain existing slate base price until size-specific prices are configured.
 
-function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0){
+export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0){
  const ch=Math.round(cw*sz.height/sz.width);
  const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
  const w=cw,h=ch;
@@ -97,6 +97,12 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
  const [bottomText,setBottomText]=useState('');
  const [dedication,setDedication]=useState('');
  const [message,setMessage]=useState('');
+ const [audio,setAudio]=useState<Blob|null>(null);
+ const [audioUrl,setAudioUrl]=useState('');
+ const [recording,setRecording]=useState(false);
+ const [recordingStatus,setRecordingStatus]=useState('');
+ const recorderRef=useRef<MediaRecorder|null>(null);
+ const chunksRef=useRef<Blob[]>([]);
  const [recipient,setRecipient]=useState('');
  const [sender,setSender]=useState('');
  const [saving,setSaving]=useState(false);
@@ -139,55 +145,77 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
    dy:Math.max(-2,Math.min(2,drag.current!.dy+py))}));
  }
  function stopDrag(){drag.current=null;}
- async function addToBasket(){
+ async function startRecording(){
+  if(recording)return;
+  if(!navigator.mediaDevices?.getUserMedia||typeof MediaRecorder==='undefined'){
+    setError('Voice recording is not supported in this browser. Please upload an audio recording instead.');return;
+  }
+  setError('');setRecordingStatus('');
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const recorder=new MediaRecorder(stream);
+    chunksRef.current=[];
+    recorder.ondataavailable=e=>{if(e.data.size)chunksRef.current.push(e.data);};
+    recorder.onerror=()=>setError('Recording failed. Please try again.');
+    recorder.onstop=()=>{
+      stream.getTracks().forEach(track=>track.stop());
+      const blob=new Blob(chunksRef.current,{type:recorder.mimeType||'audio/webm'});
+      if(blob.size>0&&blob.size<=25*1024*1024){
+        if(audioUrl)URL.revokeObjectURL(audioUrl);
+        setAudio(blob);setAudioUrl(URL.createObjectURL(blob));
+        setRecordingStatus('Voice message recorded. Play it below.');
+        setAdded(false);
+      }else setError('The recording is empty or larger than 25MB.');
+      recorderRef.current=null;
+      setRecording(false);
+    };
+    recorderRef.current=recorder;
+    recorder.start();setRecording(true);setRecordingStatus('Recording…');
+  }catch{setError('Microphone permission was not granted. You can upload a recording instead.');}
+ }
+ function stopRecording(){if(recorderRef.current?.state==='recording')recorderRef.current.stop();}
+ function chooseAudio(file?:File){
+  if(!file)return;
+  if(file.size>25*1024*1024 || !file.type.startsWith('audio/')){
+    setError('Choose an audio recording smaller than 25MB.');return;
+  }
+  if(audioUrl)URL.revokeObjectURL(audioUrl);
+  setAudio(file);setAudioUrl(URL.createObjectURL(file));setRecordingStatus('Audio message selected.');setAdded(false);setError('');
+ }
+ useEffect(()=>()=>{
+   if(recorderRef.current?.state==='recording')recorderRef.current.stop();
+ },[]);
+ useEffect(()=>{
+   let alive=true;
+   loadSlateDraft().then(saved=>{
+    if(!alive||!saved)return;
+    setOccasion(saved.occasion);setSizeIndex(saved.sizeIndex);setDirection(saved.direction);
+    setCrop(saved.crop);setFit(saved.fit);setRotation(saved.rotation);setWording(saved.wording);
+    setTopText(saved.topText);setBottomText(saved.bottomText);setDedication(saved.dedication);
+    setMessage(saved.message);setRecipient(saved.recipient);setSender(saved.sender);
+    const url=URL.createObjectURL(saved.photo);
+    const img=new Image();
+    img.onload=()=>{
+      if(alive){setPhoto(saved.photo);setPhotoUrl(url);setImage(img);}else URL.revokeObjectURL(url);
+    };
+    img.onerror=()=>URL.revokeObjectURL(url);
+    img.src=url;
+    if(saved.audio){const sound=URL.createObjectURL(saved.audio);setAudio(saved.audio);setAudioUrl(sound);}
+   }).catch(()=>{});
+   return()=>{alive=false;};
+ },[]);
+ useEffect(()=>()=>{if(audioUrl)URL.revokeObjectURL(audioUrl);},[audioUrl]);
+ async function confirmDesign(){
   if(!photo||!image){setError('Please upload your photograph first.');return;}
+  if(recording){setError('Stop the voice recording before reviewing.');return;}
   if(saving)return;
   setSaving(true);setError('');
   try{
-   // Render the same composition at approximately 300 DPI for actual slate printing.
-   // Preview stays at 900 pixels wide for quick editing and mobile performance.
-   const canvas=document.createElement('canvas');
-   const printCtx=canvas.getContext('2d');
-   if(!printCtx)throw Error('Could not prepare print artwork.');
-   paint(printCtx,image,size,crop,wording,topText,bottomText,dedication,Math.round(size.width/2.54*300),fit,rotation);
-   const artwork=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export your design.')),'image/jpeg',.94));
-   const artworkFile=new File([artwork],'smart-slate-print.jpg',{type:'image/jpeg'});
-   const [photoPath,artworkPath]=await Promise.all([
-     uploadMemoryMedia(photo,'photo'),
-     uploadMemoryMedia(artworkFile,'photo')
-   ]);
-   const form=new FormData();
-   form.set('photoPath',photoPath);
-   form.set('recipient',recipient.trim()||'Someone special');
-   form.set('sender',sender.trim());
-   form.set('message',message.trim()); // Optional; the attached photo makes the memory valid.
-   const response=await fetch('/api/memories',{method:'POST',body:form});
-   const saved=await readMemorySaveResult(response);
-   if(!saved.code)throw Error('The memory was not saved. Please try again.');
-   const base=process.env.NEXT_PUBLIC_SUPABASE_URL;
-   if(!base)throw Error('Media storage is not configured.');
-   const printedUrl=base+'/storage/v1/object/public/memory-media/'+artworkPath.split('/').map(encodeURIComponent).join('/');
-   const originalUrl=base+'/storage/v1/object/public/memory-media/'+photoPath.split('/').map(encodeURIComponent).join('/');
-   const item={
-     id:crypto.randomUUID(),productType:'product',productSlug:'smart-photo-slate',
-     memoryCode:saved.code,name:'Personalised Photo Slate',category:'Smart Memories',
-     occasion:occasion||undefined,recipient:recipient.trim()||'Someone special',
-     design:wording==='none'?'Full photo slate':'Photo slate with wording',imageUrl:printedUrl,price:PRICE,quantity:1,
-     personalisation:{
-       size:selectedSize.label,slateWidthCm:size.width,slateHeightCm:size.height,slateOrientation:direction,photoFit:fit,photoRotation:rotation,
-       wording,textLayout:wording,topText,bottomText,paragraph:dedication,
-       memoryMessage:message.trim(),sender:sender.trim(),
-       printPhotoUrls:[originalUrl],printArtworkUrl:printedUrl,
-       photoZoom:crop.zoom,photoOffsetX:crop.dx,photoOffsetY:crop.dy,
-     }
-   };
-   const stored=localStorage.getItem('smart-memories-cart');
-   const parsed=stored?JSON.parse(stored):[];
-   const cart=Array.isArray(parsed)?parsed:[];
-   cart.push(item);localStorage.setItem('smart-memories-cart',JSON.stringify(cart));
-   setAdded(true);
-  }catch(err){setError(err instanceof Error?err.message:'Could not save gift. Please try again.');}
-  finally{setSaving(false);}
+   const draft:SlateReviewDraft={photo,audio,sizeIndex,direction,crop,fit,rotation,wording,
+    occasion,topText,bottomText,dedication,message,recipient,sender};
+   await storeSlateDraft(draft);
+   window.location.assign('/slate/review');
+  }catch(err){setError(err instanceof Error?err.message:'Could not prepare the review.');setSaving(false);}
  }
  return <section className="slateStudio" aria-label="Personalise your photo slate">
   <div className="slateStudioHeading"><span className="eyebrow">SMART MEMORIES · PHOTO SLATE</span>
@@ -254,6 +282,21 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
     <label>Smart Memory message (optional)
      <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a message to open when someone taps the gift, or leave blank."/>
     </label>
+    <fieldset><legend>Smart Memory voice recording (optional)</legend>
+      <p className="slateHelp">Record a message that plays when the recipient opens their Smart Memory, or upload an audio recording.</p>
+      <div className="slateSizes">
+       {!recording?<button type="button" onClick={()=>void startRecording()}>Record voice</button>
+         :<button type="button" onClick={stopRecording}>Stop recording</button>}
+       {audio&&<button type="button" onClick={()=>{
+         if(audioUrl)URL.revokeObjectURL(audioUrl);
+         setAudio(null);setAudioUrl('');setRecordingStatus('Recording removed.');
+       }}>Remove audio</button>}
+      </div>
+      <label>Or upload audio <input type="file" accept="audio/*" disabled={recording}
+       onChange={e=>{chooseAudio(e.currentTarget.files?.[0]);e.currentTarget.value='';}}/></label>
+      {recordingStatus&&<p role="status" className="slateHelp">{recordingStatus}</p>}
+      {audioUrl&&<audio src={audioUrl} controls preload="metadata" style={{width:'100%'}}/>}
+    </fieldset>
     <div className="slatePersonFields">
      <label>Recipient's name (optional)<input value={recipient} maxLength={100} onChange={e=>{setRecipient(e.target.value);setAdded(false);}}/></label>
      <label>From (optional)<input value={sender} maxLength={100} onChange={e=>{setSender(e.target.value);setAdded(false);}}/></label>
@@ -268,11 +311,11 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
        aria-label="Live personalised slate preview" role="img"/>
     </div>
     <p><strong>{selectedSize.label}</strong> · {direction==='landscape'?'Landscape':'Vertical'} · £{PRICE.toFixed(2)}</p>
-    <button type="button" className="btn big" onClick={()=>void addToBasket()} disabled={saving||!photo}>
-      {saving?'Saving your gift…':'Add personalised slate to basket'}
+    <button type="button" className="btn big" onClick={()=>void confirmDesign()} disabled={saving||!photo||recording}>
+      {saving?'Preparing review…':'Confirm design & review Smart Memory'}
     </button>
     {error&&<p role="alert" className="slateError">{error}</p>}
-    {added&&<p role="status" className="slateSuccess">Added to your basket. <Link href="/cart">Review basket</Link> or make more changes above.</p>}
+
     <small>Price uses the current slate base price for every size until size-specific pricing is configured.</small>
    </aside>
   </div>
