@@ -61,8 +61,7 @@ export default function ConfiguredProductPreview({
       .then(async r=>r.ok?r.json():{templates:[]})
       .then(result=>{
         const entry=(result.templates||[]).find((f:{id:string;productSlugs:string[];orientation:string})=>
-          f.id===template.slice(3) && f.productSlugs.includes(slug) &&
-          (f.orientation===orientation || slug==='photo-mug' || slug==='mouse-mat')
+          f.id===template.slice(3) && f.productSlugs.includes(slug)
         );
         if(active)setFrameUrl(entry?.url||'');
       }).catch(()=>{if(active)setFrameUrl('');});
