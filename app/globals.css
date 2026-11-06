@@ -13313,3 +13313,45 @@ header.smSiteHeader {
     max-width: 100%;
   }
 }
+
+
+/* Slate-only single-page editor. Other product personalisers are unchanged. */
+.slateStudio{max-width:1200px;margin:0 auto;padding:clamp(18px,4vw,48px) 18px 70px}
+.slateStudioHeading{margin-bottom:26px}
+.slateStudioHeading h1{font-size:clamp(28px,4vw,46px);line-height:1.15;margin:8px 0}
+.slateStudioHeading p{color:#625d57;margin:0}
+.slateStudioGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.86fr);gap:clamp(20px,4vw,48px);align-items:start}
+.slateStudioControls{display:grid;gap:19px;min-width:0}
+.slateStudioControls>label,.slateStudioControls fieldset>label,.slatePersonFields label{display:grid;gap:7px;font-weight:600}
+.slateStudioControls input:not([type="range"]):not([type="file"]),.slateStudioControls select,.slateStudioControls textarea{width:100%;max-width:100%;min-width:0;border:1px solid #cfc9c0;border-radius:9px;background:#fff;padding:11px 12px;color:#25211d;font:inherit;box-sizing:border-box}
+.slateStudioControls input[type="file"]{width:100%;border:1px dashed #b1a79c;border-radius:10px;padding:13px;background:#fff}
+.slateStudioControls fieldset{min-width:0;border:1px solid #e2dcd4;border-radius:13px;padding:15px;display:grid;gap:12px}
+.slateStudioControls legend{font-weight:700;padding:0 6px}
+.slateSizes,.slateWording{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.slateSizes button,.slateWording button{border:1px solid #d4c9bd;border-radius:10px;padding:12px 8px;background:#fff;color:#262321;font:inherit;cursor:pointer;min-height:46px}
+.slateSizes button.active,.slateWording button.active{background:#f3ece2;border:2px solid #80674d;font-weight:700}
+.slatePersonFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.slateHelp{font-size:13px;color:#67615a;margin:4px 0 10px;line-height:1.5}
+.slateTextButton{justify-self:start;background:transparent;border:0;text-decoration:underline;cursor:pointer;color:#554534}
+.slateStudioPreview{position:sticky;top:18px;padding:clamp(16px,2.4vw,26px);border:1px solid #e4dcd0;border-radius:18px;background:#faf7f2;display:grid;gap:13px;min-width:0;box-shadow:0 8px 35px #00000009}
+.slateStudioPreview h2{font-size:clamp(20px,2.5vw,27px);margin:0}
+.slatePreviewWrap{display:flex;justify-content:center;align-items:center;min-height:260px;max-height:580px;overflow:hidden;padding:16px 10px;background:linear-gradient(150deg,#e3dfd8,#f7f5f1);border-radius:11px}
+.slatePreviewWrap canvas{display:block;width:auto;max-width:100%;height:auto;max-height:535px;object-fit:contain;border-radius:3px;box-shadow:0 9px 25px #0003;touch-action:none;cursor:grab}
+.slatePreviewWrap canvas:active{cursor:grabbing}
+.slateStudioPreview>.btn{width:100%;justify-content:center;text-align:center}
+.slateError{color:#8d2828;font-weight:600}
+.slateSuccess{color:#245b38;font-weight:600}
+.slateSuccess a{text-decoration:underline}
+.slateStudioPreview>small{color:#6a635c;line-height:1.4}
+@media(max-width:790px){
+ .slateStudioGrid{grid-template-columns:minmax(0,1fr)}
+ .slateStudioPreview{position:static}
+ .slatePreviewWrap{min-height:230px;max-height:490px}
+ .slatePreviewWrap canvas{max-height:450px}
+ .slateStudio{padding:20px 14px 60px}
+}
+@media(max-width:420px){
+ .slatePersonFields{grid-template-columns:1fr}
+ .slateSizes,.slateWording{gap:7px}
+ .slateSizes button,.slateWording button{font-size:13px;padding:9px 5px}
+}
