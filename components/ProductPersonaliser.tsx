@@ -1404,7 +1404,6 @@ export default function ProductPersonaliser({
                   bottomText={designSource === 'own' ? '' : bottomText}
                   paragraph={designSource === 'own' ? '' : paragraph}
                   textLayout={designSource === 'own' ? 'photo-only' : textLayout}
-                  template={mode === 'quick' && designSource === 'ours' ? template : null}
                 />
               </div>
             </div>
@@ -2948,7 +2947,6 @@ export default function ProductPersonaliser({
             bottomText={designSource === 'own' ? '' : bottomText}
             paragraph={designSource === 'own' ? '' : paragraph}
             textLayout={designSource === 'own' ? 'photo-only' : textLayout}
-            template={mode === 'quick' && designSource === 'ours' ? template : null}
           />
         </div>
         <p className="smFullGiftPreviewNote">
