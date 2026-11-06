@@ -118,7 +118,7 @@ export default function ConfiguredProductPreview({
       )}
 
       {frameUrl && <img src={frameUrl} alt="" aria-hidden="true"
-        style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'fill',pointerEvents:'none',zIndex:2}} />}
+        style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'contain',pointerEvents:'none',zIndex:2}} />}
 
       {topText &&
         (textLayout === 'top' ||
