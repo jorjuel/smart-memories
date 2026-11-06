@@ -452,7 +452,7 @@ export async function POST(
     for (const entry of [
       { field: 'photoPath', kind: 'image', maxBytes: 10 * 1024 * 1024 },
       { field: 'audioPath', kind: 'audio', maxBytes: 25 * 1024 * 1024 },
-      { field: 'videoPath', kind: 'video', maxBytes: 60 * 1024 * 1024 },
+      { field: 'videoPath', kind: 'video', maxBytes: 40 * 1024 * 1024 },
     ]) {
       const path = String(form.get(entry.field) || '').trim();
       if (!path) continue;
