@@ -15,6 +15,10 @@ const allowed: Record<string, { extension: string; maxBytes: number }> = {
   'audio/ogg': { extension: 'ogg', maxBytes: 25 * 1024 * 1024 },
   'audio/wav': { extension: 'wav', maxBytes: 25 * 1024 * 1024 },
   'audio/x-wav': { extension: 'wav', maxBytes: 25 * 1024 * 1024 },
+  // Tag-only video trial: keep files small enough for fast mobile playback.
+  'video/mp4': { extension: 'mp4', maxBytes: 30 * 1024 * 1024 },
+  'video/quicktime': { extension: 'mov', maxBytes: 30 * 1024 * 1024 },
+  'video/webm': { extension: 'webm', maxBytes: 30 * 1024 * 1024 },
 };
 
 export async function POST(request: Request) {

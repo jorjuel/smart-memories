@@ -12549,3 +12549,81 @@ header.smSiteHeader {
     border-radius: 16px;
   }
 }
+
+/* Memory Tag trial: photo+voice or short video-with-sound chooser. */
+.smCompactMemoryForm .smTagMediaSelector {
+  min-width:0;
+  border:1px solid #eadbd5;
+  border-radius:15px;
+  padding:12px;
+  margin:0;
+  background:#fff9f6;
+}
+.smCompactMemoryForm .smTagMediaSelector legend {
+  color:var(--sm-plum-dark);
+  font-size:14px;
+  font-weight:800;
+  padding:0 6px;
+}
+.smCompactMemoryForm .smTagMediaOptions {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.smCompactMemoryForm .smTagMediaOptions button {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:14px;
+  min-width:0;
+  border:2px solid #e5d9d5;
+  border-radius:12px;
+  background:#fff;
+  color:var(--sm-plum-dark);
+  text-align:left;
+  cursor:pointer;
+  font:inherit;
+}
+.smCompactMemoryForm .smTagMediaOptions button.active {
+  border-color:var(--sm-rose);
+  background:#fff0ed;
+}
+.smCompactMemoryForm .smTagMediaOptions button:focus-visible {
+  outline:3px solid var(--sm-rose);
+  outline-offset:2px;
+}
+.smCompactMemoryForm .smTagMediaOptions strong {font-size:15px}
+.smCompactMemoryForm .smTagMediaOptions small {
+  color:var(--sm-muted);
+  font-size:12px;
+  line-height:1.4;
+}
+.smCompactMemoryForm .smTagVideoUpload {
+  display:grid;
+  gap:9px;
+}
+.smCompactMemoryForm .smTagVideoUpload > label {
+  color:var(--sm-plum-dark);
+  font-weight:800;
+}
+.smCompactMemoryForm .smTagVideoUpload > p {
+  color:var(--sm-muted);
+  margin:0;
+  font-size:13px;
+  line-height:1.5;
+}
+.smCompactMemoryForm .smTagVideoPreview {
+  display:block;
+  width:100%;
+  max-height:340px;
+  aspect-ratio:16/9;
+  object-fit:contain;
+  border-radius:12px;
+  background:#241d20;
+}
+@media(max-width:520px) {
+  .smCompactMemoryForm .smTagMediaOptions {gap:7px}
+  .smCompactMemoryForm .smTagMediaOptions button {padding:11px 9px}
+  .smCompactMemoryForm .smTagMediaOptions strong {font-size:13px}
+  .smCompactMemoryForm .smTagVideoPreview {max-height:240px}
+}

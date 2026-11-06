@@ -6,8 +6,10 @@ import {
 
 export default function MemoryVideo({
   src,
+  mediaRef,
 }: {
   src?: string | null;
+  mediaRef?: React.Ref<HTMLVideoElement>;
 }) {
   const [
     loaded,
@@ -47,6 +49,7 @@ export default function MemoryVideo({
       )}
 
       <video
+        ref={mediaRef}
         controls
         playsInline
         preload="metadata"

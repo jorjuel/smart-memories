@@ -10,6 +10,8 @@ type Props = {
   variant?:
     | 'full'
     | 'compact';
+  /** Lets the recipient's Open Memory tap start the existing player. */
+  mediaRef?: React.Ref<HTMLAudioElement>;
 };
 
 function formatTime(
@@ -42,6 +44,7 @@ function formatTime(
 export default function MemoryAudio({
   src,
   variant = 'full',
+  mediaRef,
 }: Props) {
   const player =
     useRef<HTMLAudioElement>(
@@ -86,9 +89,11 @@ export default function MemoryAudio({
   ) {
     return (
       <audio
+        ref={mediaRef}
         className="smRecipientAudioCompact"
         controls
-        preload="metadata"
+        preload="auto"
+        playsInline
         src={src}
         onError={() =>
           setFailed(true)

@@ -4,6 +4,9 @@ type SignedUpload = { path: string; token: string; error?: string };
 
 const MAX_PHOTO = 10 * 1024 * 1024;
 const MAX_AUDIO = 25 * 1024 * 1024;
+const MAX_VIDEO = 30 * 1024 * 1024;
+
+const ALLOWED_VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime', 'video/webm']);
 
 /**
  * Send large files straight to Supabase instead of including them
@@ -11,19 +14,21 @@ const MAX_AUDIO = 25 * 1024 * 1024;
  */
 export async function uploadMemoryMedia(
   file: Blob,
-  kind: 'photo' | 'audio'
+  kind: 'photo' | 'audio' | 'video'
 ): Promise<string> {
-  const maxBytes = kind === 'photo' ? MAX_PHOTO : MAX_AUDIO;
+  const maxBytes = kind === 'photo' ? MAX_PHOTO : kind === 'audio' ? MAX_AUDIO : MAX_VIDEO;
   if (!file.size || file.size > maxBytes) {
     throw new Error(kind === 'photo'
       ? 'Please choose a photo of 10 MB or smaller.'
-      : 'Please choose audio of 25 MB or smaller.');
+      : kind === 'audio' ? 'Please choose audio of 25 MB or smaller.'
+      : 'Please choose a video of 30 MB or smaller.');
   }
 
   const contentType = file.type.toLowerCase().split(';')[0] ||
-    (kind === 'photo' ? 'image/jpeg' : 'audio/webm');
+    (kind === 'photo' ? 'image/jpeg' : kind === 'audio' ? 'audio/webm' : 'video/mp4');
   if (!(kind === 'photo' ? contentType.startsWith('image/')
-    : contentType.startsWith('audio/'))) {
+    : kind === 'audio' ? contentType.startsWith('audio/')
+    : ALLOWED_VIDEO_TYPES.has(contentType))) {
     throw new Error('Please select a supported ' + kind + ' file.');
   }
 
@@ -59,12 +64,13 @@ export async function uploadMemoryMedia(
 /** Parse the API response safely; do not show raw proxy HTML as JSON errors. */
 export async function readMemorySaveResult(response: Response):
   Promise<{ code?: string; photoUrl?: string; photo_url?: string; audioUrl?: string; audio_url?: string;
+    videoUrl?: string; video_url?: string;
     memory?: { code?: string; photoUrl?: string; photo_url?: string;
-      audioUrl?: string; audio_url?: string }; error?: string }> {
+      audioUrl?: string; audio_url?: string; videoUrl?: string; video_url?: string }; error?: string }> {
   const mime = response.headers.get('content-type') || '';
   if (!mime.includes('application/json')) {
     throw new Error(response.status === 413
-      ? 'The upload is too large. Please use a smaller photo or recording.'
+      ? 'The upload is too large. Please use a smaller photo, video or recording.'
       : 'The server could not save your Smart Memory. Please try again.');
   }
   const result = await response.json();
