@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import Link from 'next/link';
 import MemoryCover from './MemoryCover';
 import MemoryAudio from './MemoryAudio';
@@ -10,9 +11,19 @@ import type { PublicMemory } from './types';
 
 export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}) {
   const [opened,setOpened]=useState(false);
+  const audioPlayer=useRef<HTMLAudioElement>(null);
+  const videoPlayer=useRef<HTMLVideoElement>(null);
 
   function openMemory() {
-    setOpened(true);
+    // The recipient deliberately taps Open Memory. Start sound from that
+    // user gesture instead of attempting blocked autoplay on page load.
+    flushSync(() => setOpened(true));
+    const media = memory.videoUrl ? videoPlayer.current : audioPlayer.current;
+    if (media) {
+      void media.play().catch(() => {
+        // Browser restrictions/slow networks: native player remains available.
+      });
+    }
     window.setTimeout(()=>{
       const target=document.getElementById('memory-story');
       if(!target)return;
@@ -28,10 +39,22 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
         sender={memory.sender}
         imageUrl={memory.photoUrl}
         onOpen={openMemory}
+        hasPlayableMedia={Boolean(memory.audioUrl || memory.videoUrl)}
       />
 
-      {opened && (
-        <div id="memory-story" className="smRecipientStory smRecipientUnifiedStory">
+      <div id="memory-story" className="smRecipientStory smRecipientUnifiedStory"
+        aria-hidden={!opened}
+        inert={!opened}
+        style={!opened ? {
+          position:'absolute',
+          left:'-10000px',
+          top:0,
+          width:1,
+          height:1,
+          overflow:'hidden',
+          opacity:0,
+          pointerEvents:'none',
+        } : undefined}>
           <section className="smRecipientUnifiedFrame" aria-label="Your personal Smart Memory">
             <div className="smRecipientUnifiedCard">
               <header className="smRecipientUnifiedHeading">
@@ -56,7 +79,7 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
                   {memory.audioUrl && (
                     <div className="smRecipientUnifiedVoice">
                       <span>YOUR VOICE MESSAGE</span>
-                      <MemoryAudio src={memory.audioUrl} variant="compact" />
+                      <MemoryAudio src={memory.audioUrl} variant="compact" mediaRef={audioPlayer} />
                     </div>
                   )}
 
@@ -70,7 +93,7 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
 
               {memory.videoUrl && (
                 <div className="smRecipientUnifiedVideo">
-                  <MemoryVideo src={memory.videoUrl} />
+                  <MemoryVideo src={memory.videoUrl} mediaRef={videoPlayer} />
                 </div>
               )}
 
@@ -84,7 +107,6 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
             </div>
           </section>
         </div>
-      )}
     </article>
   );
 }
