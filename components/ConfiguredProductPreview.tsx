@@ -3,6 +3,7 @@
 import { getCollageRects, type PhotoLayout } from '@/lib/collageLayouts';
 import { useState } from 'react';
 import { getPhotoCropStyle, type PhotoCrop } from '@/lib/photoCrop';
+import { getGiftTemplateTheme } from '@/lib/giftTemplateTheme';
 
 type Props = {
   slug: string;
@@ -16,6 +17,7 @@ type Props = {
   bottomText: string;
   paragraph: string;
   textLayout: string;
+  template?: string | null;
 };
 
 function CroppedPrintPhoto({src,index,frameWidth,frameHeight,crop}:{
@@ -49,7 +51,9 @@ export default function ConfiguredProductPreview({
   bottomText,
   paragraph,
   textLayout,
+  template,
 }: Props) {
+  const templateTheme = template ? getGiftTemplateTheme(template) : null;
   const activePhotos = photos.length ? photos : (photoUrl ? [photoUrl] : []);
   const printAspect = slug === 'mouse-mat' || slug === 'photo-mug' ? 1.5 : 1;
   const imageContent = (
@@ -131,6 +135,7 @@ export default function ConfiguredProductPreview({
     case 'smart-photo-slate':
       return (
         <div
+          data-template-theme={templateTheme || undefined}
           className={`configuredPreview slateConfigured ${
             orientation === 'landscape'
               ? 'configuredLandscape'
@@ -150,6 +155,7 @@ export default function ConfiguredProductPreview({
     case 'smart-memory-plaque':
       return (
         <div
+          data-template-theme={templateTheme || undefined}
           className={`configuredPreview plaqueConfigured ${
             orientation === 'landscape'
               ? 'configuredLandscape'
@@ -168,7 +174,8 @@ export default function ConfiguredProductPreview({
 
     case 'photo-mug':
       return (
-        <div className="configuredPreview mugConfigured">
+        <div data-template-theme={templateTheme || undefined}
+          className="configuredPreview mugConfigured">
           <div className="configuredMug">
             <div className="configuredMugPrint">
               {imageContent}
@@ -186,7 +193,8 @@ export default function ConfiguredProductPreview({
 
     case 'coaster-set':
       return (
-        <div className="configuredPreview coasterConfigured smCoasterSetPreview">
+        <div data-template-theme={templateTheme || undefined}
+          className="configuredPreview coasterConfigured smCoasterSetPreview">
           <div className="smCoasterPhotoGrid">
             {Array.from({length: Math.max(1, Math.min(6, coasterCount))}, (_, index) => (
               <div className="smCoasterPhoto" key={index}>
@@ -207,7 +215,8 @@ export default function ConfiguredProductPreview({
 
     case 'keyring':
       return (
-        <div className="configuredPreview keyringConfigured">
+        <div data-template-theme={templateTheme || undefined}
+          className="configuredPreview keyringConfigured">
           <div className="keyringRing" />
 
           <div className="configuredKeyring">
@@ -222,7 +231,8 @@ export default function ConfiguredProductPreview({
 
     case 'mouse-mat':
       return (
-        <div className="configuredPreview mouseConfigured">
+        <div data-template-theme={templateTheme || undefined}
+          className="configuredPreview mouseConfigured">
           <div className="configuredSurface">
             {imageContent}
           </div>
@@ -235,7 +245,8 @@ export default function ConfiguredProductPreview({
 
     case 'white-t-shirt':
       return (
-        <div className="configuredPreview shirtConfigured">
+        <div data-template-theme={templateTheme || undefined}
+          className="configuredPreview shirtConfigured">
           <div className="configuredShirt">
             <div className="configuredShirtPrint">
               {imageContent}
@@ -250,7 +261,8 @@ export default function ConfiguredProductPreview({
 
     default:
       return (
-        <div className="configuredPreview genericConfigured">
+        <div data-template-theme={templateTheme || undefined}
+          className="configuredPreview genericConfigured">
           <div className="configuredSurface">
             {imageContent}
           </div>
