@@ -26,6 +26,7 @@ import ConfiguredProductPreview from './ConfiguredProductPreview';
 import { composePrintArtwork, type PhotoLayout } from '@/lib/printCollage';
 import { collageLayoutOptions, getCollageRects } from '@/lib/collageLayouts';
 import PhotoCollageEditor from './PhotoCollageEditor';
+import { replaceMainPhoto, appendExtraPhotos, removeExtraPhoto, reorderExtraPhotos } from '@/lib/primaryPhotoCollage';
 import { defaultPhotoCrop, normalisePhotoCrop, type PhotoCrop } from '@/lib/photoCrop';
 import PersonaliserProgress from './PersonaliserProgress';
 import SmartMemoryLivePreview from './SmartMemoryLivePreview';
@@ -606,57 +607,93 @@ export default function ProductPersonaliser({
      PHOTO
      ===================================================== */
 
-  function setChosenPhotos(files: File[]) {
-    setStepError('');
-    if (!files.length) return;
-    if (files.length > maxGiftPhotos) {
-      setStepError(`Choose no more than ${maxGiftPhotos} photo${maxGiftPhotos === 1 ? '' : 's'} for this gift.`);
-      return;
-    }
-    if (files.some((file) => !file.type.startsWith('image/') || file.size > MAX_PHOTO_BYTES || !file.size)) {
+  function validGiftImageFiles(files: File[]): boolean {
+    if (files.some((file) =>
+      !file.size ||
+      file.size > MAX_PHOTO_BYTES ||
+      !file.type.startsWith('image/')
+    )) {
       setStepError('Each photo must be an image of 10 MB or smaller.');
-      return;
+      return false;
     }
-    const newPhotos = files.map((file) => ({file, url: URL.createObjectURL(file)}));
-    giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
-    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
-    setGiftPhotos(newPhotos);
-    setPhotoCrops(newPhotos.map(defaultPhotoCrop));
-    setPhoto(newPhotos[0].file);
-    setPhotoUrl(newPhotos[0].url);
+    return true;
+  }
+
+  function choosePhoto(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setStepError('');
+    if (!validGiftImageFiles([file])) return;
+
+    const newMain = { file, url: URL.createObjectURL(file) };
+    // Slot 1 is the main Smart Memory photo. Replacing it must NOT
+    // remove or change any additional collage/coaster photos.
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    setGiftPhotos(replaceMainPhoto(giftPhotos, newMain));
+    setPhotoCrops(prev => [defaultPhotoCrop(), ...prev.slice(1)]);
+    setPhoto(file);
+    setPhotoUrl(newMain.url);
     setSavedPrintPhotoUrls([]);
     setSavedPrintArtworkUrl(null);
     markChanged();
   }
 
-  function choosePhoto(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files || []);
-    if (files.length) setChosenPhotos(files.slice(0,1));
-    event.target.value = '';
-  }
-
   function chooseGiftPhotos(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files || []);
-    if (files.length) setChosenPhotos(files);
     event.target.value = '';
+    if (!files.length) return;
+    setStepError('');
+
+    if (!photo || !giftPhotos.length) {
+      setStepError('Please add your main photo first. It will automatically be the first collage photo.');
+      return;
+    }
+    const available = maxGiftPhotos - giftPhotos.length;
+    if (files.length > available) {
+      setStepError(
+        available <= 0
+          ? 'All photo spaces are filled. Remove an extra photo or select a larger coaster set.'
+          : `You have ${available} extra photo ${available === 1 ? 'space' : 'spaces'} available. Select fewer photos and try again.`
+      );
+      return;
+    }
+    if (!validGiftImageFiles(files)) return;
+
+    const extras = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
+    // Only add the new photos; never reset the existing collage or main photo.
+    setGiftPhotos(appendExtraPhotos(giftPhotos, extras, maxGiftPhotos));
+    setPhotoCrops(prev => [...prev, ...extras.map(() => defaultPhotoCrop())]);
+    setSavedPrintPhotoUrls([]);
+    setSavedPrintArtworkUrl(null);
+    markChanged();
   }
 
   function removeGiftPhoto(index: number) {
-    const remaining = giftPhotos.filter((_,i) => i !== index);
+    if (index === 0) {
+      setStepError('The main photo is kept in the first position. Use Replace or Remove above to change it.');
+      return;
+    }
     const removed = giftPhotos[index];
-    if (removed) URL.revokeObjectURL(removed.url);
-    setGiftPhotos(remaining);
-    setPhotoCrops(prev => prev.filter((_,i) => i !== index));
-    setPhoto(remaining[0]?.file ?? null);
-    setPhotoUrl(remaining[0]?.url ?? '');
+    if (!removed) return;
+    URL.revokeObjectURL(removed.url);
+    setGiftPhotos(removeExtraPhoto(giftPhotos, index));
+    setPhotoCrops(prev => prev.filter((_, i) => i !== index));
+    // Never alter photo or photoUrl while removing an extra photo.
     setSavedPrintPhotoUrls([]);
     setSavedPrintArtworkUrl(null);
     markChanged();
   }
 
   function removePhoto() {
+    if (giftPhotos.length > 1 &&
+        !window.confirm('Remove the main photo and all extra collage photos?')) {
+      return;
+    }
     giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
-    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
+    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) {
+      URL.revokeObjectURL(photoUrl);
+    }
     setGiftPhotos([]);
     setPhotoCrops([]);
     setPhoto(null);
@@ -1411,6 +1448,7 @@ export default function ProductPersonaliser({
                 </div>
               </div>
 
+              {!isCoaster && (
               <div className="smWizardSection">
                 <h3>
                   What is it for?
@@ -1503,6 +1541,7 @@ export default function ProductPersonaliser({
                   )}
                 </select>
               </div>
+              )}
 
               {allowsOwnDesign && (
                 <div className="smWizardSection">
@@ -1658,8 +1697,7 @@ export default function ProductPersonaliser({
                                   giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
                                   setGiftPhotos(keep);
                                   setPhotoCrops(prev => prev.slice(0,nextMax));
-                                  setPhoto(keep[0]?.file ?? null);
-                                  setPhotoUrl(keep[0]?.url ?? '');
+                                  // Removing surplus extra images must not modify the main photo.
                                 }
                               }
                               markChanged();
@@ -2018,7 +2056,7 @@ export default function ProductPersonaliser({
                             removePhoto
                           }
                         >
-                          Remove
+                          Remove all photos
                         </button>
                       </div>
                     </div>
@@ -2033,23 +2071,37 @@ export default function ProductPersonaliser({
                 </small>
 
                 <div className="smMultiPhotoPicker">
-                  <h3>{isCoaster ? 'Choose your coaster photos' : 'Create a photo collage'}</h3>
+                  <h3>{isCoaster ? 'Add photos for your coaster set' : 'Add photos to your collage'}</h3>
                   <p>
+                    Your main photo is automatically photo 1 and stays unchanged.
                     {isCoaster
-                      ? `Select 1 to ${maxGiftPhotos} different photos for your ${size.toLowerCase()}. If you select fewer than the coasters in the set, photos repeat in order.`
-                      : 'Choose 1 to 6 photos. A single photo fills the gift; two or more create a collage.'}
+                      ? ` Add up to ${Math.max(0, maxGiftPhotos - 1)} extra photos for your ${size.toLowerCase()}; any unused coaster positions repeat the selected photos.`
+                      : ' Add more photos (up to 6 total) to fill the remaining collage spaces.'}
                   </p>
-                  <label className="optionPill smMultiPhotoPickButton">
-                    {giftPhotos.length ? 'Change selected photos' : 'Choose photos'}
-                    <input className="smHiddenFileInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic" multiple onChange={chooseGiftPhotos} />
-                  </label>
-                  <small>{selectedGiftPhotos.length} of {maxGiftPhotos} photos selected · 10 MB each</small>
+                  {maxGiftPhotos > 1 && (
+                    <label className={selectedGiftPhotos.length >= maxGiftPhotos || !photo ? 'optionPill smMultiPhotoPickButton smMultiPhotoPickDisabled' : 'optionPill smMultiPhotoPickButton'}>
+                      Add extra photos
+                      <input className="smHiddenFileInput" type="file"
+                        accept="image/jpeg,image/png,image/webp,image/heic" multiple
+                        disabled={!photo || selectedGiftPhotos.length >= maxGiftPhotos}
+                        onChange={chooseGiftPhotos} />
+                    </label>
+                  )}
+                  <small>{selectedGiftPhotos.length} of {maxGiftPhotos} photos selected (including the main photo) · 10 MB each</small>
+                  {isCoaster && maxGiftPhotos === 1 && (
+                    <small>Choose a larger coaster set above to add extra photos.</small>
+                  )}
+                  {selectedGiftPhotos.length === maxGiftPhotos && maxGiftPhotos > 1 && (
+                    <small>All spaces are filled. Remove an extra photo to add another.</small>
+                  )}
                   {selectedGiftPhotos.length > 0 && (
                     <div className="smMultiPhotoThumbs">
                       {selectedGiftPhotos.map(({url}, index) => (
                         <div key={url} className="smMultiPhotoThumb">
-                          <img src={url} alt={`Selected photo ${index + 1}`} />
-                          <button type="button" onClick={() => removeGiftPhoto(index)} aria-label={`Remove photo ${index + 1}`}>×</button>
+                          <img src={url} alt={index === 0 ? 'Main memory photo, collage position 1' : `Extra collage photo ${index}`} />
+                          {index === 0
+                            ? <span className="smMainCollagePhotoLabel">Main photo</span>
+                            : <button type="button" onClick={() => removeGiftPhoto(index)} aria-label={`Remove extra photo ${index}`}>×</button>}
                         </div>
                       ))}
                     </div>
@@ -2082,11 +2134,12 @@ export default function ProductPersonaliser({
                           </button>
                         ))}
                       </div>
-                      <small>Layouts adapt to 2–6 photos. The selected arrangement is used for the printed gift.</small>
+                      <small>Layouts adapt to 2–6 photos. The main photo stays in slot 1; the extra photos can be rearranged.</small>
                     </div>
                   )}
                   {!isCoaster && selectedGiftPhotos.length > 1 && (
                     <PhotoCollageEditor
+                      lockFirstPhoto
                       photos={selectedGiftPhotos.map(item => item.url)}
                       layout={photoLayout}
                       aspectRatio={slug === 'mouse-mat' || slug === 'photo-mug' ? 1.5 : 1}
@@ -2098,15 +2151,11 @@ export default function ProductPersonaliser({
                         markChanged();
                       }}
                       onSwap={(first,second) => {
-                        if (first === second) return;
-                        const next = [...giftPhotos];
-                        [next[first],next[second]] = [next[second],next[first]];
-                        const nextCrops = selectedGiftPhotos.map((_,i)=>normalisePhotoCrop(photoCrops[i]));
-                        [nextCrops[first],nextCrops[second]] = [nextCrops[second],nextCrops[first]];
-                        setGiftPhotos(next);
-                        setPhotoCrops(nextCrops);
-                        setPhoto(next[0].file);
-                        setPhotoUrl(next[0].url);
+                        if (first === second || first === 0 || second === 0) return;
+                        const crops = selectedGiftPhotos.map((_,i)=>normalisePhotoCrop(photoCrops[i]));
+                        setGiftPhotos(reorderExtraPhotos(giftPhotos, first, second));
+                        setPhotoCrops(reorderExtraPhotos(crops, first, second));
+                        // Slot one remains the main Smart Memory photo.
                         markChanged();
                       }}
                     />
