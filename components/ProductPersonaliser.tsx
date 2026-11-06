@@ -1355,6 +1355,31 @@ export default function ProductPersonaliser({
 
       <div className="smWizardShell">
         <div className="smWizardStepContent" id="smWizardFields" role="region" aria-label={`${steps[stepIndex]?.label || 'Gift'} details`}>
+          {currentStep !== 'preview' && currentStep !== 'ready' && (
+            <div className="smWizardPhoneLivePreview" aria-label="Live preview of your personalised product">
+              <div className="smWizardPhonePreviewHeading">
+                <strong>LIVE GIFT PREVIEW</strong>
+                <small>{mode === 'quick' && designSource === 'ours' ? template : 'Your own design'}</small>
+              </div>
+              <div className="smWizardPhonePreviewArtwork">
+                <ConfiguredProductPreview
+                  slug={product.slug}
+                  photoUrl={photoUrl}
+                  photos={selectedGiftPhotos.map(item => item.url)}
+                  photoLayout={photoLayout}
+                  photoCrops={photoCrops}
+                  coasterCount={coasterCount}
+                  orientation={orientation}
+                  topText={designSource === 'own' ? '' : topText}
+                  bottomText={designSource === 'own' ? '' : bottomText}
+                  paragraph={designSource === 'own' ? '' : paragraph}
+                  textLayout={designSource === 'own' ? 'photo-only' : textLayout}
+                  template={mode === 'quick' && designSource === 'ours' ? template : null}
+                />
+              </div>
+            </div>
+          )}
+
 
           {/* =========================================
               STEP 2 — DESIGN YOUR GIFT
@@ -1635,15 +1660,15 @@ export default function ProductPersonaliser({
                                 ? 'templateCard active'
                                 : 'templateCard'
                             }
+                            aria-pressed={template === item}
                             onClick={() => {
-                              setTemplate(
-                                item
-                              );
+                              // The live gift mockup reacts as soon as the design is tapped.
+                              setTemplate(item);
                               markChanged();
                             }}
                           >
-                            <div className="templateMiniPreview">
-                              ♥
+                            <div className="templateMiniPreview" data-template-preview={item}>
+                              <span aria-hidden="true">♥</span>
                             </div>
 
                             <strong>
@@ -2494,6 +2519,7 @@ export default function ProductPersonaliser({
                     slug={
                       product.slug
                     }
+                    template={mode === 'quick' && designSource === 'ours' ? template : null}
                     photoUrl={
                       photoUrl
                     }
@@ -2853,6 +2879,7 @@ export default function ProductPersonaliser({
                 slug={
                   product.slug
                 }
+                    template={mode === 'quick' && designSource === 'ours' ? template : null}
                 photoUrl={
                   photoUrl
                 }
