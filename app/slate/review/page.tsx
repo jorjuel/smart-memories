@@ -4,10 +4,12 @@ import Link from 'next/link';
 import {loadSlateDraft,clearSlateDraft,type SlateReviewDraft} from '@/lib/slateReviewDraft';
 import {SIZES,PRICE,paint} from '@/components/SlateSinglePageCustomiser';
 import {uploadMemoryMedia,readMemorySaveResult} from '@/lib/memoryMediaUpload';
+import SmartMemoryLivePreview from '@/components/SmartMemoryLivePreview';
 
 export default function SlateReviewPage(){
  const [draft,setDraft]=useState<SlateReviewDraft|null>(null);
  const [image,setImage]=useState<HTMLImageElement|null>(null);
+ const [photoPreviewUrl,setPhotoPreviewUrl]=useState('');
  const [audioUrl,setAudioUrl]=useState('');
  const [loading,setLoading]=useState(true);
  const [saving,setSaving]=useState(false);
@@ -22,7 +24,7 @@ export default function SlateReviewPage(){
    if(data){
     const photoUrl=URL.createObjectURL(data.photo);
     const img=new Image();
-    img.onload=()=>{if(active)setImage(img);URL.revokeObjectURL(photoUrl);};
+    img.onload=()=>{if(active){setImage(img);setPhotoPreviewUrl(photoUrl);}else URL.revokeObjectURL(photoUrl);};
     img.onerror=()=>{URL.revokeObjectURL(photoUrl);setError('The photo could not be previewed.');};
     img.src=photoUrl;
     if(data.audio)setAudioUrl(URL.createObjectURL(data.audio));
@@ -32,6 +34,7 @@ export default function SlateReviewPage(){
   return()=>{active=false;};
  },[]);
  useEffect(()=>()=>{if(audioUrl)URL.revokeObjectURL(audioUrl);},[audioUrl]);
+ useEffect(()=>()=>{if(photoPreviewUrl)URL.revokeObjectURL(photoPreviewUrl);},[photoPreviewUrl]);
  const size=draft?SIZES[draft.sizeIndex]:null;
  const dimensions=draft&&size?
   draft.direction==='landscape'&&size.width!==size.height
@@ -103,40 +106,54 @@ export default function SlateReviewPage(){
  if(loading)return <section className="slateStudio"><h1>Preparing your review…</h1></section>;
  if(!draft||!size||!dimensions)return <section className="slateStudio"><h1>No slate to review</h1>
   <p>Start by creating your slate on the product page.</p><Link className="btn" href="/shop/smart-photo-slate">Create a slate</Link></section>;
- return <section className="slateStudio slateReview" aria-label="Review your slate and Smart Memory">
-  <div className="slateStudioHeading"><span className="eyebrow">SMART MEMORIES · FINAL REVIEW</span>
-   <h1>Your slate and Smart Memory</h1>
-   <p>Check the physical gift and the message your recipient will see when they tap it.</p>
+ return <section className="slateStudio slateReview smWizardPage" aria-label="Review your slate and Smart Memory">
+  <div className="smWizardStepHeading">
+   <span>FINAL REVIEW</span>
+   <h2>Preview Your Smart Memory</h2>
+   <p>See what they'll experience when they tap their gift.</p>
   </div>
-  <div className="slateStudioGrid">
-   <div className="slateStudioPreview">
-    <h2>Your finished slate</h2>
-    <div className="slatePreviewWrap">
-     <canvas ref={canvasRef} width={900} height={1200}
-      style={{aspectRatio:String(dimensions.width)+' / '+String(dimensions.height)}}
-      aria-label="Finished personalised photo slate" role="img"/>
-    </div>
-    <p><strong>{size.label}</strong> · {draft.direction==='landscape'?'Landscape':'Vertical'} · £{PRICE.toFixed(2)}</p>
-   </div>
-   <div className="slateStudioControls">
-    <div className="card">
-     <h2>What opens when they tap the gift</h2>
-     <p><strong>For:</strong> {draft.recipient.trim()||'Someone special'}</p>
-     {draft.message.trim()?<p className="slateReviewMessage">{draft.message}</p>:
-       <p className="slateHelp">No written message added. The recipient will still see their photograph.</p>}
-     {audioUrl&&<div><h3>Voice message</h3><audio src={audioUrl} controls preload="metadata" style={{width:'100%'}}/></div>}
-     {draft.sender.trim()&&<p><strong>From:</strong> {draft.sender}</p>}
-    </div>
-    {error&&<p role="alert" className="slateError">{error}</p>}
-    {success?<div className="card"><p className="slateSuccess">Your slate and Smart Memory have been added to the basket.</p>
-       <Link className="btn big" href="/cart">Go to basket</Link></div>:
-      <div className="card slateReviewActions">
-       <Link className="btn secondary" href="/shop/smart-photo-slate">Edit my gift</Link>
-       <button type="button" className="btn big" onClick={()=>void addToBasket()} disabled={saving||!image}>
-        {saving?'Saving gift and memory…':'Confirm & add to basket'}
-       </button>
-      </div>}
-   </div>
+  <div className="smWizardDualPreview">
+    <article>
+     <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span>
+     <div className="slateFinalArtwork">
+      <canvas ref={canvasRef} width={900} height={1200}
+       style={{aspectRatio:String(dimensions.width)+' / '+String(dimensions.height)}}
+       aria-label="Finished personalised photo slate" role="img"/>
+     </div>
+     <p className="slateFinalSize"><strong>{size.label}</strong> · {draft.direction==='landscape'?'Landscape':'Vertical'}</p>
+    </article>
+    <article>
+     <span className="v14Eyebrow">B. THEIR SMART MEMORY</span>
+     <SmartMemoryLivePreview
+       recipient={draft.recipient.trim()}
+       message={draft.message.trim()}
+       sender={draft.sender.trim()}
+       occasion={draft.occasion}
+       photoUrl={photoPreviewUrl}
+       audioUrl={audioUrl}
+     />
+    </article>
   </div>
+  <div className="smWizardReviewSummary">
+   <div><span>Gift</span><strong>Personalised Photo Slate</strong></div>
+   <div><span>Size</span><strong>{size.label}</strong></div>
+   <div><span>Voice</span><strong>{draft.audio?'✓ Added':'Optional'}</strong></div>
+   <div><span>Message</span><strong>{draft.message.trim()?'✓ Added':'Optional'}</strong></div>
+   <div><span>Price</span><strong>£{PRICE.toFixed(2)}</strong></div>
+  </div>
+  {error&&<p role="alert" className="smWizardError">{error}</p>}
+  {success?
+   <div className="smWizardSection slateReviewSuccess">
+    <h3>Your gift is ready</h3>
+    <p>Both your slate and Smart Memory have been added to the basket.</p>
+    <Link className="btn big smWizardCreateButton" href="/cart">Go to basket</Link>
+   </div>:
+   <div className="slateReviewFooter">
+    <Link className="slateTextButton" href="/shop/smart-photo-slate">← Edit my gift</Link>
+    <button type="button" className="btn big smWizardCreateButton" onClick={()=>void addToBasket()} disabled={saving||!image}>
+      {saving?'Saving gift and memory…':'Confirm & add to basket'}
+    </button>
+   </div>
+  }
  </section>;
 }
