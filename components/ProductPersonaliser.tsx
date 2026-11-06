@@ -256,6 +256,10 @@ export default function ProductPersonaliser({
       > | null
     >(null);
 
+  // A native dialog lets phone customers inspect the complete design
+  // without a cropped, floating preview covering the personaliser.
+  const fullGiftPreviewDialogRef = useRef<HTMLDialogElement>(null);
+
   /* =====================================================
      SAVING
      ===================================================== */
@@ -1355,11 +1359,15 @@ export default function ProductPersonaliser({
 
       <div className="smWizardShell">
         <div className="smWizardStepContent" id="smWizardFields" role="region" aria-label={`${steps[stepIndex]?.label || 'Gift'} details`}>
-          {currentStep !== 'preview' && currentStep !== 'ready' && (
+          {currentStep !== 'preview' && currentStep !== 'ready' && currentStep !== 'gift' && (
             <div className="smWizardPhoneLivePreview" aria-label="Live preview of your personalised product">
               <div className="smWizardPhonePreviewHeading">
                 <strong>LIVE GIFT PREVIEW</strong>
                 <small>{mode === 'quick' && designSource === 'ours' ? template : 'Your own design'}</small>
+                <button type="button" className="smPreviewOpenButton"
+                  onClick={() => fullGiftPreviewDialogRef.current?.showModal()}>
+                  View larger preview
+                </button>
               </div>
               <div className="smWizardPhonePreviewArtwork">
                 <ConfiguredProductPreview
@@ -1379,7 +1387,6 @@ export default function ProductPersonaliser({
               </div>
             </div>
           )}
-
 
           {/* =========================================
               STEP 2 — DESIGN YOUR GIFT
@@ -1575,9 +1582,8 @@ export default function ProductPersonaliser({
 
                       <div className="smDesignPickerResult" aria-live="polite" aria-atomic="true">
                         <div className="smDesignPickerInfo">
-                          <span className="v14Eyebrow">SELECTED DESIGN</span>
+                          <span className="v14Eyebrow">LIVE DESIGN PREVIEW</span>
                           <strong>{template}</strong>
-                          <p>Preview this style with your own photos. Choose another from the list to compare.</p>
                         </div>
                         <div className="smDesignPickerArtwork">
                           <ConfiguredProductPreview
@@ -1595,6 +1601,10 @@ export default function ProductPersonaliser({
                             template={template}
                           />
                         </div>
+                        <button type="button" className="smPreviewOpenButton"
+                          onClick={() => fullGiftPreviewDialogRef.current?.showModal()}>
+                          View larger gift preview
+                        </button>
                       </div>
                       <small className="smDesignPickerNote">
                         Design previews are style illustrations. Your chosen photos are kept as uploaded; final artwork is reviewed before printing.
@@ -2885,6 +2895,43 @@ export default function ProductPersonaliser({
             </aside>
           )}
       </div>
+
+      <dialog ref={fullGiftPreviewDialogRef}
+        className="smFullGiftPreviewDialog"
+        aria-label="Full-size preview of your personalised gift">
+        <div className="smFullGiftPreviewHeader">
+          <div>
+            <span className="v14Eyebrow">YOUR GIFT PREVIEW</span>
+            <h2>{product.name}</h2>
+            <p>{mode === 'quick' && designSource === 'ours' ? template : 'Your own design'}</p>
+          </div>
+          <button type="button" className="smFullGiftPreviewClose"
+            onClick={() => fullGiftPreviewDialogRef.current?.close()}
+            aria-label="Close full gift preview">
+            ×
+          </button>
+        </div>
+        <div className="smFullGiftPreviewArtwork">
+          <ConfiguredProductPreview
+            slug={product.slug}
+            photoUrl={photoUrl}
+            photos={selectedGiftPhotos.map(item => item.url)}
+            photoLayout={photoLayout}
+            photoCrops={photoCrops}
+            coasterCount={coasterCount}
+            orientation={orientation}
+            topText={designSource === 'own' ? '' : topText}
+            bottomText={designSource === 'own' ? '' : bottomText}
+            paragraph={designSource === 'own' ? '' : paragraph}
+            textLayout={designSource === 'own' ? 'photo-only' : textLayout}
+            template={mode === 'quick' && designSource === 'ours' ? template : null}
+          />
+        </div>
+        <p className="smFullGiftPreviewNote">
+          This preview shows your chosen photo, design and wording together.
+          The print layout can be adjusted during final production review.
+        </p>
+      </dialog>
     </section>
   );
 }
