@@ -13510,3 +13510,40 @@ header.smSiteHeader {
  .slateReview .slateReviewFooter{flex-direction:column;align-items:stretch}
  .slateReview .slateReviewFooter .smWizardCreateButton{width:100%}
 }
+
+/* Rugged stone photo-slate mockup, not a smooth picture-frame border.
+   This shell is only a product visual; export artwork is still generated
+   from the printable canvas, not a snapshot of the decorative shell. */
+.slateStoneShell{
+ position:relative;
+ display:flex;
+ align-items:stretch;
+ justify-content:center;
+ box-sizing:border-box;
+ width:fit-content;
+ max-width:100%;
+ max-height:100%;
+ padding:clamp(6px,1.1vw,12px);
+ background:
+  repeating-linear-gradient(122deg,transparent 0 3px,#d4d4d330 3px 4px,transparent 4px 9px),
+  linear-gradient(130deg,#111 0%,#4d4d4c 7%,#222 13%,#080808 24%,#515150 38%,#171717 57%,#444 80%,#0b0b0b 100%);
+ border:2px solid #282827;
+ clip-path:polygon(0.9% 0.2%,4% .8%,9% .1%,16% .5%,24% 0%,33% .7%,42% .2%,52% .5%,61% .1%,72% .6%,82% .2%,90% .5%,98.7% 0.6%,99.4% 5%,99% 12%,100% 23%,99.1% 31%,99.7% 42%,99.2% 52%,99.8% 61%,99% 71%,99.7% 82%,99.1% 92%,99.4% 99%,92% 99.4%,83% 100%,72% 99.5%,62% 99.8%,51% 99.3%,40% 100%,28% 99.4%,18% 99.8%,9% 99.2%,.6% 99.5%,.2% 92%,.8% 83%,.1% 73%,.8% 61%,.2% 51%,.9% 41%,.1% 31%,.8% 21%,.1% 11%);
+ filter:drop-shadow(0 2px 3px #0005);
+}
+.slateStoneShell canvas{
+ display:block;
+ position:relative;
+ z-index:1;
+ border-radius:0!important;
+ box-shadow:inset 0 0 3px #2228!important;
+}
+.slateStudio .slatePreviewWrap .slateStoneShell canvas,
+.slateReview .slateFinalArtwork .slateStoneShell canvas{
+ max-width:100%;
+ height:auto;
+}
+.slateReview .slateFinalArtwork .slateStoneShell{margin:auto}
+@media(max-width:790px){
+ .slateStoneShell{padding:7px}
+}
