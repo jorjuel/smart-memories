@@ -1658,58 +1658,6 @@ export default function ProductPersonaliser({
                   </div>
                 )}
 
-              {product.sizes &&
-                product.sizes
-                  .length >
-                  0 && (
-                  <div className="smWizardSection">
-                    <h3>
-                      {isCoaster
-                        ? 'How many coasters would you like?'
-                        : 'Choose the size'}
-                    </h3>
-
-                    <div className="choiceRow">
-                      {product.sizes.map(
-                        (
-                          item
-                        ) => (
-                          <button
-                            type="button"
-                            key={
-                              item
-                            }
-                            className={
-                              size ===
-                              item
-                                ? 'optionPill active'
-                                : 'optionPill'
-                            }
-                            onClick={() => {
-                              setSize(item);
-                              if (isCoaster) {
-                                const nextMax = item === 'Single' ? 1 : Number(item.match(/[0-9]+/)?.[0] || 1);
-                                if (giftPhotos.length > nextMax) {
-                                  const keep = giftPhotos.slice(0, nextMax);
-                                  giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
-                                  setGiftPhotos(keep);
-                                  setPhotoCrops(prev => prev.slice(0,nextMax));
-                                  // Removing surplus extra images must not modify the main photo.
-                                }
-                              }
-                              markChanged();
-                            }}
-                          >
-                            {
-                              item
-                            }
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-                )}
-
               {product.orientations &&
                 product
                   .orientations
@@ -1989,6 +1937,59 @@ export default function ProductPersonaliser({
                   Choose your main picture first, then add any extra collage or coaster photos. See your changes in the live preview.
                 </p>
               </div>
+
+              {/* Select quantity/size before extra photos so the limit is correct. */}
+              {product.sizes &&
+                product.sizes
+                  .length >
+                  0 && (
+                  <div className="smWizardSection">
+                    <h3>
+                      {isCoaster
+                        ? 'How many coasters would you like?'
+                        : 'Choose the size'}
+                    </h3>
+
+                    <div className="choiceRow">
+                      {product.sizes.map(
+                        (
+                          item
+                        ) => (
+                          <button
+                            type="button"
+                            key={
+                              item
+                            }
+                            className={
+                              size ===
+                              item
+                                ? 'optionPill active'
+                                : 'optionPill'
+                            }
+                            onClick={() => {
+                              setSize(item);
+                              if (isCoaster) {
+                                const nextMax = item === 'Single' ? 1 : Number(item.match(/[0-9]+/)?.[0] || 1);
+                                if (giftPhotos.length > nextMax) {
+                                  const keep = giftPhotos.slice(0, nextMax);
+                                  giftPhotos.slice(nextMax).forEach(({url}) => URL.revokeObjectURL(url));
+                                  setGiftPhotos(keep);
+                                  setPhotoCrops(prev => prev.slice(0,nextMax));
+                                  // Removing surplus extra images must not modify the main photo.
+                                }
+                              }
+                              markChanged();
+                            }}
+                          >
+                            {
+                              item
+                            }
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
 
               <div className="smWizardUploadCard">
                 {!photoUrl ? (
