@@ -1785,7 +1785,7 @@ export default function ProductPersonaliser({
                       physical gift
                     </h3>
 
-                    <div className="choiceGrid">
+                    <div className="choiceGrid smWizardTextLayoutChoices" role="group" aria-label="Choose where words appear on the gift">
                       {product.textLayouts.map(
                         (
                           item
@@ -1798,9 +1798,10 @@ export default function ProductPersonaliser({
                             className={
                               textLayout ===
                               item
-                                ? 'choiceCard active'
-                                : 'choiceCard'
+                                ? 'choiceCard smWizardTextLayoutOption active'
+                                : 'choiceCard smWizardTextLayoutOption'
                             }
+                            aria-pressed={textLayout === item}
                             onClick={() => {
                               setTextLayout(
                                 item
