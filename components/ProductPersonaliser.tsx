@@ -1041,10 +1041,18 @@ export default function ProductPersonaliser({
       if (!storageBase) throw new Error('Photo storage is not configured.');
       const publicPhoto = (path: string) =>
         `${storageBase}/storage/v1/object/public/memory-media/${path.split('/').map(encodeURIComponent).join('/')}`;
-      const galleryUrls = printPaths.map(publicPhoto);
+      let galleryUrls = printPaths.map(publicPhoto);
       let printArtworkUrl: string | null = null;
       const selectedCloudFrame = template.startsWith('sm:') && mode === 'quick' && designSource === 'ours'
         ? cloudFrames.find(f=>`sm:${f.id}`===template) : undefined;
+      if (isCoaster && selectedCloudFrame) {
+        // Each coaster is printed separately; retain the original memory photo.
+        galleryUrls = await Promise.all(printPhotos.map(async (file,index)=>{
+          const artwork = await composePrintArtwork([file],photoLayout,2400,2400,
+            [photoCrops[index]],selectedCloudFrame.url);
+          return publicPhoto(await uploadMemoryMedia(artwork,'photo'));
+        }));
+      }
       if (!isCoaster && (printPhotos.length > 1 || selectedCloudFrame)) {
         const collage = await composePrintArtwork(printPhotos, photoLayout,
           slug === 'mouse-mat' || slug === 'photo-mug' ? 3000 : 2400,
