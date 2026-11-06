@@ -2071,23 +2071,37 @@ export default function ProductPersonaliser({
                 </small>
 
                 <div className="smMultiPhotoPicker">
-                  <h3>{isCoaster ? 'Choose your coaster photos' : 'Create a photo collage'}</h3>
+                  <h3>{isCoaster ? 'Add photos for your coaster set' : 'Add photos to your collage'}</h3>
                   <p>
+                    Your main photo is automatically photo 1 and stays unchanged.
                     {isCoaster
-                      ? `Select 1 to ${maxGiftPhotos} different photos for your ${size.toLowerCase()}. If you select fewer than the coasters in the set, photos repeat in order.`
-                      : 'Choose 1 to 6 photos. A single photo fills the gift; two or more create a collage.'}
+                      ? ` Add up to ${Math.max(0, maxGiftPhotos - 1)} extra photos for your ${size.toLowerCase()}; any unused coaster positions repeat the selected photos.`
+                      : ' Add more photos (up to 6 total) to fill the remaining collage spaces.'}
                   </p>
-                  <label className="optionPill smMultiPhotoPickButton">
-                    {giftPhotos.length ? 'Change selected photos' : 'Choose photos'}
-                    <input className="smHiddenFileInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic" multiple onChange={chooseGiftPhotos} />
-                  </label>
-                  <small>{selectedGiftPhotos.length} of {maxGiftPhotos} photos selected · 10 MB each</small>
+                  {maxGiftPhotos > 1 && (
+                    <label className={selectedGiftPhotos.length >= maxGiftPhotos || !photo ? 'optionPill smMultiPhotoPickButton smMultiPhotoPickDisabled' : 'optionPill smMultiPhotoPickButton'}>
+                      Add extra photos
+                      <input className="smHiddenFileInput" type="file"
+                        accept="image/jpeg,image/png,image/webp,image/heic" multiple
+                        disabled={!photo || selectedGiftPhotos.length >= maxGiftPhotos}
+                        onChange={chooseGiftPhotos} />
+                    </label>
+                  )}
+                  <small>{selectedGiftPhotos.length} of {maxGiftPhotos} photos selected (including the main photo) · 10 MB each</small>
+                  {isCoaster && maxGiftPhotos === 1 && (
+                    <small>Choose a larger coaster set above to add extra photos.</small>
+                  )}
+                  {selectedGiftPhotos.length === maxGiftPhotos && maxGiftPhotos > 1 && (
+                    <small>All spaces are filled. Remove an extra photo to add another.</small>
+                  )}
                   {selectedGiftPhotos.length > 0 && (
                     <div className="smMultiPhotoThumbs">
                       {selectedGiftPhotos.map(({url}, index) => (
                         <div key={url} className="smMultiPhotoThumb">
-                          <img src={url} alt={`Selected photo ${index + 1}`} />
-                          <button type="button" onClick={() => removeGiftPhoto(index)} aria-label={`Remove photo ${index + 1}`}>×</button>
+                          <img src={url} alt={index === 0 ? 'Main memory photo, collage position 1' : `Extra collage photo ${index}`} />
+                          {index === 0
+                            ? <span className="smMainCollagePhotoLabel">Main photo</span>
+                            : <button type="button" onClick={() => removeGiftPhoto(index)} aria-label={`Remove extra photo ${index}`}>×</button>}
                         </div>
                       ))}
                     </div>
@@ -2120,11 +2134,12 @@ export default function ProductPersonaliser({
                           </button>
                         ))}
                       </div>
-                      <small>Layouts adapt to 2–6 photos. The selected arrangement is used for the printed gift.</small>
+                      <small>Layouts adapt to 2–6 photos. The main photo stays in slot 1; the extra photos can be rearranged.</small>
                     </div>
                   )}
                   {!isCoaster && selectedGiftPhotos.length > 1 && (
                     <PhotoCollageEditor
+                      lockFirstPhoto
                       photos={selectedGiftPhotos.map(item => item.url)}
                       layout={photoLayout}
                       aspectRatio={slug === 'mouse-mat' || slug === 'photo-mug' ? 1.5 : 1}
