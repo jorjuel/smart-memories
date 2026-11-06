@@ -73,7 +73,21 @@ export default function FrameStudio(){
        onBlur={e=>{const v=e.target.value.trim();if(v&&v!==frame.name)void save(frame,{name:v});}} /></label>
      <label>Sort order <input type="number" defaultValue={frame.sortOrder} key={frame.id+frame.sortOrder}
        onBlur={e=>{const n=Number(e.target.value);if(Number.isInteger(n)&&n!==frame.sortOrder)void save(frame,{sortOrder:n});}} /></label>
-     <p style={{fontSize:13}}>Products: {frame.productSlugs.map(s=>products.find(p=>p.slug===s)?.name||s).join(', ')}</p>
+     <label>Orientation <select value={frame.orientation} disabled={busy}
+       onChange={e=>void save(frame,{orientation:e.target.value})}>
+       <option value="portrait">Portrait</option><option value="landscape">Landscape</option><option value="square">Square</option>
+     </select></label>
+     <fieldset style={{border:'1px solid #ddd',padding:8}}>
+       <legend>Products</legend>
+       {products.map(p=><label key={p.slug} style={{display:'flex',alignItems:'center',gap:8,fontSize:13}}>
+         <input type="checkbox" disabled={busy} checked={frame.productSlugs.includes(p.slug)}
+           onChange={e=>{
+             const next=e.target.checked?[...frame.productSlugs,p.slug]:frame.productSlugs.filter(x=>x!==p.slug);
+             if(next.length)void save(frame,{productSlugs:next});
+             else setMessage('Each frame must be assigned to at least one product.');
+           }}/>{p.name}
+       </label>)}
+     </fieldset>
      <button className="btn small" disabled={busy} onClick={()=>void save(frame,{published:!frame.published})}>
        {frame.published?'Unpublish':'Publish to customers'}
      </button>
