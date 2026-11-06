@@ -29,9 +29,9 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
  const ch=Math.round(cw*sz.height/sz.width);
  const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
  const w=cw,h=ch;
- ctx.fillStyle='#191919';ctx.fillRect(0,0,w,h);
- // Subtle organic slate edges and an inset white printable face.
- ctx.fillStyle='#f8f8f4';ctx.fillRect(w*.025,h*.018,w*.95,h*.964);
+ // Keep the print artwork as a white sublimation face. The rough black
+ // stone edge is a separate CSS mockup, never baked into the print file.
+ ctx.fillStyle='#f8f8f4';ctx.fillRect(0,0,w,h);
  // No wording: use nearly the whole printable face, without a large white mat.
  const photoOnly=way==='none';
  const inset=photoOnly?w*.027:w*.072;
