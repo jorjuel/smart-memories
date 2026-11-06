@@ -208,6 +208,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
  async function confirmDesign(){
   if(!photo||!image){setError('Please upload your photograph first.');return;}
   if(recording){setError('Stop the voice recording before reviewing.');return;}
+  if(!sender.trim()){setError('Please enter your name in the From field.');return;}
   if(saving)return;
   setSaving(true);setError('');
   try{
@@ -300,16 +301,18 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
     <p className="slateHelp">Your photo, voice recording or written message can tell the story. Leave the written message blank if you prefer.</p>
     <div className="slatePersonFields smWizardFields">
      <label>Recipient name<input value={recipient} placeholder="e.g. Sarah" maxLength={100} onChange={e=>{setRecipient(e.target.value);setAdded(false);}}/></label>
-     <label>From (optional)<input value={sender} placeholder="e.g. Leo" maxLength={100} onChange={e=>{setSender(e.target.value);setAdded(false);}}/></label>
+     <label>From<input required aria-required="true" value={sender} placeholder="e.g. Leo" maxLength={100} onChange={e=>{setSender(e.target.value);setAdded(false);}}/></label>
     </div>
    </div>
    <aside className="slateStudioPreview">
     <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>Your live preview</h2>
     <p className="slateHelp">Photo only uses almost the full slate. If your photo has its own frame, choose Fit whole photo to keep every edge.</p>
     <div className="slatePreviewWrap">
+     <div className="slateStoneShell">
       <canvas ref={canvasRef} width={900} height={1200} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
        onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}
        aria-label="Live personalised slate preview" role="img"/>
+     </div>
     </div>
     <p><strong>{selectedSize.label}</strong> · {direction==='landscape'?'Landscape':'Vertical'} · £{PRICE.toFixed(2)}</p>
     <button type="button" className="btn big" onClick={()=>void confirmDesign()} disabled={saving||!photo||recording}>
