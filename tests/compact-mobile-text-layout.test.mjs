@@ -7,7 +7,7 @@ const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'
 test('physical-gift wording choices use a dedicated compact selector', () => {
   const form = read('components/ProductPersonaliser.tsx');
   assert.match(form, /className="choiceGrid smWizardTextLayoutChoices"/);
-  assert.match(form, /className=.*smWizardTextLayoutOption/);
+  assert.match(form, /'choiceCard smWizardTextLayoutOption'/);
   assert.match(form, /aria-pressed=\{textLayout === item\}/);
   assert.match(form, /Words on the\s*physical gift/);
 });
