@@ -73,27 +73,37 @@ export default function MemoryAudio({
     setFailed,
   ] = useState(false);
 
-  if (
-    !src ||
-    failed
-  ) {
-    return null;
+  if (!src) return null;
+  if (failed) {
+    return <p role="alert" className="smRecipientMediaError">
+      This recording could not play in your browser. Try a recent version of Safari or Chrome.
+    </p>;
   }
 
-  if (
-    variant ===
-    'compact'
-  ) {
+  if (variant === 'compact') {
     return (
-      <audio
-        className="smRecipientAudioCompact"
-        controls
-        preload="metadata"
-        src={src}
-        onError={() =>
-          setFailed(true)
-        }
-      />
+      <div className="smRecipientInlineAudio">
+        <audio
+          ref={player}
+          src={src}
+          preload="auto"
+          playsInline
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => setPlaying(false)}
+          onError={() => setFailed(true)}
+        />
+        <button
+          className="smRecipientInlinePlayButton"
+          type="button"
+          onClick={toggle}
+          aria-label={playing ? 'Pause voice recording' : 'Play voice recording'}
+        >
+          <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
+          {playing ? 'Pause message' : 'Play voice message'}
+        </button>
+        <small>Plays here in your browser. No download needed.</small>
+      </div>
     );
   }
 
@@ -174,7 +184,7 @@ export default function MemoryAudio({
         <audio
           ref={player}
           src={src}
-          preload="metadata"
+          preload="auto"
           onLoadedMetadata={
             updateDuration
           }
