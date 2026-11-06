@@ -35,12 +35,16 @@ async function transaction<T>(mode:IDBTransactionMode,handler:(store:IDBObjectSt
   handler(tx.objectStore(STORE),resolve,reject);
  });
 }
-export function storeSlateDraft(draft:SlateReviewDraft):Promise<void>{
- return transaction<void>('readwrite',(store,resolve,reject)=>{
-  const req=store.put(draft,KEY);
-  req.onsuccess=()=>resolve();
-  req.onerror=()=>reject(req.error);
+export async function storeSlateDraft(draft:SlateReviewDraft):Promise<void>{
+ const db=await openDb();
+ await new Promise<void>((resolve,reject)=>{
+  const tx=db.transaction(STORE,'readwrite');
+  tx.objectStore(STORE).put(draft,KEY);
+  tx.oncomplete=()=>resolve();
+  tx.onerror=()=>reject(tx.error||Error('Draft save failed'));
+  tx.onabort=()=>reject(tx.error||Error('Draft save aborted'));
  });
+ db.close();
 }
 export function loadSlateDraft():Promise<SlateReviewDraft|null>{
  return transaction<SlateReviewDraft|null>('readonly',(store,resolve,reject)=>{
