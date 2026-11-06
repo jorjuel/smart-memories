@@ -46,9 +46,10 @@ test('maximum photo count includes the main photo and rejects excess extras', ()
   assert.deepEqual(appendExtraPhotos([main], [extra1], 2), [main, extra1]);
 });
 
-test('coaster occasion section is hidden while other products retain occasion choices', () => {
+test('all products hide the unnecessary occasion question while coaster count is preserved', () => {
   const personaliser = readFileSync(new URL('../components/ProductPersonaliser.tsx', import.meta.url), 'utf8');
-  assert.match(personaliser, /!isCoaster && \(\s*<div className="smWizardSection">\s*<h3>\s*What is it for\?/);
+  assert.doesNotMatch(personaliser, /What is it for\?/);
+  assert.match(personaliser, /How many coasters would you like\?/);
   assert.match(personaliser, /setGiftPhotos\(appendExtraPhotos\(giftPhotos, extras, maxGiftPhotos\)\)/);
   assert.match(personaliser, /setGiftPhotos\(replaceMainPhoto\(giftPhotos, newMain\)\)/);
   assert.match(personaliser, /lockFirstPhoto/);
