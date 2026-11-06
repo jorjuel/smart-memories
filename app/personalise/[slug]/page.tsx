@@ -1,3 +1,4 @@
+import SlateSinglePageCustomiser from '../../../components/SlateSinglePageCustomiser';
 import ProductPersonaliser from '../../../components/ProductPersonaliser';
 
 type Props = {
@@ -16,6 +17,8 @@ export default async function PersonalisePage({
 }: Props) {
   const { slug } = await params;
   const { occasion, draft } = await searchParams;
+
+  if (slug === 'smart-photo-slate') return <SlateSinglePageCustomiser initialOccasion={occasion} />;
 
   return (
     <ProductPersonaliser
