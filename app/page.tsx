@@ -12,9 +12,9 @@ const occasions = [
 ];
 
 const steps = [
-  { number: '01', title: 'Choose a gift', detail: 'Pick a keepsake they can hold.' },
-  { number: '02', title: 'Add your memory', detail: 'Personalise it with photos, words and an optional voice recording.' },
-  { number: '03', title: 'They tap and relive', detail: 'A phone tap or QR scan opens their memory. No app needed.' },
+  { number: '01', title: 'Create the memory', detail: 'Start with a message, photo, voice recording or video.' },
+  { number: '02', title: 'Add a gift if you like', detail: 'Keep it digital, choose a satin-bow tag or add a personalised keepsake.' },
+  { number: '03', title: 'They tap and relive', detail: 'A link, phone tap or QR scan brings the memory to life. No app needed.' },
 ];
 
 export default function Home() {
@@ -22,18 +22,18 @@ export default function Home() {
     <main className="smCompactHome">
       <section className="memoryHomeHero" aria-labelledby="home-title">
         <div className="memoryHomeHeroCopy">
-          <span className="v14Eyebrow">PERSONALISED GIFTS WITH A STORY</span>
+          <span className="v14Eyebrow">YOUR STORY COMES FIRST</span>
           <h1 id="home-title">
-            A gift they can hold.
+            Start with a memory.
             <br />
-            <em>A memory they can relive.</em>
+            <em>Make it a gift if you wish.</em>
           </h1>
           <p className="memoryHomeHeroLead">
-            Add a photo, a message or your voice to a personalised gift.
-            One simple tap brings the memory to life.
+            Create a personal message with words, a photo, your voice or a video.
+            Then share it digitally, on a beautiful gift tag or with a keepsake.
           </p>
           <div className="actions">
-            <Link className="btn big" href="/shop">Shop personalised gifts</Link>
+            <Link className="btn big" href="/create">Create your Smart Memory</Link>
             <Link className="memoryHomeSecondaryButton" href="/how-it-works">
               How it works
             </Link>
@@ -73,14 +73,14 @@ export default function Home() {
       <section className="section memoryHomeProducts" aria-labelledby="home-gifts-title">
         <div className="sectionHead">
           <div>
-            <span className="v14Eyebrow">POPULAR GIFTS</span>
-            <h2 id="home-gifts-title">Find the perfect keepsake.</h2>
+            <span className="v14Eyebrow">OPTIONAL GIFT ADD-ONS</span>
+            <h2 id="home-gifts-title">The memory is the gift. Add a keepsake if you like.</h2>
           </div>
-          <Link className="memoryHomeTextLink" href="/shop">View all gifts →</Link>
+          <Link className="memoryHomeTextLink" href="/create">Start your memory →</Link>
         </div>
         <div className="products">
           {products.slice(0, 3).map((product) => (
-            <ProductCard key={product.slug} p={product} />
+            <ProductCard key={product.slug} p={product} memoryFirst />
           ))}
         </div>
       </section>
@@ -106,14 +106,14 @@ export default function Home() {
 
       <section className="memoryHomeOccasions" aria-labelledby="home-occasions-title">
         <div className="memoryHomeSectionIntro">
-          <span className="v14Eyebrow">SHOP BY OCCASION</span>
-          <h2 id="home-occasions-title">Every occasion has a story.</h2>
+          <span className="v14Eyebrow">CREATE FOR AN OCCASION</span>
+          <h2 id="home-occasions-title">Every occasion begins with a story.</h2>
         </div>
         <div className="smHomeOccasionLinks">
           {occasions.map((occasion) => (
             <Link
               key={occasion.name}
-              href={`/shop?occasion=${encodeURIComponent(occasion.name)}`}
+              href={`/create?occasion=${encodeURIComponent(occasion.name)}`}
             >
               {occasion.label} <span aria-hidden="true">↗</span>
             </Link>

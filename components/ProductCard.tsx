@@ -14,20 +14,21 @@ import ProductVisual from './ProductVisual';
 export default function ProductCard({
   p,
   occasion,
+  memoryFirst = false,
 }: {
   p: Product;
   occasion?: string;
+  memoryFirst?: boolean;
 }) {
   const experience =
     getProductExperience(
       p.slug
     );
 
-  const href =
-    occasion
-      ? `/shop/${p.slug}?occasion=${encodeURIComponent(
-          occasion
-        )}`
+  const href = memoryFirst
+    ? `/create?product=${encodeURIComponent(p.slug)}`
+    : occasion
+      ? `/shop/${p.slug}?occasion=${encodeURIComponent(occasion)}`
       : `/shop/${p.slug}`;
 
   return (
@@ -63,7 +64,7 @@ export default function ProductCard({
           className="btn small"
           href={href}
         >
-          Explore Smart Gift
+          {memoryFirst ? 'Create Memory & Add Gift' : 'Explore Smart Gift'}
         </Link>
       </div>
     </article>

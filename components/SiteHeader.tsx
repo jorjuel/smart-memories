@@ -5,8 +5,8 @@ import { usePathname } from 'next/navigation';
 
 /**
  * Site navigation intentionally uses regular links rather than dropdowns.
- * All category browsing lives on /shop, avoiding the old overlapping
- * desktop mega-menu and the blank mobile overlay.
+ * The primary journey is memory-first at /create. Legacy /shop links
+ * lead there too, avoiding competing starting points and mobile menus.
  */
 export default function SiteHeader() {
   const pathname = usePathname();
@@ -16,11 +16,11 @@ export default function SiteHeader() {
     return null;
   }
 
-  const shopActive =
-    pathname.startsWith('/shop') ||
-    pathname.startsWith('/cards') ||
-    pathname.startsWith('/occasions') ||
-    pathname.startsWith('/bundles');
+  const createActive =
+    pathname === '/create' ||
+    pathname.startsWith('/create/') ||
+    pathname === '/shop' ||
+    pathname.startsWith('/shop/');
 
   return (
     <header className="smSiteHeader">
@@ -30,14 +30,11 @@ export default function SiteHeader() {
         </Link>
 
         <nav className="smDesktopNav" aria-label="Main navigation">
-          <Link href="/shop" className={shopActive ? 'smNavActive' : undefined}>
-            Shop
-          </Link>
           <Link
             href="/create"
-            className={pathname === '/create' ? 'smCreateNavCta smNavActive' : undefined}
+            className={createActive ? 'smCreateNavCta smNavActive' : 'smCreateNavCta'}
           >
-            Create a Memory
+            Create a Memory &amp; Gifts
           </Link>
           <Link
             href="/how-it-works"
