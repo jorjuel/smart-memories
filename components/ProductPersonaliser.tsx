@@ -91,7 +91,7 @@ export default function ProductPersonaliser({
         item.slug === slug
     );
 
-  const [cloudFrames,setCloudFrames] = useState<{id:string;name:string;productSlugs:string[];orientation:string}[]>([]);
+  const [cloudFrames,setCloudFrames] = useState<{id:string;name:string;url:string;productSlugs:string[];orientation:string}[]>([]);
   useEffect(() => {
     let live=true;
     fetch('/api/admin-frame-templates',{cache:'no-store'})
@@ -1043,11 +1043,13 @@ export default function ProductPersonaliser({
         `${storageBase}/storage/v1/object/public/memory-media/${path.split('/').map(encodeURIComponent).join('/')}`;
       const galleryUrls = printPaths.map(publicPhoto);
       let printArtworkUrl: string | null = null;
-      if (!isCoaster && printPhotos.length > 1) {
+      const selectedCloudFrame = template.startsWith('sm:') && mode === 'quick' && designSource === 'ours'
+        ? cloudFrames.find(f=>`sm:${f.id}`===template) : undefined;
+      if (!isCoaster && (printPhotos.length > 1 || selectedCloudFrame)) {
         const collage = await composePrintArtwork(printPhotos, photoLayout,
           slug === 'mouse-mat' || slug === 'photo-mug' ? 3000 : 2400,
           slug === 'mouse-mat' || slug === 'photo-mug' ? 2000 : 2400,
-          photoCrops);
+          photoCrops, selectedCloudFrame?.url);
         printArtworkUrl = publicPhoto(await uploadMemoryMedia(collage, 'photo'));
       }
       setSavedPrintPhotoUrls(galleryUrls);
