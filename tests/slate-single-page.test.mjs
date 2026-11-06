@@ -79,3 +79,18 @@ test('slate uses same dual preview and brand styling as other products',()=>{
  assert.match(css,/var\(--sm-rose\)/);
  assert.match(css,/\.slateReview \.smWizardDualPreview/);
 });
+
+test('slate mockup has textured rough stone edges rather than a conventional frame',()=>{
+ const css=read('app/globals.css');
+ assert.match(source,/className="slateStoneShell"/);
+ assert.match(review,/className="slateStoneShell"/);
+ assert.match(css,/\.slateStoneShell\{/);
+ assert.match(css,/clip-path:polygon\(/);
+ assert.match(css,/repeating-linear-gradient/);
+});
+test('From field is required without an optional label',()=>{
+ assert.match(source,/<label>From<input required aria-required="true"/);
+ assert.doesNotMatch(source,/From \(optional\)/);
+ assert.match(source,/if\(!sender\.trim\(\)\)/);
+ assert.match(review,/if\(!draft\.sender\.trim\(\)\)/);
+});
