@@ -6,6 +6,8 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const source=read('components/SlateSinglePageCustomiser.tsx');
 const page=read('app/shop/[slug]/page.tsx');
 const legacy=read('app/personalise/[slug]/page.tsx');
+const review=read('app/slate/review/page.tsx');
+const draftStorage=read('lib/slateReviewDraft.ts');
 
 test('slate editor has all four requested physical sizes',()=>{
  for(const size of ['14 × 14 cm','19 × 19 cm','14 × 19 cm','19 × 29 cm'])
@@ -18,18 +20,30 @@ test('slate product renders single-page customiser rather than a wizard',()=>{
  assert.match(source,/className="slateStudioPreview"/);
  assert.match(source,/className="slateStudioControls"/);
 });
-test('auto image fit, zoom, dragging and live print artwork use same canvas',()=>{
- assert.match(source,/Math.max\(pw\/image\.naturalWidth,ph\/image\.naturalHeight\)/);
+test('slate builder retains photo controls and print uses the same composition on review',()=>{
+ assert.match(source,/fit==='cover'\?Math\.max\(pw\/iw,ph\/ih\):Math\.min\(pw\/iw,ph\/ih\)/);
  assert.match(source,/onPointerDown=\{startDrag\}/);
  assert.match(source,/type="range"/);
- assert.match(source,/canvas\.toBlob/);
- assert.match(source,/printArtworkUrl:printedUrl/);
+ assert.match(review,/paint\(ctx,image,dimensions/);
+ assert.match(review,/canvas\.toBlob/);
+ assert.match(review,/printArtworkUrl:url\(printPath\)/);
 });
-test('optional Smart Memory message saves with photo and basket has no immediate redirect',()=>{
- assert.match(source,/form\.set\('message',message\.trim\(\)\)/);
- assert.match(source,/form\.set\('photoPath',photoPath\)/);
- assert.match(source,/setAdded\(true\)/);
- assert.doesNotMatch(source,/window\.location\.href/);
+test('written and recorded memories are composed together before a separate review page',()=>{
+ assert.match(source,/Smart Memory message \(optional\)/);
+ assert.match(source,/Smart Memory voice recording \(optional\)/);
+ assert.match(source,/navigator\.mediaDevices\.getUserMedia/);
+ assert.match(source,/MediaRecorder/);
+ assert.match(source,/storeSlateDraft\(draft\)/);
+ assert.match(source,/window\.location\.assign\('\/slate\/review'\)/);
+ assert.match(review,/What opens when they tap the gift/);
+ assert.match(review,/draft\.message/);
+ assert.match(review,/<audio src=\{audioUrl\} controls/);
+ assert.match(review,/uploadMemoryMedia\(draft\.audio,'audio'\)/);
+ assert.match(review,/form\.set\('audioPath',audioPath\)/);
+ assert.match(review,/form\.set\('message',draft\.message\.trim\(\)\)/);
+ assert.match(review,/printArtworkUrl:url\(printPath\)/);
+ assert.match(draftStorage,/indexedDB\.open/);
+ assert.match(review,/Go to basket/);
 });
 
 test('photo-only uses an expanded print area instead of the wide wording border',()=>{
@@ -47,6 +61,6 @@ test('portrait and landscape slate direction and photo rotation can be selected'
  assert.match(source,/Slate direction/);
  assert.match(source,/Rotate left/);
  assert.match(source,/Rotate right/);
- assert.match(source,/slateOrientation:direction,photoFit:fit,photoRotation:rotation/);
+ assert.match(review,/slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation/);
  assert.match(source,/ctx\.rotate\(rotation\*Math\.PI\/180\)/);
 });
