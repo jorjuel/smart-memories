@@ -14,11 +14,20 @@ export default function MemoryMessage({
   const text =
     message?.trim();
 
-  if (
-    !text &&
-    !sender
-  ) {
+  if (!text && !sender?.trim()) {
     return null;
+  }
+
+  // Never render an empty written-message section when there is no text.
+  // A signature can stand on its own if a sender was provided.
+  if (!text && sender?.trim()) {
+    return variant === 'compact'
+      ? null
+      : (
+        <p className="smRecipientSender">
+          With love from <strong>{sender.trim()}</strong>
+        </p>
+      );
   }
 
   if (
