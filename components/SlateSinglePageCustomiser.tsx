@@ -85,6 +85,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const drag=useRef<{x:number;y:number;dx:number;dy:number}|null>(null);
  const size=SIZES[sizeIndex];
+ const detectedOrientation=image?(Math.abs(image.naturalWidth-image.naturalHeight)/Math.max(image.naturalWidth,image.naturalHeight)<.04?'square':image.naturalWidth>image.naturalHeight?'landscape':'portrait'):null;
  const draw=useCallback(()=>{
   const ctx=canvasRef.current?.getContext('2d');
   if(ctx)paint(ctx,image,size,crop,wording,topText,bottomText,dedication);
@@ -184,6 +185,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>choosePhoto(e.currentTarget.files?.[0])}/>
     </label>
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
+      <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected slate size.</p>
       <label>Zoom <input type="range" min="1" max="3" step=".05" value={crop.zoom}
        onChange={e=>{setCrop(c=>({...c,zoom:Number(e.target.value)}));setAdded(false);}}/></label>
       <p className="slateHelp">Drag the photo in the preview to reposition it.</p>
