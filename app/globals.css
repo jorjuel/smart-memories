@@ -13292,3 +13292,24 @@ header.smSiteHeader {
   text-align: center;
   color: var(--sm-muted);
 }
+
+/* Bow selection: use the user's supplied styled photograph instead of the
+   old transparent-cutout ribbon. Keep the whole tag and bow visible on phones. */
+.smBowPage .smBowPreviewArt {
+  display: block;
+  width: 100%;
+  max-width: 540px;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+  object-position: center;
+  background: none;
+  border-radius: 13px;
+}
+@media (max-width: 680px) {
+  .smBowPage .smBowPreviewArt {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+  }
+}
