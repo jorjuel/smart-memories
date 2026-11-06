@@ -18,8 +18,17 @@ function drawCover(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: numb
   ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
 }
 
+async function loadOverlay(url:string): Promise<HTMLImageElement> {
+  return new Promise((resolve,reject)=>{
+    const image=new Image();
+    image.crossOrigin='anonymous';
+    image.onload=()=>resolve(image);
+    image.onerror=()=>reject(new Error('Could not prepare the selected frame for printing. Please choose another design.'));
+    image.src=url;
+  });
+}
 /** Make one full-resolution print image, avoiding storing data: URLs in the basket. */
-export async function composePrintArtwork(files: File[], layout: PhotoLayout, width = 2400, height = 2400, crops: PhotoCrop[] = []): Promise<File> {
+export async function composePrintArtwork(files: File[], layout: PhotoLayout, width = 2400, height = 2400, crops: PhotoCrop[] = [], overlayUrl?: string): Promise<File> {
   if (files.length < 1 || files.length > 6) throw new Error('Choose between 1 and 6 photos.');
   const images = await Promise.all(files.map(loadPhoto));
   const canvas = document.createElement('canvas');
@@ -40,6 +49,12 @@ export async function composePrintArtwork(files: File[], layout: PhotoLayout, wi
     drawCover(ctx,img,cell.x*width+left,cell.y*height+top,
       cell.w*width-left-right,cell.h*height-top-bottom,crops[i]);
   });
+  if (overlayUrl) {
+    const frame=await loadOverlay(overlayUrl);
+    const scale=Math.min(width/frame.naturalWidth,height/frame.naturalHeight);
+    const fw=frame.naturalWidth*scale,fh=frame.naturalHeight*scale;
+    ctx.drawImage(frame,(width-fw)/2,(height-fh)/2,fw,fh);
+  }
   const blob = await new Promise<Blob>((resolve,reject) => {
     canvas.toBlob((value) => value ? resolve(value) : reject(new Error('Could not create print artwork.')), 'image/jpeg', 0.9);
   });
