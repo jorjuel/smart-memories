@@ -1,7 +1,7 @@
 'use client';
 
 import { getCollageRects, type PhotoLayout } from '@/lib/collageLayouts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getPhotoCropStyle, type PhotoCrop } from '@/lib/photoCrop';
 import { getGiftTemplateTheme } from '@/lib/giftTemplateTheme';
 
@@ -53,6 +53,21 @@ export default function ConfiguredProductPreview({
   textLayout,
   template,
 }: Props) {
+  const [frameUrl,setFrameUrl] = useState('');
+  useEffect(()=>{
+    if(!template?.startsWith('sm:')) {setFrameUrl('');return;}
+    let active=true;setFrameUrl('');
+    fetch('/api/admin-frame-templates',{cache:'no-store'})
+      .then(async r=>r.ok?r.json():{templates:[]})
+      .then(result=>{
+        const entry=(result.templates||[]).find((f:{id:string;productSlugs:string[];orientation:string})=>
+          f.id===template.slice(3) && f.productSlugs.includes(slug) &&
+          (f.orientation===orientation || slug==='photo-mug' || slug==='mouse-mat')
+        );
+        if(active)setFrameUrl(entry?.url||'');
+      }).catch(()=>{if(active)setFrameUrl('');});
+    return()=>{active=false;};
+  },[template,slug,orientation]);
   const templateTheme = template ? getGiftTemplateTheme(template) : null;
   const activePhotos = photos.length ? photos : (photoUrl ? [photoUrl] : []);
   const printAspect = slug === 'mouse-mat' || slug === 'photo-mug' ? 1.5 : 1;
@@ -101,6 +116,9 @@ export default function ConfiguredProductPreview({
           <small>YOUR PHOTO</small>
         </div>
       )}
+
+      {frameUrl && <img src={frameUrl} alt="" aria-hidden="true"
+        style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'fill',pointerEvents:'none',zIndex:2}} />}
 
       {topText &&
         (textLayout === 'top' ||
