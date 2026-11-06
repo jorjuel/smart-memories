@@ -9,6 +9,7 @@ type Props = {
   sender?: string | null;
   imageUrl?: string | null;
   onOpen: () => void;
+  hasPlayableMedia?: boolean;
 };
 
 export default function MemoryCover({
@@ -16,6 +17,7 @@ export default function MemoryCover({
   sender,
   imageUrl,
   onOpen,
+  hasPlayableMedia = false,
 }: Props) {
   const [
     imageFailed,
@@ -91,7 +93,7 @@ export default function MemoryCover({
             }
             aria-controls="memory-story"
           >
-            Open Memory
+            {hasPlayableMedia ? 'Open & play memory' : 'Open Memory'}
             <span
               aria-hidden="true"
             >
