@@ -21,16 +21,22 @@ const WAYS:{value:Wording;label:string}[]=[
  {value:'paragraph',label:'Short dedication'},
 ];
 type Crop={zoom:number;dx:number;dy:number};
+type PhotoFit='contain'|'cover';
+type SlateDirection='portrait'|'landscape';
 const PRICE=24.99; // Retain existing slate base price until size-specific prices are configured.
 
-function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900){
+function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0){
  const ch=Math.round(cw*sz.height/sz.width);
  const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
  const w=cw,h=ch;
  ctx.fillStyle='#191919';ctx.fillRect(0,0,w,h);
  // Subtle organic slate edges and an inset white printable face.
  ctx.fillStyle='#f8f8f4';ctx.fillRect(w*.025,h*.018,w*.95,h*.964);
- const inset=w*.09,topPadding=h*.07,bottomPadding=h*.075;
+ // No wording: use nearly the whole printable face, without a large white mat.
+ const photoOnly=way==='none';
+ const inset=photoOnly?w*.027:w*.072;
+ const topPadding=photoOnly?h*.026:h*.047;
+ const bottomPadding=photoOnly?h*.026:h*.045;
  const fontSize=w*.036;
  ctx.textAlign='center';ctx.fillStyle='#222222';
  const topSpace=(way==='top'||way==='both')?fontSize*2.0:0;
@@ -38,12 +44,23 @@ function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:
  const px=inset,py=topPadding+topSpace,pw=w-2*inset,ph=h-topPadding-bottomPadding-topSpace-bottomSpace;
  ctx.save();ctx.beginPath();ctx.rect(px,py,pw,ph);ctx.clip();
  if(image){
-  const baseScale=Math.max(pw/image.naturalWidth,ph/image.naturalHeight);
-  const scaledW=image.naturalWidth*baseScale*crop.zoom,scaledH=image.naturalHeight*baseScale*crop.zoom;
-  const mx=Math.max(0,(scaledW-pw)/2),my=Math.max(0,(scaledH-ph)/2);
-  const shiftX=Math.max(-mx,Math.min(mx,crop.dx*pw/2));
-  const shiftY=Math.max(-my,Math.min(my,crop.dy*ph/2));
-  ctx.drawImage(image,px+(pw-scaledW)/2+shiftX,py+(ph-scaledH)/2+shiftY,scaledW,scaledH);
+  // Apply rotation before fitting so portrait and landscape photos keep their full borders.
+  const turn=rotation%180!==0;
+  const iw=turn?image.naturalHeight:image.naturalWidth;
+  const ih=turn?image.naturalWidth:image.naturalHeight;
+  const scale=(fit==='cover'?Math.max(pw/iw,ph/ih):Math.min(pw/iw,ph/ih))*crop.zoom;
+  const scaledW=iw*scale,scaledH=ih*scale;
+  const spareX=(pw-scaledW)/2,spareY=(ph-scaledH)/2;
+  // In 'fit' mode, keep the entire image inside the printable area.
+  const limitX=Math.abs(spareX),limitY=Math.abs(spareY);
+  const shiftX=fit==='contain' && scaledW<=pw?0:Math.max(-limitX,Math.min(limitX,crop.dx*pw/2));
+  const shiftY=fit==='contain' && scaledH<=ph?0:Math.max(-limitY,Math.min(limitY,crop.dy*ph/2));
+  ctx.save();
+  ctx.translate(px+pw/2+shiftX,py+ph/2+shiftY);
+  ctx.rotate(rotation*Math.PI/180);
+  ctx.drawImage(image,-image.naturalWidth*scale/2,-image.naturalHeight*scale/2,
+    image.naturalWidth*scale,image.naturalHeight*scale);
+  ctx.restore();
  }else{
   ctx.fillStyle='#e9e9e7';ctx.fillRect(px,py,pw,ph);
   ctx.fillStyle='#777';ctx.font='28px sans-serif';ctx.fillText('YOUR PHOTO',w/2,py+ph/2);
@@ -68,10 +85,13 @@ function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:
 export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialOccasion?:string}){
  const [occasion,setOccasion]=useState(initialOccasion);
  const [sizeIndex,setSizeIndex]=useState(2);
+ const [direction,setDirection]=useState<SlateDirection>('portrait');
  const [photo,setPhoto]=useState<File|null>(null);
  const [photoUrl,setPhotoUrl]=useState('');
  const [image,setImage]=useState<HTMLImageElement>();
  const [crop,setCrop]=useState<Crop>({zoom:1,dx:0,dy:0});
+ const [fit,setFit]=useState<PhotoFit>('contain');
+ const [rotation,setRotation]=useState(0);
  const [wording,setWording]=useState<Wording>('bottom');
  const [topText,setTopText]=useState('');
  const [bottomText,setBottomText]=useState('');
@@ -84,12 +104,14 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
  const [added,setAdded]=useState(false);
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const drag=useRef<{x:number;y:number;dx:number;dy:number}|null>(null);
- const size=SIZES[sizeIndex];
+ const selectedSize=SIZES[sizeIndex];
+ const size=direction==='landscape' && selectedSize.width!==selectedSize.height
+   ? {...selectedSize,width:selectedSize.height,height:selectedSize.width} : selectedSize;
  const detectedOrientation=image?(Math.abs(image.naturalWidth-image.naturalHeight)/Math.max(image.naturalWidth,image.naturalHeight)<.04?'square':image.naturalWidth>image.naturalHeight?'landscape':'portrait'):null;
  const draw=useCallback(()=>{
   const ctx=canvasRef.current?.getContext('2d');
-  if(ctx)paint(ctx,image,size,crop,wording,topText,bottomText,dedication);
- },[image,size,crop,wording,topText,bottomText,dedication]);
+  if(ctx)paint(ctx,image,size,crop,wording,topText,bottomText,dedication,900,fit,rotation);
+ },[image,size,crop,wording,topText,bottomText,dedication,fit,rotation]);
  useEffect(()=>{draw();},[draw]);
  useEffect(()=>()=>{if(photoUrl)URL.revokeObjectURL(photoUrl);},[photoUrl]);
 
@@ -100,7 +122,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
   }
   setError('');setAdded(false);
   const url=URL.createObjectURL(file);
-  const img=new Image();img.onload=()=>{setImage(img);setPhoto(file);setPhotoUrl(url);setCrop({zoom:1,dx:0,dy:0});};
+  const img=new Image();img.onload=()=>{setImage(img);setPhoto(file);setPhotoUrl(url);setCrop({zoom:1,dx:0,dy:0});setFit('contain');setRotation(0);};
   img.onerror=()=>{URL.revokeObjectURL(url);setError('That photograph could not be opened.');};
   img.src=url;
  }
@@ -127,7 +149,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
    const canvas=document.createElement('canvas');
    const printCtx=canvas.getContext('2d');
    if(!printCtx)throw Error('Could not prepare print artwork.');
-   paint(printCtx,image,size,crop,wording,topText,bottomText,dedication,Math.round(size.width/2.54*300));
+   paint(printCtx,image,size,crop,wording,topText,bottomText,dedication,Math.round(size.width/2.54*300),fit,rotation);
    const artwork=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export your design.')),'image/jpeg',.94));
    const artworkFile=new File([artwork],'smart-slate-print.jpg',{type:'image/jpeg'});
    const [photoPath,artworkPath]=await Promise.all([
@@ -150,9 +172,9 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
      id:crypto.randomUUID(),productType:'product',productSlug:'smart-photo-slate',
      memoryCode:saved.code,name:'Personalised Photo Slate',category:'Smart Memories',
      occasion:occasion||undefined,recipient:recipient.trim()||'Someone special',
-     design:'Classic white photo border',imageUrl:printedUrl,price:PRICE,quantity:1,
+     design:wording==='none'?'Full photo slate':'Photo slate with wording',imageUrl:printedUrl,price:PRICE,quantity:1,
      personalisation:{
-       size:size.label,slateWidthCm:size.width,slateHeightCm:size.height,
+       size:selectedSize.label,slateWidthCm:size.width,slateHeightCm:size.height,slateOrientation:direction,photoFit:fit,photoRotation:rotation,
        wording,textLayout:wording,topText,bottomText,paragraph:dedication,
        memoryMessage:message.trim(),sender:sender.trim(),
        printPhotoUrls:[originalUrl],printArtworkUrl:printedUrl,
@@ -182,15 +204,40 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
      <div className="slateSizes">{SIZES.map((sz,i)=><button type="button" key={sz.label}
        className={i===sizeIndex?'active':''} aria-pressed={i===sizeIndex}
        onClick={()=>{setSizeIndex(i);setAdded(false);}}>{sz.label}</button>)}</div>
+     {selectedSize.width!==selectedSize.height&&<div className="slateOrientationSelector" role="group" aria-label="Slate direction">
+       <span>Slate direction</span>
+       <div className="slateSizes">
+        <button type="button" className={direction==='portrait'?'active':''} aria-pressed={direction==='portrait'}
+         onClick={()=>{setDirection('portrait');setAdded(false);}}>Vertical</button>
+        <button type="button" className={direction==='landscape'?'active':''} aria-pressed={direction==='landscape'}
+         onClick={()=>{setDirection('landscape');setAdded(false);}}>Landscape</button>
+       </div>
+      </div>}
     </fieldset>
     <label>Upload your photo
      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>choosePhoto(e.currentTarget.files?.[0])}/>
     </label>
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
       <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected slate size.</p>
+      <div className="slateOrientationSelector" role="group" aria-label="Photo fitting">
+       <span>How should your photo fit?</span>
+       <div className="slateSizes">
+        <button type="button" className={fit==='contain'?'active':''} aria-pressed={fit==='contain'}
+          onClick={()=>{setFit('contain');setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Fit whole photo</button>
+        <button type="button" className={fit==='cover'?'active':''} aria-pressed={fit==='cover'}
+          onClick={()=>{setFit('cover');setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Fill area (may crop)</button>
+       </div>
+      </div>
+      <div className="slateOrientationSelector" role="group" aria-label="Rotate photo">
+       <span>Photo direction</span>
+       <div className="slateSizes">
+        <button type="button" onClick={()=>{setRotation(r=>(r+270)%360);setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>↶ Rotate left</button>
+        <button type="button" onClick={()=>{setRotation(r=>(r+90)%360);setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>↷ Rotate right</button>
+       </div>
+      </div>
       <label>Zoom <input type="range" min="1" max="3" step=".05" value={crop.zoom}
        onChange={e=>{setCrop(c=>({...c,zoom:Number(e.target.value)}));setAdded(false);}}/></label>
-      <p className="slateHelp">Drag the photo in the preview to reposition it.</p>
+      <p className="slateHelp">Fit whole photo keeps existing photo borders visible. Fill area crops edges only if needed. Drag to reposition when zoomed in.</p>
       <button type="button" className="slateTextButton" onClick={()=>{setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Reset photo position</button>
     </fieldset>}
     <fieldset><legend>Wording on your slate</legend>
@@ -214,13 +261,13 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
    </div>
    <aside className="slateStudioPreview">
     <h2>Your live preview</h2>
-    <p className="slateHelp">The white printable face adjusts to your chosen size and wording. Drag to position your photo.</p>
+    <p className="slateHelp">Photo only uses almost the full slate. If your photo has its own frame, choose Fit whole photo to keep every edge.</p>
     <div className="slatePreviewWrap">
       <canvas ref={canvasRef} width={900} height={1200} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
        onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}
        aria-label="Live personalised slate preview" role="img"/>
     </div>
-    <p><strong>{size.label}</strong> · £{PRICE.toFixed(2)}</p>
+    <p><strong>{selectedSize.label}</strong> · {direction==='landscape'?'Landscape':'Vertical'} · £{PRICE.toFixed(2)}</p>
     <button type="button" className="btn big" onClick={()=>void addToBasket()} disabled={saving||!photo}>
       {saving?'Saving your gift…':'Add personalised slate to basket'}
     </button>
