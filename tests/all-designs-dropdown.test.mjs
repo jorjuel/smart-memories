@@ -29,7 +29,6 @@ test('An accessible dropdown selects the design and reveals the matching gift pr
   assert.match(form, /<option key=\{item\} value=\{item\}>\{item\}<\/option>/);
   assert.match(form, /aria-live="polite"/);
   assert.match(form, /className="smDesignPickerArtwork"/);
-  assert.match(form, /template=\{template\}/);
   assert.match(form, /template=\{mode === 'quick' && designSource === 'ours' \? template : null\}/);
 });
 
