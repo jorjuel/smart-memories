@@ -307,18 +307,21 @@ export default function ProductPersonaliser({
       const result:
         WizardStep[] = [
         {
-          key: 'gift',
-          label: 'Gift',
+          key: 'photo',
+          label: 'Photos',
         },
         {
-          key: 'photo',
-          label: 'Photo',
+          key: 'gift',
+          label: 'Design',
         },
       ];
 
-      if (
-        product?.smartMemory
-      ) {
+      result.push({
+        key: 'message',
+        label: 'Message',
+      });
+
+      if (product?.smartMemory) {
         result.push({
           key: 'voice',
           label: 'Voice',
@@ -326,10 +329,6 @@ export default function ProductPersonaliser({
       }
 
       result.push(
-        {
-          key: 'message',
-          label: 'Message',
-        },
         {
           key: 'preview',
           label: 'Preview',
@@ -352,7 +351,7 @@ export default function ProductPersonaliser({
 
   const currentStep =
     steps[stepIndex]?.key ||
-    'gift';
+    'photo';
 
   const isMug =
     product?.slug ===
@@ -1321,7 +1320,7 @@ export default function ProductPersonaliser({
         </h1>
 
         <p className="smWizardIntro">
-          Personalise your gift, add a photo and share a memory.
+          Start with photos, choose your design and write the memory message.
         </p>
 
         <div className="smWizardProductName">
@@ -1358,7 +1357,7 @@ export default function ProductPersonaliser({
         <div className="smWizardStepContent" id="smWizardFields" role="region" aria-label={`${steps[stepIndex]?.label || 'Gift'} details`}>
 
           {/* =========================================
-              STEP 1 — YOUR GIFT
+              STEP 2 — DESIGN YOUR GIFT
               ========================================= */}
 
           {currentStep ===
@@ -1372,13 +1371,11 @@ export default function ProductPersonaliser({
                 </span>
 
                 <h2>
-                  Your Gift
+                  Design Your Gift
                 </h2>
 
                 <p>
-                  Start by making
-                  the physical
-                  gift yours.
+                  Choose how to create it, then personalise the design, direction and wording.
                 </p>
               </div>
 
@@ -1971,7 +1968,7 @@ export default function ProductPersonaliser({
           )}
 
           {/* =========================================
-              STEP 2 — MAIN PHOTO
+              STEP 1 — ADD PHOTOS
               ========================================= */}
 
           {currentStep ===
@@ -1985,17 +1982,11 @@ export default function ProductPersonaliser({
                 </span>
 
                 <h2>
-                  Choose Your Main
-                  Photo
+                  Add Photos for Your Gift
                 </h2>
 
                 <p>
-                  This is the image
-                  that will appear
-                  on your
-                  personalised gift
-                  and current Smart
-                  Memory page.
+                  Choose your main picture first, then add any extra collage or coaster photos. See your changes in the live preview.
                 </p>
               </div>
 
