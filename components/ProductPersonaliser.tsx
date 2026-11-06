@@ -1470,101 +1470,6 @@ export default function ProductPersonaliser({
                 </div>
               </div>
 
-              {!isCoaster && (
-              <div className="smWizardSection">
-                <h3>
-                  What is it for?
-                </h3>
-
-                {initialOccasion && (
-                  <div className="smWizardOccasionNotice">
-                    You arrived
-                    through:{' '}
-                    <strong>
-                      {
-                        initialOccasion
-                      }
-                    </strong>
-                  </div>
-                )}
-
-                <div className="occasionGrid">
-                  {product.occasions
-                    .slice(
-                      0,
-                      12
-                    )
-                    .map(
-                      (
-                        item
-                      ) => (
-                        <button
-                          type="button"
-                          key={
-                            item
-                          }
-                          className={
-                            occasion ===
-                            item
-                              ? 'optionPill active'
-                              : 'optionPill'
-                          }
-                          onClick={() => {
-                            setOccasion(
-                              item
-                            );
-                            markChanged();
-                          }}
-                        >
-                          {
-                            item
-                          }
-                        </button>
-                      )
-                    )}
-                </div>
-
-                <select
-                  value={
-                    occasion
-                  }
-                  onChange={(
-                    event
-                  ) => {
-                    setOccasion(
-                      event.target
-                        .value
-                    );
-                    markChanged();
-                  }}
-                >
-                  <option value="">
-                    More
-                    occasions...
-                  </option>
-
-                  {product.occasions.map(
-                    (
-                      item
-                    ) => (
-                      <option
-                        key={
-                          item
-                        }
-                        value={
-                          item
-                        }
-                      >
-                        {
-                          item
-                        }
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-              )}
-
               {allowsOwnDesign && (
                 <div className="smWizardSection">
                   <h3>
@@ -1893,6 +1798,102 @@ export default function ProductPersonaliser({
                     )}
                   </div>
                 )}
+
+              {/* Optional occasion comes after the core photo/design/wording choices. */}
+              {!isCoaster && (
+              <div className="smWizardSection">
+                <h3>
+                  What is it for?
+                </h3>
+
+                {initialOccasion && (
+                  <div className="smWizardOccasionNotice">
+                    You arrived
+                    through:{' '}
+                    <strong>
+                      {
+                        initialOccasion
+                      }
+                    </strong>
+                  </div>
+                )}
+
+                <div className="occasionGrid">
+                  {product.occasions
+                    .slice(
+                      0,
+                      12
+                    )
+                    .map(
+                      (
+                        item
+                      ) => (
+                        <button
+                          type="button"
+                          key={
+                            item
+                          }
+                          className={
+                            occasion ===
+                            item
+                              ? 'optionPill active'
+                              : 'optionPill'
+                          }
+                          onClick={() => {
+                            setOccasion(
+                              item
+                            );
+                            markChanged();
+                          }}
+                        >
+                          {
+                            item
+                          }
+                        </button>
+                      )
+                    )}
+                </div>
+
+                <select
+                  value={
+                    occasion
+                  }
+                  onChange={(
+                    event
+                  ) => {
+                    setOccasion(
+                      event.target
+                        .value
+                    );
+                    markChanged();
+                  }}
+                >
+                  <option value="">
+                    More
+                    occasions...
+                  </option>
+
+                  {product.occasions.map(
+                    (
+                      item
+                    ) => (
+                      <option
+                        key={
+                          item
+                        }
+                        value={
+                          item
+                        }
+                      >
+                        {
+                          item
+                        }
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+              )}
 
               {product.accessories &&
                 product
