@@ -26,6 +26,7 @@ import ConfiguredProductPreview from './ConfiguredProductPreview';
 import { composePrintArtwork, type PhotoLayout } from '@/lib/printCollage';
 import { collageLayoutOptions, getCollageRects } from '@/lib/collageLayouts';
 import PhotoCollageEditor from './PhotoCollageEditor';
+import { replaceMainPhoto, appendExtraPhotos, removeExtraPhoto, reorderExtraPhotos } from '@/lib/primaryPhotoCollage';
 import { defaultPhotoCrop, normalisePhotoCrop, type PhotoCrop } from '@/lib/photoCrop';
 import PersonaliserProgress from './PersonaliserProgress';
 import SmartMemoryLivePreview from './SmartMemoryLivePreview';
@@ -606,57 +607,93 @@ export default function ProductPersonaliser({
      PHOTO
      ===================================================== */
 
-  function setChosenPhotos(files: File[]) {
-    setStepError('');
-    if (!files.length) return;
-    if (files.length > maxGiftPhotos) {
-      setStepError(`Choose no more than ${maxGiftPhotos} photo${maxGiftPhotos === 1 ? '' : 's'} for this gift.`);
-      return;
-    }
-    if (files.some((file) => !file.type.startsWith('image/') || file.size > MAX_PHOTO_BYTES || !file.size)) {
+  function validGiftImageFiles(files: File[]): boolean {
+    if (files.some((file) =>
+      !file.size ||
+      file.size > MAX_PHOTO_BYTES ||
+      !file.type.startsWith('image/')
+    )) {
       setStepError('Each photo must be an image of 10 MB or smaller.');
-      return;
+      return false;
     }
-    const newPhotos = files.map((file) => ({file, url: URL.createObjectURL(file)}));
-    giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
-    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
-    setGiftPhotos(newPhotos);
-    setPhotoCrops(newPhotos.map(defaultPhotoCrop));
-    setPhoto(newPhotos[0].file);
-    setPhotoUrl(newPhotos[0].url);
+    return true;
+  }
+
+  function choosePhoto(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setStepError('');
+    if (!validGiftImageFiles([file])) return;
+
+    const newMain = { file, url: URL.createObjectURL(file) };
+    // Slot 1 is the main Smart Memory photo. Replacing it must NOT
+    // remove or change any additional collage/coaster photos.
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    setGiftPhotos(replaceMainPhoto(giftPhotos, newMain));
+    setPhotoCrops(prev => [defaultPhotoCrop(), ...prev.slice(1)]);
+    setPhoto(file);
+    setPhotoUrl(newMain.url);
     setSavedPrintPhotoUrls([]);
     setSavedPrintArtworkUrl(null);
     markChanged();
   }
 
-  function choosePhoto(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files || []);
-    if (files.length) setChosenPhotos(files.slice(0,1));
-    event.target.value = '';
-  }
-
   function chooseGiftPhotos(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files || []);
-    if (files.length) setChosenPhotos(files);
     event.target.value = '';
+    if (!files.length) return;
+    setStepError('');
+
+    if (!photo || !giftPhotos.length) {
+      setStepError('Please add your main photo first. It will automatically be the first collage photo.');
+      return;
+    }
+    const available = maxGiftPhotos - giftPhotos.length;
+    if (files.length > available) {
+      setStepError(
+        available <= 0
+          ? 'All photo spaces are filled. Remove an extra photo or select a larger coaster set.'
+          : `You have ${available} extra photo ${available === 1 ? 'space' : 'spaces'} available. Select fewer photos and try again.`
+      );
+      return;
+    }
+    if (!validGiftImageFiles(files)) return;
+
+    const extras = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
+    // Only add the new photos; never reset the existing collage or main photo.
+    setGiftPhotos(appendExtraPhotos(giftPhotos, extras, maxGiftPhotos));
+    setPhotoCrops(prev => [...prev, ...extras.map(() => defaultPhotoCrop())]);
+    setSavedPrintPhotoUrls([]);
+    setSavedPrintArtworkUrl(null);
+    markChanged();
   }
 
   function removeGiftPhoto(index: number) {
-    const remaining = giftPhotos.filter((_,i) => i !== index);
+    if (index === 0) {
+      setStepError('The main photo is kept in the first position. Use Replace or Remove above to change it.');
+      return;
+    }
     const removed = giftPhotos[index];
-    if (removed) URL.revokeObjectURL(removed.url);
-    setGiftPhotos(remaining);
-    setPhotoCrops(prev => prev.filter((_,i) => i !== index));
-    setPhoto(remaining[0]?.file ?? null);
-    setPhotoUrl(remaining[0]?.url ?? '');
+    if (!removed) return;
+    URL.revokeObjectURL(removed.url);
+    setGiftPhotos(removeExtraPhoto(giftPhotos, index));
+    setPhotoCrops(prev => prev.filter((_, i) => i !== index));
+    // Never alter photo or photoUrl while removing an extra photo.
     setSavedPrintPhotoUrls([]);
     setSavedPrintArtworkUrl(null);
     markChanged();
   }
 
   function removePhoto() {
+    if (giftPhotos.length > 1 &&
+        !window.confirm('Remove the main photo and all extra collage photos?')) {
+      return;
+    }
     giftPhotos.forEach(({url}) => URL.revokeObjectURL(url));
-    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) URL.revokeObjectURL(photoUrl);
+    if (photoUrl && !giftPhotos.some((item) => item.url === photoUrl)) {
+      URL.revokeObjectURL(photoUrl);
+    }
     setGiftPhotos([]);
     setPhotoCrops([]);
     setPhoto(null);
