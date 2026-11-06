@@ -2,7 +2,7 @@
 
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import Link from 'next/link';
-import { SHIPPING_PRICES_PENCE } from '@/lib/pricing';
+import { getCartShippingPricePence, singleMemoryTagLetterCart } from '@/lib/shippingPricing';
 import { useSearchParams } from 'next/navigation';
 
 import {
@@ -199,7 +199,8 @@ export default function CheckoutPage() {
     );
 
   const digitalOnly = items.length > 0 && items.every(item => item.productType === 'product' && item.productSlug === 'digital-memory');
-  const delivery = digitalOnly ? 0 : SHIPPING_PRICES_PENCE[deliveryMethod] / 100;
+  const envelopeTagOnly = singleMemoryTagLetterCart(items);
+  const delivery = getCartShippingPricePence(items, deliveryMethod) / 100;
 
   const total =
     subtotal + delivery;
@@ -826,17 +827,16 @@ export default function CheckoutPage() {
               >
                 <div>
                   <strong>
-                    Standard delivery
+                    {envelopeTagOnly ? 'Royal Mail 2nd Class Large Letter' : 'Standard delivery'}
                   </strong>
 
                   <span>
-                    Delivery estimate depends
-                    on the item and destination
+                    {envelopeTagOnly ? 'For one packed gift tag, under 100g and within 25mm thick' : 'Delivery estimate depends on the item and destination'}
                   </span>
                 </div>
 
                 <b>
-                  £{(SHIPPING_PRICES_PENCE.standard / 100).toFixed(2)}
+                  £{(getCartShippingPricePence(items, 'standard') / 100).toFixed(2)}
                 </b>
               </button>
 
@@ -856,23 +856,23 @@ export default function CheckoutPage() {
               >
                 <div>
                   <strong>
-                    Express delivery
+                    {envelopeTagOnly ? 'Royal Mail 1st Class Large Letter' : 'Express delivery'}
                   </strong>
 
                   <span>
-                    Priority delivery service
-                    after production
+                    {envelopeTagOnly ? 'Online postage. Next working day aim, not guaranteed' : 'Priority delivery service after production'}
                   </span>
                 </div>
 
                 <b>
-                  £{(SHIPPING_PRICES_PENCE.express / 100).toFixed(2)}
+                  £{(getCartShippingPricePence(items, 'express') / 100).toFixed(2)}
                 </b>
               </button>
             </div>
             <p className="smDeliveryEstimateNote">
               Personalised gifts are made to order. Delivery speed applies
               after production, and a delivery date is not guaranteed.
+              {envelopeTagOnly && ' Large Letter pricing assumes the finished bow and envelope fit Royal Mail’s 100g / 25mm limit.'}
               <Link href="/delivery"> Read delivery information</Link>.
             </p>
           </section>}
