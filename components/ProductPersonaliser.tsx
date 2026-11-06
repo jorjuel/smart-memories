@@ -1549,46 +1549,56 @@ export default function ProductPersonaliser({
                       design
                     </h3>
 
-                    <div className="smDesignDropdownList" role="group" aria-label="Select one of two ready-made designs">
-                      {product.templates.slice(0, 2).map((item, index) => (
-                        <div className="smDesignDropdownItem" key={item}>
-                          <button type="button"
-                            className={template === item ? 'smDesignDropdownTrigger active' : 'smDesignDropdownTrigger'}
-                            aria-expanded={template === item}
-                            aria-controls={`sm-design-preview-${index}`}
-                            onClick={() => {
-                              setTemplate(item);
-                              markChanged();
-                            }}>
-                            <span>
-                              <strong>Design {index + 1}: {item}</strong>
-                              <small>{template === item ? 'Selected — preview below' : 'Select to reveal this design'}</small>
-                            </span>
-                            <span aria-hidden="true">{template === item ? '−' : '+'}</span>
-                          </button>
-                          {template === item && (
-                            <div id={`sm-design-preview-${index}`} className="smDesignDropdownPreview">
-                              <div className="smDesignDropdownArt">
-                                <ConfiguredProductPreview
-                                  slug={product.slug}
-                                  photoUrl={photoUrl}
-                                  photos={selectedGiftPhotos.map(photo => photo.url)}
-                                  photoLayout={photoLayout}
-                                  photoCrops={photoCrops}
-                                  coasterCount={coasterCount}
-                                  orientation={orientation}
-                                  topText={designSource === 'own' ? '' : topText}
-                                  bottomText={designSource === 'own' ? '' : bottomText}
-                                  paragraph={designSource === 'own' ? '' : paragraph}
-                                  textLayout={designSource === 'own' ? 'photo-only' : textLayout}
-                                  template={item}
-                                />
-                              </div>
-                              <p>This design is applied to the live gift preview. The final print artwork is reviewed before production.</p>
-                            </div>
-                          )}
+                    <div className="smDesignPicker">
+                      <label className="smDesignPickerLabel" htmlFor="sm-select-gift-design">
+                        <strong>Browse all designs</strong>
+                        <small>{product.templates.length} ready-made styles available for this gift</small>
+                      </label>
+                      <div className="smDesignPickerSelectWrap">
+                        <select
+                          id="sm-select-gift-design"
+                          className="smDesignPickerSelect"
+                          value={template}
+                          onChange={(event) => {
+                            // Keep the original customer photo and immediately
+                            // update both the inline and sticky product previews.
+                            setTemplate(event.target.value);
+                            markChanged();
+                          }}
+                        >
+                          {product.templates.map((item) => (
+                            <option key={item} value={item}>{item}</option>
+                          ))}
+                        </select>
+                        <span className="smDesignPickerChevron" aria-hidden="true">⌄</span>
+                      </div>
+
+                      <div className="smDesignPickerResult" aria-live="polite" aria-atomic="true">
+                        <div className="smDesignPickerInfo">
+                          <span className="v14Eyebrow">SELECTED DESIGN</span>
+                          <strong>{template}</strong>
+                          <p>Preview this style with your own photos. Choose another from the list to compare.</p>
                         </div>
-                      ))}
+                        <div className="smDesignPickerArtwork">
+                          <ConfiguredProductPreview
+                            slug={product.slug}
+                            photoUrl={photoUrl}
+                            photos={selectedGiftPhotos.map(photo => photo.url)}
+                            photoLayout={photoLayout}
+                            photoCrops={photoCrops}
+                            coasterCount={coasterCount}
+                            orientation={orientation}
+                            topText={designSource === 'own' ? '' : topText}
+                            bottomText={designSource === 'own' ? '' : bottomText}
+                            paragraph={designSource === 'own' ? '' : paragraph}
+                            textLayout={designSource === 'own' ? 'photo-only' : textLayout}
+                            template={template}
+                          />
+                        </div>
+                      </div>
+                      <small className="smDesignPickerNote">
+                        Design previews are style illustrations. Your chosen photos are kept as uploaded; final artwork is reviewed before printing.
+                      </small>
                     </div>
                   </div>
                 )}
