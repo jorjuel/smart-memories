@@ -13364,3 +13364,149 @@ header.smSiteHeader {
 .slateReviewActions{display:grid;gap:12px}
 .slateReviewActions .btn{text-align:center;justify-content:center}
 .slateStudioControls audio{max-width:100%}
+
+/* Match the photo-slate builder and review to the shared Smart Memories visual system. */
+.slateStudio.smWizardPage{
+ max-width:1220px;
+ padding:clamp(24px,4vw,55px) 22px 90px;
+ background:var(--sm-cream);
+ color:var(--sm-plum-dark);
+}
+.slateStudio .smWizardStepHeading{margin-bottom:30px}
+.slateStudio .smWizardStepHeading h2{font-size:clamp(32px,4vw,48px);line-height:1.14}
+.slateStudio .smWizardStepHeading p{color:var(--sm-muted)}
+.slateStudio .slateStudioControls>label,
+.slateStudio .slateStudioControls>fieldset,
+.slateStudio .slatePersonFields{
+ border:1px solid var(--sm-border);
+ background:white;
+ border-radius:18px;
+ padding:22px;
+ margin:0;
+ color:var(--sm-plum-dark);
+ font-weight:700;
+}
+.slateStudio .slateStudioControls>label{display:grid;gap:10px}
+.slateStudio .slateStudioControls>fieldset{display:grid;gap:14px}
+.slateStudio .slateStudioControls legend{
+ font-family:Georgia,serif;
+ font-size:22px;
+ font-weight:400;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateStudioControls select,
+.slateStudio .slateStudioControls input:not([type="range"]):not([type="file"]),
+.slateStudio .slateStudioControls textarea{
+ background:var(--sm-cream);
+ border-color:var(--sm-border);
+ border-radius:12px;
+ padding:13px;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateStudioControls input[type="file"]{
+ border-color:var(--sm-border);
+ border-radius:12px;
+ background:var(--sm-cream);
+}
+.slateStudio .slateSizes button,.slateStudio .slateWording button{
+ border:1px solid var(--sm-border);
+ border-radius:12px;
+ background:white;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateSizes button.active,.slateStudio .slateWording button.active{
+ background:var(--sm-blush);
+ border:2px solid var(--sm-rose);
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateStudioPreview{
+ background:white;
+ border:1px solid var(--sm-border);
+ border-radius:21px;
+ box-shadow:none;
+ padding:24px;
+}
+.slateStudio .slateStudioPreview h2{
+ font-family:Georgia,serif;
+ font-weight:400;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slatePreviewWrap{
+ background:var(--sm-cream);
+ border-radius:15px;
+}
+.slateStudio .slateHelp,.slateStudio .slateStudioPreview>small{
+ color:var(--sm-muted);
+}
+.slateStudio .slateOptional{
+ color:var(--sm-muted);
+ font-size:12px;
+ font-weight:400;
+}
+.slateStudio .slateVoiceCard{
+ border:1px solid var(--sm-border);
+ background:white;
+ border-radius:18px;
+}
+.slateStudio .slateVoiceCard .slateSizes button:first-child{
+ border-color:var(--sm-rose);
+ background:var(--sm-rose);
+ color:#fff;
+ font-weight:700;
+}
+.slateStudio .slateVoiceCard .slateSizes button:first-child:hover{
+ filter:brightness(.94);
+}
+.slateStudio .slateVoiceCard audio{width:100%}
+.slateStudio .slateTextButton{
+ color:var(--sm-rose);
+ font-weight:700;
+}
+.slateReview.smWizardPage{max-width:1220px}
+.slateReview .smWizardDualPreview>article{display:flex;flex-direction:column;gap:14px}
+.slateReview .smWizardDualPreview>article .v14Eyebrow{
+ color:var(--sm-rose);
+ font-size:11px;
+ letter-spacing:1.5px;
+}
+.slateReview .slateFinalArtwork{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ flex:1;
+ padding:16px 6px;
+ min-height:300px;
+ background:white;
+}
+.slateReview .slateFinalArtwork canvas{
+ width:auto;
+ max-width:100%;
+ max-height:600px;
+ height:auto;
+ box-shadow:0 7px 18px #0002;
+}
+.slateReview .slateFinalSize{
+ color:var(--sm-muted);
+ font-size:13px;
+ text-align:center;
+}
+.slateReview .smLiveMemoryPhone{margin:10px auto 0}
+.slateReview .slateReviewFooter{
+ display:flex;
+ gap:22px;
+ align-items:center;
+ justify-content:space-between;
+ padding-top:20px;
+}
+.slateReview .slateReviewFooter .smWizardCreateButton{
+ width:auto;
+ margin:0;
+}
+.slateReview .slateReviewSuccess{margin-top:24px}
+@media(max-width:790px){
+ .slateStudio.smWizardPage{padding:20px 14px 65px}
+ .slateStudio .slateStudioControls>label,.slateStudio .slateStudioControls>fieldset,.slateStudio .slatePersonFields{padding:18px}
+ .slateReview .smWizardDualPreview{grid-template-columns:minmax(0,1fr)}
+ .slateReview .slateReviewFooter{flex-direction:column;align-items:stretch}
+ .slateReview .slateReviewFooter .smWizardCreateButton{width:100%}
+}
