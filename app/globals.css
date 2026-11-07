@@ -13613,3 +13613,25 @@ header.smSiteHeader {
  .smSimpleShopHeroEditorial h1{letter-spacing:-.5px}
  .smSimpleShopShareIntro{margin:10px auto 18px}
 }
+
+/* The two existing memory routes also appear beneath the shop introduction. */
+.smSimpleShopShareIntro .smShopMemoryPathGrid{
+ margin:23px auto 0;
+ max-width:1120px;
+ text-align:left;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard p{
+ margin:0 0 8px;
+ max-width:none;
+ font-size:14px;
+ text-align:left;
+ line-height:1.55;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard{
+ padding:clamp(18px,2.4vw,26px);
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathIcon{font-size:26px}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard h3{font-size:25px}
+@media(max-width:650px){
+ .smSimpleShopShareIntro .smShopMemoryPathGrid{grid-template-columns:minmax(0,1fr);gap:12px}
+}
