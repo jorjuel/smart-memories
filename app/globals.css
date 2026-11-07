@@ -13710,3 +13710,14 @@ header.smSiteHeader {
  .slateProductShell--mug:after{right:-47px;width:45px;border-width:12px}
  .slateProductShell--coaster,.slateProductShell--mat{border-width:6px}
 }
+
+/* Individual coaster photo slots, readable on mobile */
+.smCoasterPhotoPicker{display:grid;gap:12px;padding:15px;border:1px solid #e4d6d1;border-radius:14px;background:#fffaf7}
+.smCoasterPhotoList{display:grid;gap:9px}
+.smCoasterPhotoItem{display:flex;align-items:center;gap:12px;min-width:0}
+.smCoasterPhotoItem>div{min-width:0;display:grid;gap:3px}
+.smCoasterPhotoItem small{display:block;overflow-wrap:anywhere}
+.smCoasterThumbnail{width:68px;height:68px;flex:none;object-fit:cover;border-radius:12px;border:1px solid #dcc8bf}
+.smCoasterExtraRow{display:grid;gap:8px;padding:10px;border:1px solid #eadfda;border-radius:12px}
+.smCoasterAddPhoto{display:grid;gap:8px;padding:12px;border:1px dashed #ad847d;border-radius:12px;cursor:pointer}
+.smCoasterPhotoPicker input[type=file]{max-width:100%;width:100%}
