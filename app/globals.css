@@ -13727,3 +13727,16 @@ header.smSiteHeader {
 .smCoasterPhotoList .smCoasterExtraRow>button.smCoasterSelected,.smCoasterReviewPicker button.smCoasterSelected{border-color:#ac6d75;background:#fff1f1;box-shadow:0 0 0 2px #ac6d7540}
 .smCoasterReviewPicker{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 .smCoasterReviewPicker button{border:1px solid #d6beb8;background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;min-height:40px}
+
+/* Final-review coaster filmstrip: tap thumbnail to update the large artwork. */
+.smCoasterReviewGallery{width:100%;max-width:100%;min-width:0;margin-top:14px;padding:12px;border:1px solid #e9d8d2;background:#fffaf8;border-radius:14px;box-sizing:border-box}
+.smCoasterReviewGalleryTitle{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 12px;margin:0 0 10px;font-size:.9rem}
+.smCoasterReviewGalleryTitle span{font-size:.82rem;color:#685c57}
+.smCoasterReviewThumbnails{display:flex;align-items:stretch;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;padding:5px 3px 12px;max-width:100%;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.smCoasterReviewThumb{position:relative;display:flex;flex:0 0 82px;width:82px;height:82px;padding:3px;background:#fff;border:2px solid #e1d3cb;border-radius:12px;cursor:pointer;overflow:hidden;scroll-snap-align:start;touch-action:manipulation}
+.smCoasterReviewThumb img{width:100%;height:100%;object-fit:cover;border-radius:7px;display:block}
+.smCoasterReviewThumb span{position:absolute;bottom:4px;left:4px;min-width:22px;padding:2px 5px;border-radius:6px;background:#382e2bdc;color:white;font-weight:700;font-size:.78rem}
+.smCoasterReviewThumb.smCoasterSelected{border-color:#a85b6d;box-shadow:0 0 0 2px #a85b6d3d}
+.smCoasterReviewThumb:focus-visible{outline:3px solid #865366;outline-offset:2px}
+.smCoasterReviewGallery .slateHelp{margin:3px 0 0}
+@media(max-width:600px){.smCoasterReviewGallery{padding:10px}.smCoasterReviewThumb{flex-basis:74px;width:74px;height:74px}.smCoasterReviewThumbnails{gap:9px}}
