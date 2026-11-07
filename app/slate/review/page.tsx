@@ -50,6 +50,9 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
  },[draft,image,dimensions?.width,dimensions?.height]);
  async function addToBasket(){
   if(!draft||draft.productSlug!==productSlug||!image||!size||!dimensions||saving||success)return;
+  // Capture validated values locally; nested async functions can safely use these.
+  const selectedConfig=config;
+  const printDimensions=dimensions;
   if(!draft.sender.trim()){setError('Please enter your name in the From field before confirming.');return;}
   setSaving(true);setError('');
   try{
@@ -57,12 +60,12 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
    // the supplier confirms print dimensions and bleed/safe zones.
    const pixels=productSlug==='smart-photo-slate'
      ?Math.round(dimensions.width/2.54*300)
-     :config.shape==='keyring'?1800:config.shape==='coaster'?2400:3000;
+     :selectedConfig.shape==='keyring'?1800:selectedConfig.shape==='coaster'?2400:3000;
    async function artworkFor(img:HTMLImageElement,index:number):Promise<File>{
      const canvas=document.createElement('canvas');
      const ctx=canvas.getContext('2d');
      if(!ctx)throw Error('Could not create print artwork.');
-     paint(ctx,img,dimensions,draft!.crop,draft!.wording,draft!.topText,draft!.bottomText,
+     paint(ctx,img,printDimensions,draft!.crop,draft!.wording,draft!.topText,draft!.bottomText,
        draft!.dedication,pixels,draft!.fit,draft!.rotation);
      const blob=await new Promise<Blob>((resolve,reject)=>
        canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export the design.')),'image/jpeg',.94));
@@ -104,12 +107,12 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
    const items=Array.isArray(parsed)?parsed:[];
    items.push({
     id:crypto.randomUUID(),productType:'product',productSlug,
-    memoryCode:saved.code,name:config.name,
+    memoryCode:saved.code,name:selectedConfig.name,
     category:productSlug==='smart-photo-slate'?'Smart Memories':'Personalised Gifts',occasion:draft.occasion||undefined,
     recipient:draft.recipient.trim()||'Someone special',
     design:draft.wording==='none'?'Full photo gift':'Gift with wording',
     imageUrl:url(printPath),audioUrl:audioPath?url(audioPath):null,
-    price:config.price,quantity:1,
+    price:selectedConfig.price,quantity:1,
     personalisation:{
      size:size.label,coasterCount:productSlug==='coaster-set'?Number((size.label.match(/\d+/)||['1'])[0]):undefined,
      printAspectWidth:dimensions.width,printAspectHeight:dimensions.height,
