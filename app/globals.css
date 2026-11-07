@@ -13740,3 +13740,15 @@ header.smSiteHeader {
 .smCoasterReviewThumb:focus-visible{outline:3px solid #865366;outline-offset:2px}
 .smCoasterReviewGallery .slateHelp{margin:3px 0 0}
 @media(max-width:600px){.smCoasterReviewGallery{padding:10px}.smCoasterReviewThumb{flex-basis:74px;width:74px;height:74px}.smCoasterReviewThumbnails{gap:9px}}
+
+/* Coaster review: a clear swap action for each picture, even on narrow phones. */
+.smCoasterReviewThumbnails{align-items:flex-start}
+.smCoasterReviewTile{display:flex;flex-direction:column;align-items:center;flex:0 0 94px;gap:7px;min-width:0}
+.smCoasterReviewTile .smCoasterReviewThumb{flex:0 0 82px}
+.smCoasterSwapButton{display:block;width:100%;padding:7px 5px;min-height:38px;border:1px solid #aa6271;background:#fff1f3;border-radius:8px;color:#6e3743;font-weight:700;font-size:12px;line-height:1.15;cursor:pointer;touch-action:manipulation}
+.smCoasterSwapButton:disabled{opacity:.5;cursor:wait}
+.smCoasterSwapButton:focus-visible{outline:3px solid #8b5365;outline-offset:2px}
+.smCoasterMainLabel,.smCoasterRepeatLabel{font-size:12px;font-weight:700;text-align:center;line-height:1.2}
+.smCoasterMainLabel{color:#873f51}
+.smCoasterRepeatLabel{color:#746862}
+@media(max-width:600px){.smCoasterReviewTile{flex-basis:84px}.smCoasterReviewTile .smCoasterReviewThumb{flex-basis:74px}}
