@@ -52,6 +52,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
   if(!draft||draft.productSlug!==productSlug||!image||!size||!dimensions||saving||success)return;
   // Capture validated values locally; nested async functions can safely use these.
   const selectedConfig=config;
+  if(!selectedConfig)throw Error('Unsupported gift');
   const printDimensions=dimensions;
   if(!draft.sender.trim()){setError('Please enter your name in the From field before confirming.');return;}
   setSaving(true);setError('');
