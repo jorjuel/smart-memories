@@ -163,11 +163,20 @@ export default async function Shop({
 
   return (
     <section className="smSimpleShop">
-      <div className="smSimpleShopHero">
+      <div className="smSimpleShopHero smSimpleShopHeroEditorial">
         <span className="eyebrow">SMART MEMORIES · PERSONALISED GIFTS</span>
-        <h1>{occasion ? `Gifts for ${occasion}` : 'Find a gift. Make a memory.'}</h1>
-        <p>Discover thoughtful gifts with your own photos, messages and memories. Choose a product to start creating.</p>
+        <h1>{occasion ? `Gifts for ${occasion}` : <>Find a gift. Create a memory.<span>Make it unforgettable.</span></>}</h1>
+        <p>Turn your favourite photos, voice recordings and heartfelt messages into something truly special. Celebrate the people, moments and stories you want to remember.</p>
+        <p className="smSimpleShopTagline">Tap. Remember. Relive.</p>
       </div>
+
+      {!occasion && (
+        <div className="smSimpleShopShareIntro">
+          <h2>How would you like to share your memory?</h2>
+          <p>Both choices use the same photo, voice and message creator.<br />
+            Make your memory first, then choose how it is presented.</p>
+        </div>
+      )}
 
       <div className="smSimpleShopShortcuts" aria-label="Shop categories">
         <Link href="#gifts">Personalised gifts</Link>
