@@ -165,7 +165,7 @@ export default async function Shop({
     <section className="smSimpleShop">
       <div className="smSimpleShopHero smSimpleShopHeroEditorial">
         <span className="eyebrow">SMART MEMORIES · PERSONALISED GIFTS</span>
-        <h1>{occasion ? `Gifts for ${occasion}` : <>Find a gift. Create a memory.<span>Make it unforgettable.</span></>}</h1>
+        <h1>{occasion ? `Gifts for ${occasion}` : <>Create a memory.<span>Make it unforgettable.</span></>}</h1>
         <p>Turn your photos, voice and messages into memories worth keeping.</p>
         <p className="smSimpleShopTagline">Tap. Remember. Relive.</p>
       </div>
