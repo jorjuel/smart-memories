@@ -13752,3 +13752,8 @@ header.smSiteHeader {
 .smCoasterMainLabel{color:#873f51}
 .smCoasterRepeatLabel{color:#746862}
 @media(max-width:600px){.smCoasterReviewTile{flex-basis:84px}.smCoasterReviewTile .smCoasterReviewThumb{flex-basis:74px}}
+
+/* Photo keyring shape: rectangular by default, circular for the round option. */
+.slateProductShell--keyring.slateProductShell--roundKeyring{border-radius:50%;aspect-ratio:1/1;overflow:hidden}
+.slateProductShell--keyring.slateProductShell--roundKeyring canvas{aspect-ratio:1/1!important;width:100%;height:auto;border-radius:50%;clip-path:circle(50% at 50% 50%)}
+.slateProductShell--roundKeyring:before,.slateProductShell--roundKeyring:after{pointer-events:none}
