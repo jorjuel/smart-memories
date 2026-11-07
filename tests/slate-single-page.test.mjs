@@ -138,6 +138,18 @@ test('all six coaster slots and their individual design previews are available',
  assert.match(source,/setSelectedCoaster\(index\)/);
  assert.match(source,/coasterPreviewImage\|\|image/);
  assert.match(review,/selectedReviewCoaster/);
- assert.match(review,/Coaster \{index\+1\}/);
+ assert.match(review,/CoasterReviewThumbnail key=\{index\}/);
  assert.match(review,/reviewCoasterImage\|\|image/);
+});
+
+test('final review shows touch-friendly thumbnails beneath large coaster preview',()=>{
+ const css=read('app/globals.css');
+ assert.match(review,/className="smCoasterReviewThumbnails"/);
+ assert.match(review,/file=\{file\} index=\{index\}/);
+ assert.match(review,/onSelect=\{\(\)=>setSelectedReviewCoaster\(index\)\}/);
+ assert.match(review,/aria-pressed=\{active\}/);
+ assert.match(review,/Reusing photo 1/);
+ assert.match(css,/\.smCoasterReviewThumbnails\{/);
+ assert.match(css,/overflow-x:auto/);
+ assert.match(css,/\.smCoasterReviewThumb\.smCoasterSelected/);
 });
