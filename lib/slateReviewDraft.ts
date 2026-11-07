@@ -3,6 +3,7 @@ export type SlateReviewDraft = {
   productSlug: GiftStudioSlug;
   photo: File;
   extraCoasterPhotos?: File[];
+  keyringBackText?: string;
   audio: Blob | null;
   sizeIndex: number;
   direction: 'portrait'|'landscape';
