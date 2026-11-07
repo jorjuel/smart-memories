@@ -199,3 +199,22 @@ test('keyring photo fills both shapes from edge to edge in editor and review art
  assert.match(review,/roundKeyring,productSlug==='keyring'/);
  assert.match(source,/roundKeyring,productSlug==='keyring'/);
 });
+
+test('both keyring shapes have photo-only fronts, message backs and separate printable files',()=>{
+ const drafts=read('lib/slateReviewDraft.ts');
+ assert.match(source,/export function paintKeyringBack/);
+ assert.match(source,/productSlug==='keyring'&&keyringSide==='back'/);
+ assert.match(source,/paintKeyringBack\(ctx,size,keyringBackText,roundKeyring\)/);
+ assert.match(source,/productSlug==='keyring'\?'none':wording/);
+ assert.match(source,/Message on the back of your keyring/);
+ assert.match(source,/maxLength=\{180\} value=\{keyringBackText\}/);
+ assert.match(source,/Front · Photo/);
+ assert.match(source,/Back · Message/);
+ assert.match(drafts,/keyringBackText\?: string/);
+ assert.match(review,/paintKeyringBack\(ctx,dimensions,draft.keyringBackText\|\|'',roundKeyring\)/);
+ assert.match(review,/productSlug==='keyring'\?'none':draft.wording/);
+ assert.match(review,/printFiles.push\(new File\(\[backBlob\],'keyring-back-print.png'/);
+ assert.match(review,/backArtworkUrl:productSlug==='keyring'/);
+ assert.match(review,/printArtworkUrls:productSlug==='keyring'/);
+ assert.match(review,/Preview front and back of your keyring/);
+});
