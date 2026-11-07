@@ -153,3 +153,15 @@ test('final review shows touch-friendly thumbnails beneath large coaster preview
  assert.match(css,/overflow-x:auto/);
  assert.match(css,/\.smCoasterReviewThumb\.smCoasterSelected/);
 });
+
+test('selected coaster can become main NFC Smart Memory photo without dropping the original',()=>{
+ assert.match(source,/function makeSelectedCoasterMain/);
+ assert.match(source,/setPhoto\(chosen\)/);
+ assert.match(source,/previousMain:file/);
+ assert.match(review,/function promoteSelectedCoaster/);
+ assert.match(review,/newExtras\[selectedReviewCoaster-1\]=oldMain/);
+ assert.match(review,/photo:replacement,extraCoasterPhotos:newExtras/);
+ assert.match(review,/await storeSlateDraft\(updated\)/);
+ assert.match(review,/setPhotoPreviewUrl\(url\)/);
+ assert.match(review,/Make coaster/);
+});
