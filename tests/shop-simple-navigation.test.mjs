@@ -45,3 +45,11 @@ test('shop gift grid includes only five launch products',()=>{
  assert.match(shop,/launchSlugs\.has\(p\.slug\)/);
  assert.match(shop,/const filtered = products\.filter/);
 });
+
+test('each memory choice has the matching reference photograph',()=>{
+ const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+ assert.match(shop,/src="\/images\/memory-only-card\.webp"/);
+ assert.match(shop,/src="\/images\/memory-gift-card\.webp"/);
+ assert.match(shop,/className="smShopMemoryChoicePhoto"/);
+ assert.match(css,/\.smShopMemoryChoicePhoto\{/);
+});
