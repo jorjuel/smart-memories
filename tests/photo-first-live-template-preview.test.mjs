@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { getGiftTemplateTheme } from '../lib/giftTemplateTheme.ts';
 
-const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8').replace(/\r\n?/g, '\n');
 
 test('wizard starts with product photos, then design, memory message, and optional voice', () => {
   const code = read('components/ProductPersonaliser.tsx');

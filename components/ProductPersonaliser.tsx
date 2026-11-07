@@ -91,6 +91,17 @@ export default function ProductPersonaliser({
         item.slug === slug
     );
 
+  const [cloudFrames,setCloudFrames] = useState<{id:string;name:string;url:string;productSlugs:string[];orientation:string}[]>([]);
+  useEffect(() => {
+    let live=true;
+    fetch('/api/admin-frame-templates',{cache:'no-store'})
+      .then(async r=>r.ok?r.json():{templates:[]})
+      .then(data=>{if(live)setCloudFrames((data.templates||[]).filter(
+        (t:{productSlugs:string[];orientation:string})=>t.productSlugs.includes(slug)
+      ));}).catch(()=>{});
+    return ()=>{live=false;};
+  },[slug]);
+
   /* =====================================================
      PRODUCT OPTIONS
      ===================================================== */
@@ -1030,13 +1041,23 @@ export default function ProductPersonaliser({
       if (!storageBase) throw new Error('Photo storage is not configured.');
       const publicPhoto = (path: string) =>
         `${storageBase}/storage/v1/object/public/memory-media/${path.split('/').map(encodeURIComponent).join('/')}`;
-      const galleryUrls = printPaths.map(publicPhoto);
+      let galleryUrls = printPaths.map(publicPhoto);
       let printArtworkUrl: string | null = null;
-      if (!isCoaster && printPhotos.length > 1) {
+      const selectedCloudFrame = template.startsWith('sm:') && mode === 'quick' && designSource === 'ours'
+        ? cloudFrames.find(f=>`sm:${f.id}`===template) : undefined;
+      if (isCoaster && selectedCloudFrame) {
+        // Each coaster is printed separately; retain the original memory photo.
+        galleryUrls = await Promise.all(printPhotos.map(async (file,index)=>{
+          const artwork = await composePrintArtwork([file],photoLayout,2400,2400,
+            [photoCrops[index]],selectedCloudFrame.url);
+          return publicPhoto(await uploadMemoryMedia(artwork,'photo'));
+        }));
+      }
+      if (!isCoaster && (printPhotos.length > 1 || selectedCloudFrame)) {
         const collage = await composePrintArtwork(printPhotos, photoLayout,
           slug === 'mouse-mat' || slug === 'photo-mug' ? 3000 : 2400,
           slug === 'mouse-mat' || slug === 'photo-mug' ? 2000 : 2400,
-          photoCrops);
+          photoCrops, selectedCloudFrame?.url);
         printArtworkUrl = publicPhoto(await uploadMemoryMedia(collage, 'photo'));
       }
       setSavedPrintPhotoUrls(galleryUrls);
@@ -1372,6 +1393,7 @@ export default function ProductPersonaliser({
               <div className="smWizardPhonePreviewArtwork">
                 <ConfiguredProductPreview
                   slug={product.slug}
+                  template={mode === 'quick' && designSource === 'ours' ? template : null}
                   photoUrl={photoUrl}
                   photos={selectedGiftPhotos.map(item => item.url)}
                   photoLayout={photoLayout}
@@ -1382,7 +1404,6 @@ export default function ProductPersonaliser({
                   bottomText={designSource === 'own' ? '' : bottomText}
                   paragraph={designSource === 'own' ? '' : paragraph}
                   textLayout={designSource === 'own' ? 'photo-only' : textLayout}
-                  template={mode === 'quick' && designSource === 'ours' ? template : null}
                 />
               </div>
             </div>
@@ -1559,7 +1580,7 @@ export default function ProductPersonaliser({
                     <div className="smDesignPicker">
                       <label className="smDesignPickerLabel" htmlFor="sm-select-gift-design">
                         <strong>Browse all designs</strong>
-                        <small>{product.templates.length} ready-made styles available for this gift</small>
+                        <small>{product.templates.length + cloudFrames.length} ready-made styles available for this gift</small>
                       </label>
                       <div className="smDesignPickerSelectWrap">
                         <select
@@ -1576,6 +1597,7 @@ export default function ProductPersonaliser({
                           {product.templates.map((item) => (
                             <option key={item} value={item}>{item}</option>
                           ))}
+                          {cloudFrames.map(frame=><option key={frame.id} value={`sm:${frame.id}`}>{frame.name} ({frame.orientation})</option>)}
                         </select>
                         <span className="smDesignPickerChevron" aria-hidden="true">⌄</span>
                       </div>
@@ -1588,6 +1610,7 @@ export default function ProductPersonaliser({
                         <div className="smDesignPickerArtwork">
                           <ConfiguredProductPreview
                             slug={product.slug}
+                            template={mode === 'quick' && designSource === 'ours' ? template : null}
                             photoUrl={photoUrl}
                             photos={selectedGiftPhotos.map(photo => photo.url)}
                             photoLayout={photoLayout}
@@ -1598,7 +1621,6 @@ export default function ProductPersonaliser({
                             bottomText={designSource === 'own' ? '' : bottomText}
                             paragraph={designSource === 'own' ? '' : paragraph}
                             textLayout={designSource === 'own' ? 'photo-only' : textLayout}
-                            template={template}
                           />
                         </div>
                         <button type="button" className="smPreviewOpenButton"
@@ -2914,6 +2936,7 @@ export default function ProductPersonaliser({
         <div className="smFullGiftPreviewArtwork">
           <ConfiguredProductPreview
             slug={product.slug}
+            template={mode === 'quick' && designSource === 'ours' ? template : null}
             photoUrl={photoUrl}
             photos={selectedGiftPhotos.map(item => item.url)}
             photoLayout={photoLayout}
@@ -2924,7 +2947,6 @@ export default function ProductPersonaliser({
             bottomText={designSource === 'own' ? '' : bottomText}
             paragraph={designSource === 'own' ? '' : paragraph}
             textLayout={designSource === 'own' ? 'photo-only' : textLayout}
-            template={mode === 'quick' && designSource === 'ours' ? template : null}
           />
         </div>
         <p className="smFullGiftPreviewNote">

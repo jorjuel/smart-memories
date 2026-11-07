@@ -8,7 +8,7 @@ const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
 test('only the selected design preview appears on the design step on phones', () => {
   assert.match(form, /currentStep !== 'preview' && currentStep !== 'ready' && currentStep !== 'gift' && \(/);
   assert.match(form, /className="smDesignPickerArtwork"/);
-  assert.match(form, /template=\{template\}/);
+  assert.match(form, /template=\{mode === 'quick' && designSource === 'ours' \? template : null\}/);
   assert.match(css, /\.smWizardPage \.smDesignPickerResult \{\s*display: flex;\s*flex-direction: column;/);
   assert.match(css, /\.smWizardPage \.smDesignPickerArtwork,\s*\.smWizardPage \.smWizardPhonePreviewArtwork,\s*\.smFullGiftPreviewArtwork \{[\s\S]*?height: auto;/);
 });

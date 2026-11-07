@@ -9,7 +9,7 @@ const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
 test('Quick Template shows the complete original design list for the current product', () => {
   assert.match(form, /product\.templates\.map\(\(item\) =>/);
   assert.doesNotMatch(form, /product\.templates\.slice\(0,\s*2\)/);
-  assert.match(form, /\{product\.templates\.length\} ready-made styles/);
+  assert.match(form, /\{product\.templates\.length \+ cloudFrames\.length\} ready-made styles/);
   const slate = personalisationProducts.find(item => item.slug === 'smart-photo-slate');
   assert.ok(slate);
   assert.equal(slate.templates.length, 12);
@@ -29,7 +29,6 @@ test('An accessible dropdown selects the design and reveals the matching gift pr
   assert.match(form, /<option key=\{item\} value=\{item\}>\{item\}<\/option>/);
   assert.match(form, /aria-live="polite"/);
   assert.match(form, /className="smDesignPickerArtwork"/);
-  assert.match(form, /template=\{template\}/);
   assert.match(form, /template=\{mode === 'quick' && designSource === 'ours' \? template : null\}/);
 });
 

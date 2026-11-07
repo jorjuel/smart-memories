@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { products, money, type Product } from '@/lib/products';
 import { compressProductImage } from '@/lib/productImages';
+import ProductGalleryAdmin from '@/components/ProductGalleryAdmin';
 
 type Catalog = { images: Record<string, string>; configured: boolean };
 
@@ -109,6 +110,7 @@ export default function AdminProductPhotosPage() {
                 </button>
               )}
               {message[product.slug] && <p role="status">{message[product.slug]}</p>}
+              <ProductGalleryAdmin slug={product.slug} />
             </div>
           </article>
         ))}
