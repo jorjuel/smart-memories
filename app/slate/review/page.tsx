@@ -111,12 +111,15 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
     imageUrl:url(printPath),audioUrl:audioPath?url(audioPath):null,
     price:config.price,quantity:1,
     personalisation:{
-     size:size.label,printAspectWidth:dimensions.width,printAspectHeight:dimensions.height,
+     size:size.label,coasterCount:productSlug==='coaster-set'?Number((size.label.match(/\d+/)||['1'])[0]):undefined,
+     printAspectWidth:dimensions.width,printAspectHeight:dimensions.height,
      slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation,
      wording:draft.wording,textLayout:draft.wording,
      topText:draft.topText,bottomText:draft.bottomText,paragraph:draft.dedication,
      memoryMessage:draft.message.trim(),sender:draft.sender.trim(),
-     printPhotoUrls:productSlug==='coaster-set'?printPaths.map(url):[url(originalPath)],
+     printPhotoUrls:productSlug==='coaster-set'
+       ?Array.from({length:Number((size.label.match(/\d+/)||['1'])[0])},(_,index)=>url(printPaths[index]||printPaths[0]))
+       :[url(originalPath)],
      printArtworkUrl:url(printPath),
      photoZoom:draft.crop.zoom,photoOffsetX:draft.crop.dx,photoOffsetY:draft.crop.dy
     }
