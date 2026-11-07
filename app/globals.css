@@ -13764,3 +13764,21 @@ header.smSiteHeader {
 .smKeyringSideSwitch button.active{background:#fff0eb;border-color:#aa6371;box-shadow:inset 0 0 0 1px #aa6371}
 .smKeyringSideSwitch button:focus-visible{outline:3px solid #8e5360;outline-offset:2px}
 .smKeyringBackEditor textarea{width:100%;box-sizing:border-box}
+
+/* Owner production order: downloadable front/back customer artwork. */
+.smAdminPrintArtwork{margin:16px 0;padding:16px;border:1px solid #e5d2c7;border-radius:14px;background:#fffaf7}
+.smAdminPrintHeading h3{margin:0 0 4px;font-size:1.15rem}
+.smAdminPrintHeading p{margin:0 0 14px;color:#665450;font-size:.9rem}
+.smAdminPrintGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:14px;margin-bottom:12px}
+.smAdminPrintFace{min-width:0;display:grid;align-content:start;gap:9px;padding:12px;background:#fff;border:1px solid #e5d9d1;border-radius:12px}
+.smAdminPrintFace>strong{font-size:.95rem}
+.smAdminPrintFace>a:has(img){display:flex;align-items:center;justify-content:center;background:#f9f5f0;min-height:165px;max-height:300px;border-radius:10px;overflow:hidden}
+.smAdminPrintFace img{display:block;max-width:100%;max-height:300px;width:auto;height:auto;object-fit:contain}
+.smAdminPrintActions{display:flex;flex-wrap:wrap;gap:8px}
+.smAdminPrintActions a{display:inline-flex;align-items:center;justify-content:center;flex:1 1 110px;min-height:42px;padding:9px 10px;border:1px solid #ac6572;border-radius:9px;color:#763943;background:#fff5f5;font-size:.85rem;font-weight:700;text-align:center;text-decoration:none}
+.smAdminPrintActions a:focus-visible{outline:3px solid #8b5561;outline-offset:2px}
+.smAdminPrintWarning{color:#8b3e34;font-weight:600}
+.smAdminTechnicalDetails{margin:12px 0;border:1px solid #eadbd3;border-radius:12px;padding:12px;background:#faf8f6}
+.smAdminTechnicalDetails summary{cursor:pointer;font-weight:700;color:#684b46;min-height:32px}
+.smAdminTechnicalDetails dl{margin-top:15px;overflow-wrap:anywhere}
+@media(max-width:600px){.smAdminPrintArtwork{padding:11px}.smAdminPrintGrid{grid-template-columns:1fr}}
