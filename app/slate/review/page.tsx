@@ -53,20 +53,40 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
   if(!draft.sender.trim()){setError('Please enter your name in the From field before confirming.');return;}
   setSaving(true);setError('');
   try{
-   const canvas=document.createElement('canvas');
-   const ctx=canvas.getContext('2d');
-   if(!ctx)throw Error('Could not create print artwork.');
-   paint(ctx,image,dimensions,draft.crop,draft.wording,draft.topText,draft.bottomText,
-    draft.dedication,Math.round(dimensions.width/2.54*300),draft.fit,draft.rotation);
-   const blob=await new Promise<Blob>((resolve,reject)=>
-    canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export the design.')),'image/jpeg',.94));
-   const printFile=new File([blob],`${productSlug}-print.jpg`,{type:'image/jpeg'});
-   // Store original photo for the NFC memory, and the completed design for fulfilment.
-   const [originalPath,printPath,audioPath]=await Promise.all([
-    uploadMemoryMedia(draft.photo,'photo'),
-    uploadMemoryMedia(printFile,'photo'),
-    draft.audio?uploadMemoryMedia(draft.audio,'audio'):Promise.resolve(null)
+   // Slate dimensions are physical cm; other ratios are display proportions until
+   // the supplier confirms print dimensions and bleed/safe zones.
+   const pixels=productSlug==='smart-photo-slate'
+     ?Math.round(dimensions.width/2.54*300)
+     :config.shape==='keyring'?1800:config.shape==='coaster'?2400:3000;
+   async function artworkFor(img:HTMLImageElement,index:number):Promise<File>{
+     const canvas=document.createElement('canvas');
+     const ctx=canvas.getContext('2d');
+     if(!ctx)throw Error('Could not create print artwork.');
+     paint(ctx,img,dimensions,draft!.crop,draft!.wording,draft!.topText,draft!.bottomText,
+       draft!.dedication,pixels,draft!.fit,draft!.rotation);
+     const blob=await new Promise<Blob>((resolve,reject)=>
+       canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export the design.')),'image/jpeg',.94));
+     return new File([blob],`${productSlug}-print-${index+1}.jpg`,{type:'image/jpeg'});
+   }
+   const printFiles=[await artworkFor(image,0)];
+   if(productSlug==='coaster-set'&&draft.extraCoasterPhotos?.length){
+    for(const [index,extra] of draft.extraCoasterPhotos.entries()){
+      const picture=await new Promise<HTMLImageElement>((resolve,reject)=>{
+        const url=URL.createObjectURL(extra);
+        const img=new Image();
+        img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};
+        img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Could not load a coaster photo.'));};
+        img.src=url;
+      });
+      printFiles.push(await artworkFor(picture,index+1));
+    }
+   }
+   const [originalPath,printPaths,audioPath]=await Promise.all([
+     uploadMemoryMedia(draft.photo,'photo'),
+     Promise.all(printFiles.map(file=>uploadMemoryMedia(file,'photo'))),
+     draft.audio?uploadMemoryMedia(draft.audio,'audio'):Promise.resolve(null)
    ]);
+   const printPath=printPaths[0];
    const form=new FormData();
    form.set('photoPath',originalPath);
    if(audioPath)form.set('audioPath',audioPath);
@@ -96,7 +116,8 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      wording:draft.wording,textLayout:draft.wording,
      topText:draft.topText,bottomText:draft.bottomText,paragraph:draft.dedication,
      memoryMessage:draft.message.trim(),sender:draft.sender.trim(),
-     printPhotoUrls:[url(originalPath)],printArtworkUrl:url(printPath),
+     printPhotoUrls:productSlug==='coaster-set'?printPaths.map(url):[url(originalPath)],
+     printArtworkUrl:url(printPath),
      photoZoom:draft.crop.zoom,photoOffsetX:draft.crop.dx,photoOffsetY:draft.crop.dy
     }
    });
