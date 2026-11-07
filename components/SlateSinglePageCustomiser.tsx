@@ -96,6 +96,8 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const [direction,setDirection]=useState<SlateDirection>('portrait');
  const [photo,setPhoto]=useState<File|null>(null);
  const [extraCoasterPhotos,setExtraCoasterPhotos]=useState<File[]>([]);
+ const [selectedCoaster,setSelectedCoaster]=useState(0);
+ const [coasterPreviewImage,setCoasterPreviewImage]=useState<HTMLImageElement>();
  const [photoUrl,setPhotoUrl]=useState('');
  const [image,setImage]=useState<HTMLImageElement>();
  const [crop,setCrop]=useState<Crop>({zoom:1,dx:0,dy:0});
@@ -120,26 +122,38 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const drag=useRef<{x:number;y:number;dx:number;dy:number}|null>(null);
  const selectedSize=config.sizes[sizeIndex]||config.sizes[0];
+ const coasterCount=productSlug==='coaster-set'?([1,2,4,6][sizeIndex]||1):1;
  const size=config.directions && direction==='landscape' && selectedSize.width!==selectedSize.height
    ? {...selectedSize,width:selectedSize.height,height:selectedSize.width} : selectedSize;
  const detectedOrientation=image?(Math.abs(image.naturalWidth-image.naturalHeight)/Math.max(image.naturalWidth,image.naturalHeight)<.04?'square':image.naturalWidth>image.naturalHeight?'landscape':'portrait'):null;
  const draw=useCallback(()=>{
   const ctx=canvasRef.current?.getContext('2d');
-  if(ctx)paint(ctx,image,size,crop,wording,topText,bottomText,dedication,900,fit,rotation);
- },[image,size,crop,wording,topText,bottomText,dedication,fit,rotation]);
+  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedCoaster>0?coasterPreviewImage||image:image,size,crop,wording,topText,bottomText,dedication,900,fit,rotation);
+ },[image,coasterPreviewImage,selectedCoaster,productSlug,size,crop,wording,topText,bottomText,dedication,fit,rotation]);
  useEffect(()=>{draw();},[draw]);
  useEffect(()=>()=>{if(photoUrl)URL.revokeObjectURL(photoUrl);},[photoUrl]);
+ useEffect(()=>{
+  if(productSlug!=='coaster-set'||selectedCoaster===0){setCoasterPreviewImage(undefined);return;}
+  const chosen=extraCoasterPhotos[selectedCoaster-1];
+  if(!chosen){setCoasterPreviewImage(undefined);return;}
+  let active=true;const url=URL.createObjectURL(chosen);const img=new Image();
+  img.onload=()=>{if(active)setCoasterPreviewImage(img);};
+  img.onerror=()=>{if(active){setCoasterPreviewImage(undefined);setError('Could not preview this coaster photo.');}};
+  img.src=url;
+  return()=>{active=false;URL.revokeObjectURL(url);};
+ },[productSlug,selectedCoaster,extraCoasterPhotos]);
 
  function choosePhotos(files:FileList|null){
   if(!files?.length)return;
   choosePhoto(files[0]);
   if(productSlug==='coaster-set'){
-    const count=Number((selectedSize.label.match(/\d+/)||['1'])[0]);
+    const count=coasterCount;
     const extras=Array.from(files).slice(1,count);
     if(extras.some(f=>!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>10*1024*1024)){
       setError('Choose JPG, PNG or WebP photos no larger than 10MB.');return;
     }
     setExtraCoasterPhotos(extras);
+    setSelectedCoaster(0);
   }
  }
  function addCoasterPhoto(file?:File){
@@ -147,8 +161,9 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>10*1024*1024){
    setError('Choose a JPG, PNG or WebP photo no larger than 10MB.');return;
   }
-  const count=Number((selectedSize.label.match(/\d+/)||['1'])[0]);
+  const count=coasterCount;
   setExtraCoasterPhotos(old=>old.length>=count-1?old:[...old,file]);
+  setSelectedCoaster(Math.min(extraCoasterPhotos.length+1,count-1));
   setError('');setAdded(false);
  }
  function choosePhoto(file?:File){
@@ -220,7 +235,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
    loadSlateDraft(productSlug).then(saved=>{
     if(!alive||!saved)return;
     setOccasion(saved.occasion);setSizeIndex(saved.sizeIndex);setDirection(saved.direction);
-    setExtraCoasterPhotos(saved.extraCoasterPhotos||[]);
+    setExtraCoasterPhotos(saved.extraCoasterPhotos||[]);setSelectedCoaster(0);
     setCrop(saved.crop);setFit(saved.fit);setRotation(saved.rotation);setWording(saved.wording);
     setTopText(saved.topText);setBottomText(saved.bottomText);setDedication(saved.dedication);
     setMessage(saved.message);setRecipient(saved.recipient);setSender(saved.sender);
@@ -243,7 +258,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
   if(saving)return;
   setSaving(true);setError('');
   try{
-   const draft:SlateReviewDraft={productSlug,photo,extraCoasterPhotos:extraCoasterPhotos.slice(0,Math.max(0,Number((selectedSize.label.match(/\d+/)||['1'])[0])-1)),audio,sizeIndex,direction,crop,fit,rotation,wording,
+   const draft:SlateReviewDraft={productSlug,photo,extraCoasterPhotos:extraCoasterPhotos.slice(0,Math.max(0,coasterCount-1)),audio,sizeIndex,direction,crop,fit,rotation,wording,
     occasion,topText,bottomText,dedication,message,recipient,sender};
    await storeSlateDraft(draft);
    window.location.assign(productSlug==='smart-photo-slate'?'/slate/review':`/gift/review/${productSlug}`);
@@ -263,7 +278,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     <fieldset><legend>{config.label} {config.sizes.length>1?'options':'size'}</legend>
      <div className="slateSizes">{config.sizes.map((sz,i)=><button type="button" key={sz.label}
        className={i===sizeIndex?'active':''} aria-pressed={i===sizeIndex}
-       onClick={()=>{setSizeIndex(i);setAdded(false);}}>{sz.label}</button>)}</div>
+       onClick={()=>{setSizeIndex(i);setSelectedCoaster(0);setAdded(false);}}>{sz.label}</button>)}</div>
      {config.directions&&selectedSize.width!==selectedSize.height&&<div className="slateOrientationSelector" role="group" aria-label="Slate direction">
        <span>Slate direction</span>
        <div className="slateSizes">
@@ -278,30 +293,30 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
      <input type="file" multiple={productSlug==='coaster-set'} accept="image/png,image/jpeg,image/webp" onChange={e=>{choosePhotos(e.currentTarget.files);e.currentTarget.value='';}}/>
     </label>
     {productSlug==='coaster-set'&&photo&&<div className="smCoasterPhotoPicker">
-     <p className="slateHelp"><strong>{Math.min(1+extraCoasterPhotos.length,Number((selectedSize.label.match(/\d+/)||['1'])[0]))} of {Number((selectedSize.label.match(/\d+/)||['1'])[0])} coaster photos selected.</strong> Add a photo for each coaster or repeat the first photo.</p>
+     <p className="slateHelp"><strong>{Math.min(1+extraCoasterPhotos.length,coasterCount)} of {coasterCount} photos selected.</strong> Choose a coaster below to see its actual design in the large preview.</p>
      <div className="smCoasterPhotoList">
-      <CoasterPhotoThumbnail file={photo} label="Coaster 1 · Main photo"/>
-      {extraCoasterPhotos.slice(0,Math.max(0,Number((selectedSize.label.match(/\d+/)||['1'])[0])-1)).map((file,index)=>
-       <div className="smCoasterExtraRow" key={index}>
-        <CoasterPhotoThumbnail file={file} label={`Coaster ${index+2}`}/>
-        <label>Replace photo {index+2}
-         <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>{
-          const file=e.currentTarget.files?.[0];
-          if(file){
-           if(file.size>10*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type))setError('Choose a JPG, PNG or WebP photo no larger than 10MB.');
-           else{setExtraCoasterPhotos(old=>old.map((f,i)=>i===index?file:f));setError('');setAdded(false);}
+      {Array.from({length:coasterCount},(_,index)=>{
+       const file=index===0?photo:extraCoasterPhotos[index-1];
+       const canUpload=index>0&&index<=extraCoasterPhotos.length+1;
+       return <div className="smCoasterExtraRow" key={index}>
+        <button type="button" className={selectedCoaster===index?'smCoasterSelected':''} onClick={()=>setSelectedCoaster(index)} aria-pressed={selectedCoaster===index}>
+         {file?<CoasterPhotoThumbnail file={file} label={`Coaster ${index+1}`}/>:<strong>Coaster {index+1} · Uses photo 1 until changed</strong>}
+        </button>
+        {index>0&&<label>{file?`Replace photo ${index+1}`:`+ Add photo for coaster ${index+1}`}
+         <input type="file" accept="image/png,image/jpeg,image/webp" disabled={!canUpload} onChange={event=>{
+          const replacement=event.currentTarget.files?.[0];
+          if(replacement){
+           if(replacement.size>10*1024*1024||!['image/jpeg','image/png','image/webp'].includes(replacement.type))setError('Choose a JPG, PNG or WebP photo no larger than 10MB.');
+           else{setExtraCoasterPhotos(previous=>{const next=previous.slice(0,coasterCount-1);if(index-1<next.length)next[index-1]=replacement;else if(index-1===next.length)next.push(replacement);return next;});setSelectedCoaster(index);setError('');setAdded(false);}
           }
-          e.currentTarget.value='';
+          event.currentTarget.value='';
          }}/>
-        </label>
-        <button className="slateTextButton" type="button" onClick={()=>{setExtraCoasterPhotos(old=>old.slice(0,index));setAdded(false);}}>Remove photo {index+2} and later</button>
-       </div>)}
+        </label>}
+        {index>0&&file&&<button type="button" className="slateTextButton" onClick={()=>{setExtraCoasterPhotos(previous=>previous.slice(0,index-1));setSelectedCoaster(0);setAdded(false);}}>Remove from coaster {index+1}</button>}
+       </div>;
+      })}
      </div>
-     {1+extraCoasterPhotos.length<Number((selectedSize.label.match(/\d+/)||['1'])[0])&&<label className="smCoasterAddPhoto">
-      <strong>+ Add photo for coaster {2+extraCoasterPhotos.length}</strong>
-      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>{addCoasterPhoto(e.currentTarget.files?.[0]);e.currentTarget.value='';}}/>
-     </label>}
-     <small>The live gift preview shows coaster 1; other photos are saved separately for printing.</small>
+     <small>The main preview follows the coaster you select. Print artwork for each uploaded photograph is saved with the set.</small>
     </div>}
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
       <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected product.</p>
@@ -362,7 +377,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     </div>
    </div>
    <aside className="slateStudioPreview">
-    <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>Your live preview</h2>
+    <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>{productSlug==='coaster-set'?`Your live preview · Coaster ${selectedCoaster+1}`:'Your live preview'}</h2>
     <p className="slateHelp">Photo only uses the printable area. Choose Fit whole photo to preserve the edges of your image.</p>
     <div className="slatePreviewWrap">
      <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''}`}>
