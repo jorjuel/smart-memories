@@ -916,6 +916,14 @@ export default async function AdminOrderDetailPage({
                   ? item.personalisation.printArtworkUrl
                   : null;
 
+              const productDetails = item.personalisation && typeof item.personalisation === 'object' && !Array.isArray(item.personalisation)
+                ? item.personalisation as Record<string,unknown> : {};
+              const secureArtworkUrl = (value:unknown):string|null =>
+                typeof value==='string' && /^https:\/\//.test(value) ? value : null;
+              const frontArtworkUrl = secureArtworkUrl(productDetails.printArtworkUrl);
+              const backArtworkUrl = secureArtworkUrl(productDetails.backArtworkUrl);
+              const keyringShape = typeof productDetails.keyringShape==='string'?productDetails.keyringShape:null;
+              const isDoubleSidedKeyring = item.product_slug==='keyring';
               const printPhotoUrls =
                 item.personalisation &&
                 typeof item.personalisation === 'object' &&
@@ -1015,18 +1023,46 @@ export default async function AdminOrderDetailPage({
                     </div>
                   </div>
 
-                  {printArtworkUrl && /^https:\/\//.test(printArtworkUrl) && (
-                    <div className="card" style={{ margin: '12px 0' }}>
-                      <strong>Customer-uploaded card front artwork</strong>
-                      <p>Use this file for the printed front of the card. The NFC memory photo is separate.</p>
-                      <a
-                        href={printArtworkUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        View print artwork
-                      </a>
-                    </div>
+                  {(frontArtworkUrl || backArtworkUrl) && (
+                    <section className="smAdminPrintArtwork" aria-label={`Print files for ${item.product_name}`}>
+                      <div className="smAdminPrintHeading">
+                        <div>
+                          <h3>Print files</h3>
+                          <p>{isDoubleSidedKeyring
+                            ? `${keyringShape||'Keyring'} · Print each side on the correct face.`
+                            : 'Review your finished artwork before printing.'}</p>
+                        </div>
+                      </div>
+                      <div className="smAdminPrintGrid">
+                        {frontArtworkUrl && (
+                          <div className="smAdminPrintFace">
+                            <strong>{isDoubleSidedKeyring?'Front — Photograph':'Finished print artwork'}</strong>
+                            <a href={frontArtworkUrl} target="_blank" rel="noopener noreferrer" aria-label="Preview front print artwork">
+                              <img src={frontArtworkUrl} alt={isDoubleSidedKeyring?'Front of keyring: saved customer print artwork':'Saved customer print artwork'} loading="lazy"/>
+                            </a>
+                            <div className="smAdminPrintActions">
+                              <a href={frontArtworkUrl} target="_blank" rel="noopener noreferrer">Preview {isDoubleSidedKeyring?'front':'artwork'}</a>
+                              <a href={frontArtworkUrl} download={isDoubleSidedKeyring?'keyring-front.png':undefined} target="_blank" rel="noopener noreferrer">Download print file</a>
+                            </div>
+                          </div>
+                        )}
+                        {isDoubleSidedKeyring && (
+                          <div className="smAdminPrintFace">
+                            <strong>Back — Personalised message</strong>
+                            {backArtworkUrl ? <>
+                              <a href={backArtworkUrl} target="_blank" rel="noopener noreferrer" aria-label="Preview back print artwork">
+                                <img src={backArtworkUrl} alt="Back of keyring: saved personalised message artwork" loading="lazy"/>
+                              </a>
+                              <div className="smAdminPrintActions">
+                                <a href={backArtworkUrl} target="_blank" rel="noopener noreferrer">Preview back</a>
+                                <a href={backArtworkUrl} download="keyring-back.png" target="_blank" rel="noopener noreferrer">Download print file</a>
+                              </div>
+                            </> : <p className="smAdminPrintWarning">No back artwork found for this order. Check before production.</p>}
+                          </div>
+                        )}
+                      </div>
+                      <small>Preview files are the saved customer artwork. Check print size, bleed and supplier specifications before producing the gift.</small>
+                    </section>
                   )}
 
                   {printPhotoUrls.length > 0 && (
@@ -1046,7 +1082,7 @@ export default async function AdminOrderDetailPage({
 
                   {personalisation.length >
                     0 && (
-                    <div className="smAdminPersonalisation">
+                    <details className="smAdminPersonalisation smAdminTechnicalDetails">\n                      <summary>Technical personalisation details</summary>
                       <h3>
                         Personalisation
                       </h3>
@@ -1077,7 +1113,7 @@ export default async function AdminOrderDetailPage({
                           )
                         )}
                       </dl>
-                    </div>
+                    </details>
                   )}
 
                   <div className="smAdminProductionChecklist">
