@@ -233,3 +233,14 @@ test('Smart Memory controls appear in voice, sender/recipient, then writing orde
  assert.ok(voice>=0&&people>voice&&writing>people,'Smart Memory section order is incorrect');
  assert.match(source,/Now creating your Smart Message/);
 });
+
+test('all five launch products share the approved Smart Message field order',()=>{
+ for(const slug of ['smart-photo-slate','photo-mug','coaster-set','mouse-mat','keyring'])
+  assert.ok(profiles.includes("'"+slug+"'"),'Missing product '+slug);
+ assert.match(page,/isGiftStudioProduct\(slug\)\) return <SlateSinglePageCustomiser productSlug=\{slug\}/);
+ const voice=source.indexOf('<fieldset className="slateVoiceCard smWizardVoiceCard">');
+ const names=source.indexOf('<div className="slatePersonFields smWizardFields">');
+ const writing=source.indexOf('<label><strong>Smart Writing Message');
+ assert.ok(voice>=0&&names>voice&&writing>names);
+ assert.equal(source.split('Now creating your Smart Message').length-1,1,'Use single shared digital message section');
+});
