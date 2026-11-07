@@ -908,14 +908,6 @@ export default async function AdminOrderDetailPage({
                 getPersonalisationEntries(
                   item.personalisation
                 );
-              const printArtworkUrl =
-                item.personalisation !== null &&
-                typeof item.personalisation === 'object' &&
-                'printArtworkUrl' in item.personalisation &&
-                typeof item.personalisation.printArtworkUrl === 'string'
-                  ? item.personalisation.printArtworkUrl
-                  : null;
-
               const productDetails = item.personalisation && typeof item.personalisation === 'object' && !Array.isArray(item.personalisation)
                 ? item.personalisation as Record<string,unknown> : {};
               const secureArtworkUrl = (value:unknown):string|null =>
