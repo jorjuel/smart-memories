@@ -26,10 +26,11 @@ type PhotoFit='contain'|'cover';
 type SlateDirection='portrait'|'landscape';
 export const PRICE=24.99; // Retain existing slate base price until size-specific prices are configured.
 
-export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0){
+export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0,round=false){
  const ch=Math.round(cw*sz.height/sz.width);
  const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
  const w=cw,h=ch;
+ if(round){ctx.save();ctx.beginPath();ctx.arc(w/2,h/2,Math.min(w,h)/2,0,Math.PI*2);ctx.clip();}
  // Keep the print artwork as a white sublimation face. The rough black
  // stone edge is a separate CSS mockup, never baked into the print file.
  ctx.fillStyle='#f8f8f4';ctx.fillRect(0,0,w,h);
@@ -82,6 +83,7 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
   lines=lines.slice(0,3);
   lines.forEach((value,i)=>ctx.fillText(value.slice(0,100),w/2,py+ph+fontSize*(1.15+i*1.1),w-2*inset));
  }
+ if(round)ctx.restore();
 }
 function CoasterPhotoThumbnail({file,label}:{file:File;label:string}){
  const [url,setUrl]=useState('');
@@ -123,13 +125,14 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const drag=useRef<{x:number;y:number;dx:number;dy:number}|null>(null);
  const selectedSize=config.sizes[sizeIndex]||config.sizes[0];
  const coasterCount=productSlug==='coaster-set'?([1,2,4,6][sizeIndex]||1):1;
+ const roundKeyring=productSlug==='keyring'&&sizeIndex===1;
  const size=config.directions && direction==='landscape' && selectedSize.width!==selectedSize.height
    ? {...selectedSize,width:selectedSize.height,height:selectedSize.width} : selectedSize;
  const detectedOrientation=image?(Math.abs(image.naturalWidth-image.naturalHeight)/Math.max(image.naturalWidth,image.naturalHeight)<.04?'square':image.naturalWidth>image.naturalHeight?'landscape':'portrait'):null;
  const draw=useCallback(()=>{
   const ctx=canvasRef.current?.getContext('2d');
-  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedCoaster>0?coasterPreviewImage||image:image,size,crop,wording,topText,bottomText,dedication,900,fit,rotation);
- },[image,coasterPreviewImage,selectedCoaster,productSlug,size,crop,wording,topText,bottomText,dedication,fit,rotation]);
+  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedCoaster>0?coasterPreviewImage||image:image,size,crop,wording,topText,bottomText,dedication,900,fit,rotation,roundKeyring);
+ },[image,coasterPreviewImage,selectedCoaster,productSlug,size,crop,wording,topText,bottomText,dedication,fit,rotation,roundKeyring]);
  useEffect(()=>{draw();},[draw]);
  useEffect(()=>()=>{if(photoUrl)URL.revokeObjectURL(photoUrl);},[photoUrl]);
  useEffect(()=>{
@@ -292,11 +295,12 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
      </select>
     </label>
     <fieldset><legend>{config.label} {config.sizes.length>1?'options':'size'}</legend>
+     {productSlug==='keyring'&&<p className="slateHelp">Choose your keyring shape. Your artwork preview will follow the shape you select.</p>}
      <div className="slateSizes">{config.sizes.map((sz,i)=><button type="button" key={sz.label}
        className={i===sizeIndex?'active':''} aria-pressed={i===sizeIndex}
        onClick={()=>{setSizeIndex(i);setSelectedCoaster(0);setAdded(false);}}>{sz.label}</button>)}</div>
-     {config.directions&&selectedSize.width!==selectedSize.height&&<div className="slateOrientationSelector" role="group" aria-label="Slate direction">
-       <span>Slate direction</span>
+     {config.directions&&selectedSize.width!==selectedSize.height&&<div className="slateOrientationSelector" role="group" aria-label={`${config.label} direction`}>
+       <span>{config.label} direction</span>
        <div className="slateSizes">
         <button type="button" className={direction==='portrait'?'active':''} aria-pressed={direction==='portrait'}
          onClick={()=>{setDirection('portrait');setAdded(false);}}>Vertical</button>
@@ -400,7 +404,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>{productSlug==='coaster-set'?`Your live preview · Coaster ${selectedCoaster+1}`:'Your live preview'}</h2>
     <p className="slateHelp">Photo only uses the printable area. Choose Fit whole photo to preserve the edges of your image.</p>
     <div className="slatePreviewWrap">
-     <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''}`}>
+     <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''} ${roundKeyring?'slateProductShell--roundKeyring':''}`}>
       <canvas ref={canvasRef} width={900} height={1200} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
        onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}
        aria-label={`Live personalised ${config.label.toLowerCase()} preview`} role="img"/>
