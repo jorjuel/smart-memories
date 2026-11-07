@@ -372,8 +372,8 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     </fieldset>
     <p className="slateHelp">Your photo, voice recording or written message can tell the story. Leave the written message blank if you prefer.</p>
     <div className="slatePersonFields smWizardFields">
-     <label>Recipient name<input value={recipient} placeholder="e.g. Sarah" maxLength={100} onChange={e=>{setRecipient(e.target.value);setAdded(false);}}/></label>
      <label>From<input required aria-required="true" value={sender} placeholder="e.g. Leo" maxLength={100} onChange={e=>{setSender(e.target.value);setAdded(false);}}/></label>
+     <label>Recipient name<input value={recipient} placeholder="e.g. Sarah" maxLength={100} onChange={e=>{setRecipient(e.target.value);setAdded(false);}}/></label>
     </div>
    </div>
    <aside className="slateStudioPreview">
