@@ -85,6 +85,38 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
  }
  if(round)ctx.restore();
 }
+export function paintKeyringBack(ctx:CanvasRenderingContext2D,sz:SlateSize,text:string,round:boolean,cw=900){
+ const ch=Math.round(cw*sz.height/sz.width);
+ const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
+ const w=cw,h=ch;
+ ctx.clearRect(0,0,w,h);
+ ctx.save();
+ if(round){ctx.beginPath();ctx.arc(w/2,h/2,Math.min(w,h)/2,0,Math.PI*2);ctx.clip();}
+ ctx.fillStyle='#fbf7ef';ctx.fillRect(0,0,w,h);
+ const inset=round?w*.17:w*.12;
+ const maxWidth=w-2*inset;
+ const maxHeight=round?h*.52:h*.64;
+ let fontSize=Math.round(w*.068);
+ const words=text.trim().split(/\s+/).filter(Boolean);
+ let lines:string[]=[];
+ for(;fontSize>=Math.round(w*.025);fontSize-=3){
+  ctx.font=`${fontSize}px Georgia, serif`;
+  const assembled:string[]=[];let current='';
+  for(const word of words){
+   const next=current?current+' '+word:word;
+   if(ctx.measureText(next).width>maxWidth&&current){assembled.push(current);current=word;}
+   else current=next;
+  }
+  if(current)assembled.push(current);
+  lines=assembled;
+  if(lines.length*fontSize*1.25<=maxHeight&&lines.every(line=>ctx.measureText(line).width<=maxWidth))break;
+ }
+ ctx.font=`${fontSize}px Georgia, serif`;
+ ctx.fillStyle='#4e3733';ctx.textAlign='center';ctx.textBaseline='middle';
+ const lineHeight=fontSize*1.25;
+ lines.forEach((line,index)=>ctx.fillText(line,w/2,h/2+(index-(lines.length-1)/2)*lineHeight,maxWidth));
+ ctx.restore();
+}
 function CoasterPhotoThumbnail({file,label}:{file:File;label:string}){
  const [url,setUrl]=useState('');
  useEffect(()=>{const u=URL.createObjectURL(file);setUrl(u);return()=>URL.revokeObjectURL(u);},[file]);
@@ -110,6 +142,8 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const [bottomText,setBottomText]=useState('');
  const [dedication,setDedication]=useState('');
  const [message,setMessage]=useState('');
+ const [keyringBackText,setKeyringBackText]=useState('');
+ const [keyringSide,setKeyringSide]=useState<'front'|'back'>('front');
  const [audio,setAudio]=useState<Blob|null>(null);
  const [audioUrl,setAudioUrl]=useState('');
  const [recording,setRecording]=useState(false);
@@ -131,8 +165,11 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const detectedOrientation=image?(Math.abs(image.naturalWidth-image.naturalHeight)/Math.max(image.naturalWidth,image.naturalHeight)<.04?'square':image.naturalWidth>image.naturalHeight?'landscape':'portrait'):null;
  const draw=useCallback(()=>{
   const ctx=canvasRef.current?.getContext('2d');
-  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedCoaster>0?coasterPreviewImage||image:image,size,crop,wording,topText,bottomText,dedication,900,productSlug==='keyring'?'cover':fit,rotation,roundKeyring,productSlug==='keyring');
- },[image,coasterPreviewImage,selectedCoaster,productSlug,size,crop,wording,topText,bottomText,dedication,fit,rotation,roundKeyring]);
+  if(ctx){
+   if(productSlug==='keyring'&&keyringSide==='back')paintKeyringBack(ctx,size,keyringBackText,roundKeyring);
+   else paint(ctx,productSlug==='coaster-set'&&selectedCoaster>0?coasterPreviewImage||image:image,size,crop,productSlug==='keyring'?'none':wording,topText,bottomText,dedication,900,productSlug==='keyring'?'cover':fit,rotation,roundKeyring,productSlug==='keyring');
+  }
+ },[image,coasterPreviewImage,selectedCoaster,productSlug,size,crop,wording,topText,bottomText,dedication,fit,rotation,roundKeyring,keyringSide,keyringBackText]);
  useEffect(()=>{draw();},[draw]);
  useEffect(()=>()=>{if(photoUrl)URL.revokeObjectURL(photoUrl);},[photoUrl]);
  useEffect(()=>{
@@ -257,7 +294,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     setExtraCoasterPhotos(saved.extraCoasterPhotos||[]);setSelectedCoaster(0);
     setCrop(saved.crop);setFit(productSlug==='keyring'?'cover':saved.fit);setRotation(saved.rotation);setWording(saved.wording);
     setTopText(saved.topText);setBottomText(saved.bottomText);setDedication(saved.dedication);
-    setMessage(saved.message);setRecipient(saved.recipient);setSender(saved.sender);
+    setMessage(saved.message);setKeyringBackText(saved.keyringBackText??'');setRecipient(saved.recipient);setSender(saved.sender);
     const url=URL.createObjectURL(saved.photo);
     const img=new Image();
     img.onload=()=>{
@@ -277,7 +314,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
   if(saving)return;
   setSaving(true);setError('');
   try{
-   const draft:SlateReviewDraft={productSlug,photo,extraCoasterPhotos:extraCoasterPhotos.slice(0,Math.max(0,coasterCount-1)),audio,sizeIndex,direction,crop,fit:productSlug==='keyring'?'cover':fit,rotation,wording,
+   const draft:SlateReviewDraft={productSlug,photo,keyringBackText:productSlug==='keyring'?keyringBackText:undefined,extraCoasterPhotos:extraCoasterPhotos.slice(0,Math.max(0,coasterCount-1)),audio,sizeIndex,direction,crop,fit:productSlug==='keyring'?'cover':fit,rotation,wording,
     occasion,topText,bottomText,dedication,message,recipient,sender};
    await storeSlateDraft(draft);
    window.location.assign(productSlug==='smart-photo-slate'?'/slate/review':`/gift/review/${productSlug}`);
@@ -365,6 +402,13 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
       <p className="slateHelp">{productSlug==='keyring'?'Photo fills the full keyring surface. Drag to reposition or use Zoom.':'Fit whole photo keeps existing photo borders visible. Fill area crops edges only if needed. Drag to reposition when zoomed in.'}</p>
       <button type="button" className="slateTextButton" onClick={()=>{setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Reset photo position</button>
     </fieldset>}
+    {productSlug==='keyring'?<fieldset className="smKeyringBackEditor"><legend>Message on the back of your keyring</legend>
+     <p className="slateHelp">The front contains your photograph only. Write the words you want printed on the back of your {roundKeyring?'round':'rectangular'} keyring.</p>
+     <label>Back message<textarea rows={3} maxLength={180} value={keyringBackText}
+      placeholder="Always with you ❤️"
+      onChange={e=>{setKeyringBackText(e.target.value);setKeyringSide('back');setAdded(false);}}/></label>
+     <small>Up to 180 characters. Keep your message short for a small keyring.</small>
+    </fieldset>:<>
     <fieldset><legend>Wording on your {config.label.toLowerCase()}</legend>
      <div className="slateWording">{WAYS.map(x=><button type="button" key={x.value}
        className={wording===x.value?'active':''} aria-pressed={wording===x.value}
@@ -376,6 +420,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
      {wording==='paragraph'&&<label>Dedication
        <textarea rows={3} maxLength={160} value={dedication} placeholder="A special moment to remember" onChange={e=>{setDedication(e.target.value);setAdded(false);}}/></label>}
     </fieldset>
+    </>}
     <label><strong>Written message <span className="slateOptional">(optional)</span></strong>
      <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a few words if you wish…"/>
     </label>
@@ -402,11 +447,15 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
    </div>
    <aside className="slateStudioPreview">
     <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>{productSlug==='coaster-set'?`Your live preview · Coaster ${selectedCoaster+1}`:'Your live preview'}</h2>
-    <p className="slateHelp">Photo only uses the printable area. Choose Fit whole photo to preserve the edges of your image.</p>
+    <p className="slateHelp">{productSlug==='keyring'?'Check both sides of your keyring before reviewing.':'Photo only uses the printable area. Choose Fit whole photo to preserve the edges of your image.'}</p>
+    {productSlug==='keyring'&&<div className="smKeyringSideSwitch" role="group" aria-label="Choose keyring side to preview">
+     <button type="button" className={keyringSide==='front'?'active':''} aria-pressed={keyringSide==='front'} onClick={()=>setKeyringSide('front')}>Front · Photo</button>
+     <button type="button" className={keyringSide==='back'?'active':''} aria-pressed={keyringSide==='back'} onClick={()=>setKeyringSide('back')}>Back · Message</button>
+    </div>}
     <div className="slatePreviewWrap">
      <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''} ${roundKeyring?'slateProductShell--roundKeyring':''}`}>
       <canvas ref={canvasRef} width={900} height={1200} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
-       onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}
+       onPointerDown={productSlug==='keyring'&&keyringSide==='back'?undefined:startDrag} onPointerMove={productSlug==='keyring'&&keyringSide==='back'?undefined:moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}
        aria-label={`Live personalised ${config.label.toLowerCase()} preview`} role="img"/>
      </div>
     </div>
