@@ -52,11 +52,11 @@ test('written and recorded memories are composed together before a separate revi
 
 test('photo-only uses an expanded print area instead of the wide wording border',()=>{
  assert.match(source,/const photoOnly=way==='none'/);
- assert.match(source,/const inset=photoOnly\?w\*\.027:w\*\.072/);
- assert.match(source,/const topPadding=photoOnly\?h\*\.026:h\*\.047/);
+ assert.match(source,/const inset=edgeToEdge\?0:photoOnly\?w\*\.027:w\*\.072/);
+ assert.match(source,/const topPadding=edgeToEdge\?0:photoOnly\?h\*\.026:h\*\.047/);
 });
 test('framed photos default to contain and never force crop',()=>{
- assert.match(source,/useState<PhotoFit>\('contain'\)/);
+ assert.match(source,/useState<PhotoFit>\(productSlug==='keyring'\?'cover':'contain'\)/);
  assert.match(source,/fit==='cover'\?Math\.max\(pw\/iw,ph\/ih\):Math\.min\(pw\/iw,ph\/ih\)/);
  assert.match(source,/Fit whole photo/);
  assert.match(source,/Fill area \(may crop\)/);
@@ -65,7 +65,7 @@ test('portrait and landscape slate direction and photo rotation can be selected'
  assert.match(source,/\{config\.label\} direction/);
  assert.match(source,/Rotate left/);
  assert.match(source,/Rotate right/);
- assert.match(review,/slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation/);
+ assert.match(review,/slateOrientation:draft.direction,photoFit:productSlug==='keyring'\?'cover':draft.fit,photoRotation:draft.rotation/);
  assert.match(source,/ctx\.rotate\(rotation\*Math\.PI\/180\)/);
 });
 
@@ -179,9 +179,23 @@ test('keyring shape options carry through editor, review and print export',()=>{
  assert.match(profiles,/label:'Rectangular',width:3,height:4/);
  assert.match(profiles,/label:'Round',width:1,height:1/);
  assert.match(source,/roundKeyring=productSlug==='keyring'&&sizeIndex===1/);
- assert.match(source,/rotation,roundKeyring/);
+ assert.match(source,/rotation,roundKeyring,productSlug==='keyring'/);
  assert.match(review,/keyringShape:productSlug==='keyring'\?size.label:undefined/);
  assert.match(review,/mime=roundKeyring\?'image\/png':'image\/jpeg'/);
- assert.match(review,/rotation,roundKeyring/);
+ assert.match(review,/rotation,roundKeyring,productSlug==='keyring'/);
  assert.match(css,/\.slateProductShell--keyring\.slateProductShell--roundKeyring/);
+});
+
+test('keyring photo fills both shapes from edge to edge in editor and review artwork',()=>{
+ assert.match(source,/const inset=edgeToEdge\?0:/);
+ assert.match(source,/const topPadding=edgeToEdge\?0:/);
+ assert.match(source,/const bottomPadding=edgeToEdge\?0:/);
+ assert.match(source,/const topSpace=edgeToEdge\?0:/);
+ assert.match(source,/setFit\(productSlug==='keyring'\?'cover':'contain'\)/);
+ assert.match(source,/productSlug==='keyring'\?'cover':saved.fit/);
+ assert.match(source,/productSlug==='keyring'\?'cover':fit,rotation/);
+ assert.match(review,/productSlug==='keyring'\?'cover':draft.fit/);
+ assert.match(review,/productSlug==='keyring'\?'cover':draft!.fit/);
+ assert.match(review,/roundKeyring,productSlug==='keyring'/);
+ assert.match(source,/roundKeyring,productSlug==='keyring'/);
 });
