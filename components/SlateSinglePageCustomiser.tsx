@@ -421,7 +421,8 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
        <textarea rows={3} maxLength={160} value={dedication} placeholder="A special moment to remember" onChange={e=>{setDedication(e.target.value);setAdded(false);}}/></label>}
     </fieldset>
     </>}
-    <label><strong>Written message <span className="slateOptional">(optional)</span></strong>
+    <div className="smSmartMessageIntro"><strong>Now creating your Smart Message</strong><p className="slateHelp">This message appears when someone opens your digital Smart Memory.</p></div>
+    <label><strong>Smart Writing Message <span className="slateOptional">(optional)</span></strong>
      <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a few words if you wish…"/>
     </label>
     <fieldset className="slateVoiceCard smWizardVoiceCard"><legend>Voice message</legend>
