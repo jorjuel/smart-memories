@@ -7,6 +7,20 @@ import {getGiftStudioConfig,type GiftStudioSlug} from '@/lib/giftStudioProducts'
 import {uploadMemoryMedia,readMemorySaveResult} from '@/lib/memoryMediaUpload';
 import SmartMemoryLivePreview from '@/components/SmartMemoryLivePreview';
 
+function CoasterReviewThumbnail({file,index,active,reusesFirst,onSelect}:{file:File;index:number;active:boolean;reusesFirst:boolean;onSelect:()=>void}){
+ const [src,setSrc]=useState('');
+ useEffect(()=>{
+  const objectUrl=URL.createObjectURL(file);
+  setSrc(objectUrl);
+  return()=>URL.revokeObjectURL(objectUrl);
+ },[file]);
+ return <button type="button" className={active?'smCoasterReviewThumb smCoasterSelected':'smCoasterReviewThumb'}
+  aria-label={`Preview coaster ${index+1}${reusesFirst?' (same image as coaster 1)':''}`}
+  aria-pressed={active} onClick={onSelect}>
+  {src&&<img src={src} alt="" loading="lazy"/>}
+  <span>{index+1}</span>
+ </button>;
+}
 export default function SlateReviewPage({productSlug='smart-photo-slate'}:{productSlug?:GiftStudioSlug}){
  const config=getGiftStudioConfig(productSlug);
  if(!config)throw Error('Unsupported gift');
@@ -168,10 +182,17 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      </div>
      </div>
      <p className="slateFinalSize"><strong>{size.label}</strong> · {config.directions?(draft.direction==='landscape'?'Landscape':'Vertical'):'Personalised'}</p>
-     {productSlug==='coaster-set'&&<div className="smCoasterReviewPicker" role="group" aria-label="Preview each coaster">
-      {Array.from({length:coasterCount},(_,index)=><button type="button" key={index} aria-pressed={selectedReviewCoaster===index} className={selectedReviewCoaster===index?'smCoasterSelected':''} onClick={()=>setSelectedReviewCoaster(index)}>
-       Coaster {index+1}{index>0&&!draft.extraCoasterPhotos?.[index-1]?' · same photo as 1':''}
-      </button>)}
+     {productSlug==='coaster-set'&&<div className="smCoasterReviewGallery">
+      <p className="smCoasterReviewGalleryTitle"><strong>Preview all {coasterCount} coasters</strong><span>Tap a photo to see its design above.</span></p>
+      <div className="smCoasterReviewThumbnails" role="group" aria-label="Choose coaster to preview">
+       {Array.from({length:coasterCount},(_,index)=>{
+        const file=index===0?draft.photo:draft.extraCoasterPhotos?.[index-1]||draft.photo;
+        return <CoasterReviewThumbnail key={index} file={file} index={index}
+         active={selectedReviewCoaster===index} reusesFirst={index>0&&!draft.extraCoasterPhotos?.[index-1]}
+         onSelect={()=>setSelectedReviewCoaster(index)}/>;
+       })}
+      </div>
+      <p className="slateHelp" aria-live="polite">Showing coaster {selectedReviewCoaster+1} of {coasterCount}{selectedReviewCoaster>0&&!draft.extraCoasterPhotos?.[selectedReviewCoaster-1]?' · Reusing photo 1':''}.</p>
      </div>}
     </article>
     <article>
