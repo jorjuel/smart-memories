@@ -2,6 +2,7 @@ import type {GiftStudioSlug} from './giftStudioProducts';
 export type SlateReviewDraft = {
   productSlug: GiftStudioSlug;
   photo: File;
+  extraCoasterPhotos?: File[];
   audio: Blob | null;
   sizeIndex: number;
   direction: 'portrait'|'landscape';
