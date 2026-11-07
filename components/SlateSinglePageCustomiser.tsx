@@ -26,7 +26,7 @@ type PhotoFit='contain'|'cover';
 type SlateDirection='portrait'|'landscape';
 export const PRICE=24.99; // Retain existing slate base price until size-specific prices are configured.
 
-export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0,round=false){
+export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0,round=false,edgeToEdge=false){
  const ch=Math.round(cw*sz.height/sz.width);
  const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
  const w=cw,h=ch;
@@ -36,13 +36,13 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
  ctx.fillStyle='#f8f8f4';ctx.fillRect(0,0,w,h);
  // No wording: use nearly the whole printable face, without a large white mat.
  const photoOnly=way==='none';
- const inset=photoOnly?w*.027:w*.072;
- const topPadding=photoOnly?h*.026:h*.047;
- const bottomPadding=photoOnly?h*.026:h*.045;
+ const inset=edgeToEdge?0:photoOnly?w*.027:w*.072;
+ const topPadding=edgeToEdge?0:photoOnly?h*.026:h*.047;
+ const bottomPadding=edgeToEdge?0:photoOnly?h*.026:h*.045;
  const fontSize=w*.036;
  ctx.textAlign='center';ctx.fillStyle='#222222';
- const topSpace=(way==='top'||way==='both')?fontSize*2.0:0;
- const bottomSpace=(way==='bottom'||way==='both')?fontSize*2.3:way==='paragraph'?fontSize*4.0:0;
+ const topSpace=edgeToEdge?0:(way==='top'||way==='both')?fontSize*2.0:0;
+ const bottomSpace=edgeToEdge?0:(way==='bottom'||way==='both')?fontSize*2.3:way==='paragraph'?fontSize*4.0:0;
  const px=inset,py=topPadding+topSpace,pw=w-2*inset,ph=h-topPadding-bottomPadding-topSpace-bottomSpace;
  ctx.save();ctx.beginPath();ctx.rect(px,py,pw,ph);ctx.clip();
  if(image){
@@ -69,8 +69,8 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
  }
  ctx.restore();
  ctx.fillStyle='#222';ctx.font='italic '+fontSize+'px Georgia, serif';
- if((way==='top'||way==='both')&&top.trim())ctx.fillText(top.slice(0,80),w/2,topPadding+fontSize*.85,w-2*inset);
- if((way==='bottom'||way==='both')&&bottom.trim())ctx.fillText(bottom.slice(0,80),w/2,py+ph+fontSize*1.55,w-2*inset);
+ if((way==='top'||way==='both')&&top.trim())ctx.fillText(top.slice(0,80),w/2,edgeToEdge?fontSize*1.5:topPadding+fontSize*.85,edgeToEdge?w*.84:w-2*inset);
+ if((way==='bottom'||way==='both')&&bottom.trim())ctx.fillText(bottom.slice(0,80),w/2,edgeToEdge?h-fontSize:py+ph+fontSize*1.55,edgeToEdge?w*.84:w-2*inset);
  if(way==='paragraph'&&dedication.trim()){
   ctx.font='italic '+fontSize+'px Georgia, serif';
   const words=dedication.trim().split(/\s+/);
@@ -81,7 +81,7 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
   }
   if(line)lines.push(line);
   lines=lines.slice(0,3);
-  lines.forEach((value,i)=>ctx.fillText(value.slice(0,100),w/2,py+ph+fontSize*(1.15+i*1.1),w-2*inset));
+  lines.forEach((value,i)=>ctx.fillText(value.slice(0,100),w/2,edgeToEdge?h-fontSize*(3.1-i*1.1):py+ph+fontSize*(1.15+i*1.1),edgeToEdge?w*.84:w-2*inset));
  }
  if(round)ctx.restore();
 }
@@ -103,7 +103,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const [photoUrl,setPhotoUrl]=useState('');
  const [image,setImage]=useState<HTMLImageElement>();
  const [crop,setCrop]=useState<Crop>({zoom:1,dx:0,dy:0});
- const [fit,setFit]=useState<PhotoFit>('contain');
+ const [fit,setFit]=useState<PhotoFit>(productSlug==='keyring'?'cover':'contain');
  const [rotation,setRotation]=useState(0);
  const [wording,setWording]=useState<Wording>('bottom');
  const [topText,setTopText]=useState('');
@@ -131,7 +131,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const detectedOrientation=image?(Math.abs(image.naturalWidth-image.naturalHeight)/Math.max(image.naturalWidth,image.naturalHeight)<.04?'square':image.naturalWidth>image.naturalHeight?'landscape':'portrait'):null;
  const draw=useCallback(()=>{
   const ctx=canvasRef.current?.getContext('2d');
-  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedCoaster>0?coasterPreviewImage||image:image,size,crop,wording,topText,bottomText,dedication,900,fit,rotation,roundKeyring);
+  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedCoaster>0?coasterPreviewImage||image:image,size,crop,wording,topText,bottomText,dedication,900,productSlug==='keyring'?'cover':fit,rotation,roundKeyring,productSlug==='keyring');
  },[image,coasterPreviewImage,selectedCoaster,productSlug,size,crop,wording,topText,bottomText,dedication,fit,rotation,roundKeyring]);
  useEffect(()=>{draw();},[draw]);
  useEffect(()=>()=>{if(photoUrl)URL.revokeObjectURL(photoUrl);},[photoUrl]);
@@ -176,7 +176,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
   }
   setError('');setAdded(false);
   const url=URL.createObjectURL(file);
-  const img=new Image();img.onload=()=>{setImage(img);setPhoto(file);setPhotoUrl(url);setCrop({zoom:1,dx:0,dy:0});setFit('contain');setRotation(0);};
+  const img=new Image();img.onload=()=>{setImage(img);setPhoto(file);setPhotoUrl(url);setCrop({zoom:1,dx:0,dy:0});setFit(productSlug==='keyring'?'cover':'contain');setRotation(0);};
   img.onerror=()=>{URL.revokeObjectURL(url);setError('That photograph could not be opened.');};
   img.src=url;
  }
@@ -255,7 +255,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     if(!alive||!saved)return;
     setOccasion(saved.occasion);setSizeIndex(saved.sizeIndex);setDirection(saved.direction);
     setExtraCoasterPhotos(saved.extraCoasterPhotos||[]);setSelectedCoaster(0);
-    setCrop(saved.crop);setFit(saved.fit);setRotation(saved.rotation);setWording(saved.wording);
+    setCrop(saved.crop);setFit(productSlug==='keyring'?'cover':saved.fit);setRotation(saved.rotation);setWording(saved.wording);
     setTopText(saved.topText);setBottomText(saved.bottomText);setDedication(saved.dedication);
     setMessage(saved.message);setRecipient(saved.recipient);setSender(saved.sender);
     const url=URL.createObjectURL(saved.photo);
@@ -277,7 +277,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
   if(saving)return;
   setSaving(true);setError('');
   try{
-   const draft:SlateReviewDraft={productSlug,photo,extraCoasterPhotos:extraCoasterPhotos.slice(0,Math.max(0,coasterCount-1)),audio,sizeIndex,direction,crop,fit,rotation,wording,
+   const draft:SlateReviewDraft={productSlug,photo,extraCoasterPhotos:extraCoasterPhotos.slice(0,Math.max(0,coasterCount-1)),audio,sizeIndex,direction,crop,fit:productSlug==='keyring'?'cover':fit,rotation,wording,
     occasion,topText,bottomText,dedication,message,recipient,sender};
    await storeSlateDraft(draft);
    window.location.assign(productSlug==='smart-photo-slate'?'/slate/review':`/gift/review/${productSlug}`);
@@ -344,7 +344,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     </div>}
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
       <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected product.</p>
-      <div className="slateOrientationSelector" role="group" aria-label="Photo fitting">
+      {productSlug==='keyring'?<p className="slateHelp">Your photo fills the whole keyring surface automatically. Zoom and drag to choose the crop.</p>:<div className="slateOrientationSelector" role="group" aria-label="Photo fitting">
        <span>How should your photo fit?</span>
        <div className="slateSizes">
         <button type="button" className={fit==='contain'?'active':''} aria-pressed={fit==='contain'}
@@ -352,7 +352,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
         <button type="button" className={fit==='cover'?'active':''} aria-pressed={fit==='cover'}
           onClick={()=>{setFit('cover');setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Fill area (may crop)</button>
        </div>
-      </div>
+      </div>}
       <div className="slateOrientationSelector" role="group" aria-label="Rotate photo">
        <span>Photo direction</span>
        <div className="slateSizes">
@@ -362,7 +362,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
       </div>
       <label>Zoom <input type="range" min="1" max="3" step=".05" value={crop.zoom}
        onChange={e=>{setCrop(c=>({...c,zoom:Number(e.target.value)}));setAdded(false);}}/></label>
-      <p className="slateHelp">Fit whole photo keeps existing photo borders visible. Fill area crops edges only if needed. Drag to reposition when zoomed in.</p>
+      <p className="slateHelp">{productSlug==='keyring'?'Photo fills the full keyring surface. Drag to reposition or use Zoom.':'Fit whole photo keeps existing photo borders visible. Fill area crops edges only if needed. Drag to reposition when zoomed in.'}</p>
       <button type="button" className="slateTextButton" onClick={()=>{setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Reset photo position</button>
     </fieldset>}
     <fieldset><legend>Wording on your {config.label.toLowerCase()}</legend>
