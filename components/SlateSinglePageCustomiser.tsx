@@ -90,6 +90,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  const [sizeIndex,setSizeIndex]=useState(productSlug==='smart-photo-slate'?2:0);
  const [direction,setDirection]=useState<SlateDirection>('portrait');
  const [photo,setPhoto]=useState<File|null>(null);
+ const [extraCoasterPhotos,setExtraCoasterPhotos]=useState<File[]>([]);
  const [photoUrl,setPhotoUrl]=useState('');
  const [image,setImage]=useState<HTMLImageElement>();
  const [crop,setCrop]=useState<Crop>({zoom:1,dx:0,dy:0});
@@ -124,6 +125,18 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  useEffect(()=>{draw();},[draw]);
  useEffect(()=>()=>{if(photoUrl)URL.revokeObjectURL(photoUrl);},[photoUrl]);
 
+ function choosePhotos(files:FileList|null){
+  if(!files?.length)return;
+  choosePhoto(files[0]);
+  if(productSlug==='coaster-set'){
+    const count=Number((selectedSize.label.match(/\d+/)||['1'])[0]);
+    const extras=Array.from(files).slice(1,count);
+    if(extras.some(f=>!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>10*1024*1024)){
+      setError('Choose JPG, PNG or WebP photos no larger than 10MB.');return;
+    }
+    setExtraCoasterPhotos(extras);
+  }
+ }
  function choosePhoto(file?:File){
   if(!file)return;
   if(file.size>10*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type)){
@@ -193,6 +206,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
    loadSlateDraft(productSlug).then(saved=>{
     if(!alive||!saved)return;
     setOccasion(saved.occasion);setSizeIndex(saved.sizeIndex);setDirection(saved.direction);
+    setExtraCoasterPhotos(saved.extraCoasterPhotos||[]);
     setCrop(saved.crop);setFit(saved.fit);setRotation(saved.rotation);setWording(saved.wording);
     setTopText(saved.topText);setBottomText(saved.bottomText);setDedication(saved.dedication);
     setMessage(saved.message);setRecipient(saved.recipient);setSender(saved.sender);
@@ -215,7 +229,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
   if(saving)return;
   setSaving(true);setError('');
   try{
-   const draft:SlateReviewDraft={productSlug,photo,audio,sizeIndex,direction,crop,fit,rotation,wording,
+   const draft:SlateReviewDraft={productSlug,photo,extraCoasterPhotos:extraCoasterPhotos.slice(0,Math.max(0,Number((selectedSize.label.match(/\d+/)||['1'])[0])-1)),audio,sizeIndex,direction,crop,fit,rotation,wording,
     occasion,topText,bottomText,dedication,message,recipient,sender};
    await storeSlateDraft(draft);
    window.location.assign(productSlug==='smart-photo-slate'?'/slate/review':`/gift/review/${productSlug}`);
@@ -247,8 +261,9 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
       </div>}
     </fieldset>
     <label>Upload your photo
-     <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>choosePhoto(e.currentTarget.files?.[0])}/>
+     <input type="file" multiple={productSlug==='coaster-set'} accept="image/png,image/jpeg,image/webp" onChange={e=>choosePhotos(e.currentTarget.files)}/>
     </label>
+    {productSlug==='coaster-set'&&photo&&<p className="slateHelp">You selected {1+extraCoasterPhotos.length} of {Number((selectedSize.label.match(/\d+/)||['1'])[0])} coaster photos. The live preview shows the first coaster; extra photos are saved as separate print images. You may use the same first photo for any remaining coasters.</p>}
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
       <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected product.</p>
       <div className="slateOrientationSelector" role="group" aria-label="Photo fitting">
