@@ -124,3 +124,10 @@ test('coaster sets can retain distinct print photos with first-image fallback',(
  assert.match(review,/printPaths\[index\]\|\|printPaths\[0\]/);
  assert.match(review,/coasterCount:productSlug==='coaster-set'/);
 });
+
+test('coaster sets expose visible extra photo upload and replace actions',()=>{
+ assert.match(source,/Add photo for coaster/);
+ assert.match(source,/Replace photo/);
+ assert.match(source,/CoasterPhotoThumbnail/);
+ assert.match(source,/function addCoasterPhoto/);
+});
