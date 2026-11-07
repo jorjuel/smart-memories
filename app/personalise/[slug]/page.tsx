@@ -1,3 +1,4 @@
+import {isGiftStudioProduct} from '@/lib/giftStudioProducts';
 import SlateSinglePageCustomiser from '../../../components/SlateSinglePageCustomiser';
 import ProductPersonaliser from '../../../components/ProductPersonaliser';
 
@@ -18,7 +19,7 @@ export default async function PersonalisePage({
   const { slug } = await params;
   const { occasion, draft } = await searchParams;
 
-  if (slug === 'smart-photo-slate') return <SlateSinglePageCustomiser initialOccasion={occasion} />;
+  if (isGiftStudioProduct(slug)) return <SlateSinglePageCustomiser productSlug={slug} initialOccasion={occasion} />;
 
   return (
     <ProductPersonaliser
