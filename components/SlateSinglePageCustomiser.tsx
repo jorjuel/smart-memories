@@ -83,6 +83,11 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
   lines.forEach((value,i)=>ctx.fillText(value.slice(0,100),w/2,py+ph+fontSize*(1.15+i*1.1),w-2*inset));
  }
 }
+function CoasterPhotoThumbnail({file,label}:{file:File;label:string}){
+ const [url,setUrl]=useState('');
+ useEffect(()=>{const u=URL.createObjectURL(file);setUrl(u);return()=>URL.revokeObjectURL(u);},[file]);
+ return <div className="smCoasterPhotoItem">{url&&<img src={url} alt={label} className="smCoasterThumbnail"/>}<div><strong>{label}</strong><small>{file.name}</small></div></div>;
+}
 export default function SlateSinglePageCustomiser({initialOccasion='',productSlug='smart-photo-slate'}:{initialOccasion?:string;productSlug?:GiftStudioSlug}){
  const config=getGiftStudioConfig(productSlug);
  if(!config)throw Error('Unsupported gift');
@@ -136,6 +141,15 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     }
     setExtraCoasterPhotos(extras);
   }
+ }
+ function addCoasterPhoto(file?:File){
+  if(!file)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>10*1024*1024){
+   setError('Choose a JPG, PNG or WebP photo no larger than 10MB.');return;
+  }
+  const count=Number((selectedSize.label.match(/\d+/)||['1'])[0]);
+  setExtraCoasterPhotos(old=>old.length>=count-1?old:[...old,file]);
+  setError('');setAdded(false);
  }
  function choosePhoto(file?:File){
   if(!file)return;
@@ -260,10 +274,35 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
        </div>
       </div>}
     </fieldset>
-    <label>Upload your photo
-     <input type="file" multiple={productSlug==='coaster-set'} accept="image/png,image/jpeg,image/webp" onChange={e=>choosePhotos(e.currentTarget.files)}/>
+    <label>{productSlug==='coaster-set'?'Upload photo for coaster 1':'Upload your photo'}
+     <input type="file" multiple={productSlug==='coaster-set'} accept="image/png,image/jpeg,image/webp" onChange={e=>{choosePhotos(e.currentTarget.files);e.currentTarget.value='';}}/>
     </label>
-    {productSlug==='coaster-set'&&photo&&<p className="slateHelp">You selected {1+extraCoasterPhotos.length} of {Number((selectedSize.label.match(/\d+/)||['1'])[0])} coaster photos. The live preview shows the first coaster; extra photos are saved as separate print images. You may use the same first photo for any remaining coasters.</p>}
+    {productSlug==='coaster-set'&&photo&&<div className="smCoasterPhotoPicker">
+     <p className="slateHelp"><strong>{Math.min(1+extraCoasterPhotos.length,Number((selectedSize.label.match(/\d+/)||['1'])[0]))} of {Number((selectedSize.label.match(/\d+/)||['1'])[0])} coaster photos selected.</strong> Add a photo for each coaster or repeat the first photo.</p>
+     <div className="smCoasterPhotoList">
+      <CoasterPhotoThumbnail file={photo} label="Coaster 1 · Main photo"/>
+      {extraCoasterPhotos.slice(0,Math.max(0,Number((selectedSize.label.match(/\d+/)||['1'])[0])-1)).map((file,index)=>
+       <div className="smCoasterExtraRow" key={index}>
+        <CoasterPhotoThumbnail file={file} label={`Coaster ${index+2}`}/>
+        <label>Replace photo {index+2}
+         <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>{
+          const file=e.currentTarget.files?.[0];
+          if(file){
+           if(file.size>10*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type))setError('Choose a JPG, PNG or WebP photo no larger than 10MB.');
+           else{setExtraCoasterPhotos(old=>old.map((f,i)=>i===index?file:f));setError('');setAdded(false);}
+          }
+          e.currentTarget.value='';
+         }}/>
+        </label>
+        <button className="slateTextButton" type="button" onClick={()=>{setExtraCoasterPhotos(old=>old.slice(0,index));setAdded(false);}}>Remove photo {index+2} and later</button>
+       </div>)}
+     </div>
+     {1+extraCoasterPhotos.length<Number((selectedSize.label.match(/\d+/)||['1'])[0])&&<label className="smCoasterAddPhoto">
+      <strong>+ Add photo for coaster {2+extraCoasterPhotos.length}</strong>
+      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>{addCoasterPhoto(e.currentTarget.files?.[0]);e.currentTarget.value='';}}/>
+     </label>}
+     <small>The live gift preview shows coaster 1; other photos are saved separately for printing.</small>
+    </div>}
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
       <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected product.</p>
       <div className="slateOrientationSelector" role="group" aria-label="Photo fitting">
