@@ -255,3 +255,17 @@ test('public Smart Memory page has bounded loading and recoverable failure',()=>
  assert.match(memoryPage,/Try again/);
  assert.match(memoryPage,/RecipientMemoryExperience memory=\{memory\}/);
 });
+
+test('owner order detail shows saved keyring front/back artwork and folds technical data',()=>{
+ const order=read('app/admin/(protected)/orders/[id]/page.tsx');
+ const css=read('app/globals.css');
+ assert.match(order,/const frontArtworkUrl = secureArtworkUrl\(productDetails.printArtworkUrl\)/);
+ assert.match(order,/const backArtworkUrl = secureArtworkUrl\(productDetails.backArtworkUrl\)/);
+ assert.match(order,/Front — Photograph/);
+ assert.match(order,/Back — Personalised message/);
+ assert.match(order,/Preview front/);
+ assert.match(order,/Preview back/);
+ assert.match(order,/Download print file/);
+ assert.match(order,/<details className="smAdminPersonalisation smAdminTechnicalDetails">/);
+ assert.match(css,/\.smAdminPrintGrid/);
+});
