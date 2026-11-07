@@ -2,7 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import {loadSlateDraft,storeSlateDraft,clearSlateDraft,type SlateReviewDraft} from '@/lib/slateReviewDraft';
-import {paint} from '@/components/SlateSinglePageCustomiser';
+import {paint,paintKeyringBack} from '@/components/SlateSinglePageCustomiser';
 import {getGiftStudioConfig,type GiftStudioSlug} from '@/lib/giftStudioProducts';
 import {uploadMemoryMedia,readMemorySaveResult} from '@/lib/memoryMediaUpload';
 import SmartMemoryLivePreview from '@/components/SmartMemoryLivePreview';
@@ -27,6 +27,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
  const [draft,setDraft]=useState<SlateReviewDraft|null>(null);
  const [image,setImage]=useState<HTMLImageElement|null>(null);
  const [selectedReviewCoaster,setSelectedReviewCoaster]=useState(0);
+ const [reviewKeyringSide,setReviewKeyringSide]=useState<'front'|'back'>('front');
  const [reviewCoasterImage,setReviewCoasterImage]=useState<HTMLImageElement|null>(null);
  const [photoPreviewUrl,setPhotoPreviewUrl]=useState('');
  const [audioUrl,setAudioUrl]=useState('');
@@ -74,9 +75,12 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
  useEffect(()=>{
   if(!draft||!image||!dimensions||!canvasRef.current)return;
   const ctx=canvasRef.current.getContext('2d');
-  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedReviewCoaster>0?reviewCoasterImage||image:image,dimensions,draft.crop,draft.wording,draft.topText,
+  if(ctx){
+   if(productSlug==='keyring'&&reviewKeyringSide==='back')paintKeyringBack(ctx,dimensions,draft.keyringBackText||'',roundKeyring);
+   else paint(ctx,productSlug==='coaster-set'&&selectedReviewCoaster>0?reviewCoasterImage||image:image,dimensions,draft.crop,productSlug==='keyring'?'none':draft.wording,draft.topText,
     draft.bottomText,draft.dedication,900,productSlug==='keyring'?'cover':draft.fit,draft.rotation,roundKeyring,productSlug==='keyring');
- },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,roundKeyring,dimensions?.width,dimensions?.height]);
+  }
+ },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,roundKeyring,reviewKeyringSide,dimensions?.width,dimensions?.height]);
  async function promoteSelectedCoaster(index:number){
   if(productSlug!=='coaster-set'||!draft||index<1||index>=coasterCount||saving||swappingMainPhoto)return;
   const replacement=draft.extraCoasterPhotos?.[index-1];
@@ -118,7 +122,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      const canvas=document.createElement('canvas');
      const ctx=canvas.getContext('2d');
      if(!ctx)throw Error('Could not create print artwork.');
-     paint(ctx,img,printDimensions,draft!.crop,draft!.wording,draft!.topText,draft!.bottomText,
+     paint(ctx,img,printDimensions,draft!.crop,productSlug==='keyring'?'none':draft!.wording,draft!.topText,draft!.bottomText,
        draft!.dedication,pixels,productSlug==='keyring'?'cover':draft!.fit,draft!.rotation,roundKeyring,productSlug==='keyring');
      const mime=roundKeyring?'image/png':'image/jpeg';
      const blob=await new Promise<Blob>((resolve,reject)=>
@@ -126,6 +130,14 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      return new File([blob],`${productSlug}-print-${index+1}.${roundKeyring?'png':'jpg'}`,{type:mime});
    }
    const printFiles=[await artworkFor(image,0)];
+   if(productSlug==='keyring'){
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    if(!ctx)throw Error('Could not create reverse keyring artwork.');
+    paintKeyringBack(ctx,printDimensions,draft.keyringBackText||'',roundKeyring,pixels);
+    const backBlob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error('Could not export keyring back artwork.')),'image/png'));
+    printFiles.push(new File([backBlob],'keyring-back-print.png',{type:'image/png'}));
+   }
    if(productSlug==='coaster-set'&&draft.extraCoasterPhotos?.length){
     for(const [index,extra] of draft.extraCoasterPhotos.entries()){
       const picture=await new Promise<HTMLImageElement>((resolve,reject)=>{
@@ -174,6 +186,9 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      wording:draft.wording,textLayout:draft.wording,
      topText:draft.topText,bottomText:draft.bottomText,paragraph:draft.dedication,
      memoryMessage:draft.message.trim(),sender:draft.sender.trim(),
+     keyringBackText:productSlug==='keyring'?draft.keyringBackText||'':undefined,
+     backArtworkUrl:productSlug==='keyring'?url(printPaths[1]):undefined,
+     printArtworkUrls:productSlug==='keyring'?printPaths.map(url):undefined,
      printPhotoUrls:productSlug==='coaster-set'
        ?Array.from({length:Number((size.label.match(/\d+/)||['1'])[0])},(_,index)=>url(printPaths[index]||printPaths[0]))
        :[url(originalPath)],
@@ -200,6 +215,10 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
   <div className="smWizardDualPreview">
     <article>
      <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span>
+     {productSlug==='keyring'&&<div className="smKeyringSideSwitch" role="group" aria-label="Preview front and back of your keyring">
+      <button type="button" className={reviewKeyringSide==='front'?'active':''} aria-pressed={reviewKeyringSide==='front'} onClick={()=>setReviewKeyringSide('front')}>Front · Photo</button>
+      <button type="button" className={reviewKeyringSide==='back'?'active':''} aria-pressed={reviewKeyringSide==='back'} onClick={()=>setReviewKeyringSide('back')}>Back · Message</button>
+     </div>}
      <div className="slateFinalArtwork">
      <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''} ${roundKeyring?'slateProductShell--roundKeyring':''}`}>
       <canvas ref={canvasRef} width={900} height={1200}
@@ -207,7 +226,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
        aria-label={`Finished ${config.name}`} role="img"/>
      </div>
      </div>
-     <p className="slateFinalSize"><strong>{size.label}</strong> · {config.directions?(draft.direction==='landscape'?'Landscape':'Vertical'):'Personalised'}</p>
+     <p className="slateFinalSize"><strong>{size.label}</strong> · {config.directions?(draft.direction==='landscape'?'Landscape':'Vertical'):'Personalised'}{productSlug==='keyring'?' · '+(reviewKeyringSide==='front'?'Photo front':'Message back'):''}</p>
      {productSlug==='coaster-set'&&<div className="smCoasterReviewGallery">
       <p className="smCoasterReviewGalleryTitle"><strong>Preview all {coasterCount} coasters</strong><span>Tap a photo to see its design above.</span></p>
       <div className="smCoasterReviewThumbnails" role="group" aria-label="Choose coaster to preview and set Smart Memory photo">
