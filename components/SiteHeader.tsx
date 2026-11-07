@@ -34,12 +34,6 @@ export default function SiteHeader() {
             Shop
           </Link>
           <Link
-            href="/create"
-            className={pathname === '/create' ? 'smCreateNavCta smNavActive' : undefined}
-          >
-            Create a Memory
-          </Link>
-          <Link
             href="/how-it-works"
             className={pathname === '/how-it-works' ? 'smNavActive' : undefined}
           >

@@ -52,10 +52,6 @@ export default function SiteFooter() {
             CREATE
           </strong>
 
-          <Link href="/create">
-            Create a Memory
-          </Link>
-
           <Link href="/shop">
             Smart Gifts
           </Link>

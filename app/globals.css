@@ -13313,3 +13313,472 @@ header.smSiteHeader {
     max-width: 100%;
   }
 }
+
+
+/* Slate-only single-page editor. Other product personalisers are unchanged. */
+.slateStudio{max-width:1200px;margin:0 auto;padding:clamp(18px,4vw,48px) 18px 70px}
+.slateStudioHeading{margin-bottom:26px}
+.slateStudioHeading h1{font-size:clamp(28px,4vw,46px);line-height:1.15;margin:8px 0}
+.slateStudioHeading p{color:#625d57;margin:0}
+.slateStudioGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.86fr);gap:clamp(20px,4vw,48px);align-items:start}
+.slateStudioControls{display:grid;gap:19px;min-width:0}
+.slateStudioControls>label,.slateStudioControls fieldset>label,.slatePersonFields label{display:grid;gap:7px;font-weight:600}
+.slateStudioControls input:not([type="range"]):not([type="file"]),.slateStudioControls select,.slateStudioControls textarea{width:100%;max-width:100%;min-width:0;border:1px solid #cfc9c0;border-radius:9px;background:#fff;padding:11px 12px;color:#25211d;font:inherit;box-sizing:border-box}
+.slateStudioControls input[type="file"]{width:100%;border:1px dashed #b1a79c;border-radius:10px;padding:13px;background:#fff}
+.slateStudioControls fieldset{min-width:0;border:1px solid #e2dcd4;border-radius:13px;padding:15px;display:grid;gap:12px}
+.slateStudioControls legend{font-weight:700;padding:0 6px}
+.slateSizes,.slateWording{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.slateSizes button,.slateWording button{border:1px solid #d4c9bd;border-radius:10px;padding:12px 8px;background:#fff;color:#262321;font:inherit;cursor:pointer;min-height:46px}
+.slateSizes button.active,.slateWording button.active{background:#f3ece2;border:2px solid #80674d;font-weight:700}
+.slatePersonFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.slateHelp{font-size:13px;color:#67615a;margin:4px 0 10px;line-height:1.5}
+.slateTextButton{justify-self:start;background:transparent;border:0;text-decoration:underline;cursor:pointer;color:#554534}
+.slateStudioPreview{position:sticky;top:18px;padding:clamp(16px,2.4vw,26px);border:1px solid #e4dcd0;border-radius:18px;background:#faf7f2;display:grid;gap:13px;min-width:0;box-shadow:0 8px 35px #00000009}
+.slateStudioPreview h2{font-size:clamp(20px,2.5vw,27px);margin:0}
+.slatePreviewWrap{display:flex;justify-content:center;align-items:center;min-height:260px;max-height:580px;overflow:hidden;padding:16px 10px;background:linear-gradient(150deg,#e3dfd8,#f7f5f1);border-radius:11px}
+.slatePreviewWrap canvas{display:block;width:auto;max-width:100%;height:auto;max-height:535px;object-fit:contain;border-radius:3px;box-shadow:0 9px 25px #0003;touch-action:none;cursor:grab}
+.slatePreviewWrap canvas:active{cursor:grabbing}
+.slateStudioPreview>.btn{width:100%;justify-content:center;text-align:center}
+.slateError{color:#8d2828;font-weight:600}
+.slateSuccess{color:#245b38;font-weight:600}
+.slateSuccess a{text-decoration:underline}
+.slateStudioPreview>small{color:#6a635c;line-height:1.4}
+@media(max-width:790px){
+ .slateStudioGrid{grid-template-columns:minmax(0,1fr)}
+ .slateStudioPreview{position:static}
+ .slatePreviewWrap{min-height:230px;max-height:490px}
+ .slatePreviewWrap canvas{max-height:450px}
+ .slateStudio{padding:20px 14px 60px}
+}
+@media(max-width:420px){
+ .slatePersonFields{grid-template-columns:1fr}
+ .slateSizes,.slateWording{gap:7px}
+ .slateSizes button,.slateWording button{font-size:13px;padding:9px 5px}
+}
+
+/* Customer final review: physical slate beside the digital Smart Memory screen. */
+.slateReview .slateStudioGrid{align-items:start}
+.slateReview .slateStudioControls>.card{display:grid;gap:14px;padding:24px;border-radius:16px}
+.slateReview .slateStudioControls>.card h2{margin:0}
+.slateReviewMessage{font-size:clamp(17px,2vw,21px);line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;padding:18px;background:#f8f4ee;border-radius:12px}
+.slateReviewActions{display:grid;gap:12px}
+.slateReviewActions .btn{text-align:center;justify-content:center}
+.slateStudioControls audio{max-width:100%}
+
+/* Match the photo-slate builder and review to the shared Smart Memories visual system. */
+.slateStudio.smWizardPage{
+ max-width:1220px;
+ padding:clamp(24px,4vw,55px) 22px 90px;
+ background:var(--sm-cream);
+ color:var(--sm-plum-dark);
+}
+.slateStudio .smWizardStepHeading{margin-bottom:30px}
+.slateStudio .smWizardStepHeading h2{font-size:clamp(32px,4vw,48px);line-height:1.14}
+.slateStudio .smWizardStepHeading p{color:var(--sm-muted)}
+.slateStudio .slateStudioControls>label,
+.slateStudio .slateStudioControls>fieldset,
+.slateStudio .slatePersonFields{
+ border:1px solid var(--sm-border);
+ background:white;
+ border-radius:18px;
+ padding:22px;
+ margin:0;
+ color:var(--sm-plum-dark);
+ font-weight:700;
+}
+.slateStudio .slateStudioControls>label{display:grid;gap:10px}
+.slateStudio .slateStudioControls>fieldset{display:grid;gap:14px}
+.slateStudio .slateStudioControls legend{
+ font-family:Georgia,serif;
+ font-size:22px;
+ font-weight:400;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateStudioControls select,
+.slateStudio .slateStudioControls input:not([type="range"]):not([type="file"]),
+.slateStudio .slateStudioControls textarea{
+ background:var(--sm-cream);
+ border-color:var(--sm-border);
+ border-radius:12px;
+ padding:13px;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateStudioControls input[type="file"]{
+ border-color:var(--sm-border);
+ border-radius:12px;
+ background:var(--sm-cream);
+}
+.slateStudio .slateSizes button,.slateStudio .slateWording button{
+ border:1px solid var(--sm-border);
+ border-radius:12px;
+ background:white;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateSizes button.active,.slateStudio .slateWording button.active{
+ background:var(--sm-blush);
+ border:2px solid var(--sm-rose);
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slateStudioPreview{
+ background:white;
+ border:1px solid var(--sm-border);
+ border-radius:21px;
+ box-shadow:none;
+ padding:24px;
+}
+.slateStudio .slateStudioPreview h2{
+ font-family:Georgia,serif;
+ font-weight:400;
+ color:var(--sm-plum-dark);
+}
+.slateStudio .slatePreviewWrap{
+ background:var(--sm-cream);
+ border-radius:15px;
+}
+.slateStudio .slateHelp,.slateStudio .slateStudioPreview>small{
+ color:var(--sm-muted);
+}
+.slateStudio .slateOptional{
+ color:var(--sm-muted);
+ font-size:12px;
+ font-weight:400;
+}
+.slateStudio .slateVoiceCard{
+ border:1px solid var(--sm-border);
+ background:white;
+ border-radius:18px;
+}
+.slateStudio .slateVoiceCard .slateSizes button:first-child{
+ border-color:var(--sm-rose);
+ background:var(--sm-rose);
+ color:#fff;
+ font-weight:700;
+}
+.slateStudio .slateVoiceCard .slateSizes button:first-child:hover{
+ filter:brightness(.94);
+}
+.slateStudio .slateVoiceCard audio{width:100%}
+.slateStudio .slateTextButton{
+ color:var(--sm-rose);
+ font-weight:700;
+}
+.slateReview.smWizardPage{max-width:1220px}
+.slateReview .smWizardDualPreview>article{display:flex;flex-direction:column;gap:14px}
+.slateReview .smWizardDualPreview>article .v14Eyebrow{
+ color:var(--sm-rose);
+ font-size:11px;
+ letter-spacing:1.5px;
+}
+.slateReview .slateFinalArtwork{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ flex:1;
+ padding:16px 6px;
+ min-height:300px;
+ background:white;
+}
+.slateReview .slateFinalArtwork canvas{
+ width:auto;
+ max-width:100%;
+ max-height:600px;
+ height:auto;
+ box-shadow:0 7px 18px #0002;
+}
+.slateReview .slateFinalSize{
+ color:var(--sm-muted);
+ font-size:13px;
+ text-align:center;
+}
+.slateReview .smLiveMemoryPhone{margin:10px auto 0}
+.slateReview .slateReviewFooter{
+ display:flex;
+ gap:22px;
+ align-items:center;
+ justify-content:space-between;
+ padding-top:20px;
+}
+.slateReview .slateReviewFooter .smWizardCreateButton{
+ width:auto;
+ margin:0;
+}
+.slateReview .slateReviewSuccess{margin-top:24px}
+@media(max-width:790px){
+ .slateStudio.smWizardPage{padding:20px 14px 65px}
+ .slateStudio .slateStudioControls>label,.slateStudio .slateStudioControls>fieldset,.slateStudio .slatePersonFields{padding:18px}
+ .slateReview .smWizardDualPreview{grid-template-columns:minmax(0,1fr)}
+ .slateReview .slateReviewFooter{flex-direction:column;align-items:stretch}
+ .slateReview .slateReviewFooter .smWizardCreateButton{width:100%}
+}
+
+/* Rugged stone photo-slate mockup, not a smooth picture-frame border.
+   This shell is only a product visual; export artwork is still generated
+   from the printable canvas, not a snapshot of the decorative shell. */
+.slateStoneShell{
+ position:relative;
+ display:flex;
+ align-items:stretch;
+ justify-content:center;
+ box-sizing:border-box;
+ width:fit-content;
+ max-width:100%;
+ max-height:100%;
+ padding:clamp(6px,1.1vw,12px);
+ background:
+  repeating-linear-gradient(122deg,transparent 0 3px,#d4d4d330 3px 4px,transparent 4px 9px),
+  linear-gradient(130deg,#111 0%,#4d4d4c 7%,#222 13%,#080808 24%,#515150 38%,#171717 57%,#444 80%,#0b0b0b 100%);
+ border:2px solid #282827;
+ clip-path:polygon(0.9% 0.2%,4% .8%,9% .1%,16% .5%,24% 0%,33% .7%,42% .2%,52% .5%,61% .1%,72% .6%,82% .2%,90% .5%,98.7% 0.6%,99.4% 5%,99% 12%,100% 23%,99.1% 31%,99.7% 42%,99.2% 52%,99.8% 61%,99% 71%,99.7% 82%,99.1% 92%,99.4% 99%,92% 99.4%,83% 100%,72% 99.5%,62% 99.8%,51% 99.3%,40% 100%,28% 99.4%,18% 99.8%,9% 99.2%,.6% 99.5%,.2% 92%,.8% 83%,.1% 73%,.8% 61%,.2% 51%,.9% 41%,.1% 31%,.8% 21%,.1% 11%);
+ filter:drop-shadow(0 2px 3px #0005);
+}
+.slateStoneShell canvas{
+ display:block;
+ position:relative;
+ z-index:1;
+ border-radius:0!important;
+ box-shadow:inset 0 0 3px #2228!important;
+}
+.slateStudio .slatePreviewWrap .slateStoneShell canvas,
+.slateReview .slateFinalArtwork .slateStoneShell canvas{
+ max-width:100%;
+ height:auto;
+}
+.slateReview .slateFinalArtwork .slateStoneShell{margin:auto}
+@media(max-width:790px){
+ .slateStoneShell{padding:7px}
+}
+
+/* Shop introduction inspired by the centred Smart Memories editorial reference. */
+.smSimpleShopHero.smSimpleShopHeroEditorial{
+  padding:clamp(28px,4.5vw,70px) 16px 22px;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  text-align:center;
+}
+.smSimpleShopHeroEditorial .eyebrow{
+  display:block;
+  color:var(--sm-rose);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:2.1px;
+}
+.smSimpleShopHeroEditorial h1{
+  max-width:1010px;
+  margin:20px auto 23px;
+  color:var(--sm-plum-dark);
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:400;
+  font-size:clamp(38px,5vw,65px);
+  line-height:1.1;
+  letter-spacing:-1.2px;
+}
+.smSimpleShopHeroEditorial h1 span{display:block}
+.smSimpleShopHeroEditorial p{
+  max-width:810px;
+  margin:0 auto;
+  color:var(--sm-muted);
+  font-size:clamp(14px,1.4vw,17px);
+  line-height:1.65;
+}
+.smSimpleShopHeroEditorial .smSimpleShopTagline{
+  margin:25px auto 0;
+  color:var(--sm-rose);
+  font-family:Georgia,"Times New Roman",serif;
+  font-style:italic;
+  font-size:clamp(19px,2vw,23px);
+}
+.smSimpleShopShareIntro{
+  text-align:center;
+  max-width:950px;
+  margin:15px auto 28px;
+  padding:0 12px;
+}
+.smSimpleShopShareIntro h2{
+  color:var(--sm-plum-dark);
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:400;
+  line-height:1.2;
+  font-size:clamp(28px,3.4vw,41px);
+  margin:12px 0;
+}
+.smSimpleShopShareIntro p{
+  color:var(--sm-muted);
+  font-size:clamp(14px,1.3vw,16px);
+  line-height:1.6;
+  margin:0;
+}
+@media(max-width:600px){
+ .smSimpleShopHero.smSimpleShopHeroEditorial{padding:24px 6px 16px}
+ .smSimpleShopHeroEditorial h1{letter-spacing:-.5px}
+ .smSimpleShopShareIntro{margin:10px auto 18px}
+}
+
+/* The two existing memory routes also appear beneath the shop introduction. */
+.smSimpleShopShareIntro .smShopMemoryPathGrid{
+ margin:23px auto 0;
+ max-width:1120px;
+ text-align:left;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard p{
+ margin:0 0 8px;
+ max-width:none;
+ font-size:14px;
+ text-align:left;
+ line-height:1.55;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard{
+ padding:clamp(18px,2.4vw,26px);
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathIcon{font-size:26px}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard h3{font-size:25px}
+@media(max-width:650px){
+ .smSimpleShopShareIntro .smShopMemoryPathGrid{grid-template-columns:minmax(0,1fr);gap:12px}
+}
+
+/* Large product photographs for the two Smart Memory creation paths. */
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard{
+ overflow:hidden;
+ padding:0;
+ gap:0;
+ border-radius:20px;
+}
+.smShopMemoryChoicePhoto{
+ display:block;
+ width:100%;
+ height:auto;
+ aspect-ratio:4/3;
+ object-fit:cover;
+ background:#f4e9e1;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard h3{
+ margin:17px 23px 8px;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard p{
+ margin:0 23px 12px;
+ flex:1;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard strong{
+ margin:0 23px 22px;
+}
+@media(max-width:650px){
+ .smShopMemoryChoicePhoto{aspect-ratio:4/3}
+}
+
+/* Shared gift studio: same controls and review; distinctive physical-product mockups. */
+.slateProductShell{position:relative;display:flex;justify-content:center;align-items:center;max-width:92%;margin:auto;box-sizing:border-box}
+.slateProductShell canvas{display:block;max-width:100%;height:auto;position:relative;z-index:1}
+.slateProductShell--coaster{
+ border:9px solid #51433e;border-radius:17px;background:#51433e;
+ box-shadow:0 12px 20px #0003,0 3px 2px #ffffff4d inset;
+ overflow:hidden;
+}
+.slateProductShell--coaster canvas{border-radius:8px;max-height:440px}
+.slateProductShell--mat{
+ border:11px solid #363232;border-radius:17px;background:#363232;
+ box-shadow:0 12px 20px #0003;
+ overflow:hidden;
+}
+.slateProductShell--mat canvas{border-radius:7px;max-height:440px}
+.slateProductShell--keyring{
+ border:6px solid #cb9b65;border-radius:18px;background:#f7d9a1;
+ box-shadow:0 12px 20px #0003;
+ margin-top:40px;overflow:visible;
+}
+.slateProductShell--keyring:before{
+ content:'';position:absolute;width:48px;height:48px;border:7px solid #bb8c60;
+ border-radius:50%;top:-53px;left:calc(50% - 31px);
+ box-shadow:0 1px 3px #0003;
+}
+.slateProductShell--keyring canvas{border-radius:11px;max-height:370px}
+.slateProductShell--mug{
+ border:13px solid #faf8f4;border-radius:22px 22px 45px 45px;
+ background:#faf8f4;
+ box-shadow:0 10px 25px #0003, inset 6px 0 13px #0002;
+ margin-right:58px;
+}
+.slateProductShell--mug:after{
+ content:'';position:absolute;right:-69px;top:15%;
+ width:66px;height:65%;border:17px solid #f3ede5;
+ border-left:0;border-radius:0 50% 50% 0;
+ box-shadow:6px 3px 9px #0002;
+}
+.slateProductShell--mug canvas{max-height:350px;border-radius:8px}
+.slateReview .slateFinalArtwork .slateProductShell{margin:auto}
+@media(max-width:600px){
+ .slateProductShell--mug{margin-right:37px}
+ .slateProductShell--mug:after{right:-47px;width:45px;border-width:12px}
+ .slateProductShell--coaster,.slateProductShell--mat{border-width:6px}
+}
+
+/* Individual coaster photo slots, readable on mobile */
+.smCoasterPhotoPicker{display:grid;gap:12px;padding:15px;border:1px solid #e4d6d1;border-radius:14px;background:#fffaf7}
+.smCoasterPhotoList{display:grid;gap:9px}
+.smCoasterPhotoItem{display:flex;align-items:center;gap:12px;min-width:0}
+.smCoasterPhotoItem>div{min-width:0;display:grid;gap:3px}
+.smCoasterPhotoItem small{display:block;overflow-wrap:anywhere}
+.smCoasterThumbnail{width:68px;height:68px;flex:none;object-fit:cover;border-radius:12px;border:1px solid #dcc8bf}
+.smCoasterExtraRow{display:grid;gap:8px;padding:10px;border:1px solid #eadfda;border-radius:12px}
+.smCoasterAddPhoto{display:grid;gap:8px;padding:12px;border:1px dashed #ad847d;border-radius:12px;cursor:pointer}
+.smCoasterPhotoPicker input[type=file]{max-width:100%;width:100%}
+
+/* Accessible 1–6 coaster switcher on design and review pages. */
+.smCoasterPhotoList .smCoasterExtraRow>button:first-child{width:100%;text-align:left;border:1px solid #e5d9d3;background:white;border-radius:10px;padding:8px;cursor:pointer}
+.smCoasterPhotoList .smCoasterExtraRow>button.smCoasterSelected,.smCoasterReviewPicker button.smCoasterSelected{border-color:#ac6d75;background:#fff1f1;box-shadow:0 0 0 2px #ac6d7540}
+.smCoasterReviewPicker{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.smCoasterReviewPicker button{border:1px solid #d6beb8;background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;min-height:40px}
+
+/* Final-review coaster filmstrip: tap thumbnail to update the large artwork. */
+.smCoasterReviewGallery{width:100%;max-width:100%;min-width:0;margin-top:14px;padding:12px;border:1px solid #e9d8d2;background:#fffaf8;border-radius:14px;box-sizing:border-box}
+.smCoasterReviewGalleryTitle{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 12px;margin:0 0 10px;font-size:.9rem}
+.smCoasterReviewGalleryTitle span{font-size:.82rem;color:#685c57}
+.smCoasterReviewThumbnails{display:flex;align-items:stretch;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;padding:5px 3px 12px;max-width:100%;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.smCoasterReviewThumb{position:relative;display:flex;flex:0 0 82px;width:82px;height:82px;padding:3px;background:#fff;border:2px solid #e1d3cb;border-radius:12px;cursor:pointer;overflow:hidden;scroll-snap-align:start;touch-action:manipulation}
+.smCoasterReviewThumb img{width:100%;height:100%;object-fit:cover;border-radius:7px;display:block}
+.smCoasterReviewThumb span{position:absolute;bottom:4px;left:4px;min-width:22px;padding:2px 5px;border-radius:6px;background:#382e2bdc;color:white;font-weight:700;font-size:.78rem}
+.smCoasterReviewThumb.smCoasterSelected{border-color:#a85b6d;box-shadow:0 0 0 2px #a85b6d3d}
+.smCoasterReviewThumb:focus-visible{outline:3px solid #865366;outline-offset:2px}
+.smCoasterReviewGallery .slateHelp{margin:3px 0 0}
+@media(max-width:600px){.smCoasterReviewGallery{padding:10px}.smCoasterReviewThumb{flex-basis:74px;width:74px;height:74px}.smCoasterReviewThumbnails{gap:9px}}
+
+/* Coaster review: a clear swap action for each picture, even on narrow phones. */
+.smCoasterReviewThumbnails{align-items:flex-start}
+.smCoasterReviewTile{display:flex;flex-direction:column;align-items:center;flex:0 0 94px;gap:7px;min-width:0}
+.smCoasterReviewTile .smCoasterReviewThumb{flex:0 0 82px}
+.smCoasterSwapButton{display:block;width:100%;padding:7px 5px;min-height:38px;border:1px solid #aa6271;background:#fff1f3;border-radius:8px;color:#6e3743;font-weight:700;font-size:12px;line-height:1.15;cursor:pointer;touch-action:manipulation}
+.smCoasterSwapButton:disabled{opacity:.5;cursor:wait}
+.smCoasterSwapButton:focus-visible{outline:3px solid #8b5365;outline-offset:2px}
+.smCoasterMainLabel,.smCoasterRepeatLabel{font-size:12px;font-weight:700;text-align:center;line-height:1.2}
+.smCoasterMainLabel{color:#873f51}
+.smCoasterRepeatLabel{color:#746862}
+@media(max-width:600px){.smCoasterReviewTile{flex-basis:84px}.smCoasterReviewTile .smCoasterReviewThumb{flex-basis:74px}}
+
+/* Photo keyring shape: rectangular by default, circular for the round option. */
+.slateProductShell--keyring.slateProductShell--roundKeyring{border-radius:50%;aspect-ratio:1/1;overflow:hidden}
+.slateProductShell--keyring.slateProductShell--roundKeyring canvas{aspect-ratio:1/1!important;width:100%;height:auto;border-radius:50%;clip-path:circle(50% at 50% 50%)}
+.slateProductShell--roundKeyring:before,.slateProductShell--roundKeyring:after{pointer-events:none}
+
+/* Double-sided photo keyrings: clear thumb-friendly face controls. */
+.smKeyringSideSwitch{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:12px 0}
+.smKeyringSideSwitch button{flex:1 1 125px;min-height:44px;background:#fff;border:1px solid #cbaea4;padding:10px;border-radius:10px;font-weight:700;color:#553d38;cursor:pointer}
+.smKeyringSideSwitch button.active{background:#fff0eb;border-color:#aa6371;box-shadow:inset 0 0 0 1px #aa6371}
+.smKeyringSideSwitch button:focus-visible{outline:3px solid #8e5360;outline-offset:2px}
+.smKeyringBackEditor textarea{width:100%;box-sizing:border-box}
+
+/* Owner production order: downloadable front/back customer artwork. */
+.smAdminPrintArtwork{margin:16px 0;padding:16px;border:1px solid #e5d2c7;border-radius:14px;background:#fffaf7}
+.smAdminPrintHeading h3{margin:0 0 4px;font-size:1.15rem}
+.smAdminPrintHeading p{margin:0 0 14px;color:#665450;font-size:.9rem}
+.smAdminPrintGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:14px;margin-bottom:12px}
+.smAdminPrintFace{min-width:0;display:grid;align-content:start;gap:9px;padding:12px;background:#fff;border:1px solid #e5d9d1;border-radius:12px}
+.smAdminPrintFace>strong{font-size:.95rem}
+.smAdminPrintFace>a:has(img){display:flex;align-items:center;justify-content:center;background:#f9f5f0;min-height:165px;max-height:300px;border-radius:10px;overflow:hidden}
+.smAdminPrintFace img{display:block;max-width:100%;max-height:300px;width:auto;height:auto;object-fit:contain}
+.smAdminPrintActions{display:flex;flex-wrap:wrap;gap:8px}
+.smAdminPrintActions a{display:inline-flex;align-items:center;justify-content:center;flex:1 1 110px;min-height:42px;padding:9px 10px;border:1px solid #ac6572;border-radius:9px;color:#763943;background:#fff5f5;font-size:.85rem;font-weight:700;text-align:center;text-decoration:none}
+.smAdminPrintActions a:focus-visible{outline:3px solid #8b5561;outline-offset:2px}
+.smAdminPrintWarning{color:#8b3e34;font-weight:600}
+.smAdminTechnicalDetails{margin:12px 0;border:1px solid #eadbd3;border-radius:12px;padding:12px;background:#faf8f6}
+.smAdminTechnicalDetails summary{cursor:pointer;font-weight:700;color:#684b46;min-height:32px}
+.smAdminTechnicalDetails dl{margin-top:15px;overflow-wrap:anywhere}
+@media(max-width:600px){.smAdminPrintArtwork{padding:11px}.smAdminPrintGrid{grid-template-columns:1fr}}

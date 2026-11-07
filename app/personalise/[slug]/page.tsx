@@ -1,3 +1,5 @@
+import {isGiftStudioProduct} from '@/lib/giftStudioProducts';
+import SlateSinglePageCustomiser from '../../../components/SlateSinglePageCustomiser';
 import ProductPersonaliser from '../../../components/ProductPersonaliser';
 
 type Props = {
@@ -16,6 +18,8 @@ export default async function PersonalisePage({
 }: Props) {
   const { slug } = await params;
   const { occasion, draft } = await searchParams;
+
+  if (isGiftStudioProduct(slug)) return <SlateSinglePageCustomiser productSlug={slug} initialOccasion={occasion} />;
 
   return (
     <ProductPersonaliser

@@ -1,3 +1,5 @@
+import {isGiftStudioProduct} from '@/lib/giftStudioProducts';
+import SlateSinglePageCustomiser from '../../../components/SlateSinglePageCustomiser';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -29,6 +31,8 @@ export default async function ProductPage({
   if (!product) {
     notFound();
   }
+
+  if (isGiftStudioProduct(slug)) return <SlateSinglePageCustomiser productSlug={slug} initialOccasion={occasion} />;
 
   const personaliseHref = occasion
     ? `/personalise/${product.slug}?occasion=${encodeURIComponent(

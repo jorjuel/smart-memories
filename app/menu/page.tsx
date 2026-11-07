@@ -5,7 +5,6 @@ const links = [
   { href: '/cards', label: 'Handcrafted cards', description: 'Traditional and Smart Memory cards' },
   { href: '/occasions', label: 'Shop by occasion', description: 'Birthday, wedding, remembrance and celebrations' },
   { href: '/bundles', label: 'Gift bundles', description: 'Collections and thoughtful combinations' },
-  { href: '/create', label: 'Create a Memory', description: 'Make a personal memory gift' },
   { href: '/how-it-works', label: 'How it works', description: 'See how tapping a gift opens a memory' },
   { href: '/memories', label: 'My Memories', description: 'Find your saved memories' },
   { href: '/account/orders', label: 'My Orders', description: 'Track your gift orders' },

@@ -80,23 +80,6 @@ const occasionProducts: Record<string, string[]> = {
   'Just Because': products.map((product) => product.slug),
 };
 
-const occasions = [
-  'Birthday',
-  'Wedding',
-  'Anniversary',
-  'Retirement',
-  'Leaving Gift',
-  'Teacher Gift',
-  'Pet Memory',
-  'Remembrance',
-  'Family Memory',
-  'New Baby',
-  'Graduation',
-  'Christmas',
-  'Just Because',
-];
-
-
 const bundles = [
   {
     slug: 'birthday-bundle',
@@ -176,24 +159,59 @@ export default async function Shop({
   const params = await searchParams;
   const occasion = params.occasion && occasionProducts[params.occasion] ? params.occasion : null;
   const allowed = occasion ? occasionProducts[occasion] : null;
-  const filtered = allowed ? products.filter((p) => allowed.includes(p.slug)) : products;
+  // Launch catalogue: only show products currently offered in the shop.
+  // Keep other product definitions for existing orders and possible future relaunch.
+  const launchSlugs = new Set([
+    'smart-photo-slate',
+    'coaster-set',
+    'photo-mug',
+    'keyring',
+    'mouse-mat',
+  ]);
+  const filtered = products.filter((p) =>
+    launchSlugs.has(p.slug) && (!allowed || allowed.includes(p.slug))
+  );
 
   return (
     <section className="smSimpleShop">
-      <div className="smSimpleShopHero">
+      <div className="smSimpleShopHero smSimpleShopHeroEditorial">
         <span className="eyebrow">SMART MEMORIES · PERSONALISED GIFTS</span>
-        <h1>{occasion ? `Gifts for ${occasion}` : 'Find a gift. Make a memory.'}</h1>
-        <p>Discover thoughtful gifts with your own photos, messages and memories. Choose a product to start creating.</p>
-        <div className="smSimpleShopActions">
-          <Link href="#gifts" className="btn">Shop gifts</Link>
-          <Link href="/cards" className="btn secondary">Handcrafted cards</Link>
-        </div>
+        <h1>{occasion ? `Gifts for ${occasion}` : <>Create a memory.<span>Make it unforgettable.</span></>}</h1>
+        <p>Turn your photos, voice and messages into memories worth keeping.</p>
+        <p className="smSimpleShopTagline">Tap. Remember. Relive.</p>
       </div>
+
+      {!occasion && (
+        <div className="smSimpleShopShareIntro">
+          <h2>How would you like to share your memory?</h2>
+          <p>Both choices use the same photo, voice and message creator.<br />
+            Make your memory first, then choose how it is presented.</p>
+          <div className="smMemoryPathGrid smShopMemoryPathGrid">
+            <Link href="/create?mode=tag" className="smMemoryPathCard">
+              <img className="smShopMemoryChoicePhoto"
+                src="/images/memory-only-card.webp"
+                alt="Smart Memories rose-pink bow gift tag and phone showing a personal memory"
+                width="960" height="720" />
+              <h3>Memory Only</h3>
+              <p>Create your digital memory, then choose a satin bow colour for a decorative gift tag that opens the memory.</p>
+              <strong>Create memory &amp; tag →</strong>
+            </Link>
+            <Link href="/create?mode=gift" className="smMemoryPathCard">
+              <img className="smShopMemoryChoicePhoto"
+                src="/images/memory-gift-card.webp"
+                alt="Personalised slate, mug, keyrings and card alongside a Smart Memory on a phone"
+                width="960" height="720" />
+              <h3>Memory + Gift</h3>
+              <p>Create your digital memory first, then choose a personalised gift to carry it.</p>
+              <strong>Create memory &amp; choose gift →</strong>
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="smSimpleShopShortcuts" aria-label="Shop categories">
         <Link href="#gifts">Personalised gifts</Link>
-        <Link href="#occasions">By occasion</Link>
-        <Link href="#cards">Cards</Link>
+        <Link href="#cards">Handcrafted cards</Link>
         {!occasion && <Link href="#bundles">Bundles</Link>}
         {!occasion && <Link href="#corporate">Corporate gifts</Link>}
       </div>
@@ -208,23 +226,6 @@ export default async function Shop({
           {filtered.length ? filtered.map((p) => <ProductCard key={p.slug} p={p} occasion={occasion ?? undefined} />) : (
             <p>There are no gifts in this category yet. <Link href="/shop">Browse all gifts.</Link></p>
           )}
-        </div>
-      </section>
-
-      <section id="occasions" className="smSimpleShopSection">
-        <div className="smSimpleShopSectionHead">
-          <span className="eyebrow">MAKE IT PERSONAL</span>
-          <h2>Shop by occasion</h2>
-        </div>
-        <div className="smSimpleShopOccasions">
-          <Link href="/shop" aria-current={!occasion ? 'page' : undefined}>All gifts</Link>
-          {occasions.map((item) => (
-            <Link
-              key={item}
-              href={`/shop?occasion=${encodeURIComponent(item)}`}
-              aria-current={occasion === item ? 'page' : undefined}
-            >{item}</Link>
-          ))}
         </div>
       </section>
 
