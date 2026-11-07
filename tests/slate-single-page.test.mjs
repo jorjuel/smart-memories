@@ -138,7 +138,7 @@ test('all six coaster slots and their individual design previews are available',
  assert.match(source,/setSelectedCoaster\(index\)/);
  assert.match(source,/coasterPreviewImage\|\|image/);
  assert.match(review,/selectedReviewCoaster/);
- assert.match(review,/CoasterReviewThumbnail key=\{index\}/);
+ assert.match(review,/CoasterReviewThumbnail file=\{file\} index=\{index\}/);
  assert.match(review,/reviewCoasterImage\|\|image/);
 });
 
@@ -159,9 +159,17 @@ test('selected coaster can become main NFC Smart Memory photo without dropping t
  assert.match(source,/setPhoto\(chosen\)/);
  assert.match(source,/previousMain:file/);
  assert.match(review,/function promoteSelectedCoaster/);
- assert.match(review,/newExtras\[selectedReviewCoaster-1\]=oldMain/);
+ assert.match(review,/newExtras\[index-1\]=oldMain/);
  assert.match(review,/photo:replacement,extraCoasterPhotos:newExtras/);
  assert.match(review,/await storeSlateDraft\(updated\)/);
  assert.match(review,/setPhotoPreviewUrl\(url\)/);
- assert.match(review,/Make coaster/);
+ assert.match(review,/Swap with 1/);
+});
+
+test('a swap button is directly available below each uploaded coaster picture',()=>{
+ assert.match(review,/className="smCoasterReviewTile"/);
+ assert.match(review,/className="smCoasterSwapButton"/);
+ assert.match(review,/onClick=\{\(\)=>void promoteSelectedCoaster\(index\)\}/);
+ assert.match(review,/draft\.extraCoasterPhotos\?\.\[index-1\]/);
+ assert.match(review,/setSelectedReviewCoaster\(0\)/);
 });
