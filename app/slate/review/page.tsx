@@ -12,6 +12,8 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
  if(!config)throw Error('Unsupported gift');
  const [draft,setDraft]=useState<SlateReviewDraft|null>(null);
  const [image,setImage]=useState<HTMLImageElement|null>(null);
+ const [selectedReviewCoaster,setSelectedReviewCoaster]=useState(0);
+ const [reviewCoasterImage,setReviewCoasterImage]=useState<HTMLImageElement|null>(null);
  const [photoPreviewUrl,setPhotoPreviewUrl]=useState('');
  const [audioUrl,setAudioUrl]=useState('');
  const [loading,setLoading]=useState(true);
@@ -39,15 +41,26 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
  useEffect(()=>()=>{if(audioUrl)URL.revokeObjectURL(audioUrl);},[audioUrl]);
  useEffect(()=>()=>{if(photoPreviewUrl)URL.revokeObjectURL(photoPreviewUrl);},[photoPreviewUrl]);
  const size=draft?config.sizes[draft.sizeIndex]||config.sizes[0]:null;
+ const coasterCount=productSlug==='coaster-set'&&draft?([1,2,4,6][draft.sizeIndex]||1):1;
+ useEffect(()=>{
+  if(productSlug!=='coaster-set'||selectedReviewCoaster===0){setReviewCoasterImage(null);return;}
+  const file=draft?.extraCoasterPhotos?.[selectedReviewCoaster-1];
+  if(!file){setReviewCoasterImage(null);return;}
+  const url=URL.createObjectURL(file);let active=true;const img=new Image();
+  img.onload=()=>{if(active)setReviewCoasterImage(img);};
+  img.onerror=()=>{if(active)setReviewCoasterImage(null);};
+  img.src=url;
+  return()=>{active=false;URL.revokeObjectURL(url);};
+ },[productSlug,selectedReviewCoaster,draft]);
  const dimensions=draft&&size?
   config.directions&&draft.direction==='landscape'&&size.width!==size.height
   ? {...size,width:size.height,height:size.width}:size:null;
  useEffect(()=>{
   if(!draft||!image||!dimensions||!canvasRef.current)return;
   const ctx=canvasRef.current.getContext('2d');
-  if(ctx)paint(ctx,image,dimensions,draft.crop,draft.wording,draft.topText,
+  if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedReviewCoaster>0?reviewCoasterImage||image:image,dimensions,draft.crop,draft.wording,draft.topText,
     draft.bottomText,draft.dedication,900,draft.fit,draft.rotation);
- },[draft,image,dimensions?.width,dimensions?.height]);
+ },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,dimensions?.width,dimensions?.height]);
  async function addToBasket(){
   if(!draft||draft.productSlug!==productSlug||!image||!size||!dimensions||saving||success)return;
   // Capture validated values locally; nested async functions can safely use these.
@@ -155,6 +168,11 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      </div>
      </div>
      <p className="slateFinalSize"><strong>{size.label}</strong> · {config.directions?(draft.direction==='landscape'?'Landscape':'Vertical'):'Personalised'}</p>
+     {productSlug==='coaster-set'&&<div className="smCoasterReviewPicker" role="group" aria-label="Preview each coaster">
+      {Array.from({length:coasterCount},(_,index)=><button type="button" key={index} aria-pressed={selectedReviewCoaster===index} className={selectedReviewCoaster===index?'smCoasterSelected':''} onClick={()=>setSelectedReviewCoaster(index)}>
+       Coaster {index+1}{index>0&&!draft.extraCoasterPhotos?.[index-1]?' · same photo as 1':''}
+      </button>)}
+     </div>}
     </article>
     <article>
      <span className="v14Eyebrow">B. THEIR SMART MEMORY</span>
