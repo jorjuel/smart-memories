@@ -8,14 +8,16 @@ const page=read('app/shop/[slug]/page.tsx');
 const legacy=read('app/personalise/[slug]/page.tsx');
 const review=read('app/slate/review/page.tsx');
 const draftStorage=read('lib/slateReviewDraft.ts');
+const profiles=read('lib/giftStudioProducts.ts');
+const otherGiftReview=read('app/gift/review/[slug]/page.tsx');
 
 test('slate editor has all four requested physical sizes',()=>{
  for(const size of ['14 × 14 cm','19 × 19 cm','14 × 19 cm','19 × 29 cm'])
-  assert.ok(source.includes(size),'Missing '+size);
+  assert.ok(profiles.includes(size),'Missing '+size);
 });
 test('slate product renders single-page customiser rather than a wizard',()=>{
- assert.match(page,/slug === 'smart-photo-slate'\) return <SlateSinglePageCustomiser/);
- assert.match(legacy,/slug === 'smart-photo-slate'\) return <SlateSinglePageCustomiser/);
+ assert.match(page,/isGiftStudioProduct\(slug\)\) return <SlateSinglePageCustomiser productSlug=\{slug\}/);
+ assert.match(legacy,/isGiftStudioProduct\(slug\)\) return <SlateSinglePageCustomiser productSlug=\{slug\}/);
  assert.doesNotMatch(source,/Next step|Next button|setStepIndex|<ProductPersonaliser/);
  assert.match(source,/className="slateStudioPreview"/);
  assert.match(source,/className="slateStudioControls smWizardFields"/);
@@ -34,7 +36,7 @@ test('written and recorded memories are composed together before a separate revi
  assert.match(source,/navigator\.mediaDevices\.getUserMedia/);
  assert.match(source,/MediaRecorder/);
  assert.match(source,/storeSlateDraft\(draft\)/);
- assert.match(source,/window\.location\.assign\('\/slate\/review'\)/);
+ assert.match(source,/window\.location\.assign\(productSlug==='smart-photo-slate'\?'\/slate\/review'/);
  assert.match(review,/B. THEIR SMART MEMORY/);
  assert.match(review,/A. YOUR PHYSICAL GIFT/);
  assert.match(review,/<SmartMemoryLivePreview/);
@@ -82,8 +84,8 @@ test('slate uses same dual preview and brand styling as other products',()=>{
 
 test('slate mockup has textured rough stone edges rather than a conventional frame',()=>{
  const css=read('app/globals.css');
- assert.match(source,/className="slateStoneShell"/);
- assert.match(review,/className="slateStoneShell"/);
+ assert.match(source,/slateStoneShell/);
+ assert.match(review,/slateStoneShell/);
  assert.match(css,/\.slateStoneShell\{/);
  assert.match(css,/clip-path:polygon\(/);
  assert.match(css,/repeating-linear-gradient/);
@@ -93,4 +95,24 @@ test('From field is required without an optional label',()=>{
  assert.doesNotMatch(source,/From \(optional\)/);
  assert.match(source,/if\(!sender\.trim\(\)\)/);
  assert.match(review,/if\(!draft\.sender\.trim\(\)\)/);
+});
+
+test('the four other launch products share the slate creation and final review path',()=>{
+ for(const slug of ['coaster-set','photo-mug','keyring','mouse-mat']){
+  assert.ok(profiles.includes("'"+slug+"'"),'Missing profile '+slug);
+ }
+ assert.match(otherGiftReview,/SlateReviewPage productSlug=\{slug\}/);
+ assert.match(review,/productSlug:\s*'smart-photo-slate'/);
+ assert.match(draftStorage,/keyFor\(draft\.productSlug\)/);
+ assert.match(draftStorage,/store\.get\(keyFor\(slug\)\)/);
+ assert.match(review,/productSlug,\s*\n\s*memoryCode/);
+ assert.match(review,/price:config\.price/);
+ assert.match(review,/name:config\.name/);
+});
+test('all five gift previews share the layout but use different product mockups',()=>{
+ const css=read('app/globals.css');
+ for(const shape of ['slate','coaster','mug','keyring','mat']){
+  assert.ok(profiles.includes("shape:'"+shape+"'"));
+  if(shape!=='slate')assert.match(css,new RegExp('\\.slateProductShell--'+shape));
+ }
 });
