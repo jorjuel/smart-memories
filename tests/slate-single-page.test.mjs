@@ -102,7 +102,7 @@ test('the four other launch products share the slate creation and final review p
   assert.ok(profiles.includes("'"+slug+"'"),'Missing profile '+slug);
  }
  assert.match(otherGiftReview,/SlateReviewPage productSlug=\{slug\}/);
- assert.match(review,/productSlug:\s*'smart-photo-slate'/);
+ assert.match(review,/productSlug='smart-photo-slate'/);
  assert.match(draftStorage,/keyFor\(draft\.productSlug\)/);
  assert.match(draftStorage,/store\.get\(keyFor\(slug\)\)/);
  assert.match(review,/productSlug,\s*\n\s*memoryCode/);
