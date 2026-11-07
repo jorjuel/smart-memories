@@ -3,6 +3,7 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {storeSlateDraft,loadSlateDraft} from '@/lib/slateReviewDraft';
 import type {SlateReviewDraft} from '@/lib/slateReviewDraft';
+import {getGiftStudioConfig,type GiftStudioSlug} from '@/lib/giftStudioProducts';
 
 type SlateSize={label:string;width:number;height:number};
 export const SIZES:SlateSize[]=[
@@ -82,9 +83,11 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
   lines.forEach((value,i)=>ctx.fillText(value.slice(0,100),w/2,py+ph+fontSize*(1.15+i*1.1),w-2*inset));
  }
 }
-export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialOccasion?:string}){
+export default function SlateSinglePageCustomiser({initialOccasion='',productSlug='smart-photo-slate'}:{initialOccasion?:string;productSlug?:GiftStudioSlug}){
+ const config=getGiftStudioConfig(productSlug);
+ if(!config)throw Error('Unsupported gift');
  const [occasion,setOccasion]=useState(initialOccasion);
- const [sizeIndex,setSizeIndex]=useState(2);
+ const [sizeIndex,setSizeIndex]=useState(productSlug==='smart-photo-slate'?2:0);
  const [direction,setDirection]=useState<SlateDirection>('portrait');
  const [photo,setPhoto]=useState<File|null>(null);
  const [photoUrl,setPhotoUrl]=useState('');
@@ -110,8 +113,8 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
  const [added,setAdded]=useState(false);
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const drag=useRef<{x:number;y:number;dx:number;dy:number}|null>(null);
- const selectedSize=SIZES[sizeIndex];
- const size=direction==='landscape' && selectedSize.width!==selectedSize.height
+ const selectedSize=config.sizes[sizeIndex]||config.sizes[0];
+ const size=config.directions && direction==='landscape' && selectedSize.width!==selectedSize.height
    ? {...selectedSize,width:selectedSize.height,height:selectedSize.width} : selectedSize;
  const detectedOrientation=image?(Math.abs(image.naturalWidth-image.naturalHeight)/Math.max(image.naturalWidth,image.naturalHeight)<.04?'square':image.naturalWidth>image.naturalHeight?'landscape':'portrait'):null;
  const draw=useCallback(()=>{
@@ -187,7 +190,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
  },[]);
  useEffect(()=>{
    let alive=true;
-   loadSlateDraft().then(saved=>{
+   loadSlateDraft(productSlug).then(saved=>{
     if(!alive||!saved)return;
     setOccasion(saved.occasion);setSizeIndex(saved.sizeIndex);setDirection(saved.direction);
     setCrop(saved.crop);setFit(saved.fit);setRotation(saved.rotation);setWording(saved.wording);
@@ -212,15 +215,15 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
   if(saving)return;
   setSaving(true);setError('');
   try{
-   const draft:SlateReviewDraft={photo,audio,sizeIndex,direction,crop,fit,rotation,wording,
+   const draft:SlateReviewDraft={productSlug,photo,audio,sizeIndex,direction,crop,fit,rotation,wording,
     occasion,topText,bottomText,dedication,message,recipient,sender};
    await storeSlateDraft(draft);
-   window.location.assign('/slate/review');
+   window.location.assign(productSlug==='smart-photo-slate'?'/slate/review':`/gift/review/${productSlug}`);
   }catch(err){setError(err instanceof Error?err.message:'Could not prepare the review.');setSaving(false);}
  }
- return <section className="slateStudio smWizardPage" aria-label="Personalise your photo slate">
+ return <section className="slateStudio smWizardPage" aria-label={`Personalise your ${config.name}`}>
   <div className="slateStudioHeading smWizardStepHeading"><span>CREATE YOUR SMART MEMORY</span>
-    <h2>Design Your Personalised Slate</h2><p>Choose your photo slate and add the message they'll experience when they tap their gift.</p></div>
+    <h2>Design Your {config.name}</h2><p>Add your photo, wording and the Smart Memory they will experience when they tap your gift.</p></div>
   <div className="slateStudioGrid">
    <div className="slateStudioControls smWizardFields">
     <label>Occasion
@@ -229,11 +232,11 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
       {OCCASIONS.map(x=><option key={x} value={x}>{x}</option>)}
      </select>
     </label>
-    <fieldset><legend>Slate size</legend>
-     <div className="slateSizes">{SIZES.map((sz,i)=><button type="button" key={sz.label}
+    <fieldset><legend>{config.label} {config.sizes.length>1?'options':'size'}</legend>
+     <div className="slateSizes">{config.sizes.map((sz,i)=><button type="button" key={sz.label}
        className={i===sizeIndex?'active':''} aria-pressed={i===sizeIndex}
        onClick={()=>{setSizeIndex(i);setAdded(false);}}>{sz.label}</button>)}</div>
-     {selectedSize.width!==selectedSize.height&&<div className="slateOrientationSelector" role="group" aria-label="Slate direction">
+     {config.directions&&selectedSize.width!==selectedSize.height&&<div className="slateOrientationSelector" role="group" aria-label="Slate direction">
        <span>Slate direction</span>
        <div className="slateSizes">
         <button type="button" className={direction==='portrait'?'active':''} aria-pressed={direction==='portrait'}
@@ -247,7 +250,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>choosePhoto(e.currentTarget.files?.[0])}/>
     </label>
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
-      <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected slate size.</p>
+      <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected product.</p>
       <div className="slateOrientationSelector" role="group" aria-label="Photo fitting">
        <span>How should your photo fit?</span>
        <div className="slateSizes">
@@ -269,7 +272,7 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
       <p className="slateHelp">Fit whole photo keeps existing photo borders visible. Fill area crops edges only if needed. Drag to reposition when zoomed in.</p>
       <button type="button" className="slateTextButton" onClick={()=>{setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Reset photo position</button>
     </fieldset>}
-    <fieldset><legend>Wording on your slate</legend>
+    <fieldset><legend>Wording on your {config.label.toLowerCase()}</legend>
      <div className="slateWording">{WAYS.map(x=><button type="button" key={x.value}
        className={wording===x.value?'active':''} aria-pressed={wording===x.value}
        onClick={()=>{setWording(x.value);setAdded(false);}}>{x.label}</button>)}</div>
@@ -306,21 +309,21 @@ export default function SlateSinglePageCustomiser({initialOccasion=''}:{initialO
    </div>
    <aside className="slateStudioPreview">
     <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>Your live preview</h2>
-    <p className="slateHelp">Photo only uses almost the full slate. If your photo has its own frame, choose Fit whole photo to keep every edge.</p>
+    <p className="slateHelp">Photo only uses the printable area. Choose Fit whole photo to preserve the edges of your image.</p>
     <div className="slatePreviewWrap">
-     <div className="slateStoneShell">
+     <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''}`}>
       <canvas ref={canvasRef} width={900} height={1200} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
        onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}
-       aria-label="Live personalised slate preview" role="img"/>
+       aria-label={`Live personalised ${config.label.toLowerCase()} preview`} role="img"/>
      </div>
     </div>
-    <p><strong>{selectedSize.label}</strong> · {direction==='landscape'?'Landscape':'Vertical'} · £{PRICE.toFixed(2)}</p>
+    <p><strong>{selectedSize.label}</strong> · {config.directions?(direction==='landscape'?'Landscape':'Vertical'):'Personalised'} · £{config.price.toFixed(2)}</p>
     <button type="button" className="btn big" onClick={()=>void confirmDesign()} disabled={saving||!photo||recording}>
       {saving?'Preparing review…':'Confirm design & review Smart Memory'}
     </button>
     {error&&<p role="alert" className="slateError">{error}</p>}
 
-    <small>Price uses the current slate base price for every size until size-specific pricing is configured.</small>
+    <small>Preview is illustrative. Confirm the physical print dimensions and safe area before production.</small>
    </aside>
   </div>
  </section>;
