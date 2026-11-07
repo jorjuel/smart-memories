@@ -244,3 +244,14 @@ test('all five launch products share the approved Smart Message field order',()=
  assert.ok(voice>=0&&names>voice&&writing>names);
  assert.equal(source.split('Now creating your Smart Message').length-1,1,'Use single shared digital message section');
 });
+
+test('public Smart Memory page has bounded loading and recoverable failure',()=>{
+ const memoryPage=read('app/m/[code]/page.tsx');
+ assert.match(memoryPage,/LOAD_TIMEOUT_MS=12000/);
+ assert.match(memoryPage,/controller\.abort\(\)/);
+ assert.match(memoryPage,/signal:controller\.signal/);
+ assert.match(memoryPage,/response\.status===404/);
+ assert.match(memoryPage,/status==='error'/);
+ assert.match(memoryPage,/Try again/);
+ assert.match(memoryPage,/RecipientMemoryExperience memory=\{memory\}/);
+});
