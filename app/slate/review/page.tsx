@@ -75,7 +75,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
   if(!draft||!image||!dimensions||!canvasRef.current)return;
   const ctx=canvasRef.current.getContext('2d');
   if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedReviewCoaster>0?reviewCoasterImage||image:image,dimensions,draft.crop,draft.wording,draft.topText,
-    draft.bottomText,draft.dedication,900,draft.fit,draft.rotation,roundKeyring);
+    draft.bottomText,draft.dedication,900,productSlug==='keyring'?'cover':draft.fit,draft.rotation,roundKeyring,productSlug==='keyring');
  },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,roundKeyring,dimensions?.width,dimensions?.height]);
  async function promoteSelectedCoaster(index:number){
   if(productSlug!=='coaster-set'||!draft||index<1||index>=coasterCount||saving||swappingMainPhoto)return;
@@ -119,7 +119,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      const ctx=canvas.getContext('2d');
      if(!ctx)throw Error('Could not create print artwork.');
      paint(ctx,img,printDimensions,draft!.crop,draft!.wording,draft!.topText,draft!.bottomText,
-       draft!.dedication,pixels,draft!.fit,draft!.rotation,roundKeyring);
+       draft!.dedication,pixels,productSlug==='keyring'?'cover':draft!.fit,draft!.rotation,roundKeyring,productSlug==='keyring');
      const mime=roundKeyring?'image/png':'image/jpeg';
      const blob=await new Promise<Blob>((resolve,reject)=>
        canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export the design.')),mime,.94));
@@ -170,7 +170,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
     personalisation:{
      size:size.label,keyringShape:productSlug==='keyring'?size.label:undefined,coasterCount:productSlug==='coaster-set'?Number((size.label.match(/\d+/)||['1'])[0]):undefined,
      printAspectWidth:dimensions.width,printAspectHeight:dimensions.height,
-     slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation,
+     slateOrientation:draft.direction,photoFit:productSlug==='keyring'?'cover':draft.fit,photoRotation:draft.rotation,
      wording:draft.wording,textLayout:draft.wording,
      topText:draft.topText,bottomText:draft.bottomText,paragraph:draft.dedication,
      memoryMessage:draft.message.trim(),sender:draft.sender.trim(),
