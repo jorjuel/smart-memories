@@ -57,6 +57,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
  useEffect(()=>()=>{if(photoPreviewUrl)URL.revokeObjectURL(photoPreviewUrl);},[photoPreviewUrl]);
  const size=draft?config.sizes[draft.sizeIndex]||config.sizes[0]:null;
  const coasterCount=productSlug==='coaster-set'&&draft?([1,2,4,6][draft.sizeIndex]||1):1;
+ const roundKeyring=productSlug==='keyring'&&draft?.sizeIndex===1;
  useEffect(()=>{
   if(productSlug!=='coaster-set'||selectedReviewCoaster===0){setReviewCoasterImage(null);return;}
   const file=draft?.extraCoasterPhotos?.[selectedReviewCoaster-1];
@@ -74,8 +75,8 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
   if(!draft||!image||!dimensions||!canvasRef.current)return;
   const ctx=canvasRef.current.getContext('2d');
   if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedReviewCoaster>0?reviewCoasterImage||image:image,dimensions,draft.crop,draft.wording,draft.topText,
-    draft.bottomText,draft.dedication,900,draft.fit,draft.rotation);
- },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,dimensions?.width,dimensions?.height]);
+    draft.bottomText,draft.dedication,900,draft.fit,draft.rotation,roundKeyring);
+ },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,roundKeyring,dimensions?.width,dimensions?.height]);
  async function promoteSelectedCoaster(index:number){
   if(productSlug!=='coaster-set'||!draft||index<1||index>=coasterCount||saving||swappingMainPhoto)return;
   const replacement=draft.extraCoasterPhotos?.[index-1];
@@ -118,10 +119,11 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      const ctx=canvas.getContext('2d');
      if(!ctx)throw Error('Could not create print artwork.');
      paint(ctx,img,printDimensions,draft!.crop,draft!.wording,draft!.topText,draft!.bottomText,
-       draft!.dedication,pixels,draft!.fit,draft!.rotation);
+       draft!.dedication,pixels,draft!.fit,draft!.rotation,roundKeyring);
+     const mime=roundKeyring?'image/png':'image/jpeg';
      const blob=await new Promise<Blob>((resolve,reject)=>
-       canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export the design.')),'image/jpeg',.94));
-     return new File([blob],`${productSlug}-print-${index+1}.jpg`,{type:'image/jpeg'});
+       canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export the design.')),mime,.94));
+     return new File([blob],`${productSlug}-print-${index+1}.${roundKeyring?'png':'jpg'}`,{type:mime});
    }
    const printFiles=[await artworkFor(image,0)];
    if(productSlug==='coaster-set'&&draft.extraCoasterPhotos?.length){
@@ -166,7 +168,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
     imageUrl:url(printPath),audioUrl:audioPath?url(audioPath):null,
     price:selectedConfig.price,quantity:1,
     personalisation:{
-     size:size.label,coasterCount:productSlug==='coaster-set'?Number((size.label.match(/\d+/)||['1'])[0]):undefined,
+     size:size.label,keyringShape:productSlug==='keyring'?size.label:undefined,coasterCount:productSlug==='coaster-set'?Number((size.label.match(/\d+/)||['1'])[0]):undefined,
      printAspectWidth:dimensions.width,printAspectHeight:dimensions.height,
      slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation,
      wording:draft.wording,textLayout:draft.wording,
@@ -199,7 +201,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
     <article>
      <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span>
      <div className="slateFinalArtwork">
-     <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''}`}>
+     <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''} ${roundKeyring?'slateProductShell--roundKeyring':''}`}>
       <canvas ref={canvasRef} width={900} height={1200}
        style={{aspectRatio:String(dimensions.width)+' / '+String(dimensions.height)}}
        aria-label={`Finished ${config.name}`} role="img"/>
