@@ -188,13 +188,19 @@ export default async function Shop({
             Make your memory first, then choose how it is presented.</p>
           <div className="smMemoryPathGrid smShopMemoryPathGrid">
             <Link href="/create?mode=tag" className="smMemoryPathCard">
-              <span className="smMemoryPathIcon" aria-hidden="true">🎀</span>
+              <img className="smShopMemoryChoicePhoto"
+                src="/images/memory-only-card.webp"
+                alt="Smart Memories rose-pink bow gift tag and phone showing a personal memory"
+                width="960" height="720" />
               <h3>Memory Only</h3>
               <p>Create your digital memory, then choose a satin bow colour for a decorative gift tag that opens the memory.</p>
               <strong>Create memory &amp; tag →</strong>
             </Link>
             <Link href="/create?mode=gift" className="smMemoryPathCard">
-              <span className="smMemoryPathIcon" aria-hidden="true">🎁</span>
+              <img className="smShopMemoryChoicePhoto"
+                src="/images/memory-gift-card.webp"
+                alt="Personalised slate, mug, keyrings and card alongside a Smart Memory on a phone"
+                width="960" height="720" />
               <h3>Memory + Gift</h3>
               <p>Create your digital memory first, then choose a personalised gift to carry it.</p>
               <strong>Create memory &amp; choose gift →</strong>
