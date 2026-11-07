@@ -131,3 +131,13 @@ test('coaster sets expose visible extra photo upload and replace actions',()=>{
  assert.match(source,/CoasterPhotoThumbnail/);
  assert.match(source,/function addCoasterPhoto/);
 });
+
+test('all six coaster slots and their individual design previews are available',()=>{
+ assert.match(source,/\[1,2,4,6\]\[sizeIndex\]/);
+ assert.match(source,/Array\.from\(\{length:coasterCount\}/);
+ assert.match(source,/setSelectedCoaster\(index\)/);
+ assert.match(source,/coasterPreviewImage\|\|image/);
+ assert.match(review,/selectedReviewCoaster/);
+ assert.match(review,/Coaster \{index\+1\}/);
+ assert.match(review,/reviewCoasterImage\|\|image/);
+});
