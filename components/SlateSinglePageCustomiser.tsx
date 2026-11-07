@@ -422,9 +422,6 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     </fieldset>
     </>}
     <div className="smSmartMessageIntro"><strong>Now creating your Smart Message</strong><p className="slateHelp">This message appears when someone opens your digital Smart Memory.</p></div>
-    <label><strong>Smart Writing Message <span className="slateOptional">(optional)</span></strong>
-     <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a few words if you wish…"/>
-    </label>
     <fieldset className="slateVoiceCard smWizardVoiceCard"><legend>Voice message</legend>
       <p className="slateHelp">Record a message that plays when the recipient opens their Smart Memory, or upload an audio recording.</p>
       <div className="slateSizes">
@@ -440,11 +437,14 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
       {recordingStatus&&<p role="status" className="slateHelp">{recordingStatus}</p>}
       {audioUrl&&<audio src={audioUrl} controls preload="metadata" style={{width:'100%'}}/>}
     </fieldset>
-    <p className="slateHelp">Your photo, voice recording or written message can tell the story. Leave the written message blank if you prefer.</p>
     <div className="slatePersonFields smWizardFields">
      <label>From<input required aria-required="true" value={sender} placeholder="e.g. Leo" maxLength={100} onChange={e=>{setSender(e.target.value);setAdded(false);}}/></label>
      <label>Recipient name<input value={recipient} placeholder="e.g. Sarah" maxLength={100} onChange={e=>{setRecipient(e.target.value);setAdded(false);}}/></label>
     </div>
+    <p className="slateHelp">You can also add a written message to your digital Smart Memory. Leave it blank if you prefer.</p>
+    <label><strong>Smart Writing Message <span className="slateOptional">(optional)</span></strong>
+     <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a few words if you wish…"/>
+    </label>
    </div>
    <aside className="slateStudioPreview">
     <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>{productSlug==='coaster-set'?`Your live preview · Coaster ${selectedCoaster+1}`:'Your live preview'}</h2>
