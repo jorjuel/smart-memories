@@ -13721,3 +13721,9 @@ header.smSiteHeader {
 .smCoasterExtraRow{display:grid;gap:8px;padding:10px;border:1px solid #eadfda;border-radius:12px}
 .smCoasterAddPhoto{display:grid;gap:8px;padding:12px;border:1px dashed #ad847d;border-radius:12px;cursor:pointer}
 .smCoasterPhotoPicker input[type=file]{max-width:100%;width:100%}
+
+/* Accessible 1–6 coaster switcher on design and review pages. */
+.smCoasterPhotoList .smCoasterExtraRow>button:first-child{width:100%;text-align:left;border:1px solid #e5d9d3;background:white;border-radius:10px;padding:8px;cursor:pointer}
+.smCoasterPhotoList .smCoasterExtraRow>button.smCoasterSelected,.smCoasterReviewPicker button.smCoasterSelected{border-color:#ac6d75;background:#fff1f1;box-shadow:0 0 0 2px #ac6d7540}
+.smCoasterReviewPicker{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.smCoasterReviewPicker button{border:1px solid #d6beb8;background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;min-height:40px}
