@@ -2,11 +2,14 @@
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import {loadSlateDraft,clearSlateDraft,type SlateReviewDraft} from '@/lib/slateReviewDraft';
-import {SIZES,PRICE,paint} from '@/components/SlateSinglePageCustomiser';
+import {paint} from '@/components/SlateSinglePageCustomiser';
+import {getGiftStudioConfig,type GiftStudioSlug} from '@/lib/giftStudioProducts';
 import {uploadMemoryMedia,readMemorySaveResult} from '@/lib/memoryMediaUpload';
 import SmartMemoryLivePreview from '@/components/SmartMemoryLivePreview';
 
-export default function SlateReviewPage(){
+export default function SlateReviewPage({productSlug='smart-photo-slate'}:{productSlug?:GiftStudioSlug}){
+ const config=getGiftStudioConfig(productSlug);
+ if(!config)throw Error('Unsupported gift');
  const [draft,setDraft]=useState<SlateReviewDraft|null>(null);
  const [image,setImage]=useState<HTMLImageElement|null>(null);
  const [photoPreviewUrl,setPhotoPreviewUrl]=useState('');
@@ -18,7 +21,7 @@ export default function SlateReviewPage(){
  const canvasRef=useRef<HTMLCanvasElement>(null);
  useEffect(()=>{
   let active=true;
-  loadSlateDraft().then(data=>{
+  loadSlateDraft(productSlug).then(data=>{
    if(!active)return;
    setDraft(data);
    if(data){
@@ -35,9 +38,9 @@ export default function SlateReviewPage(){
  },[]);
  useEffect(()=>()=>{if(audioUrl)URL.revokeObjectURL(audioUrl);},[audioUrl]);
  useEffect(()=>()=>{if(photoPreviewUrl)URL.revokeObjectURL(photoPreviewUrl);},[photoPreviewUrl]);
- const size=draft?SIZES[draft.sizeIndex]:null;
+ const size=draft?config.sizes[draft.sizeIndex]||config.sizes[0]:null;
  const dimensions=draft&&size?
-  draft.direction==='landscape'&&size.width!==size.height
+  config.directions&&draft.direction==='landscape'&&size.width!==size.height
   ? {...size,width:size.height,height:size.width}:size:null;
  useEffect(()=>{
   if(!draft||!image||!dimensions||!canvasRef.current)return;
@@ -46,7 +49,7 @@ export default function SlateReviewPage(){
     draft.bottomText,draft.dedication,900,draft.fit,draft.rotation);
  },[draft,image,dimensions?.width,dimensions?.height]);
  async function addToBasket(){
-  if(!draft||!image||!size||!dimensions||saving||success)return;
+  if(!draft||draft.productSlug!==productSlug||!image||!size||!dimensions||saving||success)return;
   if(!draft.sender.trim()){setError('Please enter your name in the From field before confirming.');return;}
   setSaving(true);setError('');
   try{
@@ -57,7 +60,7 @@ export default function SlateReviewPage(){
     draft.dedication,Math.round(dimensions.width/2.54*300),draft.fit,draft.rotation);
    const blob=await new Promise<Blob>((resolve,reject)=>
     canvas.toBlob(b=>b?resolve(b):reject(Error('Could not export the design.')),'image/jpeg',.94));
-   const printFile=new File([blob],'smart-slate-print.jpg',{type:'image/jpeg'});
+   const printFile=new File([blob],`${productSlug}-print.jpg`,{type:'image/jpeg'});
    // Store original photo for the NFC memory, and the completed design for fulfilment.
    const [originalPath,printPath,audioPath]=await Promise.all([
     uploadMemoryMedia(draft.photo,'photo'),
@@ -80,15 +83,15 @@ export default function SlateReviewPage(){
    const parsed=existing?JSON.parse(existing):[];
    const items=Array.isArray(parsed)?parsed:[];
    items.push({
-    id:crypto.randomUUID(),productType:'product',productSlug:'smart-photo-slate',
-    memoryCode:saved.code,name:'Personalised Photo Slate',
-    category:'Smart Memories',occasion:draft.occasion||undefined,
+    id:crypto.randomUUID(),productType:'product',productSlug,
+    memoryCode:saved.code,name:config.name,
+    category:productSlug==='smart-photo-slate'?'Smart Memories':'Personalised Gifts',occasion:draft.occasion||undefined,
     recipient:draft.recipient.trim()||'Someone special',
-    design:draft.wording==='none'?'Full photo slate':'Slate with wording',
+    design:draft.wording==='none'?'Full photo gift':'Gift with wording',
     imageUrl:url(printPath),audioUrl:audioPath?url(audioPath):null,
-    price:PRICE,quantity:1,
+    price:config.price,quantity:1,
     personalisation:{
-     size:size.label,slateWidthCm:dimensions.width,slateHeightCm:dimensions.height,
+     size:size.label,printAspectWidth:dimensions.width,printAspectHeight:dimensions.height,
      slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation,
      wording:draft.wording,textLayout:draft.wording,
      topText:draft.topText,bottomText:draft.bottomText,paragraph:draft.dedication,
@@ -98,16 +101,16 @@ export default function SlateReviewPage(){
     }
    });
    localStorage.setItem('smart-memories-cart',JSON.stringify(items));
-   await clearSlateDraft().catch(()=>{});
+   await clearSlateDraft(productSlug).catch(()=>{});
    setSuccess(true);
   }catch(err){
    setError(err instanceof Error?err.message:'Could not save your gift. Please try again.');
   }finally{setSaving(false);}
  }
  if(loading)return <section className="slateStudio"><h1>Preparing your review…</h1></section>;
- if(!draft||!size||!dimensions)return <section className="slateStudio"><h1>No slate to review</h1>
-  <p>Start by creating your slate on the product page.</p><Link className="btn" href="/shop/smart-photo-slate">Create a slate</Link></section>;
- return <section className="slateStudio slateReview smWizardPage" aria-label="Review your slate and Smart Memory">
+ if(!draft||draft.productSlug!==productSlug||!size||!dimensions)return <section className="slateStudio"><h1>No gift to review</h1>
+  <p>Start by creating your gift on the product page.</p><Link className="btn" href={`/shop/${productSlug}`}>Create a gift</Link></section>;
+ return <section className="slateStudio slateReview smWizardPage" aria-label={`Review your ${config.name} and Smart Memory`}>
   <div className="smWizardStepHeading">
    <span>FINAL REVIEW</span>
    <h2>Preview Your Smart Memory</h2>
@@ -117,13 +120,13 @@ export default function SlateReviewPage(){
     <article>
      <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span>
      <div className="slateFinalArtwork">
-     <div className="slateStoneShell">
+     <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''}`}>
       <canvas ref={canvasRef} width={900} height={1200}
        style={{aspectRatio:String(dimensions.width)+' / '+String(dimensions.height)}}
-       aria-label="Finished personalised photo slate" role="img"/>
+       aria-label={`Finished ${config.name}`} role="img"/>
      </div>
      </div>
-     <p className="slateFinalSize"><strong>{size.label}</strong> · {draft.direction==='landscape'?'Landscape':'Vertical'}</p>
+     <p className="slateFinalSize"><strong>{size.label}</strong> · {config.directions?(draft.direction==='landscape'?'Landscape':'Vertical'):'Personalised'}</p>
     </article>
     <article>
      <span className="v14Eyebrow">B. THEIR SMART MEMORY</span>
@@ -138,21 +141,21 @@ export default function SlateReviewPage(){
     </article>
   </div>
   <div className="smWizardReviewSummary">
-   <div><span>Gift</span><strong>Personalised Photo Slate</strong></div>
+   <div><span>Gift</span><strong>{config.name}</strong></div>
    <div><span>Size</span><strong>{size.label}</strong></div>
    <div><span>Voice</span><strong>{draft.audio?'✓ Added':'Optional'}</strong></div>
    <div><span>Message</span><strong>{draft.message.trim()?'✓ Added':'Optional'}</strong></div>
-   <div><span>Price</span><strong>£{PRICE.toFixed(2)}</strong></div>
+   <div><span>Price</span><strong>£{config.price.toFixed(2)}</strong></div>
   </div>
   {error&&<p role="alert" className="smWizardError">{error}</p>}
   {success?
    <div className="smWizardSection slateReviewSuccess">
     <h3>Your gift is ready</h3>
-    <p>Both your slate and Smart Memory have been added to the basket.</p>
+    <p>Your gift and Smart Memory have been added to the basket.</p>
     <Link className="btn big smWizardCreateButton" href="/cart">Go to basket</Link>
    </div>:
    <div className="slateReviewFooter">
-    <Link className="slateTextButton" href="/shop/smart-photo-slate">← Edit my gift</Link>
+    <Link className="slateTextButton" href={`/shop/${productSlug}`}>← Edit my gift</Link>
     <button type="button" className="btn big smWizardCreateButton" onClick={()=>void addToBasket()} disabled={saving||!image}>
       {saving?'Saving gift and memory…':'Confirm & add to basket'}
     </button>
