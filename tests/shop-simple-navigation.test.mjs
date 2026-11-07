@@ -38,3 +38,10 @@ test('memory choice cards appear immediately beneath the introductory sentence',
  assert.match(shop,/Memory Only/);
  assert.match(shop,/Memory \+ Gift/);
 });
+
+test('shop gift grid includes only five launch products',()=>{
+ for(const slug of ['smart-photo-slate','coaster-set','photo-mug','keyring','mouse-mat'])
+   assert.match(shop,new RegExp("'"+slug+"'"));
+ assert.match(shop,/launchSlugs\.has\(p\.slug\)/);
+ assert.match(shop,/const filtered = products\.filter/);
+});
