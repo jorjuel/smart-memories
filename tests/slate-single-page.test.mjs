@@ -106,8 +106,8 @@ test('the four other launch products share the slate creation and final review p
  assert.match(draftStorage,/keyFor\(draft\.productSlug\)/);
  assert.match(draftStorage,/store\.get\(keyFor\(slug\)\)/);
  assert.match(review,/productSlug,\s*\n\s*memoryCode/);
- assert.match(review,/price:config\.price/);
- assert.match(review,/name:config\.name/);
+ assert.match(review,/price:selectedConfig\.price/);
+ assert.match(review,/name:selectedConfig\.name/);
 });
 test('all five gift previews share the layout but use different product mockups',()=>{
  const css=read('app/globals.css');
