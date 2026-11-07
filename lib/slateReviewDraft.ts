@@ -1,4 +1,6 @@
+import type {GiftStudioSlug} from './giftStudioProducts';
 export type SlateReviewDraft = {
+  productSlug: GiftStudioSlug;
   photo: File;
   audio: Blob | null;
   sizeIndex: number;
@@ -17,7 +19,7 @@ export type SlateReviewDraft = {
 };
 const DB='smart-memories-slate-review-v1';
 const STORE='drafts';
-const KEY='current';
+const keyFor=(slug:GiftStudioSlug)=>`gift:${slug}`;
 function openDb():Promise<IDBDatabase>{
  return new Promise((resolve,reject)=>{
   const req=indexedDB.open(DB,1);
@@ -39,22 +41,22 @@ export async function storeSlateDraft(draft:SlateReviewDraft):Promise<void>{
  const db=await openDb();
  await new Promise<void>((resolve,reject)=>{
   const tx=db.transaction(STORE,'readwrite');
-  tx.objectStore(STORE).put(draft,KEY);
+  tx.objectStore(STORE).put(draft,keyFor(draft.productSlug));
   tx.oncomplete=()=>resolve();
   tx.onerror=()=>reject(tx.error||Error('Draft save failed'));
   tx.onabort=()=>reject(tx.error||Error('Draft save aborted'));
  });
  db.close();
 }
-export function loadSlateDraft():Promise<SlateReviewDraft|null>{
+export function loadSlateDraft(slug:GiftStudioSlug='smart-photo-slate'):Promise<SlateReviewDraft|null>{
  return transaction<SlateReviewDraft|null>('readonly',(store,resolve,reject)=>{
-  const req=store.get(KEY);
+  const req=store.get(keyFor(slug));
   req.onsuccess=()=>resolve(req.result as SlateReviewDraft||null);
   req.onerror=()=>reject(req.error);
  });
 }
-export function clearSlateDraft():Promise<void>{
+export function clearSlateDraft(slug:GiftStudioSlug='smart-photo-slate'):Promise<void>{
  return transaction<void>('readwrite',(store,resolve,reject)=>{
-  const req=store.delete(KEY);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error);
+  const req=store.delete(keyFor(slug));req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error);
  });
 }
