@@ -31,7 +31,7 @@ test('slate builder retains photo controls and print uses the same composition o
  assert.match(review,/printArtworkUrl:url\(printPath\)/);
 });
 test('written and recorded memories are composed together before a separate review page',()=>{
- assert.match(source,/Written message/);
+ assert.match(source,/Smart Writing Message/);
  assert.match(source,/Voice message/);
  assert.match(source,/navigator\.mediaDevices\.getUserMedia/);
  assert.match(source,/MediaRecorder/);
@@ -76,7 +76,7 @@ test('slate uses same dual preview and brand styling as other products',()=>{
  assert.match(review,/className="smWizardReviewSummary"/);
  assert.match(source,/className="slateStudio smWizardPage"/);
  assert.match(source,/Record My Voice/);
- assert.match(source,/Written message/);
+ assert.match(source,/Smart Writing Message/);
  assert.match(css,/\.slateStudio\.smWizardPage/);
  assert.match(css,/var\(--sm-rose\)/);
  assert.match(css,/\.slateReview \.smWizardDualPreview/);
@@ -217,4 +217,11 @@ test('both keyring shapes have photo-only fronts, message backs and separate pri
  assert.match(review,/backArtworkUrl:productSlug==='keyring'/);
  assert.match(review,/printArtworkUrls:productSlug==='keyring'/);
  assert.match(review,/Preview front and back of your keyring/);
+});
+
+test('digital message section is clearly separate from printed keyring back wording',()=>{
+ assert.match(source,/Now creating your Smart Message/);
+ assert.match(source,/Smart Writing Message/);
+ assert.match(source,/This message appears when someone opens your digital Smart Memory/);
+ assert.match(source,/Message on the back of your keyring/);
 });
