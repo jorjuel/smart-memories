@@ -13782,3 +13782,14 @@ header.smSiteHeader {
 .smAdminTechnicalDetails summary{cursor:pointer;font-weight:700;color:#684b46;min-height:32px}
 .smAdminTechnicalDetails dl{margin-top:15px;overflow-wrap:anywhere}
 @media(max-width:600px){.smAdminPrintArtwork{padding:11px}.smAdminPrintGrid{grid-template-columns:1fr}}
+
+/* Shop choice artwork: image-free fallback for personalised gift collection. */
+.smShopGiftChoiceArtwork{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:auto;aspect-ratio:4/3;min-height:260px;overflow:hidden;background:radial-gradient(circle at 52% 36%,#fff9f5 0%,#f3e5df 70%,#e9d4ca 100%);isolation:isolate}
+.smShopGiftChoiceArtwork::after{content:"";position:absolute;bottom:13%;left:15%;width:70%;height:14%;border-radius:50%;background:#ba8d7c33;filter:blur(14px);z-index:-1}
+.smShopGiftChoiceArtwork span{position:absolute;display:flex;justify-content:center;align-items:center;box-shadow:0 12px 28px #70545128}
+.smShopGiftChoiceSlate{left:25%;top:17%;width:40%;height:60%;border:10px solid #474143;border-radius:12px;background:#fff9f2;font-size:clamp(60px,9vw,120px);transform:rotate(-8deg)}
+.smShopGiftChoiceMug{right:19%;bottom:17%;width:26%;height:35%;border:5px solid #e1cac3;border-radius:16px 16px 26px 26px;background:#fffefa;font-size:clamp(40px,6vw,80px);transform:rotate(8deg)}
+.smShopGiftChoiceKeyring{left:17%;bottom:12%;width:19%;aspect-ratio:1;border:6px solid #b5a1a0;border-radius:50%;background:#fbece8;font-size:clamp(24px,4vw,50px);transform:rotate(-13deg)}
+.smShopGiftChoiceMessage{right:23%;top:15%;width:13%;aspect-ratio:1;border:2px solid #f0dfd8;border-radius:50%;background:#fff7f4;color:#ae5966;font-size:clamp(24px,4vw,42px)}
+.smShopMemoryChoicePhoto{object-fit:contain;background:#f3e6df}
+@media(max-width:600px){.smShopGiftChoiceArtwork{min-height:210px}.smShopGiftChoiceSlate{border-width:7px}.smShopGiftChoiceMug{border-width:3px}.smShopGiftChoiceKeyring{border-width:4px}}
