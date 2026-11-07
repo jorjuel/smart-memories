@@ -116,3 +116,11 @@ test('all five gift previews share the layout but use different product mockups'
   if(shape!=='slate')assert.match(css,new RegExp('\\.slateProductShell--'+shape));
  }
 });
+
+test('coaster sets can retain distinct print photos with first-image fallback',()=>{
+ assert.match(source,/extraCoasterPhotos/);
+ assert.match(source,/multiple=\{productSlug==='coaster-set'\}/);
+ assert.match(review,/artworkFor\(picture,index\+1\)/);
+ assert.match(review,/printPaths\[index\]\|\|printPaths\[0\]/);
+ assert.match(review,/coasterCount:productSlug==='coaster-set'/);
+});
