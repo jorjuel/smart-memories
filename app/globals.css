@@ -13664,3 +13664,49 @@ header.smSiteHeader {
 @media(max-width:650px){
  .smShopMemoryChoicePhoto{aspect-ratio:4/3}
 }
+
+/* Shared gift studio: same controls and review; distinctive physical-product mockups. */
+.slateProductShell{position:relative;display:flex;justify-content:center;align-items:center;max-width:92%;margin:auto;box-sizing:border-box}
+.slateProductShell canvas{display:block;max-width:100%;height:auto;position:relative;z-index:1}
+.slateProductShell--coaster{
+ border:9px solid #51433e;border-radius:17px;background:#51433e;
+ box-shadow:0 12px 20px #0003,0 3px 2px #ffffff4d inset;
+ overflow:hidden;
+}
+.slateProductShell--coaster canvas{border-radius:8px;max-height:440px}
+.slateProductShell--mat{
+ border:11px solid #363232;border-radius:17px;background:#363232;
+ box-shadow:0 12px 20px #0003;
+ overflow:hidden;
+}
+.slateProductShell--mat canvas{border-radius:7px;max-height:440px}
+.slateProductShell--keyring{
+ border:6px solid #cb9b65;border-radius:18px;background:#f7d9a1;
+ box-shadow:0 12px 20px #0003;
+ margin-top:40px;overflow:visible;
+}
+.slateProductShell--keyring:before{
+ content:'';position:absolute;width:48px;height:48px;border:7px solid #bb8c60;
+ border-radius:50%;top:-53px;left:calc(50% - 31px);
+ box-shadow:0 1px 3px #0003;
+}
+.slateProductShell--keyring canvas{border-radius:11px;max-height:370px}
+.slateProductShell--mug{
+ border:13px solid #faf8f4;border-radius:22px 22px 45px 45px;
+ background:#faf8f4;
+ box-shadow:0 10px 25px #0003, inset 6px 0 13px #0002;
+ margin-right:58px;
+}
+.slateProductShell--mug:after{
+ content:'';position:absolute;right:-69px;top:15%;
+ width:66px;height:65%;border:17px solid #f3ede5;
+ border-left:0;border-radius:0 50% 50% 0;
+ box-shadow:6px 3px 9px #0002;
+}
+.slateProductShell--mug canvas{max-height:350px;border-radius:8px}
+.slateReview .slateFinalArtwork .slateProductShell{margin:auto}
+@media(max-width:600px){
+ .slateProductShell--mug{margin-right:37px}
+ .slateProductShell--mug:after{right:-47px;width:45px;border-width:12px}
+ .slateProductShell--coaster,.slateProductShell--mat{border-width:6px}
+}
