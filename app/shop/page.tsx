@@ -80,23 +80,6 @@ const occasionProducts: Record<string, string[]> = {
   'Just Because': products.map((product) => product.slug),
 };
 
-const occasions = [
-  'Birthday',
-  'Wedding',
-  'Anniversary',
-  'Retirement',
-  'Leaving Gift',
-  'Teacher Gift',
-  'Pet Memory',
-  'Remembrance',
-  'Family Memory',
-  'New Baby',
-  'Graduation',
-  'Christmas',
-  'Just Because',
-];
-
-
 const bundles = [
   {
     slug: 'birthday-bundle',
@@ -192,8 +175,7 @@ export default async function Shop({
 
       <div className="smSimpleShopShortcuts" aria-label="Shop categories">
         <Link href="#gifts">Personalised gifts</Link>
-        <Link href="#occasions">By occasion</Link>
-        <Link href="#cards">Cards</Link>
+        <Link href="#cards">Handcrafted cards</Link>
         {!occasion && <Link href="#bundles">Bundles</Link>}
         {!occasion && <Link href="#corporate">Corporate gifts</Link>}
       </div>
@@ -208,23 +190,6 @@ export default async function Shop({
           {filtered.length ? filtered.map((p) => <ProductCard key={p.slug} p={p} occasion={occasion ?? undefined} />) : (
             <p>There are no gifts in this category yet. <Link href="/shop">Browse all gifts.</Link></p>
           )}
-        </div>
-      </section>
-
-      <section id="occasions" className="smSimpleShopSection">
-        <div className="smSimpleShopSectionHead">
-          <span className="eyebrow">MAKE IT PERSONAL</span>
-          <h2>Shop by occasion</h2>
-        </div>
-        <div className="smSimpleShopOccasions">
-          <Link href="/shop" aria-current={!occasion ? 'page' : undefined}>All gifts</Link>
-          {occasions.map((item) => (
-            <Link
-              key={item}
-              href={`/shop?occasion=${encodeURIComponent(item)}`}
-              aria-current={occasion === item ? 'page' : undefined}
-            >{item}</Link>
-          ))}
         </div>
       </section>
 
