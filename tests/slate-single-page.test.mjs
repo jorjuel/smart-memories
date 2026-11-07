@@ -26,7 +26,7 @@ test('slate builder retains photo controls and print uses the same composition o
  assert.match(source,/fit==='cover'\?Math\.max\(pw\/iw,ph\/ih\):Math\.min\(pw\/iw,ph\/ih\)/);
  assert.match(source,/onPointerDown=\{startDrag\}/);
  assert.match(source,/type="range"/);
- assert.match(review,/paint\(ctx,image,dimensions/);
+ assert.match(review,/paint\(ctx,productSlug==='coaster-set'/);
  assert.match(review,/canvas\.toBlob/);
  assert.match(review,/printArtworkUrl:url\(printPath\)/);
 });
@@ -62,7 +62,7 @@ test('framed photos default to contain and never force crop',()=>{
  assert.match(source,/Fill area \(may crop\)/);
 });
 test('portrait and landscape slate direction and photo rotation can be selected',()=>{
- assert.match(source,/Slate direction/);
+ assert.match(source,/\{config\.label\} direction/);
  assert.match(source,/Rotate left/);
  assert.match(source,/Rotate right/);
  assert.match(review,/slateOrientation:draft.direction,photoFit:draft.fit,photoRotation:draft.rotation/);
@@ -172,4 +172,16 @@ test('a swap button is directly available below each uploaded coaster picture',(
  assert.match(review,/onClick=\{\(\)=>void promoteSelectedCoaster\(index\)\}/);
  assert.match(review,/draft\.extraCoasterPhotos\?\.\[index-1\]/);
  assert.match(review,/setSelectedReviewCoaster\(0\)/);
+});
+
+test('keyring shape options carry through editor, review and print export',()=>{
+ const css=read('app/globals.css');
+ assert.match(profiles,/label:'Rectangular',width:3,height:4/);
+ assert.match(profiles,/label:'Round',width:1,height:1/);
+ assert.match(source,/roundKeyring=productSlug==='keyring'&&sizeIndex===1/);
+ assert.match(source,/rotation,roundKeyring/);
+ assert.match(review,/keyringShape:productSlug==='keyring'\?size.label:undefined/);
+ assert.match(review,/mime=roundKeyring\?'image\/png':'image\/jpeg'/);
+ assert.match(review,/rotation,roundKeyring/);
+ assert.match(css,/\.slateProductShell--keyring\.slateProductShell--roundKeyring/);
 });
