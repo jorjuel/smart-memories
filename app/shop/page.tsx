@@ -167,10 +167,6 @@ export default async function Shop({
         <span className="eyebrow">SMART MEMORIES · PERSONALISED GIFTS</span>
         <h1>{occasion ? `Gifts for ${occasion}` : 'Find a gift. Make a memory.'}</h1>
         <p>Discover thoughtful gifts with your own photos, messages and memories. Choose a product to start creating.</p>
-        <div className="smSimpleShopActions">
-          <Link href="#gifts" className="btn">Shop gifts</Link>
-          <Link href="/cards" className="btn secondary">Handcrafted cards</Link>
-        </div>
       </div>
 
       <div className="smSimpleShopShortcuts" aria-label="Shop categories">
