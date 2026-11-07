@@ -225,3 +225,11 @@ test('digital message section is clearly separate from printed keyring back word
  assert.match(source,/This message appears when someone opens your digital Smart Memory/);
  assert.match(source,/Message on the back of your keyring/);
 });
+
+test('Smart Memory controls appear in voice, sender/recipient, then writing order',()=>{
+ const voice=source.indexOf('<fieldset className="slateVoiceCard smWizardVoiceCard">');
+ const people=source.indexOf('<div className="slatePersonFields smWizardFields">');
+ const writing=source.indexOf('<label><strong>Smart Writing Message');
+ assert.ok(voice>=0&&people>voice&&writing>people,'Smart Memory section order is incorrect');
+ assert.match(source,/Now creating your Smart Message/);
+});
