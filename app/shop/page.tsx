@@ -159,7 +159,18 @@ export default async function Shop({
   const params = await searchParams;
   const occasion = params.occasion && occasionProducts[params.occasion] ? params.occasion : null;
   const allowed = occasion ? occasionProducts[occasion] : null;
-  const filtered = allowed ? products.filter((p) => allowed.includes(p.slug)) : products;
+  // Launch catalogue: only show products currently offered in the shop.
+  // Keep other product definitions for existing orders and possible future relaunch.
+  const launchSlugs = new Set([
+    'smart-photo-slate',
+    'coaster-set',
+    'photo-mug',
+    'keyring',
+    'mouse-mat',
+  ]);
+  const filtered = products.filter((p) =>
+    launchSlugs.has(p.slug) && (!allowed || allowed.includes(p.slug))
+  );
 
   return (
     <section className="smSimpleShop">
