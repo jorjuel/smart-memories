@@ -25,7 +25,7 @@ const configurations:Record<GiftStudioSlug,Omit<GiftStudioConfig,'price'>>={
  },
  'keyring':{
   slug:'keyring',name:'Personalised Keyring',label:'Keyring',shape:'keyring',directions:true,
-  sizes:[{label:'Standard',width:3,height:4}],
+  sizes:[{label:'Rectangular',width:3,height:4},{label:'Round',width:1,height:1}],
  },
  'mouse-mat':{
   slug:'mouse-mat',name:'Personalised Mouse Mat',label:'Mouse Mat',shape:'mat',directions:false,
