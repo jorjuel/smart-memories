@@ -76,13 +76,13 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
   if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedReviewCoaster>0?reviewCoasterImage||image:image,dimensions,draft.crop,draft.wording,draft.topText,
     draft.bottomText,draft.dedication,900,draft.fit,draft.rotation);
  },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,dimensions?.width,dimensions?.height]);
- async function promoteSelectedCoaster(){
-  if(productSlug!=='coaster-set'||!draft||selectedReviewCoaster<1||saving||swappingMainPhoto)return;
-  const replacement=draft.extraCoasterPhotos?.[selectedReviewCoaster-1];
+ async function promoteSelectedCoaster(index:number){
+  if(productSlug!=='coaster-set'||!draft||index<1||index>=coasterCount||saving||swappingMainPhoto)return;
+  const replacement=draft.extraCoasterPhotos?.[index-1];
   if(!replacement)return;
   const oldMain=draft.photo;
   const newExtras=[...(draft.extraCoasterPhotos||[])];
-  newExtras[selectedReviewCoaster-1]=oldMain;
+  newExtras[index-1]=oldMain;
   const updated:SlateReviewDraft={...draft,photo:replacement,extraCoasterPhotos:newExtras};
   setSwappingMainPhoto(true);setError('');
   try{
@@ -208,21 +208,25 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
      <p className="slateFinalSize"><strong>{size.label}</strong> · {config.directions?(draft.direction==='landscape'?'Landscape':'Vertical'):'Personalised'}</p>
      {productSlug==='coaster-set'&&<div className="smCoasterReviewGallery">
       <p className="smCoasterReviewGalleryTitle"><strong>Preview all {coasterCount} coasters</strong><span>Tap a photo to see its design above.</span></p>
-      <div className="smCoasterReviewThumbnails" role="group" aria-label="Choose coaster to preview">
+      <div className="smCoasterReviewThumbnails" role="group" aria-label="Choose coaster to preview and set Smart Memory photo">
        {Array.from({length:coasterCount},(_,index)=>{
-        const file=index===0?draft.photo:draft.extraCoasterPhotos?.[index-1]||draft.photo;
-        return <CoasterReviewThumbnail key={index} file={file} index={index}
-         active={selectedReviewCoaster===index} reusesFirst={index>0&&!draft.extraCoasterPhotos?.[index-1]}
-         onSelect={()=>setSelectedReviewCoaster(index)}/>;
+        const actualFile=index===0?draft.photo:draft.extraCoasterPhotos?.[index-1];
+        const file=actualFile||draft.photo;
+        return <div className="smCoasterReviewTile" key={index}>
+         <CoasterReviewThumbnail file={file} index={index}
+          active={selectedReviewCoaster===index} reusesFirst={index>0&&!actualFile}
+          onSelect={()=>setSelectedReviewCoaster(index)}/>
+         {index===0?<span className="smCoasterMainLabel">Main photo</span>:
+          actualFile?<button type="button" className="smCoasterSwapButton" disabled={saving||swappingMainPhoto||success}
+           onClick={()=>void promoteSelectedCoaster(index)}>Swap with 1</button>:
+          <span className="smCoasterRepeatLabel">Repeats 1</span>}
+        </div>;
        })}
       </div>
       <p className="slateHelp" aria-live="polite">Showing coaster {selectedReviewCoaster+1} of {coasterCount}{selectedReviewCoaster>0&&!draft.extraCoasterPhotos?.[selectedReviewCoaster-1]?' · Reusing photo 1':''}.</p>
-      <p className="slateHelp"><strong>Photo 1 is your Smart Memory cover photo.</strong> You can make another coaster photo the cover without losing any photo.</p>
-      {selectedReviewCoaster>0&&draft.extraCoasterPhotos?.[selectedReviewCoaster-1]&&<button type="button"
-       className="btn smCoasterMakeMain" disabled={swappingMainPhoto||saving}
-       onClick={()=>void promoteSelectedCoaster()}>
-       {swappingMainPhoto?'Updating Smart Memory photo…':`Make coaster ${selectedReviewCoaster+1} the main Smart Memory photo`}
-      </button>}
+      <p className="slateHelp"><strong>To change the NFC Smart Memory photo:</strong> tap “Swap with 1” underneath the photograph you want. Both coaster pictures trade places, and the phone preview updates.</p>
+      {swappingMainPhoto&&<p role="status">Updating your main Smart Memory photo…</p>}
+      <p className="slateHelp"><strong>Smart Memory main image:</strong> Coaster 1 <span aria-hidden="true">✓</span></p>
      </div>}
     </article>
     <article>
