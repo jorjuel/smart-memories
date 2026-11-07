@@ -13635,3 +13635,32 @@ header.smSiteHeader {
 @media(max-width:650px){
  .smSimpleShopShareIntro .smShopMemoryPathGrid{grid-template-columns:minmax(0,1fr);gap:12px}
 }
+
+/* Large product photographs for the two Smart Memory creation paths. */
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard{
+ overflow:hidden;
+ padding:0;
+ gap:0;
+ border-radius:20px;
+}
+.smShopMemoryChoicePhoto{
+ display:block;
+ width:100%;
+ height:auto;
+ aspect-ratio:4/3;
+ object-fit:cover;
+ background:#f4e9e1;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard h3{
+ margin:17px 23px 8px;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard p{
+ margin:0 23px 12px;
+ flex:1;
+}
+.smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard strong{
+ margin:0 23px 22px;
+}
+@media(max-width:650px){
+ .smShopMemoryChoicePhoto{aspect-ratio:4/3}
+}
