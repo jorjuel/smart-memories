@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
-import {loadSlateDraft,clearSlateDraft,type SlateReviewDraft} from '@/lib/slateReviewDraft';
+import {loadSlateDraft,storeSlateDraft,clearSlateDraft,type SlateReviewDraft} from '@/lib/slateReviewDraft';
 import {paint} from '@/components/SlateSinglePageCustomiser';
 import {getGiftStudioConfig,type GiftStudioSlug} from '@/lib/giftStudioProducts';
 import {uploadMemoryMedia,readMemorySaveResult} from '@/lib/memoryMediaUpload';
@@ -32,6 +32,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
  const [audioUrl,setAudioUrl]=useState('');
  const [loading,setLoading]=useState(true);
  const [saving,setSaving]=useState(false);
+ const [swappingMainPhoto,setSwappingMainPhoto]=useState(false);
  const [error,setError]=useState('');
  const [success,setSuccess]=useState(false);
  const canvasRef=useRef<HTMLCanvasElement>(null);
@@ -75,6 +76,29 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
   if(ctx)paint(ctx,productSlug==='coaster-set'&&selectedReviewCoaster>0?reviewCoasterImage||image:image,dimensions,draft.crop,draft.wording,draft.topText,
     draft.bottomText,draft.dedication,900,draft.fit,draft.rotation);
  },[draft,image,reviewCoasterImage,selectedReviewCoaster,productSlug,dimensions?.width,dimensions?.height]);
+ async function promoteSelectedCoaster(){
+  if(productSlug!=='coaster-set'||!draft||selectedReviewCoaster<1||saving||swappingMainPhoto)return;
+  const replacement=draft.extraCoasterPhotos?.[selectedReviewCoaster-1];
+  if(!replacement)return;
+  const oldMain=draft.photo;
+  const newExtras=[...(draft.extraCoasterPhotos||[])];
+  newExtras[selectedReviewCoaster-1]=oldMain;
+  const updated:SlateReviewDraft={...draft,photo:replacement,extraCoasterPhotos:newExtras};
+  setSwappingMainPhoto(true);setError('');
+  try{
+   const url=URL.createObjectURL(replacement);
+   const img=await new Promise<HTMLImageElement>((resolve,reject)=>{
+    const candidate=new Image();
+    candidate.onload=()=>resolve(candidate);
+    candidate.onerror=()=>reject(Error('The selected photograph could not be opened.'));
+    candidate.src=url;
+   });
+   await storeSlateDraft(updated);
+   setDraft(updated);setImage(img);setPhotoPreviewUrl(url);
+   setSelectedReviewCoaster(0);
+  }catch(err){setError(err instanceof Error?err.message:'Could not change the Smart Memory photo.');}
+  finally{setSwappingMainPhoto(false);}
+ }
  async function addToBasket(){
   if(!draft||draft.productSlug!==productSlug||!image||!size||!dimensions||saving||success)return;
   // Capture validated values locally; nested async functions can safely use these.
@@ -193,6 +217,12 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
        })}
       </div>
       <p className="slateHelp" aria-live="polite">Showing coaster {selectedReviewCoaster+1} of {coasterCount}{selectedReviewCoaster>0&&!draft.extraCoasterPhotos?.[selectedReviewCoaster-1]?' · Reusing photo 1':''}.</p>
+      <p className="slateHelp"><strong>Photo 1 is your Smart Memory cover photo.</strong> You can make another coaster photo the cover without losing any photo.</p>
+      {selectedReviewCoaster>0&&draft.extraCoasterPhotos?.[selectedReviewCoaster-1]&&<button type="button"
+       className="btn smCoasterMakeMain" disabled={swappingMainPhoto||saving}
+       onClick={()=>void promoteSelectedCoaster()}>
+       {swappingMainPhoto?'Updating Smart Memory photo…':`Make coaster ${selectedReviewCoaster+1} the main Smart Memory photo`}
+      </button>}
      </div>}
     </article>
     <article>
