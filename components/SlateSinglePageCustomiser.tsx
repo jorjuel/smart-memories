@@ -177,6 +177,22 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
   img.onerror=()=>{URL.revokeObjectURL(url);setError('That photograph could not be opened.');};
   img.src=url;
  }
+ function makeSelectedCoasterMain(){
+  if(productSlug!=='coaster-set'||!photo||selectedCoaster<1)return;
+  const chosen=extraCoasterPhotos[selectedCoaster-1];
+  if(!chosen)return;
+  // Swap, not copy: all uploaded coaster photos stay in their original set.
+  const previousMain=photo;
+  const url=URL.createObjectURL(chosen);
+  const img=new Image();
+  img.onload=()=>{
+   setExtraCoasterPhotos(previous=>previous.map((file,index)=>index===selectedCoaster-1?previousMain:file));
+   setImage(img);setPhoto(chosen);setPhotoUrl(url);
+   setSelectedCoaster(0);setError('');setAdded(false);
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);setError('Could not open this photograph.');};
+  img.src=url;
+ }
  function startDrag(e:React.PointerEvent<HTMLCanvasElement>){
   if(!image)return; e.currentTarget.setPointerCapture(e.pointerId);
   drag.current={x:e.clientX,y:e.clientY,dx:crop.dx,dy:crop.dy};
@@ -317,6 +333,10 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
       })}
      </div>
      <small>The main preview follows the coaster you select. Print artwork for each uploaded photograph is saved with the set.</small>
+     <p className="slateHelp"><strong>Photo 1 is the picture shown when someone opens your Smart Memory.</strong> Select any other uploaded coaster to swap it with photo 1.</p>
+     {selectedCoaster>0&&extraCoasterPhotos[selectedCoaster-1]&&<button type="button" className="btn smCoasterMakeMain" onClick={makeSelectedCoasterMain}>
+      Make coaster {selectedCoaster+1} the main Smart Memory photo
+     </button>}
     </div>}
     {photo&&<fieldset><legend>Adjust photo (optional)</legend>
       <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected product.</p>
