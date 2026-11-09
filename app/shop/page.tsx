@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import ProductCard from '../../components/ProductCard';
+import { bundles } from '../../lib/bundles';
 import { products } from '../../lib/products';
 
 const occasionProducts: Record<string, string[]> = {
@@ -80,44 +81,6 @@ const occasionProducts: Record<string, string[]> = {
   'Just Because': products.map((product) => product.slug),
 };
 
-const bundles = [
-  {
-    slug: 'birthday-bundle',
-    name: 'Birthday Bundle',
-    description: 'Mug + Coasters + Keyring',
-    normalPrice: 36.97,
-    bundlePrice: 32.99,
-  },
-  {
-    slug: 'home-bundle',
-    name: 'Home Bundle',
-    description: 'Mug + Coasters + Mouse Mat',
-    normalPrice: 42.97,
-    bundlePrice: 37.99,
-  },
-  {
-    slug: 'memory-bundle',
-    name: 'Memory Bundle',
-    description: 'Slate + Keyring + Mug',
-    normalPrice: 46.97,
-    bundlePrice: 41.99,
-  },
-  {
-    slug: 'pet-memory-bundle',
-    name: 'Pet Memory Bundle',
-    description: 'Slate + Keyring + Coasters',
-    normalPrice: 47.97,
-    bundlePrice: 42.99,
-  },
-  {
-    slug: 'work-teacher-bundle',
-    name: 'Work & Teacher Bundle',
-    description: 'Mug + Mouse Mat + Keyring',
-    normalPrice: 36.97,
-    bundlePrice: 32.99,
-  },
-];
-
 const corporateBundles = [
   {
     name: 'Employee Welcome Pack',
@@ -157,7 +120,8 @@ export default async function Shop({
   searchParams: Promise<{ occasion?: string }>;
 }) {
   const params = await searchParams;
-  const occasion = params.occasion && occasionProducts[params.occasion] ? params.occasion : null;
+  const occasion = typeof params.occasion === 'string' &&
+    Object.hasOwn(occasionProducts, params.occasion) ? params.occasion : null;
   const allowed = occasion ? occasionProducts[occasion] : null;
   // Launch catalogue: only show products currently offered in the shop.
   // Keep other product definitions for existing orders and possible future relaunch.
@@ -191,7 +155,7 @@ export default async function Shop({
               <img className="smShopMemoryChoicePhoto"
                 src="/images/memory-only-card.webp"
                 alt="Smart Memories rose-pink bow gift tag and phone showing a personal memory"
-                width="960" height="720" />
+                width="1200" height="675" />
               <h3>Memory Only</h3>
               <p>Create your digital memory, then choose a satin bow colour for a decorative gift tag that opens the memory.</p>
               <strong>Create memory &amp; tag →</strong>
@@ -200,7 +164,7 @@ export default async function Shop({
               <img className="smShopMemoryChoicePhoto"
                 src="/images/memory-gift-card.webp"
                 alt="Personalised photo slate, mug, keyrings and card beside a Smart Memory phone"
-                width="1200" height="800" />
+                width="1440" height="810" />
               <h3>Memory + Gift</h3>
               <p>Create your digital memory first, then choose a personalised gift to carry it.</p>
               <strong>Create memory &amp; choose gift →</strong>
@@ -241,18 +205,17 @@ export default async function Shop({
             <h3>Handcrafted keepsake card</h3>
             <p>Personalise your design and written message. No phone needed.</p>
             <strong>From £6.95</strong>
-            <Link className="btn small" href={`/cards/personalise?cardType=traditional&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>Personalise card</Link>
+            <Link className="btn small" href={{ pathname: '/cards', query: { cardType: 'traditional', ...(occasion ? { occasion } : {}) } }}>Personalise card</Link>
           </article>
           <article className="card">
             <span className="eyebrow">WITH A SMART MEMORY</span>
             <h3>NFC Memory card</h3>
             <p>Include a private voice message, photo and written memory that opens with a tap or QR scan.</p>
             <strong>From £11.95</strong>
-            <Link className="btn small" href={`/cards/personalise?cardType=smart&occasion=${encodeURIComponent(occasion || 'Birthday')}&design=Floral%20Keepsake`}>Personalise Smart card</Link>
+            <Link className="btn small" href={{ pathname: '/cards', query: { cardType: 'smart', ...(occasion ? { occasion } : {}) } }}>Personalise Smart card</Link>
           </article>
         </div>
         <p className="smSimpleShopNote">Optional printed photo costs £1.50 extra. Delivery is calculated at checkout.</p>
-        <Link href="/cards">Browse all card designs</Link>
       </section>
 
       {!occasion && (
@@ -267,7 +230,7 @@ export default async function Shop({
               <article className="card" key={bundle.slug}>
                 <span className="eyebrow">GIFT BUNDLE</span>
                 <h3>{bundle.name}</h3>
-                <p>{bundle.description}</p>
+                <p>{bundle.products.map((product) => product.name).join(' + ')}</p>
                 <strong>{money(bundle.bundlePrice)}</strong>
                 <p className="smSimpleShopNote">Save {money(bundle.normalPrice - bundle.bundlePrice)}</p>
                 <Link className="btn small" href={`/bundles/${bundle.slug}`}>View bundle</Link>

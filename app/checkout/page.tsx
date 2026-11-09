@@ -1,6 +1,7 @@
 'use client';
 
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
+import type { SavedCardPreview } from '../../lib/cardDesigns';
 import Link from 'next/link';
 import { getCartShippingPricePence, singleMemoryTagLetterCart } from '@/lib/shippingPricing';
 import { useSearchParams } from 'next/navigation';
@@ -27,6 +28,7 @@ type BasketItem = {
   design?: string;
   recipient?: string;
   imageUrl?: string | null;
+  cardPreview?: SavedCardPreview;
   audioUrl?: string | null;
   price: number;
   quantity: number;
@@ -947,6 +949,8 @@ export default function CheckoutPage() {
                         recipient={
                           item.recipient
                         }
+                        design={item.design}
+                        cardPreview={item.cardPreview}
                       />
                     </div>
 

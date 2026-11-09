@@ -4148,64 +4148,144 @@ body {
 
 .bundlePreviewGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  align-items: start;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
-
 .bundlePreviewCard {
   min-width: 0;
-  padding: 14px;
+  padding: 10px;
   border: 1px solid #ead8cf;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #fff;
 }
-
 .bundlePreviewCard h3 {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   font-size: 0.95rem;
   line-height: 1.25;
-  text-align: center;
 }
-
 .bundlePreviewFrame {
-  height: 190px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  border-radius: 10px;
+  background: #f5efeb;
 }
-
-.bundlePreviewFrame .configuredPreview {
-  width: 100%;
+.bundlePreviewArtwork {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 12px;
+}
+.bundlePreviewFrame .bundlePreviewArtwork {
+  min-height: 150px;
+  padding-bottom: 28px;
+  transition: transform .2s ease;
+  pointer-events: none;
+}
+.bundlePreviewExpanded { background: #f5efeb; border-radius: 10px; }
+.bundlePreviewArtwork > .configuredPreview {
+  position: relative;
+  width: min(100%, 310px);
   min-height: 0 !important;
-  height: 180px !important;
-  transform: scale(0.82);
-  transform-origin: center;
+  height: auto !important;
+  container-type: inline-size;
 }
-
-.bundlePreviewFrame .configuredSurface,
-.bundlePreviewFrame .configuredMug,
-.bundlePreviewFrame .configuredKeyring,
-.bundlePreviewFrame .configuredCoaster {
-  max-width: 100%;
-  max-height: 100%;
+.bundlePreviewArtwork .configuredSurface,
+.bundlePreviewArtwork .configuredMugPrint,
+.bundlePreviewArtwork .configuredKeyring,
+.bundlePreviewArtwork .smCoasterPhoto {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #ede1da;
+  border: 3px solid #5c514b;
+  border-radius: 8px;
+  aspect-ratio: 4 / 5;
 }
-
-@media (max-width: 1100px) {
-  .bundlePreviewGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .bundlePreviewFrame {
-    height: 240px;
-  }
-
-  .bundlePreviewFrame .configuredPreview {
-    height: 230px !important;
-    transform: scale(0.9);
-  }
-}/* =========================================================
+.bundlePreviewArtwork .mouseConfigured .configuredSurface { aspect-ratio: 3 / 2; }
+.bundlePreviewArtwork .configuredMug {
+  width: 83%;
+  margin-left: 3%;
+  padding: 5%;
+  border: 1px solid #d5c9c4;
+  border-radius: 10% 10% 24% 24%;
+  background: #fff;
+  box-shadow: inset -6px 0 12px #452b211a;
+}
+.bundlePreviewArtwork .configuredMugPrint { aspect-ratio: 1; border: 0; }
+.bundlePreviewArtwork .configuredMugHandle {
+  position: absolute;
+  top: 18%;
+  right: 0;
+  width: 17%;
+  height: 54%;
+  border: clamp(4px, 5cqw, 14px) solid #fff;
+  border-left: 0;
+  border-radius: 0 55% 55% 0;
+  box-shadow: 2px 0 3px #452b2133;
+}
+.bundlePreviewArtwork .keyringConfigured { width: min(65%, 190px); }
+.bundlePreviewArtwork .keyringRing {
+  width: 29%;
+  aspect-ratio: 1;
+  margin: 0 auto -5%;
+  border: clamp(3px, 4cqw, 8px) solid #a78f6b;
+  border-radius: 50%;
+}
+.bundlePreviewArtwork .configuredKeyring { border-color: #a78f6b; }
+.bundlePreviewArtwork .smCoasterPhotoGrid { grid-template-columns: minmax(0, 1fr); padding: 0; }
+.bundlePreviewArtwork .smCoasterPhoto { width: 78%; max-width: none; aspect-ratio: 1; }
+.bundlePreviewArtwork :is(.configuredPreviewImage, .smCoasterPhoto img) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.bundlePreviewArtwork .configuredPreviewPlaceholder { display: grid; justify-items: center; gap: 3px; color: var(--sm-rose); font-size: clamp(8px, 8cqw, 18px); }
+.bundlePreviewArtwork :is(.previewTopText, .previewBottomText) {
+  inset-inline: 5%;
+  padding: 3px;
+  font-size: clamp(8px, 7cqw, 20px);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.bundlePreviewArtwork .previewTopText { top: 5%; }
+.bundlePreviewArtwork .previewBottomText { bottom: 5%; }
+.bundlePreviewEnlarge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 4px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sm-plum-dark);
+  font-weight: 700;
+  cursor: zoom-in;
+}
+.bundlePreviewEnlarge span {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: white;
+  font-size: 12px;
+}
+.bundlePreviewTemplate { display: grid; gap: 4px; margin-top: 8px; font-size: 12px; }
+.bundlePreviewTemplate select { width: 100%; padding: 6px; font: inherit; }
+@media (hover: hover) and (pointer: fine) {
+  .bundlePreviewFrame:hover { z-index: 1; }
+  .bundlePreviewFrame:hover .bundlePreviewArtwork { transform: scale(1.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bundlePreviewFrame .bundlePreviewArtwork { transition: none; }
+}
+@media (max-width: 540px) {
+  .bundlePreviewGrid { grid-template-columns: minmax(0, 1fr); }
+  .bundlePreviewFrame .configuredPreview { width: min(65%, 210px); }
+}
+/* =========================================================
    SMART MEMORIES - SHOP ACCORDION
    ========================================================= */
 
@@ -7454,6 +7534,7 @@ header.smSiteHeader {
   border-radius: 27px;
   background: var(--sm-cream);
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .smLiveMemoryScreen > small:first-child {
@@ -7527,6 +7608,7 @@ header.smSiteHeader {
 
 .smLiveMemoryCard audio {
   width: 100%;
+  min-width: 0;
 }
 
 .smLiveMemoryNoVoice {
@@ -7583,6 +7665,8 @@ header.smSiteHeader {
   border-radius: 13px;
   background: white;
   display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
   gap: 4px;
 }
 
@@ -10219,6 +10303,10 @@ header.smSiteHeader {
   overflow-wrap: anywhere;
 }
 
+.smAdminCardInstructions dd {
+  white-space: pre-wrap;
+}
+
 .smAdminMemoryConnection {
   margin-top: 28px;
   padding-top: 24px;
@@ -11858,6 +11946,14 @@ header.smSiteHeader {
 .smSimpleShopSectionHead p { max-width: 700px; color: #705f66; line-height: 1.6; }
 .smSimpleShopProducts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
 .smSimpleShopProducts > * { min-width: 0; }
+.smSimpleShopProducts .productArt {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+}
+.smSimpleShopProducts .productPhoto { object-fit: contain; }
+.smSimpleShopProducts .productFoot { flex-wrap: wrap; }
 .smSimpleShopOccasions { display: flex; flex-wrap: wrap; gap: 9px; }
 .smSimpleShopOccasions a { display: inline-flex; min-height: 42px; align-items: center; padding: 10px 14px; border: 1px solid #eadbd5; border-radius: 12px; background: #fff; color: #4b3037; font-size: 13px; font-weight: 700; text-decoration: none; }
 .smSimpleShopOccasions a[aria-current="page"] { background: #4b3037; color: #fff; }
@@ -13333,7 +13429,7 @@ header.smSiteHeader {
 .slatePersonFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .slateHelp{font-size:13px;color:#67615a;margin:4px 0 10px;line-height:1.5}
 .slateTextButton{justify-self:start;background:transparent;border:0;text-decoration:underline;cursor:pointer;color:#554534}
-.slateStudioPreview{position:sticky;top:18px;padding:clamp(16px,2.4vw,26px);border:1px solid #e4dcd0;border-radius:18px;background:#faf7f2;display:grid;gap:13px;min-width:0;box-shadow:0 8px 35px #00000009}
+.slateStudioPreview{position:sticky;top:18px;padding:clamp(16px,2.4vw,26px);border:1px solid #e4dcd0;border-radius:18px;background:#faf7f2;display:grid;grid-template-columns:minmax(0,1fr);gap:13px;min-width:0;box-shadow:0 8px 35px #00000009}
 .slateStudioPreview h2{font-size:clamp(20px,2.5vw,27px);margin:0}
 .slatePreviewWrap{display:flex;justify-content:center;align-items:center;min-height:260px;max-height:580px;overflow:hidden;padding:16px 10px;background:linear-gradient(150deg,#e3dfd8,#f7f5f1);border-radius:11px}
 .slatePreviewWrap canvas{display:block;width:auto;max-width:100%;height:auto;max-height:535px;object-fit:contain;border-radius:3px;box-shadow:0 9px 25px #0003;touch-action:none;cursor:grab}
@@ -13647,8 +13743,6 @@ header.smSiteHeader {
  display:block;
  width:100%;
  height:auto;
- aspect-ratio:4/3;
- object-fit:cover;
  background:#f4e9e1;
 }
 .smSimpleShopShareIntro .smShopMemoryPathGrid .smMemoryPathCard h3{
@@ -13666,8 +13760,8 @@ header.smSiteHeader {
 }
 
 /* Shared gift studio: same controls and review; distinctive physical-product mockups. */
-.slateProductShell{position:relative;display:flex;justify-content:center;align-items:center;max-width:92%;margin:auto;box-sizing:border-box}
-.slateProductShell canvas{display:block;max-width:100%;height:auto;position:relative;z-index:1}
+.slateProductShell{position:relative;display:flex;justify-content:center;align-items:center;min-width:0;max-width:92%;margin:auto;box-sizing:border-box}
+.slateProductShell canvas{display:block;min-width:0;max-width:100%;height:auto;position:relative;z-index:1}
 .slateProductShell--coaster{
  border:9px solid #51433e;border-radius:17px;background:#51433e;
  box-shadow:0 12px 20px #0003,0 3px 2px #ffffff4d inset;
@@ -13706,7 +13800,7 @@ header.smSiteHeader {
 .slateProductShell--mug canvas{max-height:350px;border-radius:8px}
 .slateReview .slateFinalArtwork .slateProductShell{margin:auto}
 @media(max-width:600px){
- .slateProductShell--mug{margin-right:37px}
+ .slateProductShell--mug{max-width:calc(100% - 42px);margin-right:37px}
  .slateProductShell--mug:after{right:-47px;width:45px;border-width:12px}
  .slateProductShell--coaster,.slateProductShell--mat{border-width:6px}
 }
@@ -13765,6 +13859,219 @@ header.smSiteHeader {
 .smKeyringSideSwitch button:focus-visible{outline:3px solid #8e5360;outline-offset:2px}
 .smKeyringBackEditor textarea{width:100%;box-sizing:border-box}
 
+/* Handcrafted card gallery and editor */
+.smCardBoutique .cardsGalleryHeading h1 {
+  margin: 10px 0;
+  font: 400 clamp(32px, 5vw, 58px)/1.1 Georgia, serif;
+  color: var(--sm-plum-dark);
+}
+.smCardBoutique .cardDesignGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.smCardBoutique .cardDesignItem {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(10px, 1.4vw, 18px);
+  background: white;
+  border: 1px solid var(--sm-border);
+  border-radius: 18px;
+}
+.smCardBoutique .cardDesignInfo { display: flex; flex: 1; flex-direction: column; gap: 8px; }
+.smCardBoutique .cardDesignInfo h2 { margin: 0; font: 400 clamp(18px, 2vw, 25px)/1.15 Georgia, serif; }
+.smCardBoutique .cardDesignInfo p { flex: 1; min-height: 0; margin: 0; }
+.smCardBoutique .cardChooseButton { margin-top: 5px; text-align: center; }
+.smCardBoutique .cardDesignItem:hover .cardDesignPreview { transform: none; }
+.smCardGalleryZoom { position: relative; }
+.smCardGalleryArt { pointer-events: none; }
+.smCardZoomTrigger {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: zoom-in;
+}
+.smCardZoomTrigger span {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: white;
+  color: var(--sm-plum-dark);
+  font-size: 12px;
+}
+.smCardZoomTrigger:focus-visible { outline: 3px solid var(--sm-rose); outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .smCardGalleryZoom:hover { z-index: 2; }
+  .smCardBoutique .smCardZoomTrigger:hover + .smCardGalleryArt .cardDesignPreview { transform: scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smCardGalleryArt .cardDesignPreview { transition: none; }
+}
+.smCardZoomDialog {
+  width: min(calc(100% - 24px), 520px);
+  max-height: calc(100dvh - 24px);
+  padding: clamp(12px, 3vw, 24px);
+  border: 1px solid var(--sm-border);
+  border-radius: 16px;
+  background: var(--sm-cream);
+  color: var(--sm-plum-dark);
+}
+.smCardZoomDialog::backdrop { background: #211c1dbf; }
+.smCardZoomDialog .smCardFace { width: min(100%, 440px, 58svh); margin: 0 auto 6px; }
+.smCardZoomHeader { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.smCardZoomHeader h2 { margin: 0; font: 400 clamp(18px, 4vw, 28px)/1.15 Georgia, serif; }
+.smCardZoomHeader button {
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  background: white;
+  color: inherit;
+  cursor: pointer;
+}
+.smCardOwnDesign {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+  padding: clamp(16px, 3vw, 28px);
+  background: var(--sm-cream);
+  border: 1px solid var(--sm-border);
+  border-radius: 18px;
+}
+.smCardOwnDesign h2, .smCardOwnDesign p { margin: 0 0 5px; }
+.smCardFace {
+  container-type: inline-size;
+  aspect-ratio: 0.72;
+  padding: 0;
+  overflow-wrap: anywhere;
+  box-shadow: 3px 5px 0 #e5d9d2, 0 10px 24px #432b2b22;
+}
+.smCardFace .designArtwork {
+  min-height: 0;
+  gap: 3cqw;
+  padding: 7cqw;
+  overflow: auto;
+  justify-content: safe center;
+}
+.smCardFace :is(.flowerMark, .classicMark, .minimalMark, .photoMark, .smOwnCardUploadIcon) { margin: 0; flex: none; }
+.smCardFace .flowerMark { font-size: 22cqw; }
+.smCardFace .classicMark { width: 24cqw; height: 24cqw; font-size: 8cqw; }
+.smCardFace .minimalMark { font-size: 8cqw; letter-spacing: 1px; }
+.smCardFace .photoMark { height: 37%; font-size: 5cqw; }
+.smCardFace .designArtwork small { margin: 0; font-size: 4.5cqw; letter-spacing: 0.05em; }
+.smCardFace .designArtwork .smCardGreeting { margin: 0; font: 400 10cqw/1.1 Georgia, serif; }
+.smCardPrintedPhoto { display: block; max-width: 100%; max-height: 46%; object-fit: contain; }
+.smCardUploadedArt { display: block; width: 100%; height: 100%; object-fit: contain; }
+.smCardFace:has(.smartCorner) .designArtwork { padding-bottom: 15cqw; }
+.smCardFace .smartCorner { font-size: clamp(6px, 3cqw, 10px); padding: 2px 4px; border-radius: 4px; background: #fff8f4; color: #563a43; opacity: 1; }
+.smCardFace.smCardTone-rose { background-color: #f6e5e4; color: #74444b; }
+.smCardFace.smCardTone-plum { background-color: #563a43; color: #fff5f3; }
+.smCardFace.smCardTone-cream { background-color: #f8f0df; color: #5e4c3c; }
+.smCardFace.smCardTone-sage { background-color: #dce2d7; color: #465044; }
+.smCardFace.smCardTone-blue { background-color: #dce6ec; color: #40515d; }
+.smCardFace.smCardTone-gold { background-color: #f2e5bd; color: #665425; }
+.smCardEditor { gap: 20px clamp(20px, 4vw, 56px); padding-top: 24px; }
+.smCardControls { grid-column: 1; min-width: 0; margin: 0; padding: 0; border: 0; gap: 14px; }
+.smCardControls .personaliseBlock { min-width: 0; padding: clamp(16px, 3vw, 28px); }
+.smCardControls .personaliseField select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  background: var(--sm-cream);
+  color: var(--sm-plum-dark);
+  font: inherit;
+}
+.smCardControls :is(input[type="file"], audio) { min-width: 0; max-width: 100%; }
+.smCardControls .smartMemoryOptions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.smCardOptionalDetails { margin-top: 16px; }
+.smCardOptionalDetails summary { color: var(--sm-plum-dark); font-weight: 700; cursor: pointer; }
+.smCardVideoOption { margin-top: 18px; }
+.smCardVideoOption video { display: block; width: 100%; max-height: 280px; }
+.smCardTextButton { border: 0; padding: 0; background: transparent; color: var(--sm-plum-dark); font: inherit; text-decoration: underline; cursor: pointer; }
+.smCardEditor .smCardPreview {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  position: sticky;
+  top: 104px;
+  width: min(100%, 340px);
+  margin: 0 auto;
+  align-self: start;
+}
+.smCardFaceSwitch { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.smCardFaceSwitch button {
+  flex: 1;
+  padding: 7px 12px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  background: white;
+  color: var(--sm-plum-dark);
+  font: inherit;
+  cursor: pointer;
+}
+.smCardFaceSwitch button[aria-pressed="true"] { background: var(--sm-plum-dark); color: white; }
+.smCardEditorEnlarge { display: block; margin: 9px auto 0; padding: 4px 8px; }
+.smCardInside { margin: 0; padding: 9%; overflow: auto; }
+.smCardInside p { white-space: pre-wrap; font-size: clamp(12px, 7cqw, 20px); }
+.smCardReview { grid-column: 1; min-width: 0; }
+.smCardReview .orderSummary { margin-top: 0; }
+.smBasketCardPreview {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  min-height: 0;
+  padding: 4px;
+  background: #f3e8e6;
+}
+.smBasketCardPreview .smCardFace {
+  width: 68%;
+  max-height: 100%;
+  box-shadow: none;
+}
+.smBasketCardPreview .smBasketCardPhoto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.smBasketCardPreview .smCardFace .smCardPrintedPhoto {
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 950px) {
+  .smCardBoutique .cardDesignGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .smCardEditor { grid-template-columns: minmax(0, 1fr); }
+  .smCardEditor .smCardPreview {
+    grid-area: 1 / 1;
+    width: 100%;
+    top: 65px;
+    z-index: 2;
+    padding: 8px 12px 12px;
+    background: var(--sm-cream);
+    border: 1px solid var(--sm-border);
+    border-radius: 14px;
+  }
+  .smCardPreview .previewHeading { margin-bottom: 5px; }
+  .smCardPreview .smCardFaceSwitch { margin-bottom: 7px; }
+  .smCardPreview .smCardFace { width: min(100%, 145px, 20svh); margin-inline: auto; }
+  .smCardControls :is(input, select, textarea, button) { scroll-margin-top: min(350px, 46svh); }
+}
+@media (max-width: 950px) and (max-height: 550px) {
+  .smCardEditor .smCardPreview { position: static; }
+  .smCardControls :is(input, select, textarea, button) { scroll-margin-top: 72px; }
+}
+@media (max-width: 600px) {
+  .smCardBoutique { padding-block: 32px; }
+  .smCardBoutique .cardDesignGrid { max-width: none; gap: 12px; }
+  .smCardBoutique .cardChooseButton { padding: 9px 7px; }
+  .smCardControls .smartMemoryOptions { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Owner production order: downloadable front/back customer artwork. */
 .smAdminPrintArtwork{margin:16px 0;padding:16px;border:1px solid #e5d2c7;border-radius:14px;background:#fffaf7}
 .smAdminPrintHeading h3{margin:0 0 4px;font-size:1.15rem}
@@ -13775,8 +14082,12 @@ header.smSiteHeader {
 .smAdminPrintFace>a:has(img){display:flex;align-items:center;justify-content:center;background:#f9f5f0;min-height:165px;max-height:300px;border-radius:10px;overflow:hidden}
 .smAdminPrintFace img{display:block;max-width:100%;max-height:300px;width:auto;height:auto;object-fit:contain}
 .smAdminPrintActions{display:flex;flex-wrap:wrap;gap:8px}
-.smAdminPrintActions a{display:inline-flex;align-items:center;justify-content:center;flex:1 1 110px;min-height:42px;padding:9px 10px;border:1px solid #ac6572;border-radius:9px;color:#763943;background:#fff5f5;font-size:.85rem;font-weight:700;text-align:center;text-decoration:none}
-.smAdminPrintActions a:focus-visible{outline:3px solid #8b5561;outline-offset:2px}
+.smAdminPrintActions a,.smAdminArtworkDownload{display:inline-flex;align-items:center;justify-content:center;flex:1 1 110px;min-height:42px;padding:9px 10px;border:1px solid #ac6572;border-radius:9px;color:#763943;background:#fff5f5;font-size:.85rem;font-weight:700;text-align:center;text-decoration:none}
+.smAdminPrintActions a:focus-visible,.smAdminArtworkDownload:focus-visible{outline:3px solid #8b5561;outline-offset:2px}
+.smAdminAdjustArtwork summary { color: var(--sm-plum-dark); cursor: pointer; font-weight: 700; }
+.smAdminAdjustArtwork canvas { display: block; width: auto; max-width: 100%; max-height: 360px; height: auto; margin: 10px auto; }
+.smAdminAdjustArtwork label { display: grid; gap: 4px; margin-bottom: 8px; }
+.smAdminAdjustArtwork input { width: 100%; }
 .smAdminPrintWarning{color:#8b3e34;font-weight:600}
 .smAdminTechnicalDetails{margin:12px 0;border:1px solid #eadbd3;border-radius:12px;padding:12px;background:#faf8f6}
 .smAdminTechnicalDetails summary{cursor:pointer;font-weight:700;color:#684b46;min-height:32px}

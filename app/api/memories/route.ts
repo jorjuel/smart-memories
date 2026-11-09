@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { randomBytes } from 'crypto';
+import { randomBytes, randomUUID } from 'crypto';
+import { verifyMemoryUpload } from '@/lib/verifyMemoryUpload';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createSupabaseServerClient,} from '@/lib/supabaseServer';
 import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
@@ -315,7 +316,7 @@ export async function POST(
       }
 
       const photoPath =
-        `${code}/photo.${ext(
+        `memory-uploads/${randomUUID()}.${ext(
           photo.name,
           'jpg'
         )}`;
@@ -336,7 +337,7 @@ export async function POST(
                 photo.type ||
                 'image/jpeg',
 
-              upsert: true,
+              upsert: false,
             }
           );
 
@@ -400,7 +401,7 @@ export async function POST(
           : 'webm';
 
       const audioPath =
-        `${code}/audio.${ext(
+        `memory-uploads/${randomUUID()}.${ext(
           audio.name,
           fallbackAudioExtension
         )}`;
@@ -421,7 +422,7 @@ export async function POST(
                 audio.type ||
                 'audio/webm',
 
-              upsert: true,
+              upsert: false,
             }
           );
 
@@ -452,36 +453,20 @@ export async function POST(
        Signed media uploads bypass Vercel's 4.5 MB body cap.
        Verify the requested storage object exists before linking it.
        ===================================================== */
-    for (const entry of [
-      { field: 'photoPath', kind: 'image', maxBytes: 10 * 1024 * 1024 },
-      { field: 'audioPath', kind: 'audio', maxBytes: 25 * 1024 * 1024 },
-      { field: 'videoPath', kind: 'video', maxBytes: 30 * 1024 * 1024 },
-    ]) {
-      const path = String(form.get(entry.field) || '').trim();
+    for (const [field, kind] of [
+      ['photoPath', 'image'],
+      ['audioPath', 'audio'],
+      ['videoPath', 'video'],
+    ] as const) {
+      const path = String(form.get(field) || '').trim();
       if (!path) continue;
-      if (!/^memory-uploads\/[a-f0-9-]{36}\.[a-z0-9]+$/.test(path)) {
-        return NextResponse.json({ error: 'Invalid media reference.' }, { status: 400 });
+      const result = await verifyMemoryUpload(sb, path, kind);
+      if ('error' in result) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
       }
-
-      const { data: info, error: infoError } = await sb.storage
-        .from('memory-media').info(path);
-      if (infoError || !info) {
-        return NextResponse.json({ error: 'Uploaded media was not found. Please try uploading again.' }, { status: 400 });
-      }
-      // Storage .info() returns size and contentType at the top level;
-      // .metadata is user-supplied custom metadata, not file properties.
-      const fileSize = Number(info.size || 0);
-      const mimeType = String(info.contentType || '').toLowerCase();
-      if (fileSize < 1 || fileSize > entry.maxBytes ||
-          !mimeType.startsWith(entry.kind + '/')) {
-        return NextResponse.json({ error: 'Uploaded media format or size is invalid.' }, { status: 400 });
-      }
-
-      const { data: publicFile } = sb.storage
-        .from('memory-media').getPublicUrl(path);
-      if (entry.kind === 'image') photoUrl = publicFile.publicUrl;
-      if (entry.kind === 'audio') audioUrl = publicFile.publicUrl;
-      if (entry.kind === 'video') videoUrl = publicFile.publicUrl;
+      if (kind === 'image') photoUrl = result.url;
+      if (kind === 'audio') audioUrl = result.url;
+      if (kind === 'video') videoUrl = result.url;
     }
 
     // A voice recording or video is a complete memory on its own.

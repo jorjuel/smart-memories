@@ -217,6 +217,7 @@ export async function POST(
 
             let unitPricePence:
               number;
+            let orderPersonalisation = item.personalisation;
 
             if (
               productType ===
@@ -313,7 +314,15 @@ export async function POST(
                     `
                       id,
                       card_type,
-                      include_printed_photo
+                      include_printed_photo,
+                      design_name,
+                      occasion,
+                      recipient_name,
+                      sender_name,
+                      front_greeting,
+                      inside_message,
+                      colour,
+                      memory_photo_url
                     `
                   )
                   .eq(
@@ -369,6 +378,22 @@ export async function POST(
                       .include_printed_photo
                   )
                 );
+              const existingDetails = item.personalisation && typeof item.personalisation === 'object' &&
+                !Array.isArray(item.personalisation) ? item.personalisation : {};
+              orderPersonalisation = {
+                ...existingDetails,
+                card: {
+                  id: cardPersonalisation.id,
+                  design: cardPersonalisation.design_name,
+                  occasion: cardPersonalisation.occasion,
+                  recipient: cardPersonalisation.recipient_name,
+                  sender: cardPersonalisation.sender_name,
+                  frontGreeting: cardPersonalisation.front_greeting,
+                  insideMessage: cardPersonalisation.inside_message,
+                  colour: cardPersonalisation.colour,
+                  printedPhotoUrl: cardPersonalisation.include_printed_photo ? cardPersonalisation.memory_photo_url : null,
+                },
+              };
             } else {
               throw new Error(
                 'Invalid product type.'
@@ -380,6 +405,7 @@ export async function POST(
               productType,
               quantity,
               unitPricePence,
+              personalisation: orderPersonalisation,
             };
           }
         )

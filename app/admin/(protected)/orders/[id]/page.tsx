@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import QRCode from 'qrcode';
 
 import CopyMemoryUrlButton from '@/components/admin/CopyMemoryUrlButton';
+import DownloadArtworkButton from '@/components/admin/DownloadArtworkButton';
+import AdjustPrintPhoto from '@/components/admin/AdjustPrintPhoto';
 
 import {
   getMemoryPublicUrl,
@@ -904,15 +906,21 @@ export default async function AdminOrderDetailPage({
                     )
                   : undefined;
 
+              const isCard = item.product_type === 'traditional-card' || item.product_type === 'smart-card';
               const personalisation =
                 getPersonalisationEntries(
                   item.personalisation
-                );
+                ).filter(([key]) => !isCard || key !== 'card');
               const productDetails = item.personalisation && typeof item.personalisation === 'object' && !Array.isArray(item.personalisation)
                 ? item.personalisation as Record<string,unknown> : {};
+              const card = isCard && productDetails.card && typeof productDetails.card === 'object' &&
+                !Array.isArray(productDetails.card) ? productDetails.card as Record<string, unknown> : null;
               const secureArtworkUrl = (value:unknown):string|null =>
                 typeof value==='string' && /^https:\/\//.test(value) ? value : null;
+              const printedCardPhoto = secureArtworkUrl(card?.printedPhotoUrl);
               const frontArtworkUrl = secureArtworkUrl(productDetails.printArtworkUrl);
+              const hasPhotoLayout = typeof productDetails.printAspectWidth === 'number' &&
+                typeof productDetails.printAspectHeight === 'number';
               const backArtworkUrl = secureArtworkUrl(productDetails.backArtworkUrl);
               const keyringShape = typeof productDetails.keyringShape==='string'?productDetails.keyringShape:null;
               const isDoubleSidedKeyring = item.product_slug==='keyring';
@@ -925,6 +933,8 @@ export default async function AdminOrderDetailPage({
                       (url): url is string => typeof url === 'string' && /^https:\/\//.test(url)
                     ).slice(0, 6)
                   : [];
+              const originalPrintPhoto = (item.product_slug === 'coaster-set' ? null : printPhotoUrls[0]) ||
+                secureArtworkUrl(memory?.photo_url);
 
               const savedItem =
                 itemProductionData[
@@ -1015,6 +1025,35 @@ export default async function AdminOrderDetailPage({
                     </div>
                   </div>
 
+                  {isCard && (
+                    <section className="smAdminPersonalisation smAdminCardInstructions" aria-label="Card personalisation">
+                      <h3>Card personalisation</h3>
+                      {card ? (
+                        <>
+                          <dl>
+                            {([
+                              ['For', card.recipient],
+                              ['From', card.sender],
+                              ['Front greeting', card.frontGreeting],
+                              ['Inside message', card.insideMessage],
+                              ['Design', card.design],
+                              ['Occasion', card.occasion],
+                              ['Colour', card.colour],
+                            ] as const).map(([label, value]) => (
+                              <div key={label}>
+                                <dt>{label}</dt>
+                                <dd>{typeof value === 'string' && value.trim() ? value : 'Not entered'}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                          {printedCardPhoto && <a href={printedCardPhoto} target="_blank" rel="noopener noreferrer">Open printed photograph</a>}
+                        </>
+                      ) : (
+                        <p>No saved card details are linked to this order item.</p>
+                      )}
+                    </section>
+                  )}
+
                   {(frontArtworkUrl || backArtworkUrl) && (
                     <section className="smAdminPrintArtwork" aria-label={`Print files for ${item.product_name}`}>
                       <div className="smAdminPrintHeading">
@@ -1034,8 +1073,16 @@ export default async function AdminOrderDetailPage({
                             </a>
                             <div className="smAdminPrintActions">
                               <a href={frontArtworkUrl} target="_blank" rel="noopener noreferrer">Preview {isDoubleSidedKeyring?'front':'artwork'}</a>
-                              <a href={frontArtworkUrl} download={isDoubleSidedKeyring?'keyring-front.png':undefined} target="_blank" rel="noopener noreferrer">Download print file</a>
+                              <DownloadArtworkButton url={frontArtworkUrl} name={isDoubleSidedKeyring ? 'keyring-front' : 'print-artwork'}>
+                                Download print file
+                              </DownloadArtworkButton>
                             </div>
+                            {originalPrintPhoto && hasPhotoLayout ? (
+                              <AdjustPrintPhoto photoUrl={originalPrintPhoto} artworkUrl={frontArtworkUrl}
+                                productName={item.product_name} isKeyring={isDoubleSidedKeyring} details={productDetails} />
+                            ) : (
+                              <small>Photo positioning requires the original photo and saved print layout.</small>
+                            )}
                           </div>
                         )}
                         {isDoubleSidedKeyring && (
@@ -1047,7 +1094,7 @@ export default async function AdminOrderDetailPage({
                               </a>
                               <div className="smAdminPrintActions">
                                 <a href={backArtworkUrl} target="_blank" rel="noopener noreferrer">Preview back</a>
-                                <a href={backArtworkUrl} download="keyring-back.png" target="_blank" rel="noopener noreferrer">Download print file</a>
+                                <DownloadArtworkButton url={backArtworkUrl} name="keyring-back">Download print file</DownloadArtworkButton>
                               </div>
                             </> : <p className="smAdminPrintWarning">No back artwork found for this order. Check before production.</p>}
                           </div>
@@ -1063,10 +1110,14 @@ export default async function AdminOrderDetailPage({
                       <p>For coaster sets, print each photo on its corresponding coaster. Repeat images in order if fewer were supplied than coasters.</p>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 12 }}>
                         {printPhotoUrls.map((url, index) => (
-                          <a key={url + index} href={url} target="_blank" rel="noopener noreferrer">
-                            <img src={url} alt={`Original photo ${index + 1}`} style={{ display:'block', width:'100%', aspectRatio:'1', objectFit:'cover', borderRadius:8 }} />
-                            Download photo {index + 1}
-                          </a>
+                          <div key={url + index} className="smAdminPrintActions">
+                            <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Preview original photo ${index + 1}`}>
+                              <img src={url} alt={`Original photo ${index + 1}`} style={{ display:'block', width:'100%', aspectRatio:'1', objectFit:'cover', borderRadius:8 }} />
+                            </a>
+                            <DownloadArtworkButton url={url} name={`original-photo-${index + 1}`}>
+                              Download photo {index + 1}
+                            </DownloadArtworkButton>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -1074,7 +1125,8 @@ export default async function AdminOrderDetailPage({
 
                   {personalisation.length >
                     0 && (
-                    <details className="smAdminPersonalisation smAdminTechnicalDetails">\n                      <summary>Technical personalisation details</summary>
+                    <details className="smAdminPersonalisation smAdminTechnicalDetails">
+                      <summary>Technical personalisation details</summary>
                       <h3>
                         Personalisation
                       </h3>

@@ -11,6 +11,7 @@ type Props = {
   photos?: string[];
   photoLayout?: PhotoLayout;
   coasterCount?: number;
+  showCoasterWording?: boolean;
   photoCrops?: PhotoCrop[];
   orientation: string;
   topText: string;
@@ -45,6 +46,7 @@ export default function ConfiguredProductPreview({
   photos = [],
   photoLayout = 'grid',
   coasterCount = 1,
+  showCoasterWording = false,
   photoCrops = [],
   orientation,
   topText,
@@ -70,6 +72,32 @@ export default function ConfiguredProductPreview({
   const templateTheme = template ? getGiftTemplateTheme(template) : null;
   const activePhotos = photos.length ? photos : (photoUrl ? [photoUrl] : []);
   const printAspect = slug === 'mouse-mat' || slug === 'photo-mug' ? 1.5 : 1;
+  const wording = (
+    <>
+      {topText &&
+        (textLayout === 'top' ||
+          textLayout === 'top-bottom') && (
+          <div className="previewTopText">
+            {topText}
+          </div>
+        )}
+
+      {paragraph &&
+        textLayout === 'paragraph' && (
+          <div className="previewParagraph">
+            {paragraph}
+          </div>
+        )}
+
+      {bottomText &&
+        (textLayout === 'bottom' ||
+          textLayout === 'top-bottom') && (
+          <div className="previewBottomText">
+            {bottomText}
+          </div>
+        )}
+    </>
+  );
   const imageContent = (
     <>
       {activePhotos.length > 1 && slug !== 'coaster-set' ? (
@@ -119,28 +147,7 @@ export default function ConfiguredProductPreview({
       {frameUrl && <img src={frameUrl} alt="" aria-hidden="true"
         style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'contain',pointerEvents:'none',zIndex:2}} />}
 
-      {topText &&
-        (textLayout === 'top' ||
-          textLayout === 'top-bottom') && (
-          <div className="previewTopText">
-            {topText}
-          </div>
-        )}
-
-      {paragraph &&
-        textLayout === 'paragraph' && (
-          <div className="previewParagraph">
-            {paragraph}
-          </div>
-        )}
-
-      {bottomText &&
-        (textLayout === 'bottom' ||
-          textLayout === 'top-bottom') && (
-          <div className="previewBottomText">
-            {bottomText}
-          </div>
-        )}
+      {wording}
     </>
   );
 
@@ -220,6 +227,7 @@ export default function ConfiguredProductPreview({
                 ) : (
                   <span>♥</span>
                 )}
+                {showCoasterWording && wording}
               </div>
             ))}
           </div>

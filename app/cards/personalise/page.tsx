@@ -3,12 +3,20 @@
 import {
   Suspense,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import CardFront from '../../../components/CardFront';
+import CardZoomDialog from '../../../components/CardZoomDialog';
+import { cardDesigns, cardOccasionWording, getCardWording } from '../../../lib/cardDesigns';
+import { hasMeaningfulMemoryContent } from '../../../lib/memoryContent';
+import { uploadMemoryMedia } from '../../../lib/memoryMediaUpload';
+import { CARD_PRICES_PENCE, getCardPricePence } from '../../../lib/pricing';
+import { useCataloguePhoto } from '../../../lib/useCataloguePhoto';
+
+const cardMoney = (pence: number) => `£${(pence / 100).toFixed(2)}`;
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -30,33 +38,43 @@ function PersonaliseCardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const occasion = searchParams.get('occasion') || 'Birthday';
+  const [occasion, setOccasion] = useState(searchParams.get('occasion') || 'Just Because');
   const design = searchParams.get('design') || 'Floral Keepsake';
-  const initialCardType = searchParams.get('cardType') === 'traditional'
-    ? 'traditional'
-    : 'smart';
+  const photoSlug = cardDesigns.find((item) => item.name === design)?.photoSlug;
+  const { src: designPhoto, onError: onDesignPhotoError } = useCataloguePhoto(photoSlug);
+  const initialCardType = searchParams.get('cardType') === 'smart' ? 'smart' : 'traditional';
 
   const [cardType, setCardType] =
     useState<'traditional' | 'smart'>(initialCardType);
 
   const [recipient, setRecipient] = useState('');
 
-  const [frontGreeting, setFrontGreeting] = useState(
-    occasion === 'Birthday' ? 'Happy Birthday' : `Happy ${occasion}`
-  );
-
-  const [insideMessage, setInsideMessage] = useState(
-    'Wishing you a very special day filled with wonderful memories.'
-  );
-
+  const [frontGreeting, setFrontGreeting] = useState(() => getCardWording(occasion)[0]);
+  const [insideMessage, setInsideMessage] = useState(() => getCardWording(occasion)[1]);
   const [sender, setSender] = useState('');
-  const [colour, setColour] = useState('Rose');
-  const [includePhoto, setIncludePhoto] = useState(true);
+  const [printedPhoto, setPrintedPhoto] = useState<File | null>(null);
+  const [printedPhotoUrl, setPrintedPhotoUrl] = useState<string | null>(null);
+  const [digitalMessage, setDigitalMessage] = useState('');
+  const [memoryVideo, setMemoryVideo] = useState<File | null>(null);
+  const [memoryVideoUrl, setMemoryVideoUrl] = useState<string>();
+  const [videoError, setVideoError] = useState('');
+  const [selectedPreview, setPreviewFace] = useState<'photo' | 'front' | 'inside'>();
+  const previewFace = selectedPreview === 'inside' ? 'inside' :
+    selectedPreview !== 'front' && designPhoto ? 'photo' : 'front';
+  const previewDialog = useRef<HTMLDialogElement>(null);
+
+  function changeOccasion(value: string) {
+    const [previousFront, previousInside] = getCardWording(occasion);
+    const [suggestedFront, suggestedInside] = getCardWording(value);
+    setOccasion(value);
+    setPreviewFace('front');
+    if (!frontGreeting.trim() || frontGreeting === previousFront) setFrontGreeting(suggestedFront);
+    if (!insideMessage.trim() || insideMessage === previousInside) setInsideMessage(suggestedInside);
+  }
 
   const isOwnDesign = design === 'Your Own Design';
   const [artworkFile, setArtworkFile] = useState<File | null>(null);
   const [artworkPreview, setArtworkPreview] = useState<string | null>(null);
-  const [savedArtworkUrl, setSavedArtworkUrl] = useState<string | null>(null);
 
   function handleArtwork(file: File | null) {
     if (artworkPreview) URL.revokeObjectURL(artworkPreview);
@@ -73,7 +91,6 @@ function PersonaliseCardContent() {
       return;
     }
     setSaveError(null);
-    setSavedPersonalisationId(null);
     setArtworkFile(file);
     setArtworkPreview(URL.createObjectURL(file));
   }
@@ -130,33 +147,40 @@ function PersonaliseCardContent() {
 
   const [saveError, setSaveError] =
     useState<string | null>(null);
+  const [missingDetail, setMissingDetail] = useState<{ id: string; message: string }>();
 
-  const [saveSuccess, setSaveSuccess] =
-    useState<string | null>(null);
+  const price = getCardPricePence(cardType, Boolean(printedPhoto));
+  const savingRef = useRef(false);
+  const pendingCard = useRef<{
+    inputs: unknown[];
+    saved?: { id: string; artworkUrl?: string; memoryPhotoUrl?: string };
+    memoryCode?: string;
+    artworkPath?: string;
+    printedPhotoPath?: string;
+    memoryPhotoPath?: string;
+    audioPath?: string;
+    videoPath?: string;
+  } | null>(null);
 
-  const [savedPersonalisationId, setSavedPersonalisationId] =
-    useState<string | null>(null);
-
-  const [savedMemoryPhotoUrl, setSavedMemoryPhotoUrl] =
-    useState<string | null>(null);
-
-  /* =========================================================
-     PRICE
-     ========================================================= */
-
-  const price = useMemo(() => {
-    let total = 6.95;
-
-    if (cardType === 'smart') {
-      total += 5;
+  useEffect(() => {
+    if (!printedPhoto) {
+      setPrintedPhotoUrl(null);
+      return;
     }
+    const url = URL.createObjectURL(printedPhoto);
+    setPrintedPhotoUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [printedPhoto]);
 
-    if (includePhoto) {
-      total += 1.5;
+  useEffect(() => {
+    if (!memoryVideo) {
+      setMemoryVideoUrl(undefined);
+      return;
     }
-
-    return total.toFixed(2);
-  }, [cardType, includePhoto]);
+    const url = URL.createObjectURL(memoryVideo);
+    setMemoryVideoUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [memoryVideo]);
 
   /* =========================================================
      CLEAN UP
@@ -229,9 +253,8 @@ function PersonaliseCardContent() {
 
   async function startRecording() {
     setAudioError(null);
-    setSaveSuccess(null);
 
-    if (!navigator.mediaDevices?.getUserMedia) {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       setAudioError(
         'Voice recording is not supported by this browser. Please upload an audio file instead.'
       );
@@ -381,473 +404,289 @@ function PersonaliseCardContent() {
      ADD SAVED CARD TO BASKET
      ========================================================= */
 
-  function addSavedCardToBasket() {
-    if (!savedPersonalisationId) {
-      setSaveError('Please save the personalised card first.');
-      return;
-    }
-
-    const basketItem = {
-      id: crypto.randomUUID(),
-      personalisationId: savedPersonalisationId,
-
-      productType:
-        cardType === 'smart'
-          ? 'smart-card'
-          : 'traditional-card',
-
-      name:
-        cardType === 'smart'
-          ? `${occasion} Smart Memory Card`
-          : `${occasion} Handcrafted Card`,
-
-      occasion,
-      design,
-      recipient,
-
-      imageUrl: savedArtworkUrl || savedMemoryPhotoUrl,
-      personalisation: savedArtworkUrl ? { printArtworkUrl: savedArtworkUrl } : undefined,
-
-      price: Number(price),
-      quantity: 1,
-    };
-
-    try {
-      const existingBasket =
-        localStorage.getItem('smart-memories-cart');
-
-      const parsedBasket = existingBasket
-        ? JSON.parse(existingBasket)
-        : [];
-
-      const basket = Array.isArray(parsedBasket)
-        ? parsedBasket
-        : [];
-
-      basket.push(basketItem);
-
-      localStorage.setItem(
-        'smart-memories-cart',
-        JSON.stringify(basket)
-      );
-
-      router.push('/cart');
-    } catch (error) {
-      console.error(error);
-
-      setSaveError(
-        'Your card was saved, but it could not be added to the basket.'
-      );
-    }
-  }
-
-  /* =========================================================
-     SAVE TO SUPABASE
-     ========================================================= */
-
-  async function savePersonalisation() {
+  async function addCardToBasket() {
+    if (savingRef.current) return;
     setSaveError(null);
-    setSaveSuccess(null);
 
     if (isOwnDesign && !artworkFile) {
-      setSaveError('Please upload your own card design before saving.');
+      showMissingCardDetail('card-artwork', 'Please upload your card artwork.');
+      return;
+    }
+    if (!isOwnDesign && !frontGreeting.trim()) {
+      showMissingCardDetail('card-front-greeting', 'Please enter a front greeting.');
+      return;
+    }
+    const audio = recordedAudioBlob
+      ? new File([recordedAudioBlob], `voice-message.${getAudioFileExtension(recordedAudioBlob.type)}`, {
+          type: recordedAudioBlob.type || 'audio/webm',
+        })
+      : uploadedAudioFile;
+    if (cardType === 'smart' && !recipient.trim()) {
+      showMissingCardDetail('card-recipient', 'Enter the recipient’s name for the Smart Memory.');
+      return;
+    }
+    if (cardType === 'smart' && !hasMeaningfulMemoryContent({
+      message: digitalMessage, photo: Boolean(memoryPhotoFile), audio: Boolean(audio), video: Boolean(memoryVideo),
+    })) {
+      showMissingCardDetail('card-digital-message', 'Add a digital message, photo, voice recording or video for the Smart Memory.');
       return;
     }
 
-    if (!recipient.trim()) {
-      setSaveError(
-        'Please enter the recipient name before saving.'
-      );
-      return;
-    }
-
-    if (!frontGreeting.trim()) {
-      setSaveError(
-        'Please enter a front greeting.'
-      );
-      return;
-    }
-
-    if (
-      cardType === 'smart' &&
-      !recordedAudioBlob &&
-      !uploadedAudioFile
-    ) {
-      setSaveError(
-        'Please record or upload a voice message for your Smart Memory card.'
-      );
-      return;
-    }
-
+    savingRef.current = true;
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-
-      const formData = new FormData();
-
-      formData.append('occasion', occasion);
-      formData.append('designName', design);
-      if (isOwnDesign && artworkFile) {
-        formData.append('artworkFile', artworkFile);
+      const inputs = [
+        design, occasion, cardType, recipient, frontGreeting, insideMessage, sender,
+        artworkFile, printedPhoto, memoryPhotoFile, recordedAudioBlob, uploadedAudioFile, digitalMessage, memoryVideo,
+      ];
+      if (!pendingCard.current || !inputs.every((value, index) => value === pendingCard.current?.inputs[index])) {
+        pendingCard.current = { inputs };
       }
-      formData.append('cardType', cardType);
-      formData.append('recipientName', recipient);
-      formData.append('frontGreeting', frontGreeting);
-      formData.append('insideMessage', insideMessage);
-      formData.append('senderName', sender);
-      formData.append('colour', colour);
-
-      formData.append(
-        'includePrintedPhoto',
-        String(includePhoto)
-      );
-
-      formData.append('totalPrice', price);
-
-      if (
-        cardType === 'smart' &&
-        memoryPhotoFile
-      ) {
-        formData.append(
-          'memoryPhoto',
-          memoryPhotoFile
-        );
-      }
-
-      if (
-        cardType === 'smart' &&
-        recordedAudioBlob
-      ) {
-        const extension =
-          getAudioFileExtension(
-            recordedAudioBlob.type
-          );
-
-        const voiceFile = new File(
-          [recordedAudioBlob],
-          `voice-message.${extension}`,
-          {
-            type:
-              recordedAudioBlob.type ||
-              'audio/webm',
-          }
-        );
-
-        formData.append(
-          'audioFile',
-          voiceFile
-        );
-      } else if (
-        cardType === 'smart' &&
-        uploadedAudioFile
-      ) {
-        formData.append(
-          'audioFile',
-          uploadedAudioFile
-        );
-      }
-
-      const response = await fetch(
-        '/api/card-personalisations',
-        {
-          method: 'POST',
-          body: formData,
+      const pending = pendingCard.current;
+      const form = new FormData();
+      form.set('occasion', occasion);
+      form.set('designName', design);
+      form.set('cardType', cardType);
+      form.set('recipientName', recipient);
+      form.set('frontGreeting', frontGreeting);
+      form.set('insideMessage', insideMessage);
+      form.set('senderName', sender);
+      form.set('includePrintedPhoto', String(Boolean(printedPhoto)));
+      let saved = pending.saved;
+      if (!saved) {
+        if (artworkFile) pending.artworkPath ??= await uploadMemoryMedia(artworkFile, 'photo');
+        if (printedPhoto) pending.printedPhotoPath ??= await uploadMemoryMedia(printedPhoto, 'photo');
+        if (cardType === 'smart' && memoryPhotoFile) {
+          pending.memoryPhotoPath ??= await uploadMemoryMedia(memoryPhotoFile, 'photo');
         }
-      );
+        if (cardType === 'smart' && audio) pending.audioPath ??= await uploadMemoryMedia(audio, 'audio');
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error ||
-            'Could not save your personalised card.'
-        );
+        if (pending.artworkPath) form.set('artworkPath', pending.artworkPath);
+        const cardPhotoPath = pending.printedPhotoPath || pending.memoryPhotoPath;
+        if (cardPhotoPath) form.set('photoPath', cardPhotoPath);
+        if (pending.audioPath) form.set('audioPath', pending.audioPath);
+        const response = await fetch('/api/card-personalisations', { method: 'POST', body: form });
+        const result: { error?: string; personalisation?: typeof pending.saved } = await response.json();
+        if (!response.ok || !result.personalisation?.id) throw new Error(result.error || 'Could not save your personalised card.');
+        saved = pending.saved = result.personalisation;
       }
 
-      setSavedPersonalisationId(
-        result.personalisation.id
-      );
+      if (cardType === 'smart' && !pending.memoryCode) {
+        const memory = new FormData();
+        memory.set('recipient', recipient);
+        memory.set('sender', sender);
+        memory.set('message', digitalMessage);
+        if (pending.memoryPhotoPath) memory.set('photoPath', pending.memoryPhotoPath);
+        if (pending.audioPath) memory.set('audioPath', pending.audioPath);
+        if (memoryVideo) {
+          pending.videoPath ??= await uploadMemoryMedia(memoryVideo, 'video');
+          memory.set('videoPath', pending.videoPath);
+        }
+        const memoryResponse = await fetch('/api/memories', { method: 'POST', body: memory });
+        const result = await memoryResponse.json();
+        if (!memoryResponse.ok || !result.code) throw new Error(result.error || 'Could not save your Smart Memory.');
+        pending.memoryCode = result.code;
+      }
 
-      setSavedMemoryPhotoUrl(
-        result.personalisation.memoryPhotoUrl || null
-      );
-      setSavedArtworkUrl(result.personalisation.artworkUrl || null);
-
-      setSaveSuccess(
-        'Your personalised card and Smart Memory have been saved successfully.'
-      );
+      const { id, artworkUrl, memoryPhotoUrl } = saved;
+      const stored = localStorage.getItem('smart-memories-cart');
+      const parsed = stored ? JSON.parse(stored) : [];
+      const basket = Array.isArray(parsed) ? parsed : [];
+      basket.push({
+        id: crypto.randomUUID(),
+        personalisationId: id,
+        memoryCode: pending.memoryCode,
+        productType: cardType === 'smart' ? 'smart-card' : 'traditional-card',
+        name: cardType === 'smart' ? `${design} Smart Memory Card` : `${design} Handcrafted Card`,
+        occasion,
+        design,
+        recipient,
+        imageUrl: artworkUrl || (printedPhoto ? memoryPhotoUrl : designPhoto) || null,
+        cardPreview: { greeting: frontGreeting.trim(), printedPhoto: Boolean(printedPhoto) },
+        personalisation: artworkUrl ? { printArtworkUrl: artworkUrl } : undefined,
+        price: price / 100,
+        quantity: 1,
+      });
+      localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
+      router.push('/cart');
     } catch (error) {
-      console.error(error);
-
-      setSaveError(
-        error instanceof Error
-          ? error.message
-          : 'Something went wrong while saving your card.'
-      );
-    } finally {
+      setSaveError(error instanceof Error ? error.message : 'Could not add your card to the basket.');
+      savingRef.current = false;
       setIsSaving(false);
     }
   }
 
+  function showMissingCardDetail(id: string, message: string) {
+    setMissingDetail({ id, message });
+    const field = document.getElementById(id);
+    const details = field?.closest('details');
+    if (details) details.open = true;
+    field?.focus({ preventScroll: true });
+    field?.scrollIntoView({ block: 'center' });
+  }
+
+  function cardFieldError(id: string) {
+    return missingDetail?.id === id ? (
+      <small id={`${id}-error`} className="voiceError" role="alert">{missingDetail.message}</small>
+    ) : null;
+  }
+
+  function openCardReview(face: 'front' | 'inside') {
+    setPreviewFace(face);
+    previewDialog.current?.showModal();
+  }
+
+  const previewArtwork = previewFace === 'photo' ? (
+    <div className="cardDesignPreview smCardFace">
+      <img key={designPhoto} className="smCardUploadedArt" src={designPhoto} alt={design} onError={onDesignPhotoError} />
+    </div>
+  ) : previewFace === 'inside' ? (
+    <div className="insidePreview smCardFace smCardInside">
+      <span>INSIDE YOUR CARD</span>
+      <p>{insideMessage || 'Your personal message will appear here.'}</p>
+      {sender && <strong>With love, {sender}</strong>}
+    </div>
+  ) : (
+    <CardFront design={design} greeting={frontGreeting || 'Your greeting'} recipient={recipient}
+      photo={printedPhotoUrl} artwork={artworkPreview} smart={cardType === 'smart'} />
+  );
+
   return (
     <>
-      <section className="personaliseHeader">
-        <Link
-          href="/cards"
-          className="personaliseBack"
-        >
-          ← Back to card designs
-        </Link>
-
-        <span className="v14Eyebrow">
-          PERSONALISE YOUR CARD
-        </span>
-
+      <section className="personaliseHeader smCardEditorHeader">
+        <Link href={{ pathname: '/cards', query: { cardType, occasion } }} className="personaliseBack">← Back to card designs</Link>
+        <span className="v14Eyebrow">HANDCRAFTED CARDS</span>
         <h1>Make it theirs.</h1>
-
-        <p>
-          You selected <strong>{design}</strong> for{' '}
-          <strong>{occasion}</strong>.
-        </p>
+        <p>Personalise {design} and see your changes as you go.</p>
       </section>
 
-      <section className="personaliseLayout">
-        <div className="personaliseControls">
-
+      <section className="personaliseLayout smCardEditor">
+        <fieldset className="personaliseControls smCardControls" disabled={isSaving}
+          onChange={() => setMissingDetail(undefined)}>
           <div className="personaliseBlock">
-            <span className="personaliseStep">
-              01
-            </span>
-
-            <h2>Choose your card</h2>
-
-            <p>
-              Keep it beautifully traditional or add the Smart Memories
-              experience.
-            </p>
-
-            <div className="cardTypeChoices">
-              <button
-                type="button"
-                className={
-                  cardType === 'traditional'
-                    ? 'active'
-                    : ''
-                }
-                onClick={() =>
-                  setCardType('traditional')
-                }
-              >
-                <strong>
-                  Traditional Card
-                </strong>
-
-                <span>
-                  Handcrafted and personalised
-                </span>
-
-                <b>From £6.95</b>
-              </button>
-
-              <button
-                type="button"
-                className={
-                  cardType === 'smart'
-                    ? 'active smart'
-                    : ''
-                }
-                onClick={() =>
-                  setCardType('smart')
-                }
-              >
-                <div className="recommendedBadge">
-                  MOST SPECIAL
-                </div>
-
-                <strong>
-                  Smart Memory Card
-                </strong>
-
-                <span>
-                  Card + NFC/QR digital memory
-                </span>
-
-                <b>From £11.95</b>
-              </button>
-            </div>
-          </div>
-
-          {isOwnDesign && (
-            <div className="personaliseBlock">
-              <span className="personaliseStep">02</span>
-              <h2>Upload your card design</h2>
-              <p>Choose a clear image for the front of your printed card. JPG, PNG or WebP, up to 10 MB. This is separate from the photograph and voice used in an NFC memory.</p>
-              <label className="personaliseField">
-                <span>Your artwork (required)</span>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(event) => handleArtwork(event.target.files?.[0] || null)}
-                />
-              </label>
-              {artworkPreview && (
-                <div className="smOwnArtworkPreview">
-                  <img src={artworkPreview} alt="Your uploaded card front artwork" />
-                  <button type="button" onClick={() => handleArtwork(null)}>
-                    Remove artwork
-                  </button>
-                </div>
-              )}
-              <small>Print colour and edge cropping may vary. Your original design will be reviewed before production.</small>
-            </div>
-          )}
-
-          <div className="personaliseBlock">
-            <span className="personaliseStep">
-              02
-            </span>
-
-            <h2>Personalise the words</h2>
-
+            <span className="personaliseStep">01</span>
+            <h2>Inside message</h2>
             <label className="personaliseField">
-              <span>Recipient name</span>
-
-              <input
-                type="text"
-                placeholder="e.g. Mum, Sarah, Grandad..."
-                value={recipient}
-                onChange={(e) =>
-                  setRecipient(e.target.value)
-                }
-              />
+              <span>Your message</span>
+              <textarea rows={4} maxLength={500} value={insideMessage} onFocus={() => setPreviewFace('inside')}
+                onChange={(event) => {
+                  setInsideMessage(event.target.value);
+                  setPreviewFace('inside');
+                }} />
             </label>
-
             <label className="personaliseField">
-              <span>Front greeting</span>
-
-              <input
-                type="text"
-                value={frontGreeting}
-                onChange={(e) =>
-                  setFrontGreeting(e.target.value)
-                }
-              />
+              <span>From (optional)</span>
+              <input value={sender} maxLength={60} onFocus={() => setPreviewFace('inside')}
+                onChange={(event) => setSender(event.target.value)} />
             </label>
-
-            <label className="personaliseField">
-              <span>Inside message</span>
-
-              <textarea
-                rows={6}
-                value={insideMessage}
-                onChange={(e) =>
-                  setInsideMessage(e.target.value)
-                }
-              />
-            </label>
-
-            <label className="personaliseField">
-              <span>From</span>
-
-              <input
-                type="text"
-                placeholder="Your name"
-                value={sender}
-                onChange={(e) =>
-                  setSender(e.target.value)
-                }
-              />
-            </label>
-          </div>
-
-          <div className="personaliseBlock">
-            <span className="personaliseStep">
-              03
-            </span>
-
-            <h2>
-              Choose the finishing style
-            </h2>
-
-            <div className="colourChoices">
-              {[
-                'Rose',
-                'Plum',
-                'Cream',
-                'Sage',
-                'Blue',
-                'Gold',
-              ].map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={
-                    colour === item
-                      ? 'active'
-                      : ''
-                  }
-                  onClick={() =>
-                    setColour(item)
-                  }
-                >
-                  <span
-                    className={`colourDot ${item.toLowerCase()}`}
-                  ></span>
-
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            <label className="photoOption">
-              <input
-                type="checkbox"
-                checked={includePhoto}
-                onChange={(e) =>
-                  setIncludePhoto(
-                    e.target.checked
-                  )
-                }
-              />
-
-              <span>
-                <strong>
-                  Add a printed photograph
-                </strong>
-
-                <small>
-                  Include a favourite photograph in the card design. +£1.50
-                </small>
-              </span>
-            </label>
-          </div>
-
-          {cardType === 'smart' && (
-            <div className="personaliseBlock smartMemoryBuilder">
-              <span className="personaliseStep">
-                04
-              </span>
-
-              <div className="smartBuilderTitle">
-                <div>
-                  <span className="v14Eyebrow">
-                    SMART MEMORY
-                  </span>
-
-                  <h2>
-                    Add the part they can hear.
-                  </h2>
-                </div>
-
-                <span className="nfcBadge">
-                  NFC + QR
-                </span>
+            <details className="smCardOptionalDetails" open={isOwnDesign}>
+              <summary>{isOwnDesign ? 'Upload artwork and edit card details' : 'Other card details (optional)'}</summary>
+              <div>
+                <h3>Front wording</h3>
+                <label className="personaliseField">
+                  <span>Occasion</span>
+                  <select value={occasion} onChange={(event) => changeOccasion(event.target.value)}>
+                    {!Object.hasOwn(cardOccasionWording, occasion) && <option>{occasion}</option>}
+                    {Object.keys(cardOccasionWording).map((item) => <option key={item}>{item}</option>)}
+                  </select>
+                </label>
+                <label className="personaliseField">
+                  <span>{isOwnDesign ? 'Front wording for your order (optional)' : 'Front greeting'}</span>
+                  <input id="card-front-greeting" value={frontGreeting} maxLength={100} onFocus={() => setPreviewFace('front')}
+                    aria-invalid={missingDetail?.id === 'card-front-greeting' || undefined}
+                    aria-describedby={missingDetail?.id === 'card-front-greeting' ? 'card-front-greeting-error' : undefined}
+                    onChange={(event) => {
+                      setFrontGreeting(event.target.value);
+                      setPreviewFace('front');
+                    }} />
+                  {cardFieldError('card-front-greeting')}
+                </label>
+                <button className="smCardTextButton" type="button" onClick={() => {
+                  const [front, inside] = getCardWording(occasion);
+                  setFrontGreeting(front);
+                  setInsideMessage(inside);
+                  setPreviewFace('front');
+                }}>Use suggested wording</button>
               </div>
 
-              <p>
-                 Your card will contain a discreet Smart Memories point.
- 		 When the recipient taps it with their phone, their unique
- 		 Smart Memory page opens in the browser.
-              </p>
+              <div>
+                <h3>Card details</h3>
+                <label className="personaliseField">
+                  <span>Recipient name {cardType === 'traditional' ? '(optional)' : ''}</span>
+                  <input id="card-recipient" value={recipient} maxLength={60} onFocus={() => setPreviewFace('front')}
+                    aria-invalid={missingDetail?.id === 'card-recipient' || undefined}
+                    aria-describedby={missingDetail?.id === 'card-recipient' ? 'card-recipient-error' : undefined}
+                    onChange={(event) => setRecipient(event.target.value)} />
+                  {cardFieldError('card-recipient')}
+                </label>
+                {isOwnDesign ? (
+                  <label className="personaliseField">
+                    <span>Card front artwork (JPG, PNG or WebP, up to 10 MB)</span>
+                    <input id="card-artwork" type="file" accept="image/jpeg,image/png,image/webp"
+                      aria-invalid={missingDetail?.id === 'card-artwork' || undefined}
+                      aria-describedby={missingDetail?.id === 'card-artwork' ? 'card-artwork-error' : undefined}
+                      onChange={(event) => {
+                        handleArtwork(event.target.files?.[0] || null);
+                        setPreviewFace('front');
+                      }} />
+                    {cardFieldError('card-artwork')}
+                  </label>
+                ) : (
+                  <>
+                    <label className="personaliseField">
+                      <span>Add a printed photograph · +{cardMoney(CARD_PRICES_PENCE.printedPhoto)}</span>
+                      <input type="file" accept="image/*" onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (!file) return;
+                        if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
+                          setSaveError('Choose an image up to 10 MB.');
+                          event.target.value = '';
+                          return;
+                        }
+                        setSaveError(null);
+                        setPrintedPhoto(file);
+                        setPreviewFace('front');
+                        event.target.value = '';
+                      }} />
+                    </label>
+                    {printedPhoto && (
+                      <button className="smCardTextButton" type="button" onClick={() => {
+                        setPrintedPhoto(null);
+                        setPreviewFace('front');
+                      }}>Remove printed photograph</button>
+                    )}
+                  </>
+                )}
+              </div>
+
+            </details>
+          </div>
+
+          <div className="personaliseBlock">
+            <span className="personaliseStep">02</span>
+            <h2>Add Smart Memory <small>(optional) · {cardMoney(CARD_PRICES_PENCE.smart - CARD_PRICES_PENCE.traditional)}</small></h2>
+            <label className="photoOption">
+              <input type="checkbox" checked={cardType === 'smart'} disabled={isRecording}
+                onChange={(event) => {
+                  setCardType(event.target.checked ? 'smart' : 'traditional');
+                  setPreviewFace('front');
+                }} />
+              <span>
+                <strong>Add Smart Tap access and QR access · +{cardMoney(CARD_PRICES_PENCE.smart - CARD_PRICES_PENCE.traditional)}</strong>
+                <small>Share a digital message, photo or voice recording.</small>
+              </span>
+            </label>
+          </div>
+          {cardType === 'smart' && (
+            <div className="personaliseBlock smartMemoryBuilder">
+              <h3>Your digital memory</h3>
+              <label className="personaliseField">
+                <span>Digital message (optional)</span>
+                <textarea id="card-digital-message" rows={3} maxLength={1500} value={digitalMessage}
+                  aria-describedby={missingDetail?.id === 'card-digital-message' ? 'card-digital-message-error' : undefined}
+                  onChange={(event) => setDigitalMessage(event.target.value)} />
+                {cardFieldError('card-digital-message')}
+              </label>
 
               <div className="smartMemoryOptions">
 
@@ -1076,6 +915,33 @@ function PersonaliseCardContent() {
                 </div>
               </div>
 
+              <div className="smCardVideoOption">
+                <label className="personaliseField">
+                  <span>Video (optional)</span>
+                  <small>MP4, MOV or WebM, up to 30 MB.</small>
+                  <input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = '';
+                      if (!file) return;
+                      if (!['video/mp4', 'video/quicktime', 'video/webm'].includes(file.type) ||
+                          !file.size || file.size > 30 * 1024 * 1024) {
+                        setVideoError('Choose an MP4, MOV or WebM video of 30 MB or smaller.');
+                        return;
+                      }
+                      setVideoError('');
+                      setMemoryVideo(file);
+                    }} />
+                </label>
+                {videoError && <p className="voiceError" role="alert">{videoError}</p>}
+                {memoryVideoUrl && (
+                  <div className="recordingPreview">
+                    <video src={memoryVideoUrl} controls playsInline preload="metadata" aria-label="Smart Memory video preview" />
+                    <button type="button" onClick={() => { setMemoryVideo(null); setVideoError(''); }}>Remove video</button>
+                  </div>
+                )}
+              </div>
+
               <div className="smartPrivacyNote">
                 <strong>
                   Your memory is separate from the printed card.
@@ -1083,186 +949,51 @@ function PersonaliseCardContent() {
 
                 <p>
                   The NFC chip contains only the Smart Memories link.
-                  Your photograph and voice message are stored digitally.
+                  Your message, photograph, voice recording and video are stored digitally.
                 </p>
               </div>
             </div>
           )}
-        </div>
+        </fieldset>
 
-        <aside className="personalisePreview">
-          <div className="previewSticky">
+        <aside className="personalisePreview smCardPreview">
+          <div className="smCardPreviewSticky">
             <div className="previewHeading">
-              <span>LIVE PREVIEW</span>
+              <span>{previewFace === 'photo' ? 'DESIGN PHOTO' : 'LIVE PREVIEW'}</span>
               <small>{design}</small>
             </div>
-
-            <div
-              className={`liveCardPreview colour-${colour.toLowerCase()}`}
-            >
-              {isOwnDesign && artworkPreview ? (
-                <img className="smOwnArtworkLiveImage" src={artworkPreview} alt="Your custom front design" />
-              ) : (
-                <div className="liveCardDecoration">♥</div>
-              )}
-
-              <small>
-                {occasion.toUpperCase()}
-              </small>
-
-              {recipient && (
-                <span className="previewRecipient">
-                  FOR {recipient}
-                </span>
-              )}
-
-              <h2>
-                {frontGreeting ||
-                  'Your greeting'}
-              </h2>
-
-              <p>
-                Made especially for you
-              </p>
-
-              {cardType === 'smart' && (
-                <div className="previewSmartMark">
-                  <strong>
-                    ♥ SMART MEMORY
-                  </strong>
-
-                  <span>
-                    Tap to hear your message
-                  </span>
-                </div>
-              )}
+            <div className="smCardFaceSwitch" role="group" aria-label="Card preview side">
+              <button type="button" aria-pressed={previewFace === 'front'} onClick={() => setPreviewFace('front')}>Front</button>
+              <button type="button" aria-pressed={previewFace === 'inside'} onClick={() => setPreviewFace('inside')}>Inside</button>
+              {designPhoto && <button type="button" aria-pressed={previewFace === 'photo'} onClick={() => setPreviewFace('photo')}>Design photo</button>}
             </div>
-
-            <div className="insidePreview">
-              <span>
-                INSIDE YOUR CARD
-              </span>
-
-              <p>
-                {insideMessage ||
-                  'Your personal message will appear here.'}
-              </p>
-
-              {sender && (
-                <strong>
-                  With love, {sender}
-                </strong>
-              )}
-            </div>
-
-            <div className="orderSummary">
-              <div>
-                <span>
-                  {cardType === 'smart'
-                    ? 'Smart Memory Card'
-                    : 'Traditional Card'}
-                </span>
-
-                <strong>
-                  £
-                  {cardType === 'smart'
-                    ? '11.95'
-                    : '6.95'}
-                </strong>
-              </div>
-
-              {includePhoto && (
-                <div>
-                  <span>
-                    Printed photograph
-                  </span>
-
-                  <strong>
-                    £1.50
-                  </strong>
-                </div>
-              )}
-
-              <div className="orderTotal">
-                <span>Total</span>
-
-                <strong>
-                  £{price}
-                </strong>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="personaliseBasketButton"
-              onClick={
-                savePersonalisation
-              }
-              disabled={isSaving}
-            >
-              {isSaving
-                ? 'Saving your Smart Memory...'
-                : 'Save personalised card'}
-            </button>
-
-            {saveError && (
-              <p
-                className="voiceError"
-                style={{
-                  marginTop: '12px',
-                }}
-              >
-                {saveError}
-              </p>
-            )}
-
-            {saveSuccess && (
-              <div
-                className="smartPrivacyNote"
-                style={{
-                  marginTop: '15px',
-                }}
-              >
-                <strong>
-                  ✓ Saved successfully
-                </strong>
-
-                <p>
-                  {saveSuccess}
-                </p>
-
-                {savedPersonalisationId && (
-                  <>
-                    <small
-                      style={{
-                        display: 'block',
-                        marginBottom: '14px',
-                      }}
-                    >
-                      Reference:{' '}
-                      {savedPersonalisationId}
-                    </small>
-
-                    <button
-                      type="button"
-                      className="personaliseBasketButton"
-                      onClick={
-                        addSavedCardToBasket
-                      }
-                    >
-                      Add saved card to basket
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-
-            <p className="basketSmallPrint">
-              Save your personalised Smart Memory first, then add it to
-              your basket.
-            </p>
+            {previewArtwork}
+            <button type="button" className="smCardTextButton smCardEditorEnlarge" aria-haspopup="dialog"
+              onClick={() => previewDialog.current?.showModal()}>Enlarge preview</button>
           </div>
         </aside>
+        <CardZoomDialog dialog={previewDialog} title={design}>{previewArtwork}</CardZoomDialog>
+
+        <section className="personaliseBlock smCardReview" aria-labelledby="card-review">
+          <span className="personaliseStep">03</span>
+          <h2 id="card-review">Review &amp; add to basket</h2>
+          <p>{design} · {occasion}{recipient.trim() ? ` · For ${recipient.trim()}` : ''}</p>
+          <div className="smCardFaceSwitch" role="group" aria-label="Review your card">
+            <button type="button" aria-haspopup="dialog" onClick={() => openCardReview('front')}>Review front</button>
+            <button type="button" aria-haspopup="dialog" onClick={() => openCardReview('inside')}>Review inside</button>
+          </div>
+          <div className="orderSummary">
+            <div><span>{design}</span><strong>{cardMoney(CARD_PRICES_PENCE.traditional)}</strong></div>
+            {printedPhoto && <div><span>Printed photograph</span><strong>{cardMoney(CARD_PRICES_PENCE.printedPhoto)}</strong></div>}
+            {cardType === 'smart' && <div><span>Smart Memory</span><strong>{cardMoney(CARD_PRICES_PENCE.smart - CARD_PRICES_PENCE.traditional)}</strong></div>}
+            <div className="orderTotal"><span>Total</span><strong>{cardMoney(price)}</strong></div>
+          </div>
+          <button type="button" className="personaliseBasketButton" onClick={addCardToBasket} disabled={isSaving || isRecording}>
+            {isSaving ? 'Saving your card…' : 'Add to basket'}
+          </button>
+          <p className="basketSmallPrint">Your personalisation is saved when you add the card to your basket.</p>
+          {saveError && <p className="voiceError" role="alert">{saveError}</p>}
+        </section>
       </section>
     </>
   );

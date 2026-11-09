@@ -15,6 +15,8 @@ import {
 } from '../lib/bundles';
 
 import ConfiguredProductPreview from './ConfiguredProductPreview';
+import CardZoomDialog from './CardZoomDialog';
+import { getPersonalisationProduct } from '../lib/personalisationConfig';
 
 export default function BundlePersonaliser({
   slug,
@@ -26,6 +28,9 @@ export default function BundlePersonaliser({
 
   const bundle =
     getBundle(slug)!;
+  const [itemTemplates, setItemTemplates] = useState<Record<string, string>>({});
+  const [expandedItem, setExpandedItem] = useState<string>();
+  const previewDialog = useRef<HTMLDialogElement>(null);
 
   const [
     occasion,
@@ -156,6 +161,7 @@ export default function BundlePersonaliser({
       );
 
     setPhoto(file);
+    setSavedPhotoUrl('');
     setPhotoUrl(preview);
     setFinalReview(false);
   }
@@ -447,6 +453,9 @@ export default function BundlePersonaliser({
         topText,
         bottomText,
         sharedDesign: true,
+        bundleItemTemplates: Object.fromEntries(
+          previewItems.map((item) => [item.slug, item.template]),
+        ),
       },
     };
 
@@ -463,6 +472,31 @@ export default function BundlePersonaliser({
 
     router.push(
       '/cart'
+    );
+  }
+
+  const occasionKeyword = occasion.trim().toLowerCase().split(/\s+/)[0];
+  const previewItems = bundle.products.map((item) => {
+    const templates = getPersonalisationProduct(item.slug)?.templates ?? [];
+    const suggested = templates.find((name) => name.toLowerCase() === occasion.trim().toLowerCase())
+      ?? templates.find((name) => occasionKeyword && name.toLowerCase().split(/\s+/).includes(occasionKeyword));
+    return { ...item, templates, template: itemTemplates[item.slug] ?? suggested ?? templates[0] };
+  });
+  const expanded = previewItems.find((item) => item.slug === expandedItem);
+
+  function renderPreview(item: (typeof previewItems)[number]) {
+    return (
+      <ConfiguredProductPreview
+        slug={item.slug}
+        template={item.template}
+        photoUrl={photoUrl || savedPhotoUrl}
+        orientation="portrait"
+        topText={topText}
+        bottomText={bottomText}
+        paragraph=""
+        textLayout="top-bottom"
+        showCoasterWording
+      />
     );
   }
 
@@ -786,42 +820,41 @@ export default function BundlePersonaliser({
           </h2>
 
           <div className="bundlePreviewGrid">
-            {bundle.products.map(
-              (product) => (
-                <div
-                  key={
-                    product.slug
-                  }
-                  className="bundlePreviewCard"
-                >
-                  <h3>
-                    {product.name}
-                  </h3>
-
-                  <div className="bundlePreviewFrame">
-                    <ConfiguredProductPreview
-                      slug={
-                        product.slug
-                      }
-                      photoUrl={
-                        savedPhotoUrl ||
-                        photoUrl
-                      }
-                      orientation="portrait"
-                      topText={
-                        topText
-                      }
-                      bottomText={
-                        bottomText
-                      }
-                      paragraph=""
-                      textLayout="top-bottom"
-                    />
-                  </div>
+            {previewItems.map((item) => (
+              <article key={item.slug} className="bundlePreviewCard">
+                <h3>{item.name}</h3>
+                <div className="bundlePreviewFrame">
+                  <div className="bundlePreviewArtwork">{renderPreview(item)}</div>
+                  <button type="button" className="bundlePreviewEnlarge" aria-haspopup="dialog"
+                    aria-label={`Enlarge ${item.name} preview`}
+                    onClick={() => {
+                      setExpandedItem(item.slug);
+                      previewDialog.current?.showModal();
+                    }}>
+                    <span>Enlarge</span>
+                  </button>
                 </div>
-              )
-            )}
+                {item.templates.length > 0 && (
+                  <label className="bundlePreviewTemplate">
+                    <span>{item.name} template</span>
+                    <select value={item.template} onChange={(event) => {
+                      const template = event.target.value;
+                      setItemTemplates((current) => ({ ...current, [item.slug]: template }));
+                    }}>
+                      {item.templates.map((template) => <option key={template}>{template}</option>)}
+                    </select>
+                  </label>
+                )}
+              </article>
+            ))}
           </div>
+          <CardZoomDialog dialog={previewDialog} title={expanded?.name || 'Bundle item preview'}>
+            {expanded && (
+              <div className="bundlePreviewArtwork bundlePreviewExpanded">
+                {renderPreview(expanded)}
+              </div>
+            )}
+          </CardZoomDialog>
 
           <div
             className="card"

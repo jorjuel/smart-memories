@@ -26,7 +26,7 @@ type PhotoFit='contain'|'cover';
 type SlateDirection='portrait'|'landscape';
 export const PRICE=24.99; // Retain existing slate base price until size-specific prices are configured.
 
-export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0,round=false,edgeToEdge=false){
+export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefined,sz:SlateSize,crop:Crop,way:Wording,top:string,bottom:string,dedication:string,cw=900,fit:PhotoFit='contain',rotation=0,round=false,edgeToEdge=false,allowContainOffset=false){
  const ch=Math.round(cw*sz.height/sz.width);
  const canvas=ctx.canvas;canvas.width=cw;canvas.height=ch;
  const w=cw,h=ch;
@@ -55,8 +55,8 @@ export function paint(ctx:CanvasRenderingContext2D,image:HTMLImageElement|undefi
   const spareX=(pw-scaledW)/2,spareY=(ph-scaledH)/2;
   // In 'fit' mode, keep the entire image inside the printable area.
   const limitX=Math.abs(spareX),limitY=Math.abs(spareY);
-  const shiftX=fit==='contain' && scaledW<=pw?0:Math.max(-limitX,Math.min(limitX,crop.dx*pw/2));
-  const shiftY=fit==='contain' && scaledH<=ph?0:Math.max(-limitY,Math.min(limitY,crop.dy*ph/2));
+  const shiftX=!allowContainOffset && fit==='contain' && scaledW<=pw?0:Math.max(-limitX,Math.min(limitX,crop.dx*pw/2));
+  const shiftY=!allowContainOffset && fit==='contain' && scaledH<=ph?0:Math.max(-limitY,Math.min(limitY,crop.dy*ph/2));
   ctx.save();
   ctx.translate(px+pw/2+shiftX,py+ph/2+shiftY);
   ctx.rotate(rotation*Math.PI/180);
