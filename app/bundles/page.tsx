@@ -51,7 +51,7 @@ const bundles = [
       'Personalised Keyring',
       'Personalised Coasters',
     ],
-    normalPrice: 47.97,
+    normalPrice: 48.97,
     bundlePrice: 42.99,
     description:
       'A thoughtful collection for celebrating a much-loved pet.',

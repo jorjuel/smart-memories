@@ -1,11 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { products, money, type Product } from '@/lib/products';
+import { products, money } from '@/lib/products';
+import { cardDesigns } from '@/lib/cardDesigns';
+import { CARD_PRICES_PENCE } from '@/lib/pricing';
 import { compressProductImage } from '@/lib/productImages';
 import ProductGalleryAdmin from '@/components/ProductGalleryAdmin';
 
 type Catalog = { images: Record<string, string>; configured: boolean };
+type PhotoTarget = { slug: string; name: string; category: string; price: number; emoji: string };
+
+const cardPhotoTargets: PhotoTarget[] = cardDesigns.map((design) => ({
+  slug: design.photoSlug,
+  name: design.name,
+  category: 'Handcrafted card',
+  price: CARD_PRICES_PENCE.traditional / 100,
+  emoji: design.mark,
+}));
 
 export default function AdminProductPhotosPage() {
   const [images, setImages] = useState<Record<string, string>>({});
@@ -23,7 +34,7 @@ export default function AdminProductPhotosPage() {
 
   useEffect(() => { void reload().catch(() => setConfigured(false)); }, []);
 
-  async function upload(product: Product, file?: File) {
+  async function upload(product: PhotoTarget, file?: File) {
     if (!file) return;
     setBusy(product.slug);
     setMessage((m) => ({ ...m, [product.slug]: 'Preparing photograph...' }));
@@ -48,7 +59,7 @@ export default function AdminProductPhotosPage() {
     }
   }
 
-  async function remove(product: Product) {
+  async function remove(product: PhotoTarget) {
     if (!window.confirm(`Remove public photograph for ${product.name}?`)) return;
     setBusy(product.slug);
     try {
@@ -73,48 +84,57 @@ export default function AdminProductPhotosPage() {
     <section className="wrap">
       <span className="eyebrow">OWNER / PRODUCT PHOTOGRAPHY</span>
       <h1>Product photography</h1>
-      <p className="lead">Upload your final product images here. Cloud photos appear in the shop for every customer, including on mobile. JPEGs are compressed before uploading.</p>
+      <p className="lead">Upload photographs for the shop and Handcrafted Cards gallery. Images are compressed before uploading.</p>
       {configured === false && (
         <div className="card adminNote" role="status">
           <strong>Cloud setup required.</strong> Create the public
           <code> product-catalog </code> storage bucket in Supabase before uploading.
-          Until then, product illustrations remain visible in the shop.
+          The shop and card gallery use illustrations when a photo is unavailable.
         </div>
       )}
-      <div className="adminProducts">
-        {products.map((product) => (
-          <article className="card adminProduct" key={product.slug}>
-            <div className="adminProductPreview">
-              {images[product.slug] ? (
-                <img src={images[product.slug]} alt={product.name} />
-              ) : (
-                <><span>{product.emoji}</span><small>No public photo yet</small></>
-              )}
-            </div>
-            <div>
-              <h2>{product.name}</h2>
-              <p>{product.category} · <b>{money(product.price)}</b></p>
-              <label className="btn small uploadBtn">
-                {busy === product.slug ? 'Saving...' : images[product.slug] ? 'Replace photo' : 'Upload photo'}
-                <input type="file" accept="image/jpeg,image/png,image/webp"
-                  disabled={busy !== null || configured === false}
-                  onChange={(event) => {
-                    void upload(product, event.target.files?.[0]);
-                    event.currentTarget.value = '';
-                  }} />
-              </label>
-              {images[product.slug] && (
-                <button type="button" className="danger smallAction"
-                  disabled={busy !== null} onClick={() => void remove(product)}>
-                  Remove photo
-                </button>
-              )}
-              {message[product.slug] && <p role="status">{message[product.slug]}</p>}
-              <ProductGalleryAdmin slug={product.slug} />
-            </div>
-          </article>
-        ))}
-      </div>
+      {[
+        { heading: 'Handcrafted cards', items: cardPhotoTargets, hasGallery: false },
+        { heading: 'Personalised gifts', items: products, hasGallery: true },
+      ].map(({ heading, items, hasGallery }) => (
+        <section key={heading}>
+          <h2>{heading}</h2>
+          {!hasGallery && <p>Upload one photo per design to show in the Handcrafted Cards gallery.</p>}
+          <div className="adminProducts">
+            {items.map((product) => (
+              <article className="card adminProduct" key={product.slug}>
+                <div className="adminProductPreview">
+                  {images[product.slug] ? (
+                    <img src={images[product.slug]} alt={product.name} />
+                  ) : (
+                    <><span>{product.emoji}</span><small>No public photo yet</small></>
+                  )}
+                </div>
+                <div>
+                  <h3>{product.name}</h3>
+                  <p>{product.category} · <b>{money(product.price)}</b></p>
+                  <label className="btn small uploadBtn">
+                    {busy === product.slug ? 'Saving...' : images[product.slug] ? 'Replace photo' : 'Upload photo'}
+                    <input type="file" accept="image/jpeg,image/png,image/webp"
+                      disabled={busy !== null || configured === false}
+                      onChange={(event) => {
+                        void upload(product, event.target.files?.[0]);
+                        event.currentTarget.value = '';
+                      }} />
+                  </label>
+                  {images[product.slug] && (
+                    <button type="button" className="danger smallAction"
+                      disabled={busy !== null} onClick={() => void remove(product)}>
+                      Remove photo
+                    </button>
+                  )}
+                  {message[product.slug] && <p role="status">{message[product.slug]}</p>}
+                  {hasGallery && <ProductGalleryAdmin slug={product.slug} />}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
     </section>
   );
 }

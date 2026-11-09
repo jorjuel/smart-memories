@@ -1,223 +1,54 @@
-'use client';
-
-import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import CardGalleryFront from '../../components/CardGalleryFront';
+import { cardDesigns } from '../../lib/cardDesigns';
+import { CARD_PRICES_PENCE } from '../../lib/pricing';
 
-const occasions = [
-  'Birthday',
-  'Wedding',
-  'Anniversary',
-  'New Baby',
-  'Christmas',
-  "Valentine's",
-  "Mother's Day",
-  "Father's Day",
-  'Graduation',
-  'Retirement',
-  'Thank You',
-  'Remembrance',
-];
+const cardPrice = `£${(CARD_PRICES_PENCE.traditional / 100).toFixed(2)}`;
 
-const designs = [
-  {
-    name: 'Floral Keepsake',
-    style: 'floral',
-    description: 'Soft flowers and elegant handmade detailing.',
-  },
-  {
-    name: 'Classic Elegance',
-    style: 'classic',
-    description: 'Traditional, timeless and beautifully understated.',
-  },
-  {
-    name: 'Modern Minimal',
-    style: 'minimal',
-    description: 'Clean typography, modern layout and a personal touch.',
-  },
-  {
-    name: 'Photo Feature',
-    style: 'photo',
-    description: 'Make a favourite picture the centre of the card.',
-  },
-];
-
-export default function CardsPage() {
-  const [occasion, setOccasion] = useState('Birthday');
-
-  const currentDesigns = useMemo(
-    () =>
-      designs.map((design, index) => ({
-        ...design,
-        id: `${occasion}-${index + 1}`,
-      })),
-    [occasion]
-  );
+export default async function CardsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cardType?: string; occasion?: string }>;
+}) {
+  const { cardType, occasion } = await searchParams;
+  const options = {
+    ...(cardType === 'smart' || cardType === 'traditional' ? { cardType } : {}),
+    ...(typeof occasion === 'string' && occasion ? { occasion } : {}),
+  };
 
   return (
     <>
-      <section className="cardsHero">
-        <div>
-          <span className="v14Eyebrow">HANDCRAFTED SMART CARDS</span>
-
-          <h1>
-            A real card.
-            <br />
-            A hidden memory.
-          </h1>
-
-          <p>
-            Choose a handcrafted design for the occasion and make it
-            completely personal. Add their name, your message, a photograph
-            and, if you wish, a Smart Memory they can hear with one tap.
-          </p>
-
-          <div className="cardsHeroFeatures">
-            <span>Handcrafted style</span>
-            <span>Personalised message</span>
-            <span>Optional photograph</span>
-            <span>Optional NFC + QR memory</span>
-          </div>
-        </div>
-
-        <div className="cardsHeroArt">
-          <div className="cardsHeroBack"></div>
-
-          <div className="cardsHeroFront">
-            <small>MADE ESPECIALLY FOR YOU</small>
-            <div className="cardsHeroHeart">♥</div>
-            <h2>Happy Birthday</h2>
-            <p>There are some memories worth keeping forever.</p>
-
-            <div className="cardsSmartMark">
-              <strong>SMART MEMORY</strong>
-              <span>Tap to hear their message</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="cardsOccasionSection">
-        <div className="cardsSectionIntro">
-          <span className="v14Eyebrow">STEP 1</span>
-          <h2>What is the occasion?</h2>
-          <p>
-            Choose from four easy styles, or upload your own card artwork.
-          </p>
-        </div>
-
-        <div className="occasionTabs">
-          {occasions.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className={occasion === item ? 'active' : ''}
-              onClick={() => setOccasion(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="cardsGallerySection">
+      <section className="cardsGallerySection smCardBoutique">
         <div className="cardsGalleryHeading">
           <div>
-            <span className="v14Eyebrow">STEP 2</span>
-            <h2>{occasion} card designs</h2>
-            <p>
-              Choose the style you love. Each design can then be personalised
-              with names, colours, greetings, photographs and your message.
-            </p>
+            <span className="v14Eyebrow">HANDCRAFTED CARDS</span>
+            <h1>Find a card that feels like them.</h1>
+            <p>Pick a design you love, then make it yours with your own words or photo. Add a Smart Memory if you’d like them to hear or see more.</p>
           </div>
-
-          <span className="designCount">4 STYLES + YOUR DESIGN</span>
         </div>
 
         <div className="cardDesignGrid">
-          {currentDesigns.map((design, index) => (
-            <article className="cardDesignItem" key={design.id}>
-              <div className={`cardDesignPreview ${design.style}`}>
-                <span className="designNumber">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-
-                <div className="designArtwork">
-                  {design.style === 'floral' && <div className="flowerMark">✿</div>}
-                  {design.style === 'classic' && <div className="classicMark">SM</div>}
-                  {design.style === 'rustic' && <div className="rusticMark">♥</div>}
-                  {design.style === 'minimal' && <div className="minimalMark">— ♥ —</div>}
-                  {design.style === 'photo' && <div className="photoMark">YOUR PHOTO</div>}
-                  {design.style === 'gold' && <div className="goldMark">✦</div>}
-                  {design.style === 'watercolour' && <div className="paintMark">♥</div>}
-                  {design.style === 'layered' && <div className="layerMark">♥</div>}
-                  {design.style === 'type' && <div className="typeMark">LOVE</div>}
-                  {design.style === 'signature' && <div className="signatureMark">For you</div>}
-
-                  <small>{occasion.toUpperCase()}</small>
-                  <h3>
-                    {occasion === 'Remembrance'
-                      ? 'Always remembered'
-                      : occasion === 'Thank You'
-                        ? 'Thank you'
-                        : occasion === 'Wedding'
-                          ? 'To a beautiful couple'
-                          : occasion === 'New Baby'
-                            ? 'Hello little one'
-                            : occasion === 'Graduation'
-                              ? 'You did it!'
-                              : occasion === 'Retirement'
-                                ? 'A new chapter'
-                                : occasion === "Valentine's"
-                                  ? 'For my love'
-                                  : `Happy ${occasion}`}
-                  </h3>
-
-                  <p>Made especially for you</p>
-                </div>
-
-                <div className="smartCorner">
-                  <span>♥</span>
-                  SMART
-                </div>
-              </div>
-
+          {cardDesigns.map((design) => (
+            <article className="cardDesignItem" key={design.name}>
+              <CardGalleryFront design={design.name} photoSlug={design.photoSlug} />
               <div className="cardDesignInfo">
-                <span>DESIGN {String(index + 1).padStart(2, '0')}</span>
-                <h3>{design.name}</h3>
+                <h2>{design.name}</h2>
                 <p>{design.description}</p>
-
-                <Link
-                  href={`/cards/personalise?occasion=${encodeURIComponent(
-                    occasion
-                  )}&design=${encodeURIComponent(design.name)}`}
-                  className="cardChooseButton"
-                >
-                  Personalise this design →
+                <strong>From {cardPrice}</strong>
+                <Link href={{ pathname: '/cards/personalise', query: { ...options, design: design.name } }} className="cardChooseButton">
+                  Personalise this card
                 </Link>
               </div>
             </article>
           ))}
-          <article className="cardDesignItem smOwnCardDesign">
-            <div className="cardDesignPreview smOwnCardDesignPreview">
-              <div className="designArtwork">
-                <div className="smOwnCardUploadIcon" aria-hidden="true">＋</div>
-                <small>YOUR ARTWORK</small>
-                <h3>Designed by you</h3>
-                <p>Upload a JPG, PNG or WebP image</p>
-              </div>
-            </div>
-            <div className="cardDesignInfo">
-              <span>YOUR OWN DESIGN</span>
-              <h3>Upload your own artwork</h3>
-              <p>Already created a design? Upload the front of your card, then add your message and choose traditional or NFC.</p>
-              <Link
-                href={`/cards/personalise?occasion=${encodeURIComponent(occasion)}&design=Your%20Own%20Design`}
-                className="cardChooseButton"
-              >
-                Use my own design →
-              </Link>
-            </div>
-          </article>
+        </div>
+
+        <div className="smCardOwnDesign">
+          <div>
+            <h2>Have your own artwork?</h2>
+            <p>Upload a JPG, PNG or WebP for the front of your card.</p>
+          </div>
+          <Link href={{ pathname: '/cards/personalise', query: { ...options, design: 'Your Own Design' } }} className="cardChooseButton">Use my own design</Link>
         </div>
       </section>
 

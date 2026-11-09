@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getCardPricePence } from '@/lib/pricing';
+import { verifyMemoryUpload } from '@/lib/verifyMemoryUpload';
 
 export const runtime = 'nodejs';
 
@@ -22,6 +23,15 @@ function getExtensionFromMimeType(mimeType: string, fallback: string) {
 
 function safeFileName(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, '-');
+}
+
+const artworkTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+function hasArtworkSignature(bytes: Buffer, type: string) {
+  if (type === 'image/jpeg') return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (type === 'image/png') return bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  return type === 'image/webp' && bytes.toString('ascii', 0, 4) === 'RIFF' &&
+    bytes.toString('ascii', 8, 12) === 'WEBP';
 }
 
 export async function POST(request: Request) {
@@ -62,14 +72,15 @@ export async function POST(request: Request) {
     const memoryPhoto = formData.get('memoryPhoto');
     const audioFile = formData.get('audioFile');
     const artworkFile = formData.get('artworkFile');
+    const artworkPath = String(formData.get('artworkPath') || '').trim();
     const ownDesign = designName === 'Your Own Design';
-    if (ownDesign && (!(artworkFile instanceof File) || artworkFile.size === 0)) {
+    if (ownDesign && !artworkPath && (!(artworkFile instanceof File) || artworkFile.size === 0)) {
       return NextResponse.json({ error: 'Please upload your own card artwork.' }, { status: 400 });
     }
-    if (artworkFile instanceof File && artworkFile.size > 0 &&
+    if ((!ownDesign && artworkPath) || (artworkFile instanceof File && artworkFile.size > 0 &&
         (!ownDesign ||
-         !['image/jpeg', 'image/png', 'image/webp'].includes(artworkFile.type) ||
-         artworkFile.size > 10 * 1024 * 1024)) {
+         !artworkTypes.includes(artworkFile.type) ||
+         artworkFile.size > 10 * 1024 * 1024))) {
       return NextResponse.json({ error: 'Card artwork must be JPG, PNG or WebP, up to 10 MB.' }, { status: 400 });
     }
 
@@ -109,15 +120,36 @@ export async function POST(request: Request) {
     let audioUrl: string | null = null;
     let artworkUrl: string | null = null;
 
-    if (ownDesign && artworkFile instanceof File) {
+    for (const [field, kind] of [
+      ['artworkPath', 'image'],
+      ['photoPath', 'image'],
+      ['audioPath', 'audio'],
+    ] as const) {
+      const path = String(formData.get(field) || '').trim();
+      if (!path) continue;
+      const result = await verifyMemoryUpload(supabase, path, kind);
+      if ('error' in result) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
+      }
+      if (field === 'artworkPath') {
+        if (!artworkTypes.includes(result.mimeType)) {
+          return NextResponse.json({ error: 'Card artwork must be JPG, PNG or WebP.' }, { status: 400 });
+        }
+        const { data: artwork, error } = await supabase.storage.from('memory-media').download(path);
+        if (error || !artwork || !hasArtworkSignature(Buffer.from(await artwork.arrayBuffer()), result.mimeType)) {
+          return NextResponse.json({ error: 'Invalid artwork image file.' }, { status: 400 });
+        }
+        artworkUrl = result.url;
+      }
+      if (field === 'photoPath') memoryPhotoUrl = result.url;
+      if (field === 'audioPath') audioUrl = result.url;
+    }
+
+    if (!artworkUrl && ownDesign && artworkFile instanceof File) {
       const ext = getExtensionFromMimeType(artworkFile.type, 'jpg');
       const artworkPath = ['card-personalisations', recordId, `print-artwork.${ext}`].join('/');
       const bytes = Buffer.from(await artworkFile.arrayBuffer());
-      const validSignature =
-        (artworkFile.type === 'image/jpeg' && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) ||
-        (artworkFile.type === 'image/png' && bytes.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) ||
-        (artworkFile.type === 'image/webp' && bytes.toString('ascii', 0, 4) === 'RIFF' && bytes.toString('ascii', 8, 12) === 'WEBP');
-      if (!validSignature) {
+      if (!hasArtworkSignature(bytes, artworkFile.type)) {
         return NextResponse.json({ error: 'Invalid artwork image file.' }, { status: 400 });
       }
       const { error: artworkError } = await supabase.storage
@@ -132,7 +164,7 @@ export async function POST(request: Request) {
       artworkUrl = supabase.storage.from('memory-media').getPublicUrl(artworkPath).data.publicUrl;
     }
 
-    if (memoryPhoto instanceof File && memoryPhoto.size > 0) {
+    if (!memoryPhotoUrl && memoryPhoto instanceof File && memoryPhoto.size > 0) {
       const maxPhotoSize = 10 * 1024 * 1024;
 
       if (memoryPhoto.size > maxPhotoSize) {
@@ -189,7 +221,7 @@ export async function POST(request: Request) {
       memoryPhotoUrl = publicUrl;
     }
 
-    if (audioFile instanceof File && audioFile.size > 0) {
+    if (!audioUrl && audioFile instanceof File && audioFile.size > 0) {
       const maxAudioSize = 25 * 1024 * 1024;
 
       if (audioFile.size > maxAudioSize) {

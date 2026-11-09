@@ -24,7 +24,7 @@ test('slate product renders single-page customiser rather than a wizard',()=>{
 });
 test('slate builder retains photo controls and print uses the same composition on review',()=>{
  assert.match(source,/fit==='cover'\?Math\.max\(pw\/iw,ph\/ih\):Math\.min\(pw\/iw,ph\/ih\)/);
- assert.match(source,/onPointerDown=\{startDrag\}/);
+ assert.match(source,/onPointerDown=\{productSlug==='keyring'&&keyringSide==='back'\?undefined:startDrag\}/);
  assert.match(source,/type="range"/);
  assert.match(review,/paint\(ctx,productSlug==='coaster-set'/);
  assert.match(review,/canvas\.toBlob/);

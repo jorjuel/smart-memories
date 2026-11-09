@@ -91,7 +91,7 @@ export const bundles: Bundle[] = [
     name: 'Pet Memory Bundle',
     description:
       'A personalised collection for celebrating a much-loved pet.',
-    normalPrice: 47.97,
+    normalPrice: 48.97,
     bundlePrice: 42.99,
     occasion: 'Pet Memory',
     products: [

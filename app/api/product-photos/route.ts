@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import { createSupabaseAdminAuthClient } from '@/lib/supabaseAdminAuthServer';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { products } from '@/lib/products';
+import { cardDesigns } from '@/lib/cardDesigns';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const BUCKET = 'product-catalog';
-const allowedSlugs = new Set(products.map((p) => p.slug));
+const allowedSlugs = new Set([
+  ...products.map((product) => product.slug),
+  ...cardDesigns.map((design) => design.photoSlug),
+]);
 const MAX_BYTES = 3 * 1024 * 1024;
 const filename = (slug: string) => `${slug}.jpg`;
 
@@ -32,6 +36,12 @@ function sameOrigin(request: Request) {
 }
 
 export async function GET() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !(process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+    return NextResponse.json({ images: {}, configured: false }, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }
   const client = supabaseAdmin();
   const { data, error } = await client.storage.from(BUCKET).list('', {
     limit: 100,
@@ -65,7 +75,7 @@ export async function POST(request: Request) {
   if (typeof slug !== 'string' || !allowedSlugs.has(slug) ||
       !(file instanceof File) || file.type !== 'image/jpeg' ||
       file.size < 1 || file.size > MAX_BYTES) {
-    return NextResponse.json({ error: 'Upload a JPEG under 3 MB for a valid product.' }, { status: 400 });
+    return NextResponse.json({ error: 'Upload a JPEG under 3 MB for a valid product or card design.' }, { status: 400 });
   }
   const bytes = Buffer.from(await file.arrayBuffer());
   if (bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff) {

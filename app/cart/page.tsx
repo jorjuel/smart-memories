@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
+import type { SavedCardPreview } from '../../lib/cardDesigns';
 
 type BasketItem = {
   id: string;
@@ -21,6 +22,7 @@ type BasketItem = {
   recipient?: string;
 
   imageUrl?: string | null;
+  cardPreview?: SavedCardPreview;
 
   audioUrl?: string | null;
   personalisation?: unknown;
@@ -69,6 +71,7 @@ export default function CartPage() {
           occasion: item.occasion,
           design: item.design,
           recipient: item.recipient,
+          cardPreview: item.cardPreview,
 
           imageUrl:
             typeof item.imageUrl === 'string' && item.imageUrl.length > 0
@@ -241,6 +244,8 @@ export default function CartPage() {
                   imageUrl={item.imageUrl}
                   name={item.name}
                   recipient={item.recipient}
+                  design={item.design}
+                  cardPreview={item.cardPreview}
                 />
               </div>
 

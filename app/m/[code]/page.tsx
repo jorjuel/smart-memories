@@ -16,8 +16,11 @@ export default function MemoryPage({params}:{params:Promise<{code:string}>}){
  useEffect(()=>{
   let active=true;
   const controller=new AbortController();
-  // Guard both the route-param resolution and the API request. Either can stall.
-  const timeout=window.setTimeout(()=>controller.abort(),LOAD_TIMEOUT_MS);
+  // Bound the whole load, including route parameters and the response body.
+  const timeout=window.setTimeout(()=>{
+   controller.abort();
+   if(active)setStatus('error');
+  },LOAD_TIMEOUT_MS);
   setStatus('loading');
   setMemory(null);
   async function load(){
@@ -28,12 +31,12 @@ export default function MemoryPage({params}:{params:Promise<{code:string}>}){
     const response=await fetch(`/api/memories/${encodeURIComponent(code)}`,{
      cache:'no-store',signal:controller.signal,
     });
-    if(!active)return;
+    if(!active||controller.signal.aborted)return;
     if(response.status===404){setStatus('missing');return;}
     if(!response.ok)throw new Error('Memory service unavailable');
     const data=(await response.json()) as PublicMemory;
     if(!data?.code)throw new Error('Invalid memory response');
-    if(active){setMemory(data);setStatus('ready');}
+    if(active&&!controller.signal.aborted){setMemory(data);setStatus('ready');}
    }catch{
     if(active)setStatus('error');
    }finally{
@@ -41,11 +44,7 @@ export default function MemoryPage({params}:{params:Promise<{code:string}>}){
    }
   }
   void load();
-  // Even if the route promise itself never settles, leave the loading screen.
-  const onTimeout=window.setTimeout(()=>{
-   if(active){controller.abort();setStatus('error');}
-  },LOAD_TIMEOUT_MS);
-  return()=>{active=false;controller.abort();window.clearTimeout(timeout);window.clearTimeout(onTimeout);};
+  return()=>{active=false;controller.abort();window.clearTimeout(timeout);};
  },[params,attempt]);
 
  if(status==='loading'){

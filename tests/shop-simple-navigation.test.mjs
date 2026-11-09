@@ -17,7 +17,7 @@ test('shop removes occasion chooser without removing product, card or bundle sec
 
 test('shop hero follows the centred editorial reference without the boxed banner',()=>{
  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
- assert.match(shop,/Find a gift\. Create a memory\./);
+ assert.match(shop,/Create a memory\.<span>/);
  assert.match(shop,/Make it unforgettable\./);
  assert.match(shop,/Tap\. Remember\. Relive\./);
  assert.match(shop,/How would you like to share your memory\?/);

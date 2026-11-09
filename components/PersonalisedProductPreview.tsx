@@ -1,11 +1,16 @@
 'use client';
 
+import BasketCardPreview from './BasketCardPreview';
+import type { SavedCardPreview } from '../lib/cardDesigns';
+
 type Props = {
   productType: string;
   productSlug?: string;
   imageUrl?: string | null;
   name: string;
   recipient?: string;
+  design?: string;
+  cardPreview?: SavedCardPreview;
 };
 
 export default function PersonalisedProductPreview({
@@ -14,23 +19,13 @@ export default function PersonalisedProductPreview({
   imageUrl,
   name,
   recipient,
+  design,
+  cardPreview,
 }: Props) {
   if (productType === 'smart-card' || productType === 'traditional-card') {
     return (
-      <div className="finalPreview finalCardPreview">
-        <div className="finalCardFace">
-          {imageUrl ? (
-            <img src={imageUrl} alt={name} />
-          ) : (
-            <div className="finalPreviewPlaceholder">♥</div>
-          )}
-
-          <div className="finalCardText">
-            <small>SMART MEMORIES</small>
-            <strong>{recipient ? `For ${recipient}` : name}</strong>
-          </div>
-        </div>
-      </div>
+      <BasketCardPreview design={design} imageUrl={imageUrl} name={name} recipient={recipient}
+        preview={cardPreview} smart={productType === 'smart-card'} />
     );
   }
 
