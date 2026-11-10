@@ -1,84 +1,35 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { products, money } from '@/lib/products';
-import { cardDesigns } from '@/lib/cardDesigns';
-import { CARD_PRICES_PENCE } from '@/lib/pricing';
-import { compressProductImage } from '@/lib/productImages';
+import { products } from '@/lib/products';
+import { defaultCatalogueCards, type CatalogueCard } from '@/lib/cardDesigns';
 import ProductGalleryAdmin from '@/components/ProductGalleryAdmin';
+import AdminCardEditor from '@/components/AdminCardEditor';
 
-type Catalog = { images: Record<string, string>; configured: boolean };
-type PhotoTarget = { slug: string; name: string; category: string; price: number; emoji: string };
-
-const cardPhotoTargets: PhotoTarget[] = cardDesigns.map((design) => ({
-  slug: design.photoSlug,
-  name: design.name,
-  category: 'Handcrafted card',
-  price: CARD_PRICES_PENCE.traditional / 100,
-  emoji: design.mark,
-}));
+type Catalog = { images: Record<string, string>; configured: boolean; cards?: CatalogueCard[]; giftPrices?: Record<string, number> };
 
 export default function AdminProductPhotosPage() {
   const [images, setImages] = useState<Record<string, string>>({});
+  const [giftPrices, setGiftPrices] = useState<Record<string, number>>({});
+  const [cards, setCards] = useState(defaultCatalogueCards);
   const [configured, setConfigured] = useState<boolean | null>(null);
-  const [message, setMessage] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState<string | null>(null);
+  const [selectedCard, setSelectedCard] = useState(defaultCatalogueCards[0].photoSlug);
+  const [editorVersions, setEditorVersions] = useState<Record<string, number>>({});
+  const [giftSlug, setGiftSlug] = useState(products[0].slug);
+  const gift = products.find((product) => product.slug === giftSlug) ?? products[0];
+  const [cardStatus, setCardStatus] = useState('');
 
   async function reload() {
     const response = await fetch('/api/product-photos', { cache: 'no-store' });
     if (!response.ok) throw new Error('Could not load cloud product photos.');
     const result: Catalog = await response.json();
     setImages(result.images || {});
+    setGiftPrices(result.giftPrices ?? {});
+    setCards(result.cards ?? defaultCatalogueCards);
     setConfigured(result.configured);
   }
 
   useEffect(() => { void reload().catch(() => setConfigured(false)); }, []);
-
-  async function upload(product: PhotoTarget, file?: File) {
-    if (!file) return;
-    setBusy(product.slug);
-    setMessage((m) => ({ ...m, [product.slug]: 'Preparing photograph...' }));
-    try {
-      const optimised = await compressProductImage(file);
-      const body = new FormData();
-      body.set('slug', product.slug);
-      body.set('file', optimised, `${product.slug}.jpg`);
-      const response = await fetch('/api/product-photos', {
-        method: 'POST', body,
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Upload failed.');
-      await reload();
-      window.dispatchEvent(new Event('sm-product-image-updated'));
-      setMessage((m) => ({ ...m, [product.slug]: 'Photo published for all visitors.' }));
-    } catch (error) {
-      setMessage((m) => ({ ...m, [product.slug]:
-        error instanceof Error ? error.message : 'Upload failed.' }));
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function remove(product: PhotoTarget) {
-    if (!window.confirm(`Remove public photograph for ${product.name}?`)) return;
-    setBusy(product.slug);
-    try {
-      const response = await fetch('/api/product-photos', {
-        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: product.slug }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Could not remove photo.');
-      await reload();
-      window.dispatchEvent(new Event('sm-product-image-updated'));
-      setMessage((m) => ({ ...m, [product.slug]: 'Public photograph removed.' }));
-    } catch (error) {
-      setMessage((m) => ({ ...m, [product.slug]:
-        error instanceof Error ? error.message : 'Could not remove photo.' }));
-    } finally {
-      setBusy(null);
-    }
-  }
 
   return (
     <section className="wrap">
@@ -92,49 +43,42 @@ export default function AdminProductPhotosPage() {
           The shop and card gallery use illustrations when a photo is unavailable.
         </div>
       )}
-      {[
-        { heading: 'Handcrafted cards', items: cardPhotoTargets, hasGallery: false },
-        { heading: 'Personalised gifts', items: products, hasGallery: true },
-      ].map(({ heading, items, hasGallery }) => (
-        <section key={heading}>
-          <h2>{heading}</h2>
-          {!hasGallery && <p>Upload one photo per design to show in the Handcrafted Cards gallery.</p>}
-          <div className="adminProducts">
-            {items.map((product) => (
-              <article className="card adminProduct" key={product.slug}>
-                <div className="adminProductPreview">
-                  {images[product.slug] ? (
-                    <img src={images[product.slug]} alt={product.name} />
-                  ) : (
-                    <><span>{product.emoji}</span><small>No public photo yet</small></>
-                  )}
-                </div>
-                <div>
-                  <h3>{product.name}</h3>
-                  <p>{product.category} · <b>{money(product.price)}</b></p>
-                  <label className="btn small uploadBtn">
-                    {busy === product.slug ? 'Saving...' : images[product.slug] ? 'Replace photo' : 'Upload photo'}
-                    <input type="file" accept="image/jpeg,image/png,image/webp"
-                      disabled={busy !== null || configured === false}
-                      onChange={(event) => {
-                        void upload(product, event.target.files?.[0]);
-                        event.currentTarget.value = '';
-                      }} />
-                  </label>
-                  {images[product.slug] && (
-                    <button type="button" className="danger smallAction"
-                      disabled={busy !== null} onClick={() => void remove(product)}>
-                      Remove photo
-                    </button>
-                  )}
-                  {message[product.slug] && <p role="status">{message[product.slug]}</p>}
-                  {hasGallery && <ProductGalleryAdmin slug={product.slug} />}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
+      <section>
+        <h2>Handcrafted cards</h2>
+        <label className="adminCardSelector">Card design
+          <select value={selectedCard} onChange={(event) => { setSelectedCard(event.target.value); setCardStatus(''); }}>
+            {cards.map((card) => <option key={card.photoSlug} value={card.photoSlug}>{card.name}</option>)}
+            <option value="new">＋ Add a new card design</option>
+          </select>
+        </label>
+        {configured !== null && [...cards, undefined].map((card) => {
+          const key = card?.photoSlug ?? 'new';
+          return <div key={key} hidden={selectedCard !== key}>
+            <AdminCardEditor key={editorVersions[key] ?? 0} card={card} images={images} disabled={configured !== true}
+              onSaved={async (slug) => {
+                await reload();
+                setEditorVersions((current) => ({ ...current, [key]: (current[key] ?? 0) + 1 }));
+                setSelectedCard((current) => current === key ? slug : current);
+                setCardStatus('Card changes applied.');
+                window.dispatchEvent(new Event('sm-product-image-updated'));
+              }} />
+          </div>;
+        })}
+        {cardStatus && <p role="status">{cardStatus}</p>}
+      </section>
+      <section>
+        <h2>Personalised gifts</h2>
+        <label className="adminCardSelector">Gift
+          <select value={giftSlug} onChange={(event) => setGiftSlug(event.target.value)}>
+            {products.map((product) => <option key={product.slug} value={product.slug}>{product.name}</option>)}
+          </select>
+        </label>
+        {configured === true && <ProductGalleryAdmin key={gift.slug} slug={gift.slug} name={gift.name}
+          main={images[gift.slug]} pricePence={giftPrices[gift.slug] ?? Math.round(gift.price * 100)} onSaved={async () => {
+            await reload();
+            window.dispatchEvent(new Event('sm-product-image-updated'));
+          }} />}
+      </section>
     </section>
   );
 }

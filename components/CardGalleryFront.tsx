@@ -7,12 +7,13 @@ import CardZoomDialog from './CardZoomDialog';
 
 export default function CardGalleryFront({ design, photoSlug }: { design: string; photoSlug: string }) {
   const { src, onError } = useCataloguePhoto(photoSlug);
+  const photo = src;
   const dialog = useRef<HTMLDialogElement>(null);
-  const artwork = src ? (
+  const artwork = photo ? (
     <div className="cardDesignPreview smCardFace">
-      <img key={src} className="smCardUploadedArt" src={src} alt={design} onError={onError} />
+      <img key={photo} className="smCardUploadedArt" src={photo} alt={design} onError={src ? onError : undefined} />
     </div>
-  ) : <CardFront design={design} greeting="Especially for you" />;
+  ) : <CardFront design={design} photoSlug={photoSlug} greeting="Especially for you" />;
 
   return (
     <>

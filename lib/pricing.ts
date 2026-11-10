@@ -56,12 +56,10 @@ export function getBundlePricePence(
 
 export function getCardPricePence(
   cardType: 'traditional' | 'smart',
-  includePrintedPhoto: boolean
+  includePrintedPhoto: boolean,
+  traditionalPrice: number = CARD_PRICES_PENCE.traditional
 ) {
-  const basePrice =
-    CARD_PRICES_PENCE[
-      cardType
-    ];
+  const basePrice = traditionalPrice + CARD_PRICES_PENCE[cardType] - CARD_PRICES_PENCE.traditional;
 
   return (
     basePrice +

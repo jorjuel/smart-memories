@@ -16,12 +16,6 @@ export default function SiteHeader() {
     return null;
   }
 
-  const shopActive =
-    pathname.startsWith('/shop') ||
-    pathname.startsWith('/cards') ||
-    pathname.startsWith('/occasions') ||
-    pathname.startsWith('/bundles');
-
   return (
     <header className="smSiteHeader">
       <div className="smHeaderInner">
@@ -30,26 +24,16 @@ export default function SiteHeader() {
         </Link>
 
         <nav className="smDesktopNav" aria-label="Main navigation">
-          <Link href="/shop" className={shopActive ? 'smNavActive' : undefined}>
-            Shop
+          <Link href="/shop#gifts" className={pathname.startsWith('/shop') ? 'smNavActive' : undefined}>
+            Personalised Gifts
           </Link>
+          <Link href="/cards" className={pathname.startsWith('/cards') ? 'smNavActive' : undefined}>Handmade Cards</Link>
+          <Link href="/bundles" className={pathname.startsWith('/bundles') ? 'smNavActive' : undefined}>Gift Bundles</Link>
           <Link
             href="/how-it-works"
             className={pathname === '/how-it-works' ? 'smNavActive' : undefined}
           >
             How It Works
-          </Link>
-          <Link
-            href="/memories"
-            className={pathname.startsWith('/memories') ? 'smNavActive' : undefined}
-          >
-            My Memories
-          </Link>
-          <Link
-            href="/account/orders"
-            className={pathname.startsWith('/account/orders') ? 'smNavActive' : undefined}
-          >
-            My Orders
           </Link>
         </nav>
 

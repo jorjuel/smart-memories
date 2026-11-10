@@ -1,9 +1,28 @@
+export const snowflakeCardSlug = 'card-christmas-snowflake';
+
 export const cardDesigns = [
   { name: 'Floral Keepsake', photoSlug: 'card-floral-keepsake', style: 'floral', mark: '✿', description: 'Soft flowers and elegant handmade detailing.' },
   { name: 'Classic Elegance', photoSlug: 'card-classic-elegance', style: 'classic', mark: 'SM', description: 'Traditional, timeless and beautifully understated.' },
   { name: 'Modern Minimal', photoSlug: 'card-modern-minimal', style: 'minimal', mark: '— ♥ —', description: 'Clean typography, modern layout and a personal touch.' },
   { name: 'Photo Feature', photoSlug: 'card-photo-feature', style: 'photo', mark: 'YOUR PHOTO', description: 'Make a favourite picture the centre of the card.' },
 ] as const;
+
+export type CatalogueCard = {
+  photoSlug: string;
+  name: string;
+  description: string;
+  mark: string;
+  basePricePence: number;
+};
+
+export const defaultCatalogueCards: CatalogueCard[] = cardDesigns.map((card) => ({
+  ...card,
+  basePricePence: 695,
+}));
+
+export function cardPhotoSlugs(slug: string) {
+  return [slug, `${slug}-angle-2`, `${slug}-angle-3`, `${slug}-angle-4`];
+}
 
 export type SavedCardPreview = {
   greeting: string;

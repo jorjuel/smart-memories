@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getCardPricePence } from '@/lib/pricing';
+import { defaultCatalogueCards } from '@/lib/cardDesigns';
+import { loadCardCatalogue } from '@/lib/cardCatalogueServer';
 import { verifyMemoryUpload } from '@/lib/verifyMemoryUpload';
 
 export const runtime = 'nodejs';
@@ -39,7 +41,8 @@ export async function POST(request: Request) {
     const formData = await request.formData();
 
     const occasion = String(formData.get('occasion') || '').trim();
-    const designName = String(formData.get('designName') || '').trim();
+    let designName = String(formData.get('designName') || '').trim();
+    const cardSlug = String(formData.get('cardSlug') || '').trim();
     const cardType = String(formData.get('cardType') || '').trim();
 
     const recipientName = String(
@@ -63,17 +66,11 @@ export async function POST(request: Request) {
     const includePrintedPhoto =
       String(formData.get('includePrintedPhoto') || 'false') === 'true';
 
-    const totalPrice =
-      getCardPricePence(
-        cardType as 'traditional' | 'smart',
-        includePrintedPhoto
-      ) / 100;
-
     const memoryPhoto = formData.get('memoryPhoto');
     const audioFile = formData.get('audioFile');
     const artworkFile = formData.get('artworkFile');
     const artworkPath = String(formData.get('artworkPath') || '').trim();
-    const ownDesign = designName === 'Your Own Design';
+    const ownDesign = !cardSlug && designName === 'Your Own Design';
     if (ownDesign && !artworkPath && (!(artworkFile instanceof File) || artworkFile.size === 0)) {
       return NextResponse.json({ error: 'Please upload your own card artwork.' }, { status: 400 });
     }
@@ -105,12 +102,12 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!Number.isFinite(totalPrice) || totalPrice < 0) {
-      return NextResponse.json(
-        { error: 'Invalid total price.' },
-        { status: 400 }
-      );
-    }
+    const legacySlug = defaultCatalogueCards.find((card) => card.name === designName)?.photoSlug;
+    const card = ownDesign ? undefined : (await loadCardCatalogue()).find((item) =>
+      cardSlug ? item.photoSlug === cardSlug : item.name === designName || item.photoSlug === legacySlug);
+    if (!ownDesign && !card) return NextResponse.json({ error: 'Card design not found.' }, { status: 400 });
+    designName = card?.name ?? designName;
+    const totalPrice = getCardPricePence(cardType as 'traditional' | 'smart', includePrintedPhoto, card?.basePricePence) / 100;
 
     const supabase = supabaseAdmin();
 

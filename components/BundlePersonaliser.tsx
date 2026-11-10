@@ -16,6 +16,7 @@ import {
 
 import ConfiguredProductPreview from './ConfiguredProductPreview';
 import CardZoomDialog from './CardZoomDialog';
+import DeliverySummary from './DeliverySummary';
 import { getPersonalisationProduct } from '../lib/personalisationConfig';
 
 export default function BundlePersonaliser({
@@ -818,6 +819,7 @@ export default function BundlePersonaliser({
           <h2>
             Your finished collection
           </h2>
+          <p>Choose a template for each item below. The photo, wording and digital memory are shared across the bundle.</p>
 
           <div className="bundlePreviewGrid">
             {previewItems.map((item) => (
@@ -855,6 +857,7 @@ export default function BundlePersonaliser({
               </div>
             )}
           </CardZoomDialog>
+          <DeliverySummary />
 
           <div
             className="card"

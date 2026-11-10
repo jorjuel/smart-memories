@@ -1,9 +1,10 @@
 import { cardDesigns } from '../lib/cardDesigns';
 
 export default function CardFront({
-  design, greeting, recipient, colour, photo, artwork, smart, onPhotoError,
+  design, photoSlug, greeting, recipient, colour, photo, artwork, smart, onPhotoError,
 }: {
   design: string;
+  photoSlug?: string;
   greeting: string;
   recipient?: string;
   colour?: string;
@@ -12,16 +13,17 @@ export default function CardFront({
   smart?: boolean;
   onPhotoError?: () => void;
 }) {
-  const template = cardDesigns.find((item) => item.name === design);
+  const template = cardDesigns.find((item) => photoSlug ? item.photoSlug === photoSlug : item.name === design);
+  const style = template?.style ?? (photoSlug ? 'classic' : undefined);
   return (
-    <div className={`cardDesignPreview smCardFace ${template?.style ?? 'smOwnCardDesignPreview'} ${colour ? `smCardTone-${colour.toLowerCase()}` : ''}`}>
+    <div className={`cardDesignPreview smCardFace ${style ?? 'smOwnCardDesignPreview'} ${colour ? `smCardTone-${colour.toLowerCase()}` : ''}`}>
       {artwork ? (
         <img className="smCardUploadedArt" src={artwork} alt="Your uploaded card front" />
       ) : (
         <div className="designArtwork">
           {photo ? <img className="smCardPrintedPhoto" src={photo} alt="Printed photograph" onError={onPhotoError} /> : (
-            <span className={template ? `${template.style}Mark` : 'smOwnCardUploadIcon'} aria-hidden="true">
-              {template?.mark ?? '＋'}
+            <span className={style ? `${style}Mark` : 'smOwnCardUploadIcon'} aria-hidden="true">
+              {template?.mark ?? (photoSlug ? '♥' : '＋')}
             </span>
           )}
           {recipient && <small>FOR {recipient}</small>}

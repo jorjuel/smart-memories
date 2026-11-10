@@ -1,5 +1,6 @@
 'use client';
 
+import { useCataloguePhoto } from '@/lib/useCataloguePhoto';
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import type { SavedCardPreview } from '../../lib/cardDesigns';
 import Link from 'next/link';
@@ -52,10 +53,12 @@ export default function CheckoutPage() {
 
   const [verificationStatus, setVerificationStatus] = useState<'checking'|'paid'|'pending'|'error'>('checking');
   const paymentSuccessful = paymentStatus === 'success' && verificationStatus === 'paid';
-  const [
-    items,
-    setItems,
-  ] = useState<BasketItem[]>([]);
+  const [storedItems, setItems] = useState<BasketItem[]>([]);
+  const { giftPrices } = useCataloguePhoto(storedItems.find((item) => item.productType === 'product')?.productSlug);
+  const items = useMemo(() => storedItems.map((item) => {
+    const price = item.productType === 'product' && item.productSlug ? giftPrices?.[item.productSlug] : undefined;
+    return price === undefined ? item : { ...item, price: price / 100 };
+  }), [storedItems, giftPrices]);
 
   const [
     loaded,
@@ -862,7 +865,7 @@ export default function CheckoutPage() {
                   </strong>
 
                   <span>
-                    {envelopeTagOnly ? 'Online postage. Next working day aim, not guaranteed' : 'Priority delivery service after production'}
+                    {envelopeTagOnly ? 'First Class postage after production' : 'Express shipping after production'}
                   </span>
                 </div>
 

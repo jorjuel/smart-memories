@@ -1,80 +1,6 @@
 import Link from 'next/link';
 
-const bundles = [
-  {
-    slug: 'birthday-bundle',
-    title: 'Birthday Bundle',
-    items: [
-      'Personalised Mug',
-      'Personalised Coasters',
-      'Personalised Keyring',
-    ],
-    normalPrice: 36.97,
-    bundlePrice: 32.99,
-    description:
-      'A cheerful personalised collection for birthdays and special celebrations.',
-  },
-
-  {
-    slug: 'home-bundle',
-    title: 'Home Bundle',
-    items: [
-      'Personalised Mug',
-      'Personalised Coasters',
-      'Personalised Mouse Mat',
-    ],
-    normalPrice: 42.97,
-    bundlePrice: 37.99,
-    description:
-      'A practical personalised collection for home, study or office.',
-  },
-
-  {
-    slug: 'memory-bundle',
-    title: 'Memory Bundle',
-    items: [
-      'Personalised Photo Slate',
-      'Personalised Keyring',
-      'Personalised Mug',
-    ],
-    normalPrice: 46.97,
-    bundlePrice: 41.99,
-    description:
-      'A keepsake collection built around a favourite photo and Smart Memory.',
-  },
-
-  {
-    slug: 'pet-memory-bundle',
-    title: 'Pet Memory Bundle',
-    items: [
-      'Personalised Photo Slate',
-      'Personalised Keyring',
-      'Personalised Coasters',
-    ],
-    normalPrice: 48.97,
-    bundlePrice: 42.99,
-    description:
-      'A thoughtful collection for celebrating a much-loved pet.',
-  },
-
-  {
-    slug: 'work-teacher-bundle',
-    title: 'Work & Teacher Bundle',
-    items: [
-      'Personalised Mug',
-      'Personalised Mouse Mat',
-      'Personalised Keyring',
-    ],
-    normalPrice: 36.97,
-    bundlePrice: 32.99,
-    description:
-      'A personalised thank-you collection for teachers, colleagues and teams.',
-  },
-];
-
-function money(value: number) {
-  return `£${value.toFixed(2)}`;
-}
+import { bundles, money } from '@/lib/bundles';
 
 export default function BundlesPage() {
   return (
@@ -88,15 +14,11 @@ export default function BundlesPage() {
       </h1>
 
       <p className="lead">
-        Choose a ready-made collection and save compared with buying the products separately.
+        Choose a ready-made collection and personalise the included gifts together.
       </p>
 
       <div className="products">
         {bundles.map((bundle) => {
-          const saving =
-            bundle.normalPrice -
-            bundle.bundlePrice;
-
           return (
             <article
               className="card"
@@ -107,7 +29,7 @@ export default function BundlesPage() {
               </span>
 
               <h2>
-                {bundle.title}
+                {bundle.name}
               </h2>
 
               <p>
@@ -115,10 +37,10 @@ export default function BundlesPage() {
               </p>
 
               <div>
-                {bundle.items.map(
+                {bundle.products.map(
                   (item) => (
-                    <p key={item}>
-                      ✓ {item}
+                    <p key={item.slug}>
+                      ✓ {item.name}
                     </p>
                   )
                 )}
@@ -132,20 +54,6 @@ export default function BundlesPage() {
               >
                 <div
                   style={{
-                    textDecoration:
-                      'line-through',
-                    opacity: 0.6,
-                    fontSize: '1rem',
-                  }}
-                >
-                  Normally{' '}
-                  {money(
-                    bundle.normalPrice
-                  )}
-                </div>
-
-                <div
-                  style={{
                     fontSize: '1.7rem',
                     fontWeight: 800,
                   }}
@@ -155,14 +63,6 @@ export default function BundlesPage() {
                   )}
                 </div>
 
-                <div
-                  style={{
-                    fontWeight: 700,
-                  }}
-                >
-                  Save{' '}
-                  {money(saving)}
-                </div>
               </div>
 
               <Link

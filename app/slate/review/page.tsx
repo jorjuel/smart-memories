@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import {loadSlateDraft,storeSlateDraft,clearSlateDraft,type SlateReviewDraft} from '@/lib/slateReviewDraft';
 import {paint,paintKeyringBack} from '@/components/SlateSinglePageCustomiser';
+import {useGiftPrice} from '@/lib/useCataloguePhoto';
 import {getGiftStudioConfig,type GiftStudioSlug} from '@/lib/giftStudioProducts';
 import {uploadMemoryMedia,readMemorySaveResult} from '@/lib/memoryMediaUpload';
 import SmartMemoryLivePreview from '@/components/SmartMemoryLivePreview';
@@ -23,6 +24,7 @@ function CoasterReviewThumbnail({file,index,active,reusesFirst,onSelect}:{file:F
 }
 export default function SlateReviewPage({productSlug='smart-photo-slate'}:{productSlug?:GiftStudioSlug}){
  const config=getGiftStudioConfig(productSlug);
+ const giftPrice=useGiftPrice(productSlug,config?.price ?? 0);
  if(!config)throw Error('Unsupported gift');
  const [draft,setDraft]=useState<SlateReviewDraft|null>(null);
  const [image,setImage]=useState<HTMLImageElement|null>(null);
@@ -178,7 +180,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
     recipient:draft.recipient.trim()||'Someone special',
     design:draft.wording==='none'?'Full photo gift':'Gift with wording',
     imageUrl:url(printPath),audioUrl:audioPath?url(audioPath):null,
-    price:selectedConfig.price,quantity:1,
+    price:giftPrice,quantity:1,
     personalisation:{
      size:size.label,keyringShape:productSlug==='keyring'?size.label:undefined,coasterCount:productSlug==='coaster-set'?Number((size.label.match(/\d+/)||['1'])[0]):undefined,
      printAspectWidth:dimensions.width,printAspectHeight:dimensions.height,
@@ -267,7 +269,7 @@ export default function SlateReviewPage({productSlug='smart-photo-slate'}:{produ
    <div><span>Size</span><strong>{size.label}</strong></div>
    <div><span>Voice</span><strong>{draft.audio?'✓ Added':'Optional'}</strong></div>
    <div><span>Message</span><strong>{draft.message.trim()?'✓ Added':'Optional'}</strong></div>
-   <div><span>Price</span><strong>£{config.price.toFixed(2)}</strong></div>
+   <div><span>Price</span><strong>£{giftPrice.toFixed(2)}</strong></div>
   </div>
   {error&&<p role="alert" className="smWizardError">{error}</p>}
   {success?

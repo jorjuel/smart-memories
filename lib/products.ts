@@ -79,6 +79,15 @@ export const products: Product[] = [
   },
 ];
 
+const shopGiftSlugs = new Set([
+  'smart-photo-slate',
+  'coaster-set',
+  'photo-mug',
+  'mouse-mat',
+]);
+
+export const shopGiftProducts = products.filter((product) => shopGiftSlugs.has(product.slug));
+
 export const money = (
   value: number
 ) => `£${value.toFixed(2)}`;

@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useGiftPrice } from '../lib/useCataloguePhoto';
 
 import {
   Product,
@@ -18,6 +21,7 @@ export default function ProductCard({
   p: Product;
   occasion?: string;
 }) {
+  const price = useGiftPrice(p.slug, p.price);
   const experience =
     getProductExperience(
       p.slug
@@ -55,7 +59,7 @@ export default function ProductCard({
       <div className="productFoot">
         <b>
           {money(
-            p.price
+            price
           )}
         </b>
 

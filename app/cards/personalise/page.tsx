@@ -10,11 +10,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import CardFront from '../../../components/CardFront';
 import CardZoomDialog from '../../../components/CardZoomDialog';
-import { cardDesigns, cardOccasionWording, getCardWording } from '../../../lib/cardDesigns';
+import { defaultCatalogueCards, cardOccasionWording, cardPhotoSlugs, getCardWording, snowflakeCardSlug } from '../../../lib/cardDesigns';
 import { hasMeaningfulMemoryContent } from '../../../lib/memoryContent';
 import { uploadMemoryMedia } from '../../../lib/memoryMediaUpload';
 import { CARD_PRICES_PENCE, getCardPricePence } from '../../../lib/pricing';
 import { useCataloguePhoto } from '../../../lib/useCataloguePhoto';
+import DeliverySummary from '@/components/DeliverySummary';
 
 const cardMoney = (pence: number) => `£${(pence / 100).toFixed(2)}`;
 
@@ -39,9 +40,17 @@ function PersonaliseCardContent() {
   const searchParams = useSearchParams();
 
   const [occasion, setOccasion] = useState(searchParams.get('occasion') || 'Just Because');
-  const design = searchParams.get('design') || 'Floral Keepsake';
-  const photoSlug = cardDesigns.find((item) => item.name === design)?.photoSlug;
-  const { src: designPhoto, onError: onDesignPhotoError } = useCataloguePhoto(photoSlug);
+  const requestedDesign = searchParams.get('design') || 'Floral Keepsake';
+  const defaultCard = defaultCatalogueCards.find((item) => item.name === requestedDesign);
+  const photoSlug = searchParams.get('card') || defaultCard?.photoSlug;
+  const { images, cards, removeUnavailablePhoto } = useCataloguePhoto(photoSlug);
+  const catalogueCard = (cards ?? defaultCatalogueCards).find((item) => item.photoSlug === photoSlug);
+  const design = catalogueCard?.name ?? requestedDesign;
+  const basePricePence = catalogueCard?.basePricePence ?? CARD_PRICES_PENCE.traditional;
+  const designPhoto = photoSlug ? images?.[photoSlug] : undefined;
+  const photoViews = photoSlug ? cardPhotoSlugs(photoSlug)
+    .map((slug, index) => ({ slug, src: images?.[slug], label: index === 0 ? 'Main photo' : `Angle ${index + 1}` }))
+    .filter((view) => view.src) : [];
   const initialCardType = searchParams.get('cardType') === 'smart' ? 'smart' : 'traditional';
 
   const [cardType, setCardType] =
@@ -59,8 +68,10 @@ function PersonaliseCardContent() {
   const [memoryVideoUrl, setMemoryVideoUrl] = useState<string>();
   const [videoError, setVideoError] = useState('');
   const [selectedPreview, setPreviewFace] = useState<'photo' | 'front' | 'inside'>();
+  const [selectedPhotoSlug, setSelectedPhotoSlug] = useState<string>();
+  const activePhoto = photoViews.find((view) => view.slug === selectedPhotoSlug) ?? photoViews[0];
   const previewFace = selectedPreview === 'inside' ? 'inside' :
-    selectedPreview !== 'front' && designPhoto ? 'photo' : 'front';
+    selectedPreview !== 'front' && activePhoto ? 'photo' : 'front';
   const previewDialog = useRef<HTMLDialogElement>(null);
 
   function changeOccasion(value: string) {
@@ -149,11 +160,11 @@ function PersonaliseCardContent() {
     useState<string | null>(null);
   const [missingDetail, setMissingDetail] = useState<{ id: string; message: string }>();
 
-  const price = getCardPricePence(cardType, Boolean(printedPhoto));
+  const price = getCardPricePence(cardType, Boolean(printedPhoto), basePricePence);
   const savingRef = useRef(false);
   const pendingCard = useRef<{
     inputs: unknown[];
-    saved?: { id: string; artworkUrl?: string; memoryPhotoUrl?: string };
+    saved?: { id: string; artworkUrl?: string; memoryPhotoUrl?: string; totalPrice: number };
     memoryCode?: string;
     artworkPath?: string;
     printedPhotoPath?: string;
@@ -436,7 +447,7 @@ function PersonaliseCardContent() {
     setIsSaving(true);
     try {
       const inputs = [
-        design, occasion, cardType, recipient, frontGreeting, insideMessage, sender,
+        photoSlug, design, occasion, cardType, recipient, frontGreeting, insideMessage, sender,
         artworkFile, printedPhoto, memoryPhotoFile, recordedAudioBlob, uploadedAudioFile, digitalMessage, memoryVideo,
       ];
       if (!pendingCard.current || !inputs.every((value, index) => value === pendingCard.current?.inputs[index])) {
@@ -446,6 +457,7 @@ function PersonaliseCardContent() {
       const form = new FormData();
       form.set('occasion', occasion);
       form.set('designName', design);
+      if (photoSlug) form.set('cardSlug', photoSlug);
       form.set('cardType', cardType);
       form.set('recipientName', recipient);
       form.set('frontGreeting', frontGreeting);
@@ -504,7 +516,7 @@ function PersonaliseCardContent() {
         imageUrl: artworkUrl || (printedPhoto ? memoryPhotoUrl : designPhoto) || null,
         cardPreview: { greeting: frontGreeting.trim(), printedPhoto: Boolean(printedPhoto) },
         personalisation: artworkUrl ? { printArtworkUrl: artworkUrl } : undefined,
-        price: price / 100,
+        price: Number(saved.totalPrice),
         quantity: 1,
       });
       localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
@@ -536,9 +548,9 @@ function PersonaliseCardContent() {
     previewDialog.current?.showModal();
   }
 
-  const previewArtwork = previewFace === 'photo' ? (
+  const previewArtwork = previewFace === 'photo' && activePhoto ? (
     <div className="cardDesignPreview smCardFace">
-      <img key={designPhoto} className="smCardUploadedArt" src={designPhoto} alt={design} onError={onDesignPhotoError} />
+      <img key={activePhoto.slug} className="smCardUploadedArt" src={activePhoto.src} alt={`${design} · ${activePhoto.label}`} onError={() => removeUnavailablePhoto(activePhoto.slug)} />
     </div>
   ) : previewFace === 'inside' ? (
     <div className="insidePreview smCardFace smCardInside">
@@ -547,23 +559,59 @@ function PersonaliseCardContent() {
       {sender && <strong>With love, {sender}</strong>}
     </div>
   ) : (
-    <CardFront design={design} greeting={frontGreeting || 'Your greeting'} recipient={recipient}
+    <CardFront design={design} photoSlug={photoSlug} greeting={frontGreeting || 'Your greeting'} recipient={recipient}
       photo={printedPhotoUrl} artwork={artworkPreview} smart={cardType === 'smart'} />
   );
+
+  if (photoSlug === snowflakeCardSlug || requestedDesign === 'Christmas Snowflake') return <section className="wrap">
+    <h1>Card unavailable</h1>
+    <Link className="btn" href="/cards">Browse handmade cards</Link>
+  </section>;
 
   return (
     <>
       <section className="personaliseHeader smCardEditorHeader">
         <Link href={{ pathname: '/cards', query: { cardType, occasion } }} className="personaliseBack">← Back to card designs</Link>
         <span className="v14Eyebrow">HANDCRAFTED CARDS</span>
-        <h1>Make it theirs.</h1>
-        <p>Personalise {design} and see your changes as you go.</p>
+        <h1>{design}</h1>
+        <p>Make it theirs with a personal message and an optional Smart Memory.</p>
       </section>
 
       <section className="personaliseLayout smCardEditor">
-        <fieldset className="personaliseControls smCardControls" disabled={isSaving}
+        <aside className="personalisePreview smCardPreview" id="card-preview" tabIndex={-1} aria-label="Card preview">
+          <div className="previewHeading">
+            <span>{previewFace === 'photo' ? 'DESIGN PHOTO' : 'LIVE PREVIEW'}</span>
+            <button type="button" className="smCardTextButton smCardEditorEnlarge" aria-haspopup="dialog"
+              onClick={() => previewDialog.current?.showModal()}>Enlarge preview</button>
+          </div>
+          <div className="smCardPhotoGallery">
+            {photoViews.length > 1 && <div className="smCardPhotoThumbnails" role="group" aria-label="Card photo angles">
+              {photoViews.map((view) => (
+                <button key={view.slug} type="button" aria-label={view.label}
+                  aria-pressed={previewFace === 'photo' && activePhoto?.slug === view.slug}
+                  onClick={() => { setSelectedPhotoSlug(view.slug); setPreviewFace('photo'); }}>
+                  <img src={view.src} alt="" onError={() => removeUnavailablePhoto(view.slug)} />
+                </button>
+              ))}
+            </div>}
+            {previewArtwork}
+          </div>
+          <div className="smCardFaceSwitch" role="group" aria-label="Card preview side">
+            {activePhoto && <button type="button" aria-pressed={previewFace === 'photo'} onClick={() => setPreviewFace('photo')}>Design photo</button>}
+            <button type="button" aria-pressed={previewFace === 'front'} onClick={() => setPreviewFace('front')}>Front</button>
+            <button type="button" aria-pressed={previewFace === 'inside'} onClick={() => setPreviewFace('inside')}>Inside</button>
+          </div>
+          <a className="smCardTextButton smCardPreviewJump" href="#card-personalisation">Personalise this card ↓</a>
+        </aside>
+        <CardZoomDialog dialog={previewDialog} title={design}>{previewArtwork}</CardZoomDialog>
+
+        <fieldset className="personaliseControls smCardControls" id="card-personalisation" disabled={isSaving}
           onChange={() => setMissingDetail(undefined)}>
           <div className="personaliseBlock">
+            <div className="smCardOrderIntro">
+              <strong>{cardMoney(price)}</strong>
+              <a className="smCardTextButton smCardPreviewJump" href="#card-preview">See preview</a>
+            </div>
             <span className="personaliseStep">01</span>
             <h2>Inside message</h2>
             <label className="personaliseField">
@@ -611,14 +659,14 @@ function PersonaliseCardContent() {
 
               <div>
                 <h3>Card details</h3>
-                <label className="personaliseField">
-                  <span>Recipient name {cardType === 'traditional' ? '(optional)' : ''}</span>
+                {cardType === 'traditional' && <label className="personaliseField">
+                  <span>Recipient name (optional)</span>
                   <input id="card-recipient" value={recipient} maxLength={60} onFocus={() => setPreviewFace('front')}
                     aria-invalid={missingDetail?.id === 'card-recipient' || undefined}
                     aria-describedby={missingDetail?.id === 'card-recipient' ? 'card-recipient-error' : undefined}
                     onChange={(event) => setRecipient(event.target.value)} />
                   {cardFieldError('card-recipient')}
-                </label>
+                </label>}
                 {isOwnDesign ? (
                   <label className="personaliseField">
                     <span>Card front artwork (JPG, PNG or WebP, up to 10 MB)</span>
@@ -673,13 +721,22 @@ function PersonaliseCardContent() {
                 }} />
               <span>
                 <strong>Add Smart Tap access and QR access · +{cardMoney(CARD_PRICES_PENCE.smart - CARD_PRICES_PENCE.traditional)}</strong>
-                <small>Share a digital message, photo or voice recording.</small>
+                <small>Share a digital message, photo, voice recording or video.</small>
               </span>
             </label>
           </div>
           {cardType === 'smart' && (
             <div className="personaliseBlock smartMemoryBuilder">
               <h3>Your digital memory</h3>
+              <p>Add at least one message, photo, recording or video. Voice is optional.</p>
+              <label className="personaliseField">
+                <span>Recipient name</span>
+                <input id="card-recipient" value={recipient} maxLength={60} aria-required="true"
+                  aria-invalid={missingDetail?.id === 'card-recipient' || undefined}
+                  aria-describedby={missingDetail?.id === 'card-recipient' ? 'card-recipient-error' : undefined}
+                  onChange={(event) => setRecipient(event.target.value)} />
+                {cardFieldError('card-recipient')}
+              </label>
               <label className="personaliseField">
                 <span>Digital message (optional)</span>
                 <textarea id="card-digital-message" rows={3} maxLength={1500} value={digitalMessage}
@@ -751,11 +808,11 @@ function PersonaliseCardContent() {
                   </span>
 
                   <strong>
-                    Voice message
+                    Voice message (optional)
                   </strong>
 
                   <small>
-                    Record your message now, or upload an audio file.
+                    Record or upload audio if you’d like them to hear your voice.
                   </small>
 
                   {!isRecording &&
@@ -956,24 +1013,6 @@ function PersonaliseCardContent() {
           )}
         </fieldset>
 
-        <aside className="personalisePreview smCardPreview">
-          <div className="smCardPreviewSticky">
-            <div className="previewHeading">
-              <span>{previewFace === 'photo' ? 'DESIGN PHOTO' : 'LIVE PREVIEW'}</span>
-              <small>{design}</small>
-            </div>
-            <div className="smCardFaceSwitch" role="group" aria-label="Card preview side">
-              <button type="button" aria-pressed={previewFace === 'front'} onClick={() => setPreviewFace('front')}>Front</button>
-              <button type="button" aria-pressed={previewFace === 'inside'} onClick={() => setPreviewFace('inside')}>Inside</button>
-              {designPhoto && <button type="button" aria-pressed={previewFace === 'photo'} onClick={() => setPreviewFace('photo')}>Design photo</button>}
-            </div>
-            {previewArtwork}
-            <button type="button" className="smCardTextButton smCardEditorEnlarge" aria-haspopup="dialog"
-              onClick={() => previewDialog.current?.showModal()}>Enlarge preview</button>
-          </div>
-        </aside>
-        <CardZoomDialog dialog={previewDialog} title={design}>{previewArtwork}</CardZoomDialog>
-
         <section className="personaliseBlock smCardReview" aria-labelledby="card-review">
           <span className="personaliseStep">03</span>
           <h2 id="card-review">Review &amp; add to basket</h2>
@@ -983,14 +1022,15 @@ function PersonaliseCardContent() {
             <button type="button" aria-haspopup="dialog" onClick={() => openCardReview('inside')}>Review inside</button>
           </div>
           <div className="orderSummary">
-            <div><span>{design}</span><strong>{cardMoney(CARD_PRICES_PENCE.traditional)}</strong></div>
+            <div><span>{design}</span><strong>{cardMoney(basePricePence)}</strong></div>
             {printedPhoto && <div><span>Printed photograph</span><strong>{cardMoney(CARD_PRICES_PENCE.printedPhoto)}</strong></div>}
             {cardType === 'smart' && <div><span>Smart Memory</span><strong>{cardMoney(CARD_PRICES_PENCE.smart - CARD_PRICES_PENCE.traditional)}</strong></div>}
             <div className="orderTotal"><span>Total</span><strong>{cardMoney(price)}</strong></div>
           </div>
-          <button type="button" className="personaliseBasketButton" onClick={addCardToBasket} disabled={isSaving || isRecording}>
+          <button type="button" className="personaliseBasketButton" onClick={addCardToBasket} disabled={isSaving || isRecording || Boolean(photoSlug && !catalogueCard)}>
             {isSaving ? 'Saving your card…' : 'Add to basket'}
           </button>
+          <DeliverySummary />
           <p className="basketSmallPrint">Your personalisation is saved when you add the card to your basket.</p>
           {saveError && <p className="voiceError" role="alert">{saveError}</p>}
         </section>
