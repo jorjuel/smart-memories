@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import ProductCard from '../components/ProductCard';
-import { products } from '../lib/products';
+import DeliverySummary from '../components/DeliverySummary';
+import { shopGiftProducts } from '../lib/products';
 
 const occasions = [
   { name: 'Birthday', label: 'Birthdays' },
@@ -12,9 +13,9 @@ const occasions = [
 ];
 
 const steps = [
-  { number: '01', title: 'Choose a gift', detail: 'Pick a keepsake they can hold.' },
-  { number: '02', title: 'Add your memory', detail: 'Personalise it with photos, words and an optional voice recording.' },
-  { number: '03', title: 'They tap and relive', detail: 'A phone tap or QR scan opens their memory. No app needed.' },
+  { title: 'Choose a gift', detail: 'Pick a keepsake they can hold.' },
+  { title: 'Add your memory', detail: 'Personalise it with a photo, a message or an optional voice recording.' },
+  { title: 'They tap or scan', detail: 'Their memory opens on their phone. No app needed.' },
 ];
 
 export default function Home() {
@@ -70,6 +71,12 @@ export default function Home() {
         </div>
       </section>
 
+      <nav className="smHomeCollections" aria-label="Shop collections">
+        <Link href="/shop#gifts">Personalised Gifts <span aria-hidden="true">→</span></Link>
+        <Link href="/cards">Handmade Cards <span aria-hidden="true">→</span></Link>
+        <Link href="/bundles">Gift Bundles <span aria-hidden="true">→</span></Link>
+      </nav>
+
       <section className="section memoryHomeProducts" aria-labelledby="home-gifts-title">
         <div className="sectionHead">
           <div>
@@ -78,30 +85,28 @@ export default function Home() {
           </div>
           <Link className="memoryHomeTextLink" href="/shop">View all gifts →</Link>
         </div>
-        <div className="products">
-          {products.slice(0, 3).map((product) => (
+        <div className="smSimpleShopProducts" role="region" aria-labelledby="home-gifts-title" tabIndex={0}>
+          {shopGiftProducts.map((product) => (
             <ProductCard key={product.slug} p={product} />
           ))}
         </div>
+        <DeliverySummary />
       </section>
 
       <section className="memoryHomeHow" aria-labelledby="home-how-title">
-        <div className="memoryHomeSectionIntro lightSection">
-          <span className="v14Eyebrow light">HOW IT WORKS</span>
-          <h2 id="home-how-title">Three steps to something unforgettable.</h2>
+        <div className="memoryHomeHowIntro">
+          <span className="v14Eyebrow">HOW IT WORKS</span>
+          <h2 id="home-how-title">See what they’ll open</h2>
+          <Link className="smSampleLink" href="/m/sample"><span aria-hidden="true">▸</span> Try a sample memory</Link>
         </div>
-        <div className="memoryHomeSteps">
+        <ol className="memoryHomeSteps">
           {steps.map((step) => (
-            <article key={step.number}>
-              <span>{step.number}</span>
+            <li key={step.title}>
               <h3>{step.title}</h3>
               <p>{step.detail}</p>
-            </article>
+            </li>
           ))}
-        </div>
-        <Link className="memoryHomeLightLink" href="/how-it-works">
-          See how Smart Memories works →
-        </Link>
+        </ol>
       </section>
 
       <section className="memoryHomeOccasions" aria-labelledby="home-occasions-title">

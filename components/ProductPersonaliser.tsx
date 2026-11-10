@@ -1,5 +1,6 @@
 'use client';
 
+import { useGiftPrice } from '@/lib/useCataloguePhoto';
 import {
   useMemo,
   useRef,
@@ -91,6 +92,7 @@ export default function ProductPersonaliser({
         item.slug === slug
     );
 
+  const giftPrice = useGiftPrice(shopProduct?.slug, shopProduct?.price ?? 0);
   const [cloudFrames,setCloudFrames] = useState<{id:string;name:string;url:string;productSlugs:string[];orientation:string}[]>([]);
   useEffect(() => {
     let live=true;
@@ -1155,7 +1157,7 @@ export default function ProductPersonaliser({
     }
 
     const price =
-      shopProduct?.price ??
+      (shopProduct ? giftPrice : undefined) ??
       0;
 
     const basketItem = {
@@ -1356,7 +1358,7 @@ export default function ProductPersonaliser({
           {shopProduct && (
             <span>
               £
-              {shopProduct.price.toFixed(
+              {giftPrice.toFixed(
                 2
               )}
             </span>
@@ -2590,7 +2592,7 @@ export default function ProductPersonaliser({
 
                     <strong>
                       £
-                      {shopProduct.price.toFixed(
+                      {giftPrice.toFixed(
                         2
                       )}
                     </strong>
@@ -2716,7 +2718,7 @@ export default function ProductPersonaliser({
 
                       <strong>
                         £
-                        {shopProduct.price.toFixed(
+                        {giftPrice.toFixed(
                           2
                         )}
                       </strong>
@@ -2908,7 +2910,7 @@ export default function ProductPersonaliser({
                       Price:
                     </strong>{' '}
                     £
-                    {shopProduct.price.toFixed(
+                    {giftPrice.toFixed(
                       2
                     )}
                   </p>

@@ -23,6 +23,7 @@ import Link from 'next/link';
 import CreateMemoryJourney from '../../components/CreateMemoryJourney';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
 import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
+import { useGiftPrice } from '@/lib/useCataloguePhoto';
 
 function CreateContent() {
   const router = useRouter();
@@ -40,6 +41,8 @@ function CreateContent() {
           item.slug === productSlug
       )
     : undefined;
+
+  const giftPrice = useGiftPrice(product?.slug, product?.price ?? 0);
 
   const [recipient, setRecipient] =
     useState('');
@@ -478,7 +481,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             >
               <strong>
                 £
-                {product.price.toFixed(
+                {giftPrice.toFixed(
                   2
                 )}
               </strong>

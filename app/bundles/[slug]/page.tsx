@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import DeliverySummary from '@/components/DeliverySummary';
 import {
   notFound,
 } from 'next/navigation';
@@ -25,10 +26,6 @@ export default async function BundleDetailPage({
     notFound();
   }
 
-  const saving =
-    bundle.normalPrice -
-    bundle.bundlePrice;
-
   return (
     <section className="wrap">
       <span className="eyebrow">
@@ -52,36 +49,15 @@ export default async function BundleDetailPage({
       >
         <p
           style={{
-            textDecoration:
-              'line-through',
-            opacity: 0.6,
-          }}
-        >
-          Normally{' '}
-          {money(
-            bundle.normalPrice
-          )}
-        </p>
-
-        <p
-          style={{
             fontSize: '2rem',
             fontWeight: 800,
           }}
         >
-          {money(
+          Bundle total {money(
             bundle.bundlePrice
           )}
         </p>
 
-        <p
-          style={{
-            fontWeight: 700,
-          }}
-        >
-          Save{' '}
-          {money(saving)}
-        </p>
       </div>
 
       <h2>
@@ -106,12 +82,14 @@ export default async function BundleDetailPage({
               </h3>
 
               <p>
-                Uses the same shared photo, wording and Smart Memory.
+                Choose this item’s template in the bundle editor where options are available.
               </p>
             </article>
           )
         )}
       </div>
+
+      <DeliverySummary />
 
       <div
         style={{
@@ -131,7 +109,7 @@ export default async function BundleDetailPage({
           marginTop: '26px',
         }}
       >
-        One photo, one message and one voice recording will be used across all items.
+        Your photo, printed wording and digital Smart Memory are shared across the bundle. You can preview each item and choose its template separately.
       </p>
 
       <p

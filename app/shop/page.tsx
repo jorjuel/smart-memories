@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import ProductCard from '../../components/ProductCard';
 import { bundles } from '../../lib/bundles';
-import { products } from '../../lib/products';
+import { shopGiftProducts } from '../../lib/products';
+import { defaultCatalogueCards } from '../../lib/cardDesigns';
+import DeliverySummary from '../../components/DeliverySummary';
+import { loadCardCatalogue } from '../../lib/cardCatalogueServer';
+import { getCardPricePence } from '../../lib/pricing';
 
 const occasionProducts: Record<string, string[]> = {
   Birthday: [
@@ -78,7 +82,7 @@ const occasionProducts: Record<string, string[]> = {
     'smart-photo-slate',
     'keyring',
   ],
-  'Just Because': products.map((product) => product.slug),
+  'Just Because': shopGiftProducts.map((product) => product.slug),
 };
 
 const corporateBundles = [
@@ -120,20 +124,13 @@ export default async function Shop({
   searchParams: Promise<{ occasion?: string }>;
 }) {
   const params = await searchParams;
+  const cards = await loadCardCatalogue().catch(() => defaultCatalogueCards);
+  const lowestCardPrice = Math.min(...cards.map((card) => card.basePricePence));
   const occasion = typeof params.occasion === 'string' &&
     Object.hasOwn(occasionProducts, params.occasion) ? params.occasion : null;
   const allowed = occasion ? occasionProducts[occasion] : null;
-  // Launch catalogue: only show products currently offered in the shop.
-  // Keep other product definitions for existing orders and possible future relaunch.
-  const launchSlugs = new Set([
-    'smart-photo-slate',
-    'coaster-set',
-    'photo-mug',
-    'keyring',
-    'mouse-mat',
-  ]);
-  const filtered = products.filter((p) =>
-    launchSlugs.has(p.slug) && (!allowed || allowed.includes(p.slug))
+  const filtered = shopGiftProducts.filter((product) =>
+    !allowed || allowed.includes(product.slug)
   );
 
   return (
@@ -186,11 +183,12 @@ export default async function Shop({
           <h2>{occasion ? `Recommended for ${occasion}` : 'Choose your personalised gift'}</h2>
           <p>Choose your gift, then personalise it with your photo or message.</p>
         </div>
-        <div className="smSimpleShopProducts">
+        <div className="smSimpleShopProducts" role="region" aria-label="Personalised gifts" tabIndex={filtered.length > 1 ? 0 : undefined}>
           {filtered.length ? filtered.map((p) => <ProductCard key={p.slug} p={p} occasion={occasion ?? undefined} />) : (
             <p>There are no gifts in this category yet. <Link href="/shop">Browse all gifts.</Link></p>
           )}
         </div>
+        {filtered.length > 0 && <DeliverySummary />}
       </section>
 
       <section id="cards" className="smSimpleShopSection">
@@ -204,25 +202,26 @@ export default async function Shop({
             <span className="eyebrow">CLASSIC CARD</span>
             <h3>Handcrafted keepsake card</h3>
             <p>Personalise your design and written message. No phone needed.</p>
-            <strong>From £6.95</strong>
+            <strong>From {money(lowestCardPrice / 100)}</strong>
             <Link className="btn small" href={{ pathname: '/cards', query: { cardType: 'traditional', ...(occasion ? { occasion } : {}) } }}>Personalise card</Link>
           </article>
           <article className="card">
             <span className="eyebrow">WITH A SMART MEMORY</span>
-            <h3>NFC Memory card</h3>
-            <p>Include a private voice message, photo and written memory that opens with a tap or QR scan.</p>
-            <strong>From £11.95</strong>
+            <h3>Smart Memory card</h3>
+            <p>Includes the printed card and a digital memory that opens with a tap or QR scan. Add a message, photo, voice recording or video. Voice is optional.</p>
+            <strong>From {money(getCardPricePence('smart', false, lowestCardPrice) / 100)}</strong>
             <Link className="btn small" href={{ pathname: '/cards', query: { cardType: 'smart', ...(occasion ? { occasion } : {}) } }}>Personalise Smart card</Link>
           </article>
         </div>
-        <p className="smSimpleShopNote">Optional printed photo costs £1.50 extra. Delivery is calculated at checkout.</p>
+        <p className="smSimpleShopNote">Optional printed photo costs £1.50 extra.</p>
+        <DeliverySummary />
       </section>
 
       {!occasion && (
         <section id="bundles" className="smSimpleShopSection">
           <div className="smSimpleShopSectionHead">
             <span className="eyebrow">GIFT COLLECTIONS</span>
-            <h2>More gifts, better value</h2>
+            <h2>Personalised gift bundles</h2>
             <p>Explore matching personalised gifts for the people who matter.</p>
           </div>
           <div className="smSimpleShopFeatureGrid">
@@ -232,7 +231,6 @@ export default async function Shop({
                 <h3>{bundle.name}</h3>
                 <p>{bundle.products.map((product) => product.name).join(' + ')}</p>
                 <strong>{money(bundle.bundlePrice)}</strong>
-                <p className="smSimpleShopNote">Save {money(bundle.normalPrice - bundle.bundlePrice)}</p>
                 <Link className="btn small" href={`/bundles/${bundle.slug}`}>View bundle</Link>
               </article>
             ))}

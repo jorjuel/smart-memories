@@ -1,5 +1,8 @@
 'use client';
 
+import { useCataloguePhoto } from '@/lib/useCataloguePhoto';
+import DeliverySummary, { deliveryMoney } from '@/components/DeliverySummary';
+import { digitalOnlyCart, getCartShippingPricePence } from '@/lib/shippingPricing';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
@@ -34,7 +37,12 @@ type BasketItem = {
 const CART_KEY = 'smart-memories-cart';
 
 export default function CartPage() {
-  const [items, setItems] = useState<BasketItem[]>([]);
+  const [storedItems, setItems] = useState<BasketItem[]>([]);
+  const { giftPrices } = useCataloguePhoto(storedItems.find((item) => item.productType === 'product')?.productSlug);
+  const items = useMemo(() => storedItems.map((item) => {
+    const price = item.productType === 'product' && item.productSlug ? giftPrices?.[item.productSlug] : undefined;
+    return price === undefined ? item : { ...item, price: price / 100 };
+  }), [storedItems, giftPrices]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -386,18 +394,13 @@ export default function CartPage() {
             </strong>
           </div>
 
-          <div className="basketSummaryLine">
-            <span>Delivery</span>
-            <span>
-              Calculated at checkout
-            </span>
-          </div>
+          <DeliverySummary items={items} />
 
           <div className="basketSummaryTotal">
-            <span>Subtotal</span>
+            <span>{digitalOnlyCart(items) ? 'Total' : 'Total with standard delivery'}</span>
 
             <strong>
-              £{subtotal.toFixed(2)}
+              {deliveryMoney(Math.round(subtotal * 100) + getCartShippingPricePence(items, 'standard'))}
             </strong>
           </div>
 

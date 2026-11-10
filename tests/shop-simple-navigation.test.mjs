@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {readFileSync} from 'node:fs';
+import {shopGiftProducts} from '../lib/products.ts';
 const shop=readFileSync(new URL('../app/shop/page.tsx',import.meta.url),'utf8');
 test('shop navigation omits By occasion and uses Handcrafted cards',()=>{
  assert.doesNotMatch(shop,/href="#occasions"/);
@@ -39,11 +40,14 @@ test('memory choice cards appear immediately beneath the introductory sentence',
  assert.match(shop,/Memory \+ Gift/);
 });
 
-test('shop gift grid includes only five launch products',()=>{
- for(const slug of ['smart-photo-slate','coaster-set','photo-mug','keyring','mouse-mat'])
-   assert.match(shop,new RegExp("'"+slug+"'"));
- assert.match(shop,/launchSlugs\.has\(p\.slug\)/);
- assert.match(shop,/const filtered = products\.filter/);
+test('shop and homepage use the same four listed gifts',()=>{
+ const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
+ assert.deepEqual(
+   shopGiftProducts.map((product) => product.slug),
+   ['smart-photo-slate', 'photo-mug', 'coaster-set', 'mouse-mat'],
+ );
+ assert.match(shop,/const filtered = shopGiftProducts\.filter/);
+ assert.match(home,/shopGiftProducts\.map/);
 });
 
 test('each memory choice has the matching reference photograph',()=>{

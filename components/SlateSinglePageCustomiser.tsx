@@ -3,6 +3,8 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {storeSlateDraft,loadSlateDraft} from '@/lib/slateReviewDraft';
 import type {SlateReviewDraft} from '@/lib/slateReviewDraft';
+import {useGiftPrice} from '@/lib/useCataloguePhoto';
+import DeliverySummary from './DeliverySummary';
 import {getGiftStudioConfig,type GiftStudioSlug} from '@/lib/giftStudioProducts';
 
 type SlateSize={label:string;width:number;height:number};
@@ -124,6 +126,7 @@ function CoasterPhotoThumbnail({file,label}:{file:File;label:string}){
 }
 export default function SlateSinglePageCustomiser({initialOccasion='',productSlug='smart-photo-slate'}:{initialOccasion?:string;productSlug?:GiftStudioSlug}){
  const config=getGiftStudioConfig(productSlug);
+ const giftPrice=useGiftPrice(productSlug,config?.price ?? 0);
  if(!config)throw Error('Unsupported gift');
  const [occasion,setOccasion]=useState(initialOccasion);
  const [sizeIndex,setSizeIndex]=useState(productSlug==='smart-photo-slate'?2:0);
@@ -322,7 +325,10 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
  }
  return <section className="slateStudio smWizardPage" aria-label={`Personalise your ${config.name}`}>
   <div className="slateStudioHeading smWizardStepHeading"><span>CREATE YOUR SMART MEMORY</span>
-    <h2>Design Your {config.name}</h2><p>Add your photo, wording and the Smart Memory they will experience when they tap your gift.</p></div>
+    <h2>Design Your {config.name}</h2>
+    <p>{productSlug === 'coaster-set' ? 'Choose a set size and use one photo or a different photo for each coaster.' : `Add a photo to your ${config.label.toLowerCase()} and preview the printed design.`}</p>
+    <p>The gift includes a tap-to-open Smart Memory with your photo and any digital wording or voice recording you add.</p>
+  </div>
   <div className="slateStudioGrid">
    <div className="slateStudioControls smWizardFields">
     <label>Occasion
@@ -379,7 +385,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
       Make coaster {selectedCoaster+1} the main Smart Memory photo
      </button>}
     </div>}
-    {photo&&<fieldset><legend>Adjust photo (optional)</legend>
+    {photo&&<fieldset id="gift-photo-adjustments"><legend>Adjust photo (optional)</legend>
       <p className="slateHelp">Detected photo: {detectedOrientation}. Your image is automatically fitted to the selected product.</p>
       {productSlug==='keyring'?<p className="slateHelp">Your photo fills the whole keyring surface automatically. Zoom and drag to choose the crop.</p>:<div className="slateOrientationSelector" role="group" aria-label="Photo fitting">
        <span>How should your photo fit?</span>
@@ -401,6 +407,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
        onChange={e=>{setCrop(c=>({...c,zoom:Number(e.target.value)}));setAdded(false);}}/></label>
       <p className="slateHelp">{productSlug==='keyring'?'Photo fills the full keyring surface. Drag to reposition or use Zoom.':'Fit whole photo keeps existing photo borders visible. Fill area crops edges only if needed. Drag to reposition when zoomed in.'}</p>
       <button type="button" className="slateTextButton" onClick={()=>{setCrop({zoom:1,dx:0,dy:0});setAdded(false);}}>Reset photo position</button>
+      <a className="slateMobilePreviewLink" href="#gift-live-preview">See live preview ↓</a>
     </fieldset>}
     {productSlug==='keyring'?<fieldset className="smKeyringBackEditor"><legend>Message on the back of your keyring</legend>
      <p className="slateHelp">The front contains your photograph only. Write the words you want printed on the back of your {roundKeyring?'round':'rectangular'} keyring.</p>
@@ -446,7 +453,7 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
      <textarea rows={3} value={message} maxLength={1500} onChange={e=>{setMessage(e.target.value);setAdded(false);}} placeholder="Add a few words if you wish…"/>
     </label>
    </div>
-   <aside className="slateStudioPreview">
+   <aside className="slateStudioPreview" id="gift-live-preview" tabIndex={-1}>
     <span className="v14Eyebrow">A. YOUR PHYSICAL GIFT</span><h2>{productSlug==='coaster-set'?`Your live preview · Coaster ${selectedCoaster+1}`:'Your live preview'}</h2>
     <p className="slateHelp">{productSlug==='keyring'?'Check both sides of your keyring before reviewing.':'Photo only uses the printable area. Choose Fit whole photo to preserve the edges of your image.'}</p>
     {productSlug==='keyring'&&<div className="smKeyringSideSwitch" role="group" aria-label="Choose keyring side to preview">
@@ -455,15 +462,17 @@ export default function SlateSinglePageCustomiser({initialOccasion='',productSlu
     </div>}
     <div className="slatePreviewWrap">
      <div className={`slateProductShell slateProductShell--${config.shape} ${config.shape==='slate'?'slateStoneShell':''} ${roundKeyring?'slateProductShell--roundKeyring':''}`}>
-      <canvas ref={canvasRef} width={900} height={1200} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
+      <canvas ref={canvasRef} width={900} height={1200} className={image&&!(productSlug==='keyring'&&keyringSide==='back')?'slatePreviewDraggable':undefined} style={{aspectRatio:String(size.width)+' / '+String(size.height)}}
        onPointerDown={productSlug==='keyring'&&keyringSide==='back'?undefined:startDrag} onPointerMove={productSlug==='keyring'&&keyringSide==='back'?undefined:moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}
        aria-label={`Live personalised ${config.label.toLowerCase()} preview`} role="img"/>
      </div>
     </div>
-    <p><strong>{selectedSize.label}</strong> · {config.directions?(direction==='landscape'?'Landscape':'Vertical'):'Personalised'} · £{config.price.toFixed(2)}</p>
+    {photo&&<a className="slateMobilePreviewLink" href="#gift-photo-adjustments">↑ Adjust photo</a>}
+    <p><strong>{selectedSize.label}</strong> · {config.directions?(direction==='landscape'?'Landscape':'Vertical'):'Personalised'} · £{giftPrice.toFixed(2)}</p>
     <button type="button" className="btn big" onClick={()=>void confirmDesign()} disabled={saving||!photo||recording}>
       {saving?'Preparing review…':'Confirm design & review Smart Memory'}
     </button>
+    <DeliverySummary />
     {error&&<p role="alert" className="slateError">{error}</p>}
 
     <small>Preview is illustrative. Confirm the physical print dimensions and safe area before production.</small>

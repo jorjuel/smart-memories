@@ -2,6 +2,7 @@ import {isGiftStudioProduct} from '@/lib/giftStudioProducts';
 import SlateSinglePageCustomiser from '../../../components/SlateSinglePageCustomiser';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { loadGiftPrices } from '@/lib/cardCatalogueServer';
 
 import {
   products,
@@ -9,6 +10,7 @@ import {
 } from '../../../lib/products';
 
 import ProductVisual from '../../../components/ProductVisual';
+import DeliverySummary from '../../../components/DeliverySummary';
 
 export default async function ProductPage({
   params,
@@ -34,6 +36,9 @@ export default async function ProductPage({
 
   if (isGiftStudioProduct(slug)) return <SlateSinglePageCustomiser productSlug={slug} initialOccasion={occasion} />;
 
+  const prices = await loadGiftPrices().catch(() => ({} as Record<string, number>));
+  const price = (prices[slug] ?? Math.round(product.price * 100)) / 100;
+
   const personaliseHref = occasion
     ? `/personalise/${product.slug}?occasion=${encodeURIComponent(
         occasion
@@ -57,7 +62,7 @@ export default async function ProductPage({
         </h1>
 
         <h2>
-          {money(product.price)}
+          {money(price)}
         </h2>
 
         {occasion && (
@@ -102,6 +107,7 @@ export default async function ProductPage({
         >
           Personalise this gift →
         </Link>
+        <DeliverySummary />
       </div>
     </section>
   );

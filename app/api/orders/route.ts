@@ -1,3 +1,4 @@
+import { loadGiftPrices } from '@/lib/cardCatalogueServer';
 import {
   NextResponse,
 } from 'next/server';
@@ -192,6 +193,7 @@ export async function POST(
         ? 'express'
         : 'standard';
 
+    let giftPrices: ReturnType<typeof loadGiftPrices> | undefined;
     const pricedCart =
       await Promise.all(
         cart.map(
@@ -266,10 +268,17 @@ export async function POST(
                 }
               }
 
-              unitPricePence =
-                getProductPricePence(
-                  item.productSlug
-                );
+              const cataloguePrice = getProductPricePence(item.productSlug);
+              if (item.productSlug === 'memory-tag' || item.productSlug === 'digital-memory') {
+                unitPricePence = cataloguePrice;
+              } else {
+                giftPrices ??= loadGiftPrices();
+                const savedPrice = (await giftPrices)[item.productSlug];
+                if (savedPrice !== undefined && Math.round(Number(item.price) * 100) !== savedPrice) {
+                  throw new Error('A gift price changed. Refresh checkout and review your total before ordering.');
+                }
+                unitPricePence = savedPrice ?? cataloguePrice;
+              }
             } else if (
               productType ===
               'bundle'
@@ -315,6 +324,7 @@ export async function POST(
                       id,
                       card_type,
                       include_printed_photo,
+                      total_price,
                       design_name,
                       occasion,
                       recipient_name,
@@ -370,14 +380,13 @@ export async function POST(
                 );
               }
 
-              unitPricePence =
-                getCardPricePence(
-                  savedCardType,
-                  Boolean(
-                    cardPersonalisation
-                      .include_printed_photo
-                  )
-                );
+              const savedPrice = cardPersonalisation.total_price;
+              unitPricePence = savedPrice == null
+                ? getCardPricePence(savedCardType, Boolean(cardPersonalisation.include_printed_photo))
+                : Math.round(Number(savedPrice) * 100);
+              if (!Number.isSafeInteger(unitPricePence) || unitPricePence < 1) {
+                throw new Error('Saved card price is invalid.');
+              }
               const existingDetails = item.personalisation && typeof item.personalisation === 'object' &&
                 !Array.isArray(item.personalisation) ? item.personalisation : {};
               orderPersonalisation = {

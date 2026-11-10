@@ -1,15 +1,16 @@
 import Link from 'next/link';
 
 const links = [
-  { href: '/shop', label: 'Shop all gifts', description: 'Mugs, slates, keyrings, coasters and more' },
-  { href: '/cards', label: 'Handcrafted cards', description: 'Traditional and Smart Memory cards' },
+  { href: '/shop#gifts', label: 'Personalised Gifts', description: 'Mugs, slates, coasters and more' },
+  { href: '/cards', label: 'Handmade Cards', description: 'Traditional and Smart Memory cards' },
+  { href: '/bundles', label: 'Gift Bundles', description: 'Collections and thoughtful combinations' },
   { href: '/occasions', label: 'Shop by occasion', description: 'Birthday, wedding, remembrance and celebrations' },
-  { href: '/bundles', label: 'Gift bundles', description: 'Collections and thoughtful combinations' },
   { href: '/how-it-works', label: 'How it works', description: 'See how tapping a gift opens a memory' },
-  { href: '/memories', label: 'My Memories', description: 'Find your saved memories' },
-  { href: '/account/orders', label: 'My Orders', description: 'Track your gift orders' },
-  { href: '/account', label: 'My Account', description: 'Sign in or manage your account' },
+  { href: '/m/sample', label: 'Try a sample memory', description: 'See what a recipient can open' },
   { href: '/cart', label: 'Basket', description: 'Review your selected gifts' },
+  { href: '/account', label: 'My Account', description: 'Sign in or manage your account' },
+  { href: '/account/orders', label: 'My Orders', description: 'Track your gift orders' },
+  { href: '/memories', label: 'My Memories', description: 'Find your saved memories' },
 ];
 
 export default function MenuPage() {

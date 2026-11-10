@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import CardGalleryFront from '../../components/CardGalleryFront';
-import { cardDesigns } from '../../lib/cardDesigns';
-import { CARD_PRICES_PENCE } from '../../lib/pricing';
-
-const cardPrice = `£${(CARD_PRICES_PENCE.traditional / 100).toFixed(2)}`;
+import { defaultCatalogueCards } from '../../lib/cardDesigns';
+import { loadCardCatalogue } from '../../lib/cardCatalogueServer';
+import { getCardPricePence } from '../../lib/pricing';
+import DeliverySummary from '@/components/DeliverySummary';
 
 export default async function CardsPage({
   searchParams,
@@ -11,6 +11,7 @@ export default async function CardsPage({
   searchParams: Promise<{ cardType?: string; occasion?: string }>;
 }) {
   const { cardType, occasion } = await searchParams;
+  const cardDesigns = await loadCardCatalogue().catch(() => defaultCatalogueCards);
   const options = {
     ...(cardType === 'smart' || cardType === 'traditional' ? { cardType } : {}),
     ...(typeof occasion === 'string' && occasion ? { occasion } : {}),
@@ -27,6 +28,11 @@ export default async function CardsPage({
           </div>
         </div>
 
+        <div className="smCardTypeComparison" aria-label="Compare card types">
+          <article className="card"><h2>Traditional card</h2><p>A handmade card with your printed wording. A printed photo is available as an optional extra.</p></article>
+          <article className="card"><h2>Smart Memory card</h2><p>A handmade card with your printed wording, plus a digital memory that opens by tap or QR scan. Add a message, photo, voice recording or video. Voice is optional.</p><Link href="/m/sample">Try a sample memory</Link></article>
+        </div>
+        <DeliverySummary />
         <div className="cardDesignGrid">
           {cardDesigns.map((design) => (
             <article className="cardDesignItem" key={design.name}>
@@ -34,8 +40,8 @@ export default async function CardsPage({
               <div className="cardDesignInfo">
                 <h2>{design.name}</h2>
                 <p>{design.description}</p>
-                <strong>From {cardPrice}</strong>
-                <Link href={{ pathname: '/cards/personalise', query: { ...options, design: design.name } }} className="cardChooseButton">
+                <strong>From £{(getCardPricePence(cardType === 'smart' ? 'smart' : 'traditional', false, design.basePricePence) / 100).toFixed(2)}</strong>
+                <Link href={{ pathname: '/cards/personalise', query: { ...options, design: design.name, card: design.photoSlug } }} className="cardChooseButton">
                   Personalise this card
                 </Link>
               </div>

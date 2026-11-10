@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { CatalogueCard } from './cardDesigns';
 
-type Catalogue = { images?: Record<string, string> };
+type Catalogue = { images?: Record<string, string>; cards?: CatalogueCard[]; giftPrices?: Record<string, number> };
 
 let pendingCatalogue: Promise<Catalogue> | undefined;
 
@@ -17,8 +18,9 @@ function loadCatalogue() {
 }
 
 export function useCataloguePhoto(slug?: string) {
-  const [photo, setPhoto] = useState<{ slug: string; src: string }>();
-  const src = photo?.slug === slug ? photo?.src || '' : '';
+  const [photo, setPhoto] = useState<Catalogue & { slug: string }>();
+  const images = photo?.slug === slug ? photo?.images : undefined;
+  const src = slug ? images?.[slug] || '' : '';
 
   useEffect(() => {
     if (!slug) return;
@@ -28,7 +30,7 @@ export function useCataloguePhoto(slug?: string) {
       const id = ++requestId;
       try {
         const catalogue = await loadCatalogue();
-        if (id === requestId) setPhoto({ slug: photoSlug, src: catalogue.images?.[photoSlug] || '' });
+        if (id === requestId) setPhoto({ ...catalogue, slug: photoSlug });
       } catch {
         if (id === requestId) setPhoto(undefined);
       }
@@ -41,5 +43,21 @@ export function useCataloguePhoto(slug?: string) {
     };
   }, [slug]);
 
-  return { src, onError: () => setPhoto((current) => current === photo ? undefined : current) };
+  function onError(failedSlug = slug) {
+    if (!failedSlug) return;
+    setPhoto((current) => {
+      if (!current || current.slug !== slug || current.images?.[failedSlug] !== images?.[failedSlug] || !current.images?.[failedSlug]) return current;
+      const remaining = { ...current.images };
+      delete remaining[failedSlug];
+      return { ...current, images: remaining };
+    });
+  }
+
+  return { src, images, cards: photo?.slug === slug ? photo?.cards : undefined, giftPrices: photo?.slug === slug ? photo?.giftPrices : undefined, onError: () => onError(), removeUnavailablePhoto: onError };
+}
+
+export function useGiftPrice(slug: string | undefined, fallback: number) {
+  const { giftPrices } = useCataloguePhoto(slug);
+  const price = slug ? giftPrices?.[slug] : undefined;
+  return price === undefined ? fallback : price / 100;
 }
