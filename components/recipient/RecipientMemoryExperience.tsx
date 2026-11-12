@@ -75,7 +75,7 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
 
               {memory.videoUrl && (
                 <div id="recipient-memory-video" className="smRecipientUnifiedVideo">
-                  <MemoryVideo src={memory.videoUrl} mediaRef={videoPlayer} />
+                  <MemoryVideo src={memory.videoUrl} mediaRef={videoPlayer} onPlay={() => audioPlayer.current?.pause()} />
                 </div>
               )}
 
@@ -106,7 +106,8 @@ export default function RecipientMemoryExperience({memory}:{memory:PublicMemory}
                   {memory.audioUrl && (
                     <div className="smRecipientUnifiedVoice">
                       <span>YOUR VOICE MESSAGE</span>
-                      <MemoryAudio src={memory.audioUrl} variant="compact" mediaRef={audioPlayer} />
+                      <MemoryAudio key={memory.audioUrl} src={memory.audioUrl} variant="compact"
+                        mediaRef={audioPlayer} onPlay={() => videoPlayer.current?.pause()} />
                     </div>
                   )}
 

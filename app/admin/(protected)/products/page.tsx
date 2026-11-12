@@ -5,6 +5,7 @@ import { products } from '@/lib/products';
 import { defaultCatalogueCards, type CatalogueCard } from '@/lib/cardDesigns';
 import ProductGalleryAdmin from '@/components/ProductGalleryAdmin';
 import AdminCardEditor from '@/components/AdminCardEditor';
+import AdminGiftTags from '@/components/AdminGiftTags';
 
 type Catalog = { images: Record<string, string>; configured: boolean; cards?: CatalogueCard[]; giftPrices?: Record<string, number> };
 
@@ -25,7 +26,10 @@ export default function AdminProductPhotosPage() {
     const result: Catalog = await response.json();
     setImages(result.images || {});
     setGiftPrices(result.giftPrices ?? {});
-    setCards(result.cards ?? defaultCatalogueCards);
+    const nextCards = result.cards ?? defaultCatalogueCards;
+    setCards(nextCards);
+    setSelectedCard(current => current === 'new' || nextCards.some(card => card.photoSlug === current)
+      ? current : nextCards[0]?.photoSlug ?? 'new');
     setConfigured(result.configured);
   }
 
@@ -55,6 +59,11 @@ export default function AdminProductPhotosPage() {
           const key = card?.photoSlug ?? 'new';
           return <div key={key} hidden={selectedCard !== key}>
             <AdminCardEditor key={editorVersions[key] ?? 0} card={card} images={images} disabled={configured !== true}
+              onRemoved={async () => {
+                await reload();
+                setCardStatus('Card removed from the shop.');
+                window.dispatchEvent(new Event('sm-product-image-updated'));
+              }}
               onSaved={async (slug) => {
                 await reload();
                 setEditorVersions((current) => ({ ...current, [key]: (current[key] ?? 0) + 1 }));
@@ -66,6 +75,7 @@ export default function AdminProductPhotosPage() {
         })}
         {cardStatus && <p role="status">{cardStatus}</p>}
       </section>
+      <AdminGiftTags disabled={configured !== true} />
       <section>
         <h2>Personalised gifts</h2>
         <label className="adminCardSelector">Gift

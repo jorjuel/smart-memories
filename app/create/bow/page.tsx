@@ -1,6 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { useGiftTags } from '@/lib/useGiftTags';
+import { getProductPricePence } from '@/lib/pricing';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -13,12 +16,18 @@ const colours = [
   { id:'sage', name:'Sage Green', value:'#a4b19d' },
 ] as const;
 
+const digitalPrice = getProductPricePence('digital-memory') / 100;
+
 function BowColourContent() {
   const router = useRouter();
   const query = useSearchParams();
   const code = query.get('code')?.trim() || '';
   const validCode = /^[A-HJ-NP-Z2-9]{8}$/.test(code);
   const [colour, setColour] = useState<string>('rose-gold');
+  const [savedDesignId, setSavedDesignId] = useState<string>();
+  const { tags, failed: tagsFailed } = useGiftTags(validCode);
+  const designId = query.get('design') ?? savedDesignId;
+  const design = designId ? tags?.find(item => item.id === designId) : tags?.[0];
   const [submitting, setSubmitting] = useState(false);
   const [pricePence, setPricePence] = useState<number|null>(null);
   const [checking, setChecking] = useState(true);
@@ -31,8 +40,8 @@ function BowColourContent() {
       const parsed = stored ? JSON.parse(stored) : null;
       if (colours.some(item => item.id === parsed?.colour)) {
         setColour(parsed.colour);
-
       }
+      setSavedDesignId(parsed?.designId);
     } catch { /* No prior selection on this device. */ }
   }, [code, validCode]);
 
@@ -51,7 +60,7 @@ function BowColourContent() {
     return () => { active = false; };
   }, []);
 
-  function buyDigitalMemory() {
+  function addDigitalMemoryToBasket() {
     if (!validCode || submitting) return;
     setSubmitting(true);
     setError('');
@@ -68,28 +77,29 @@ function BowColourContent() {
         category:'Digital Memories',
         memoryCode:code,
         imageUrl:null,
-        price:5,
+        price:digitalPrice,
         quantity:1,
         personalisation:{digitalOnly:true,memoryCode:code},
       };
       if(index>=0) basket[index]=line;
       else basket.push(line);
       localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
-      router.push('/checkout');
+      router.push('/cart');
     } catch {
       setSubmitting(false);
-      setError('Unable to open checkout. Please check your browser settings.');
+      setError('Could not add your digital memory to the basket. Please check your browser storage settings and try again.');
     }
   }
 
-  function continueToPayment() {
+  function addTagToBasket() {
+    if (!design) return;
     if (!validCode || !pricePence || submitting) return;
     const selected = colours.find(item => item.id === colour);
     if (!selected) return;
     setSubmitting(true);
     setError('');
     try {
-      localStorage.setItem(`sm-bow-choice:${code}`, JSON.stringify({colour,code}));
+      localStorage.setItem(`sm-bow-choice:${code}`, JSON.stringify({colour,code,designId:design.id}));
       const existing = JSON.parse(localStorage.getItem('smart-memories-cart') || '[]');
       const basket = Array.isArray(existing) ? existing : [];
       // Replace an earlier unfinished entry for this exact memory tag so a
@@ -105,12 +115,15 @@ function BowColourContent() {
         name:'Smart Memory Tag with Decorative Bow',
         category:'Smart Memory Tags',
         memoryCode: code,
-        imageUrl: null,
+        design: design.name,
+        imageUrl: design.image,
         price:pricePence/100,
         quantity:1,
         personalisation:{
           bowColour: selected.name,
           bowColourId: selected.id,
+          tagDesign: design.name,
+          tagDesignId: design.id,
           finish:'decorative satin bow',
           memoryCode:code,
         },
@@ -118,9 +131,9 @@ function BowColourContent() {
       if (previous >= 0) basket[previous] = line;
       else basket.push(line);
       localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
-      router.push('/checkout');
+      router.push('/cart');
     } catch {
-      setError('Could not prepare checkout. Please check your browser storage settings and try again.');
+      setError('Could not add your tag to the basket. Please check your browser storage settings and try again.');
       setSubmitting(false);
     }
   }
@@ -128,7 +141,7 @@ function BowColourContent() {
   if (!validCode) {
     return <section className="smBowPage"><h1>Start by creating your memory</h1>
       <p>Save a memory first so that your gift tag can be linked to it.</p>
-      <Link className="btn" href="/create?mode=tag">Create a memory</Link>
+      <Link className="btn" href="/tags">Choose a gift tag</Link>
     </section>;
   }
 
@@ -136,36 +149,35 @@ function BowColourContent() {
     <div className="smBowIntro">
       <span className="v14Eyebrow">MEMORY ONLY · FINAL STEP</span>
       <h1>Your Smart Memory is ready</h1>
-      <p>Buy the digital memory on its own for £5, or choose a decorative satin bow and physical gift tag.</p>
+      <p>Choose a satin bow for a tag you can attach to your own present, or add the digital memory on its own.</p>
       <p className="smBowMemoryReference">Memory reference: <strong>{code}</strong> · <Link href={`/m/${code}`}>View memory</Link></p>
     </div>
     <section className="smDigitalMemoryCheckout">
       <div>
         <span className="v14Eyebrow">SMART MEMORY ALONE</span>
-        <h2>Digital Smart Memory — £5.00</h2>
+        <h2>Digital Smart Memory — £{digitalPrice.toFixed(2)}</h2>
         <p>Photo, personal message and voice memory. No physical tag, bow or delivery charge.</p>
       </div>
       <button type="button" className="btn big" disabled={submitting}
-        onClick={buyDigitalMemory}>
-        {submitting ? 'Opening checkout…' : 'Pay £5 — Digital Memory Only'}
+        onClick={addDigitalMemoryToBasket}>
+        Add digital memory to basket
       </button>
     </section>
-    <p className="smPhysicalBowDivider">Prefer a physical gift? Choose a bow colour below.</p>
+    {error && <p role="alert" className="smBowError">{error}</p>}
+    {!design && <p role="status">{tagsFailed ? 'Could not load Gift Tags.' : tags ? 'This tag is unavailable.' : 'Loading your Gift Tag…'}
+      {' '}<Link href={{ pathname: '/tags', query: { code } }}>Browse Gift Tags</Link></p>}
+    {design && <>
+    <p className="smPhysicalBowDivider">Choose a bow colour for your gift tag.</p>
     <div className="smBowLayout">
       <div className="smBowPreview">
-        <img
-          className="smBowPreviewArt"
-          src="/images/smart-memories-bow-selection.webp"
-          width={360}
-          height={240}
-          alt="Smart Memories cream gift tag with a large rose-gold satin bow, displayed beside flowers and wrapped gifts"
-          decoding="async"
-        />
-        <strong>{colours.find(item=>item.id===colour)?.name} satin bow</strong>
-        <small>Rose-gold example. Choose your preferred colour on the right.</small>
+        <Image className="smTagDesignPreview" src={design.image} width={300} height={390}
+          sizes="(max-width: 600px) 65vw, 280px" alt={design.name} unoptimized={design.image.startsWith('https://')} />
+        <strong>{design.name}</strong>
+        <small>Selected bow: {colours.find(item=>item.id===colour)?.name}</small>
+        <Link href={{ pathname: '/tags', query: { code } }}>Change tag design</Link>
       </div>
       <div className="smBowSelection">
-        <h2>Select a colour</h2>
+        <h2>Choose a bow colour</h2>
         <div className="smBowColourGrid">
           {colours.map(item => (
             <button type="button" key={item.id}
@@ -178,19 +190,19 @@ function BowColourContent() {
             </button>
           ))}
         </div>
-        {error && <p role="alert" className="smBowError">{error}</p>}
         <div className="smBowConfirmed">
-          <strong>Memory Tag with satin bow — £5.00</strong>
+          <strong>Memory Tag with satin bow{pricePence ? ` — £${(pricePence / 100).toFixed(2)}` : ''}</strong>
           <small>Delivery is calculated at checkout.</small>
           <button className="btn big" type="button"
             disabled={checking || !pricePence || submitting}
-            onClick={continueToPayment}>
-            {submitting ? 'Opening checkout…' : checking ? 'Checking price…' : 'Continue to payment — £5.00'}
+            onClick={addTagToBasket}>
+            {submitting ? 'Adding to basket…' : checking ? 'Checking price…' : 'Add tag to basket'}
           </button>
           <Link href={`/m/${code}`}>View your saved memory</Link>
         </div>
       </div>
     </div>
+    </>}
   </main>;
 }
 

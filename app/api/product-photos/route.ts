@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { products } from '@/lib/products';
 import { cardPhotoSlugs } from '@/lib/cardDesigns';
 import { loadCardCatalogue, loadGiftPrices, saveCatalogueCard, saveGiftPrice } from '@/lib/cardCatalogueServer';
+import { loadGiftTags, saveGiftTag } from '@/lib/giftTagCatalogueServer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -82,6 +83,9 @@ export async function POST(request: Request) {
   const body = await boundedBody(request, MAX_BYTES + 16 * 1024);
   if (!body) return NextResponse.json({ error: 'Photo upload is too large.' }, { status: 413 });
   const form = await body.formData().catch(() => null);
+  if (form?.get('action') === 'save-gift-tag' || form?.get('action') === 'remove-gift-tag') {
+    return updateGiftTag(form);
+  }
   const slug = form?.get('slug');
   const file = form?.get('file');
   if (typeof slug !== 'string' || !(await allowedPhotoSlug(slug)) ||
@@ -102,6 +106,48 @@ export async function POST(request: Request) {
     error: 'Cloud photo storage is not ready. Create the product-catalog bucket in Supabase.',
   }, { status: 503 });
   return NextResponse.json({ ok: true });
+}
+
+async function updateGiftTag(form: FormData) {
+  const id = form.get('id');
+  const removing = form.get('action') === 'remove-gift-tag';
+  try {
+    const tags = await loadGiftTags(true);
+    const existing = tags.find(tag => tag.id === id);
+    if ((id || removing) && (!existing || (!removing && existing.archived))) {
+      return NextResponse.json({ error: 'Gift Tag design not found.' }, { status: 404 });
+    }
+    if (removing && existing) {
+      if (!existing.archived) await saveGiftTag({ ...existing, archived: true });
+      return NextResponse.json({ ok: true });
+    }
+
+    const name = String(form.get('name') ?? '').trim();
+    const collection = String(form.get('collection') ?? '').trim();
+    const description = String(form.get('description') ?? '').trim();
+    const file = form.get('file');
+    if (!name || name.length > 100 || !collection || collection.length > 60 || description.length > 500 ||
+        (!existing && !file) || (file && (!(file instanceof File) || file.type !== 'image/jpeg' ||
+          !file.size || file.size > MAX_BYTES))) {
+      return NextResponse.json({ error: 'Enter a title and collection, and choose a valid photo for a new tag.' }, { status: 400 });
+    }
+    let image = existing?.image ?? '';
+    if (file instanceof File) {
+      const bytes = await normaliseCatalogueJpeg(file).catch(() => null);
+      if (!bytes) return NextResponse.json({ error: 'Invalid JPEG image.' }, { status: 400 });
+      const bucket = supabaseAdmin().storage.from(BUCKET);
+      const path = `gift-tags/${crypto.randomUUID()}.jpg`;
+      const { error } = await bucket.upload(path, bytes, { contentType: 'image/jpeg', upsert: false });
+      if (error) throw error;
+      image = bucket.getPublicUrl(path).data.publicUrl;
+    }
+    const tagId = existing?.id ?? crypto.randomUUID();
+    await saveGiftTag({ id: tagId, name, collection, description, image });
+    return NextResponse.json({ ok: true, id: tagId });
+  } catch (error) {
+    console.error('Gift Tag catalogue update failed:', error);
+    return NextResponse.json({ error: 'Could not update the Gift Tag catalogue.' }, { status: 503 });
+  }
 }
 
 export async function DELETE(request: Request) {
@@ -126,6 +172,21 @@ export async function PATCH(request: Request) {
   const payload = await boundedBody(request, 4096);
   if (!payload) return NextResponse.json({ error: 'Request is too large.' }, { status: 413 });
   const body = await payload.json().catch(() => null);
+  if (body?.action === 'archive-card') {
+    if (typeof body.photoSlug !== 'string') {
+      return NextResponse.json({ error: 'Choose a card design.' }, { status: 400 });
+    }
+    try {
+      const cards = await loadCardCatalogue({ includeArchived: true });
+      const card = cards.find(item => item.photoSlug === body.photoSlug);
+      if (!card) return NextResponse.json({ error: 'Card design not found.' }, { status: 404 });
+      if (!card.archived) await saveCatalogueCard({ ...card, archived: true });
+      return NextResponse.json({ ok: true });
+    } catch (error) {
+      console.error('Card removal failed:', error);
+      return NextResponse.json({ error: 'Could not remove the card design.' }, { status: 503 });
+    }
+  }
   const name = typeof body?.name === 'string' ? body.name.trim() : '';
   const basePricePence = body?.basePricePence;
   if (body?.giftSlug !== undefined) {

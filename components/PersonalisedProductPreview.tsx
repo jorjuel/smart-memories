@@ -30,6 +30,13 @@ export default function PersonalisedProductPreview({
   }
 
   switch (productSlug) {
+    case 'memory-tag':
+      return (
+        <div className="finalPreview finalMemoryTag">
+          <img src={imageUrl || '/images/memory-only-card.webp'} alt={design || name} />
+        </div>
+      );
+
     case 'smart-photo-slate':
       return (
         <div className="finalPreview finalSlate">

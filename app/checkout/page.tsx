@@ -4,7 +4,7 @@ import { useCataloguePhoto } from '@/lib/useCataloguePhoto';
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import type { SavedCardPreview } from '../../lib/cardDesigns';
 import Link from 'next/link';
-import { getCartShippingPricePence, singleMemoryTagLetterCart } from '@/lib/shippingPricing';
+import { digitalOnlyCart, getCartShippingPricePence, singleMemoryTagLetterCart } from '@/lib/shippingPricing';
 import { useSearchParams } from 'next/navigation';
 
 import {
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
       [items]
     );
 
-  const digitalOnly = items.length > 0 && items.every(item => item.productType === 'product' && item.productSlug === 'digital-memory');
+  const digitalOnly = digitalOnlyCart(items);
   const envelopeTagOnly = singleMemoryTagLetterCart(items);
   const delivery = getCartShippingPricePence(items, deliveryMethod) / 100;
 
@@ -593,6 +593,7 @@ export default function CheckoutPage() {
                   We'll use these
                   details for your
                   order confirmation.
+                  {!digitalOnly && <> Enter your UK postal address below so we can send your order.</>}
                 </p>
               </div>
             </div>
@@ -691,9 +692,7 @@ export default function CheckoutPage() {
                 </h2>
 
                 <p>
-                  Where should we
-                  send your
-                  personalised gift?
+                  Enter the UK address where you’d like us to send your order.
                 </p>
               </div>
             </div>

@@ -8,7 +8,7 @@ function bucketMissing(error: { message: string }) {
   return /bucket not found/i.test(error.message);
 }
 
-export async function loadCardCatalogue(): Promise<CatalogueCard[]> {
+export async function loadCardCatalogue({ includeArchived = false } = {}): Promise<CatalogueCard[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
       !(process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
     return defaultCatalogueCards;
@@ -33,10 +33,10 @@ export async function loadCardCatalogue(): Promise<CatalogueCard[]> {
   for (const card of savedCards) {
     if (card.photoSlug !== snowflakeCardSlug) cards.set(card.photoSlug, card);
   }
-  return [...cards.values()];
+  return [...cards.values()].filter(card => includeArchived || !card.archived);
 }
 
-async function writeCatalogueRecord(path: string, record: object) {
+export async function writeCatalogueRecord(path: string, record: object) {
   const storage = supabaseAdmin().storage;
   const { error: bucketError } = await storage.getBucket(bucketName);
   if (bucketError) {

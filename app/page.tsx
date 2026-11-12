@@ -75,6 +75,7 @@ export default function Home() {
         <Link href="/shop#gifts">Personalised Gifts <span aria-hidden="true">→</span></Link>
         <Link href="/cards">Handmade Cards <span aria-hidden="true">→</span></Link>
         <Link href="/bundles">Gift Bundles <span aria-hidden="true">→</span></Link>
+        <Link href="/tags">Memory Gift Tags <span aria-hidden="true">→</span></Link>
       </nav>
 
       <section className="section memoryHomeProducts" aria-labelledby="home-gifts-title">

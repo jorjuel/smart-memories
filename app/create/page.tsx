@@ -7,6 +7,7 @@ import {
 } from 'react';
 
 import {
+  redirect,
   useRouter,
   useSearchParams,
 } from 'next/navigation';
@@ -24,6 +25,7 @@ import CreateMemoryJourney from '../../components/CreateMemoryJourney';
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
 import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
 import { useGiftPrice } from '@/lib/useCataloguePhoto';
+import { useGiftTags } from '@/lib/useGiftTags';
 
 function CreateContent() {
   const router = useRouter();
@@ -33,6 +35,8 @@ function CreateContent() {
     searchParams.get('product');
   const mode = searchParams.get('mode');
   const memoryOnly = mode === 'tag';
+  const { tags, failed: tagsFailed } = useGiftTags(memoryOnly);
+  const tagDesign = tags?.find(design => design.id === searchParams.get('design'));
   const memoryWithGift = mode === 'gift';
 
   const product = productSlug
@@ -347,10 +351,10 @@ setSavedPhotoUrl(permanentPhotoUrl);
       
 
       setSaved(true);
-      if (memoryOnly) {
+      if (memoryOnly && tagDesign) {
         // The memory is persisted before the customer chooses their bow.
         // Only the non-sensitive code is carried through the address bar.
-        router.push(`/create/bow?code=${encodeURIComponent(code)}`);
+        router.push(`/create/bow?${new URLSearchParams({ code, design: tagDesign.id })}`);
       }
     } catch (error) {
       alert(
@@ -436,6 +440,10 @@ setSavedPhotoUrl(permanentPhotoUrl);
       );
     }
   }
+  if (memoryOnly && tagsFailed) return <p role="alert">Could not load the Gift Tag. Please reload and try again.</p>;
+  if (memoryOnly && !tags) return <p role="status">Loading your Gift Tag…</p>;
+  if (memoryOnly && !tagDesign) redirect('/tags');
+
   const directMode =
     Boolean(productSlug) ||
     memoryOnly ||
@@ -495,8 +503,8 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </h1>
             {(memoryOnly || memoryWithGift) && (
               <p className="smMemoryRouteChoice">
-                <strong>{memoryOnly ? 'Memory Only' : 'Memory + Gift'}</strong>
-                <Link href="/create">Change your choice</Link>
+                <strong>{memoryOnly ? tagDesign?.name : 'Memory + Gift'}</strong>
+                <Link href={memoryOnly ? '/tags' : '/create'}>{memoryOnly ? 'Change tag design' : 'Change your choice'}</Link>
               </p>
             )}
 
@@ -689,7 +697,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             >
               {saving
                 ? 'Saving securely...'
-                : 'Save My Memory'}
+                : memoryOnly ? 'Save Memory and Choose Bow' : 'Save My Memory'}
             </button>
           )}
 

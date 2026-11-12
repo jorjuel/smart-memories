@@ -5,7 +5,7 @@ import { shopGiftProducts } from '../../lib/products';
 import { defaultCatalogueCards } from '../../lib/cardDesigns';
 import DeliverySummary from '../../components/DeliverySummary';
 import { loadCardCatalogue } from '../../lib/cardCatalogueServer';
-import { getCardPricePence } from '../../lib/pricing';
+import { getCardPricePence, getProductPricePence } from '../../lib/pricing';
 
 const occasionProducts: Record<string, string[]> = {
   Birthday: [
@@ -146,16 +146,16 @@ export default async function Shop({
         <div className="smSimpleShopShareIntro">
           <h2>How would you like to share your memory?</h2>
           <p>Both choices use the same photo, voice and message creator.<br />
-            Make your memory first, then choose how it is presented.</p>
+            Choose how to share your memory, then follow the steps for that option.</p>
           <div className="smMemoryPathGrid smShopMemoryPathGrid">
-            <Link href="/create?mode=tag" className="smMemoryPathCard">
+            <Link href="/tags" className="smMemoryPathCard">
               <img className="smShopMemoryChoicePhoto"
                 src="/images/memory-only-card.webp"
                 alt="Smart Memories rose-pink bow gift tag and phone showing a personal memory"
                 width="1200" height="675" />
-              <h3>Memory Only</h3>
-              <p>Create your digital memory, then choose a satin bow colour for a decorative gift tag that opens the memory.</p>
-              <strong>Create memory &amp; tag →</strong>
+              <h3>Smart Memory Gift Tag</h3>
+              <p>Choose a tag design, create your Smart Memory, then pick a satin bow. Attach the tag to your own gift so the recipient can tap or scan it.</p>
+              <strong>Choose a gift tag · {money(getProductPricePence('memory-tag') / 100)} →</strong>
             </Link>
             <Link href="/create?mode=gift" className="smMemoryPathCard">
               <img className="smShopMemoryChoicePhoto"

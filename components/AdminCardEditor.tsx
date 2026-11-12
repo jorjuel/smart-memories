@@ -19,11 +19,12 @@ async function saveRequest(method: string, body: FormData | object) {
   return result;
 }
 
-export default function AdminCardEditor({ card, images, disabled, onSaved }: {
+export default function AdminCardEditor({ card, images, disabled, onSaved, onRemoved }: {
   card?: CatalogueCard;
   images: Record<string, string>;
   disabled: boolean;
   onSaved: (slug: string) => Promise<void>;
+  onRemoved: () => Promise<void>;
 }) {
   const [name, setName] = useState(card?.name ?? '');
   const [price, setPrice] = useState(((card?.basePricePence ?? 695) / 100).toFixed(2));
@@ -31,6 +32,7 @@ export default function AdminCardEditor({ card, images, disabled, onSaved }: {
   const [previews, setPreviews] = useState<Record<number, string>>({});
   const [angle, setAngle] = useState(0);
   const [review, setReview] = useState(false);
+  const [confirmRemoval, setConfirmRemoval] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const slug = useRef(card?.photoSlug);
@@ -100,6 +102,20 @@ export default function AdminCardEditor({ card, images, disabled, onSaved }: {
     }
   }
 
+  async function removeCard() {
+    if (!card) return;
+    setBusy(true);
+    setError('');
+    try {
+      await saveRequest('PATCH', { action: 'archive-card', photoSlug: card.photoSlug });
+      await onRemoved();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not remove the card.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const selectedPhoto = photoAt(angle);
   return (
     <form className="card adminCardEditor" onSubmit={(event) => {
@@ -148,7 +164,16 @@ export default function AdminCardEditor({ card, images, disabled, onSaved }: {
         </div>}
       </div>
       <div className="form adminCardFields">
-        {review ? <>
+        {confirmRemoval ? <>
+          <h3>Remove {card?.name}?</h3>
+          <p>This design will disappear from the shop. Existing orders and photos are kept.</p>
+          <div className="adminCardActions">
+            <button type="button" className="btn small" disabled={busy || disabled}
+              onClick={() => void removeCard()}>{busy ? 'Removing…' : 'Confirm removal'}</button>
+            <button type="button" className="smCardTextButton" disabled={busy}
+              onClick={() => setConfirmRemoval(false)}>Cancel</button>
+          </div>
+        </> : review ? <>
           <h3>Review changes</h3>
           <p><strong>{name.trim()}</strong> · £{(basePricePence / 100).toFixed(2)} base price</p>
           {changedPhotos.length > 0 && <ul>{changedPhotos.map(([index, file]) => (
@@ -163,6 +188,8 @@ export default function AdminCardEditor({ card, images, disabled, onSaved }: {
           <label>Base price (£)<input required type="number" min="0.01" max="999.99" step="0.01" value={price}
             onChange={(event) => setPrice(event.target.value)} /></label>
           <button type="submit" className="btn small" disabled={disabled || !canReview}>Review changes</button>
+          {card && <button type="button" className="smCardTextButton" disabled={disabled}
+            onClick={() => { setError(''); setConfirmRemoval(true); }}>Remove card design</button>}
         </>}
         {error && <p role="alert">{error}</p>}
       </div>

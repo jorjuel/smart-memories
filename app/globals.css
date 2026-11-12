@@ -3391,6 +3391,20 @@ body {
 
 /* Generic */
 
+.finalMemoryTag {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+
+.finalMemoryTag img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+
 .finalGenericProduct {
   padding: 8px;
   background: var(--sm-blush);
@@ -12511,6 +12525,14 @@ header.smSiteHeader {
 .smBowSelection h2 {font:400 30px Georgia,serif;margin:0 0 16px}
 .smBowColourGrid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:20px}
 .smBowColour {display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #eadbd5;border-radius:12px;padding:10px;text-align:left;color:var(--sm-plum-dark);cursor:pointer}
+.smTagDesignPreview { display: block; width: min(100%, 280px); height: auto; }
+.smBowColour.smTagDesignChoice { flex-direction: column; min-width: 0; text-align: center; }
+.smTagDesignChoice img { display: block; width: min(100%, 100px); height: 120px; object-fit: contain; }
+.smTagCatalogue { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 12px; }
+.smTagCatalogue .smTagDesignChoice { text-decoration: none; }
+.smTagCatalogue .smTagDesignChoice:hover, .smTagCatalogue .smTagDesignChoice:focus-visible { border-color: var(--sm-rose); }
+.smTagCatalogue .smTagDesignChoice img { width: min(100%, 160px); height: 190px; }
+.smTagCatalogue .smTagDesignChoice span { margin-top: auto; }
 .smBowColour.active {border-color:var(--sm-rose);background:#fff7f4}
 .smBowSwatch {display:block;width:36px;height:36px;border-radius:50%;flex:none;border:1px solid #aaa6}
 .smBowColour strong {font-size:13px}
@@ -14168,7 +14190,7 @@ header.smSiteHeader {
 @media(max-width:600px){.smShopGiftChoiceArtwork{min-height:210px}.smShopGiftChoiceSlate{border-width:7px}.smShopGiftChoiceMug{border-width:3px}.smShopGiftChoiceKeyring{border-width:4px}}
 .smHomeCollections {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   width: min(100% - 32px, 1100px);
   margin: 18px auto 0;

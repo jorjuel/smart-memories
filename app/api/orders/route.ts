@@ -1,4 +1,5 @@
 import { loadGiftPrices } from '@/lib/cardCatalogueServer';
+import { loadGiftTags } from '@/lib/giftTagCatalogueServer';
 import {
   NextResponse,
 } from 'next/server';
@@ -21,7 +22,7 @@ import {
   getProductPricePence,
 } from '@/lib/pricing';
 
-import { getCartShippingPricePence } from '@/lib/shippingPricing';
+import { digitalOnlyCart, getCartShippingPricePence } from '@/lib/shippingPricing';
 
 export const runtime =
   'nodejs';
@@ -220,6 +221,7 @@ export async function POST(
             let unitPricePence:
               number;
             let orderPersonalisation = item.personalisation;
+            let orderImageUrl = item.imageUrl;
 
             if (
               productType ===
@@ -253,6 +255,17 @@ export async function POST(
                 const allowedBowColours = [
                   'rose-gold', 'champagne', 'ivory', 'blush', 'burgundy', 'sage',
                 ];
+                const tagDesign = personalisation.tagDesignId === undefined ? undefined :
+                  (await loadGiftTags(true)).find(design => design.id === personalisation.tagDesignId);
+                if (personalisation.tagDesignId !== undefined && !tagDesign) {
+                  throw new Error('Select a valid gift tag design before ordering.');
+                }
+                if (tagDesign) {
+                  orderPersonalisation = { ...personalisation, tagDesign: tagDesign.name };
+                  orderImageUrl = tagDesign.image;
+                } else {
+                  orderImageUrl = '/images/memory-only-card.webp';
+                }
                 if (
                   typeof item.memoryCode !== 'string' ||
                   !/^[A-HJ-NP-Z2-9]{8}$/.test(item.memoryCode) ||
@@ -414,11 +427,23 @@ export async function POST(
               productType,
               quantity,
               unitPricePence,
+              imageUrl: orderImageUrl,
               personalisation: orderPersonalisation,
             };
           }
         )
       );
+
+    const address1 = typeof body.address1 === 'string' ? body.address1.trim() : '';
+    const city = typeof body.city === 'string' ? body.city.trim() : '';
+    const postcode = typeof body.postcode === 'string' ? body.postcode.trim() : '';
+
+    if (!digitalOnlyCart(pricedCart) && (!address1 || !city || !postcode)) {
+      return NextResponse.json(
+        { error: 'Enter a delivery address with an address line, town or city, and postcode.' },
+        { status: 400 }
+      );
+    }
 
     const subtotalPence =
       pricedCart.reduce(
@@ -477,7 +502,7 @@ export async function POST(
             null,
 
           delivery_address_1:
-            body.address1 ||
+            address1 ||
             null,
 
           delivery_address_2:
@@ -485,11 +510,11 @@ export async function POST(
             null,
 
           delivery_city:
-            body.city ||
+            city ||
             null,
 
           delivery_postcode:
-            body.postcode ||
+            postcode ||
             null,
 
           delivery_method:

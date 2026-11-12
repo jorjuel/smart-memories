@@ -4,6 +4,7 @@ const links = [
   { href: '/shop#gifts', label: 'Personalised Gifts', description: 'Mugs, slates, coasters and more' },
   { href: '/cards', label: 'Handmade Cards', description: 'Traditional and Smart Memory cards' },
   { href: '/bundles', label: 'Gift Bundles', description: 'Collections and thoughtful combinations' },
+  { href: '/tags', label: 'Memory Gift Tags', description: 'Add a tap-to-open memory to your own gift' },
   { href: '/occasions', label: 'Shop by occasion', description: 'Birthday, wedding, remembrance and celebrations' },
   { href: '/how-it-works', label: 'How it works', description: 'See how tapping a gift opens a memory' },
   { href: '/m/sample', label: 'Try a sample memory', description: 'See what a recipient can open' },

@@ -28,12 +28,12 @@ export default function CreateMemoryJourney() {
       <section className="smMemoryPathSection" aria-labelledby="memory-path-title">
         <span className="v14Eyebrow">CHOOSE HOW YOUR MEMORY IS PRESENTED</span>
         <h2 id="memory-path-title">How would you like to share your memory?</h2>
-        <p>Both choices use the same photo, voice and message creator. Make your memory first, then choose how it is presented.</p>
+        <p>Both choices use the same photo, voice and message creator. Choose how to share your memory, then follow the steps for that option.</p>
         <div className="smMemoryPathGrid">
-          <Link href="/create?mode=tag" className="smMemoryPathCard">
+          <Link href="/tags" className="smMemoryPathCard">
             <span className="smMemoryPathIcon" aria-hidden="true">🎀</span>
-            <h3>Memory Only</h3>
-            <p>Create your digital memory, then choose a satin bow colour for a decorative gift tag that opens the memory.</p>
+            <h3>Smart Memory Gift Tag</h3>
+            <p>Choose a tag design for your own present, then create your memory and pick a satin bow colour.</p>
             <strong>Create memory &amp; tag →</strong>
           </Link>
           <Link href="/create?mode=gift" className="smMemoryPathCard">

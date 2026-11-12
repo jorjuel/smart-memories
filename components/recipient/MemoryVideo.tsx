@@ -7,9 +7,11 @@ import {
 export default function MemoryVideo({
   src,
   mediaRef,
+  onPlay,
 }: {
   src?: string | null;
   mediaRef?: React.Ref<HTMLVideoElement>;
+  onPlay?: () => void;
 }) {
   const [
     loaded,
@@ -54,6 +56,7 @@ export default function MemoryVideo({
         playsInline
         preload="metadata"
         src={src}
+        onPlay={onPlay}
         onLoadedMetadata={() =>
           setLoaded(true)
         }

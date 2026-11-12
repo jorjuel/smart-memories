@@ -25,9 +25,12 @@ export async function POST(request: Request) {
   try {
     // Reject cross-origin browser requests. Does not replace rate limits.
     const origin = request.headers.get('origin');
-    const expected = new URL(request.url).origin;
+    const requestUrl = new URL(request.url);
+    // Next may use its internal hostname in request.url during local development.
+    const host = request.headers.get('host');
+    const expected = host ? `${requestUrl.protocol}//${host}` : requestUrl.origin;
     if (origin && origin !== expected && !(
-      expected.endsWith('.vercel.app') &&
+      requestUrl.hostname.endsWith('.vercel.app') &&
       origin === 'https://smartmemories.co.uk'
     )) {
       return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });

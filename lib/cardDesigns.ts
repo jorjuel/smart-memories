@@ -13,6 +13,7 @@ export type CatalogueCard = {
   description: string;
   mark: string;
   basePricePence: number;
+  archived?: boolean;
 };
 
 export const defaultCatalogueCards: CatalogueCard[] = cardDesigns.map((card) => ({

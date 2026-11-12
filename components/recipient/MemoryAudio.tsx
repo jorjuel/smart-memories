@@ -12,6 +12,7 @@ type Props = {
     | 'compact';
   /** Lets the recipient's Open Memory tap start the existing player. */
   mediaRef?: React.Ref<HTMLAudioElement>;
+  onPlay?: () => void;
 };
 
 function formatTime(
@@ -45,11 +46,13 @@ export default function MemoryAudio({
   src,
   variant = 'full',
   mediaRef,
+  onPlay,
 }: Props) {
   const player =
     useRef<HTMLAudioElement>(
       null
     );
+  const compactPlayer = useRef<HTMLAudioElement>(null);
 
   const [
     playing,
@@ -76,11 +79,17 @@ export default function MemoryAudio({
     setFailed,
   ] = useState(false);
 
-  if (
-    !src ||
-    failed
-  ) {
+  if (!src) {
     return null;
+  }
+
+  if (failed) {
+    return (
+      <div>
+        <p role="status">This voice message couldn’t play in your browser.</p>
+        <button type="button" onClick={() => setFailed(false)}>Try again</button>
+      </div>
+    );
   }
 
   if (
@@ -88,17 +97,44 @@ export default function MemoryAudio({
     'compact'
   ) {
     return (
+      <div>
       <audio
-        ref={mediaRef}
+        ref={element => {
+          compactPlayer.current = element;
+          if (typeof mediaRef === 'function') return mediaRef(element);
+          if (mediaRef) mediaRef.current = element;
+        }}
         className="smRecipientAudioCompact"
         controls
+        controlsList="nodownload"
         preload="auto"
         playsInline
         src={src}
+        onPlay={() => {
+          setPlaying(true);
+          onPlay?.();
+        }}
+        onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
+        onTimeUpdate={event => setCurrentTime(event.currentTarget.currentTime)}
         onError={() =>
           setFailed(true)
         }
       />
+      <button type="button" onClick={() => {
+        const audio = compactPlayer.current;
+        if (!audio) return;
+        if (!audio.paused) {
+          audio.pause();
+          return;
+        }
+        void audio.play().catch(error => {
+          if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') setFailed(true);
+        });
+      }}>{playing ? 'Pause voice message' : 'Play voice message'}</button>
+      {' '}
+      <span>{formatTime(currentTime)} elapsed</span>
+      </div>
     );
   }
 
@@ -119,7 +155,7 @@ export default function MemoryAudio({
         audio.pause();
       }
     } catch {
-      setFailed(true);
+      if (audio.error) setFailed(true);
     }
   }
 
