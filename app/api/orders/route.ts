@@ -641,9 +641,17 @@ export async function POST(
             item.imageUrl ||
             null,
 
-          personalisation:
-            item.personalisation ||
-            null,
+          personalisation: {
+            ...(item.personalisation && typeof item.personalisation === 'object' && !Array.isArray(item.personalisation)
+              ? item.personalisation as Record<string, unknown>
+              : {}),
+            copyrightDeclaration: {
+              version: '2026-11-14-v1',
+              accepted: true,
+              acceptedAt: copyrightAcceptedAt,
+              customerEmail,
+            },
+          },
         })
       );
 
