@@ -80,6 +80,15 @@ export async function POST(
     const body =
       await request.json();
 
+    if (body.copyrightDeclarationAccepted !== true) {
+      return NextResponse.json(
+        { error: 'You must confirm that you have permission to reproduce the content supplied.' },
+        { status: 400 }
+      );
+    }
+
+    const copyrightAcceptedAt = new Date().toISOString();
+
     const cart =
       Array.isArray(body.cart)
         ? (
@@ -632,9 +641,17 @@ export async function POST(
             item.imageUrl ||
             null,
 
-          personalisation:
-            item.personalisation ||
-            null,
+          personalisation: {
+            ...(item.personalisation && typeof item.personalisation === 'object' && !Array.isArray(item.personalisation)
+              ? item.personalisation as Record<string, unknown>
+              : {}),
+            copyrightDeclaration: {
+              version: '2026-11-14-v1',
+              accepted: true,
+              acceptedAt: copyrightAcceptedAt,
+              customerEmail,
+            },
+          },
         })
       );
 

@@ -38,11 +38,25 @@ export default function TermsPage() {
         </h2>
 
         <p>
-          Customers should only
-          upload photographs,
-          recordings and other
-          content that they are
-          entitled to use.
+          By submitting photographs, artwork, designs, text, audio or video,
+          customers confirm that they own the necessary rights or have obtained
+          permission to reproduce and use that content for their order. Permission
+          must cover printing on personalised products and, where relevant,
+          storing and displaying the content as a digital Smart Memory.
+        </p>
+        <p>
+          Customers authorise Smart Memories to process, reproduce and share
+          their submitted content with production partners only as reasonably
+          necessary to fulfil their order. Customers must not upload content
+          that infringes another person's copyright, trademark, privacy or
+          other rights.
+        </p>
+        <p>
+          Smart Memories may review content, request evidence of permission,
+          and suspend, refuse or cancel orders containing potentially infringing
+          material. A customer declaration does not override the rights of
+          copyright owners. Where an order is cancelled, applicable statutory
+          refund rights remain unaffected.
         </p>
 
         <h2>

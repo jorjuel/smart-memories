@@ -70,6 +70,8 @@ export default function CheckoutPage() {
     setSubmitting,
   ] = useState(false);
 
+  const [copyrightConfirmed, setCopyrightConfirmed] = useState(false);
+
   const [
     orderError,
     setOrderError,
@@ -221,6 +223,10 @@ export default function CheckoutPage() {
     (digitalOnly || (address1.trim() && town.trim() && postcode.trim()));
 
   async function createOrder() {
+    if (!copyrightConfirmed) {
+      setOrderError('Please confirm you own or have permission to reproduce the content you supplied.');
+      return;
+    }
     if (!formReady) {
       setOrderError(
         digitalOnly ? 'Please complete your name and email.' : 'Please complete your name, email and delivery address.'
@@ -261,6 +267,8 @@ export default function CheckoutPage() {
 
             body: JSON.stringify({
               cart: items,
+
+              copyrightDeclarationAccepted: copyrightConfirmed,
 
               idempotencyKey,
 
@@ -1052,6 +1060,11 @@ export default function CheckoutPage() {
                 {orderError}
               </div>
             )}
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '18px 0', lineHeight: 1.5 }}>
+              <input type="checkbox" checked={copyrightConfirmed} onChange={(event) => setCopyrightConfirmed(event.target.checked)} style={{ marginTop: '5px' }} />
+              <span>I confirm that I own or have permission to reproduce all photographs, artwork, designs, audio and video supplied for this order, including permission for Smart Memories to print or use them to fulfil my order. I understand that Smart Memories may request evidence and refuse content that may infringe another person's rights. <Link href="/terms">Read our terms.</Link></span>
+            </label>
 
             <button
               type="button"
