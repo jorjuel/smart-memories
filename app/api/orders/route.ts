@@ -664,6 +664,24 @@ export async function POST(
       throw itemError;
     }
 
+    // Partner attribution is opt-in and gated while the feature is under review.
+    // No client-supplied partner ID or commission amount is trusted.
+    if (process.env.REFERRALS_ENABLED === 'true') {
+      const referralCode = typeof body.referralCode === 'string'
+        ? body.referralCode.trim().toUpperCase() : '';
+      if (referralCode) {
+        const { error: referralError } = await admin.rpc(
+          'referral_record_order_attribution',
+          { p_order_id: order.id, p_referral_code: referralCode }
+        );
+        if (referralError) {
+          // Do not silently lose referral accounting on an eligible order.
+          console.error('ORDER REFERRAL ATTRIBUTION:', referralError);
+          throw new Error('Referral attribution unavailable. Please retry later.');
+        }
+      }
+    }
+
     return NextResponse.json(
       {
         ok: true,
