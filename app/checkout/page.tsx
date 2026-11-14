@@ -262,6 +262,10 @@ export default function CheckoutPage() {
             body: JSON.stringify({
               cart: items,
 
+              // Only works when referral code is present in this checkout URL.
+              // Broader navigation persistence requires separate privacy-reviewed design.
+              referralCode: searchParams.get('ref') || '',
+
               idempotencyKey,
 
               email:
