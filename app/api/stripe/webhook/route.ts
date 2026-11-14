@@ -31,6 +31,15 @@ function getPaymentIntentId(
   );
 }
 
+async function recordReferralCommission(orderId: string) {
+  if (process.env.REFERRALS_ENABLED !== 'true') return;
+  const { error } = await supabaseAdmin().rpc(
+    'referral_record_paid_commission',
+    { p_order_id: orderId }
+  );
+  if (error) throw new Error(`Commission recording failed: ${error.message}`);
+}
+
 async function markOrderPaid(
   session: Stripe.Checkout.Session
 ) {
@@ -94,6 +103,8 @@ async function markOrderPaid(
     order.payment_status ===
     'paid'
   ) {
+    // Stripe may retry after payment marked paid but commission recording failed.
+    await recordReferralCommission(orderId);
     return;
   }
 
@@ -125,6 +136,10 @@ async function markOrderPaid(
   if (updateError) {
     throw updateError;
   }
+
+  // Service-role SQL function atomically inserts at most one commission
+  // for an attributed paid order. Failure causes Stripe to retry this event.
+  await recordReferralCommission(orderId);
 
   try {
     const email = await import('@/lib/orderConfirmationEmail');
