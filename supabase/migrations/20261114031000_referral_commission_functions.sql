@@ -24,7 +24,7 @@ returns void language plpgsql security definer
 set search_path = '' as $$
 declare v_order record; v_ref record; v_rate integer; v_amount bigint;
 begin
-  select id,subtotal_pence,payment_status,customer_email into v_order
+  select id,subtotal_pence,payment_status,customer_email,created_at into v_order
   from public.orders where id=p_order_id;
   if not found or v_order.payment_status <> 'paid' then return; end if;
   select a.partner_id,a.expires_at,p.commission_bps,p.status,p.contact_email
@@ -32,7 +32,7 @@ begin
     from public.referral_attributions a
     join public.referral_partners p on p.id=a.partner_id
     where a.order_id=p_order_id;
-  if not found or v_ref.expires_at < now() or v_ref.status <> 'active' then return; end if;
+  if not found or v_ref.expires_at < v_order.created_at or v_ref.status <> 'active' then return; end if;
   -- Basic self-referral block. Extend with business-level fraud controls before launch.
   if v_ref.contact_email is not null and
      lower(v_ref.contact_email)=lower(v_order.customer_email) then return; end if;
