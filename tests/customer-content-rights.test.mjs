@@ -15,7 +15,7 @@ test('order API rejects missing rights declaration and records evidence server-s
   assert.match(route, /body\.copyrightDeclarationAccepted !== true/);
   assert.match(route, /status: 400/);
   assert.match(route, /copyrightAcceptedAt = new Date\(\)\.toISOString\(\)/);
-  assert.match(route, /copyrightDeclaration: \{/);
+  assert.match(route, /copyrightDeclaration:\s*\{/);
   assert.match(route, /acceptedAt: copyrightAcceptedAt/);
 });
 
