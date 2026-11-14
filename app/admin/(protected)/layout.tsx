@@ -103,7 +103,7 @@ export default async function AdminProtectedLayout({
               Memories
             </Link>
 
-            <Link href="/admin/corporate">
+            <Link href="/admin/referrals">\n              Referrals\n            </Link>\n\n            <Link href="/admin/corporate">
               Corporate
             </Link>
 
