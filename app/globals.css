@@ -5434,6 +5434,10 @@ header.smSiteHeader {
 }
 
 .smHeaderBrand {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   color: var(--sm-plum-dark);
   text-decoration: none;
   font-size: 16px;
@@ -5442,8 +5446,10 @@ header.smSiteHeader {
   white-space: nowrap;
 }
 
-.smHeaderBrand span {
-  margin-left: 5px;
+.smHeaderBrandMark {
+  display: block;
+  width: 80%;
+  height: 14px;
   color: var(--sm-rose);
 }
 
@@ -12252,234 +12258,11 @@ header.smSiteHeader {
 .smCompactHome .memoryHomeGiftPhoto span,
 .smCompactHome .memoryHomePhonePhoto span { display: none; }
 
-/* Homepage hero: a real-looking photo slate -> recipient phone -> branded NFC tag.
-   Visual only; no simulated playback or implied clickable NFC functionality. */
-.smCompactHome .smHeroMemoryShowcase {
-  position: relative;
+.smCompactHome .smHomeHeroPhoto {
+  display: block;
   width: 100%;
-  min-width: 0;
-  height: 445px;
-  isolation: isolate;
-}
-.smCompactHome .smHeroSlate {
-  position: absolute;
-  top: 33px;
-  left: 0;
-  width: 64%;
-  height: 300px;
-  padding: 11px;
-  background: linear-gradient(145deg,#2f3234 0%,#777978 4%,#25282a 11%,#24282a 89%,#797a78 97%,#292d2c 100%);
-  clip-path: polygon(1% 3%, 15% 0%, 28% 2%, 43% 0%, 57% 2%, 74% 0%, 88% 3%, 99% 1%, 100% 19%, 98% 41%, 100% 64%, 98% 86%, 99% 99%, 77% 100%, 58% 98%, 37% 100%, 18% 98%, 0% 100%, 2% 80%, 0% 62%, 2% 39%, 0% 21%);
-  filter: drop-shadow(0 15px 18px rgba(24,22,24,.28));
-  transform: rotate(-6deg);
-  z-index: 1;
-}
-.smCompactHome .smHeroSlatePrint {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(180deg,rgba(28,20,20,.02),rgba(28,20,20,.1)),url("https://images.unsplash.com/photo-1766202509814-7e10c995ade0?auto=format&fit=crop&w=1000&q=82") center 43% / cover no-repeat;
-  clip-path: polygon(1% 2%,99% 0%,100% 97%,98% 100%,1% 99%,0% 2%);
-  box-shadow: inset 0 0 0 3px #212223;
-}
-.smCompactHome .smHeroRecipientPhone {
-  position: absolute;
-  right: 5%;
-  top: 0;
-  width: 47%;
-  min-width: 190px;
-  height: 366px;
-  padding: 12px 8px 9px;
-  border: 7px solid #33272b;
-  border-radius: 35px;
-  background: #34272c;
-  box-shadow: 0 20px 35px rgba(41,25,28,.23);
-  transform: rotate(5deg);
-  z-index: 2;
-}
-.smCompactHome .smHeroPhoneSpeaker {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 5px;
-  width: 48px;
-  background: #4e4245;
-  border-radius: 999px;
-  z-index: 3;
-}
-.smCompactHome .smHeroPhoneScreen {
-  height: 100%;
-  padding: 18px 9px 10px;
-  border-radius: 23px;
-  background: #fffaf7;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-  overflow: hidden;
-}
-.smCompactHome .smHeroPhoneBrand {
-  color: #4b3037;
-  font-weight: 900;
-  letter-spacing: 1.1px;
-  font-size: 9px;
-}
-.smCompactHome .smHeroPhonePhoto {
-  width: 100%;
-  flex: 0 0 136px;
-  min-height: 0;
-  border-radius: 12px;
-  background: url("https://images.unsplash.com/photo-1766202509814-7e10c995ade0?auto=format&fit=crop&w=1000&q=82") center 40% / cover no-repeat;
-}
-.smCompactHome .smHeroPhoneEyebrow {
-  color: var(--sm-rose);
-  font-weight: 900;
-  letter-spacing: .9px;
-  font-size: 8px;
-}
-.smCompactHome .smHeroPhoneScreen h2 {
-  margin: 0;
-  color: var(--sm-plum-dark);
-  font: 400 19px/1.12 Georgia, "Times New Roman", serif;
-}
-.smCompactHome .smHeroPhoneVoice {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 27px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  color: white;
-  background: var(--sm-plum);
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 1.1;
-}
-.smCompactHome .smHeroPhoneScreen small {
-  font: italic 12px Georgia, "Times New Roman", serif;
-  color: var(--sm-muted);
-}
-.smCompactHome .smHeroNfcTag {
-  position: absolute;
-  left: 12%;
-  bottom: 0;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  width: 185px;
-  min-height: 88px;
-  padding: 10px 12px;
-  border: 2px solid #dac8c7;
-  border-radius: 13px;
-  background: #fffdfa;
-  box-shadow: 0 10px 25px rgba(50,34,36,.16);
-  transform: rotate(-3deg);
-}
-.smCompactHome .smHeroTagSignal {
-  color: var(--sm-rose);
-  font-size: 19px;
-  line-height: 1;
-  font-weight: 800;
-  transform: rotate(-90deg);
-}
-.smCompactHome .smHeroTagBrand {
-  color: var(--sm-plum-dark);
-  font-size: 10px;
-  letter-spacing: 1px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-.smCompactHome .smHeroTagBrand span { color: var(--sm-rose); }
-.smCompactHome .smHeroNfcTag strong {
-  color: var(--sm-rose);
-  font-size: 13px;
-}
-@media (max-width: 1050px) and (min-width: 761px) {
-  .smCompactHome .smHeroMemoryShowcase { height: 405px; }
-  .smCompactHome .smHeroSlate { height: 260px; }
-  .smCompactHome .smHeroRecipientPhone { height: 335px; min-width: 170px; }
-  .smCompactHome .smHeroPhonePhoto { flex-basis: 115px; }
-}
-@media (max-width: 760px) {
-  /* Compact responsive showcase instead of the old empty illustration. */
-  .smCompactHome .smHeroMemoryShowcase {
-    display: block;
-    max-width: 460px;
-    height: 340px;
-    margin: 0 auto;
-  }
-  .smCompactHome .smHeroSlate {
-    top: 25px; left: 2%; width: 62%; height: 235px; padding: 8px;
-  }
-  .smCompactHome .smHeroRecipientPhone {
-    top: 0; right: 2%; width: 46%; min-width: 0;
-    height: 278px; padding: 9px 5px 6px; border-width: 5px; border-radius: 25px;
-  }
-  .smCompactHome .smHeroPhoneScreen {
-    padding: 15px 5px 5px; gap: 5px; border-radius: 16px;
-  }
-  .smCompactHome .smHeroPhoneBrand { font-size: 7px; }
-  .smCompactHome .smHeroPhonePhoto { flex-basis: 100px; border-radius: 8px; }
-  .smCompactHome .smHeroPhoneEyebrow { font-size: 6px; }
-  .smCompactHome .smHeroPhoneScreen h2 { font-size: 15px; }
-  .smCompactHome .smHeroPhoneVoice { font-size: 7px; padding: 5px 7px; min-height: 24px; }
-  .smCompactHome .smHeroPhoneScreen small { font-size: 10px; }
-  .smCompactHome .smHeroNfcTag {
-    left: 8%; bottom: 0; width: 155px; min-height: 65px;
-    padding: 7px; gap: 3px;
-  }
-  .smCompactHome .smHeroTagSignal { font-size: 14px; }
-  .smCompactHome .smHeroTagBrand { font-size: 8px; }
-  .smCompactHome .smHeroNfcTag strong { font-size: 11px; }
-}
-@media (max-width: 380px) {
-  .smCompactHome .smHeroMemoryShowcase { height: 295px; }
-  .smCompactHome .smHeroSlate { height: 200px; }
-  .smCompactHome .smHeroRecipientPhone { height: 245px; }
-  .smCompactHome .smHeroPhonePhoto { flex-basis: 85px; }
-  .smCompactHome .smHeroPhoneScreen h2 { font-size: 13px; }
-  .smCompactHome .smHeroPhoneScreen small { display: none; }
-}
-
-/* Home hero: genuine photo slate left, existing phone right,
-   isolated rose-gold satin bow and hanging tag underneath. */
-.smCompactHome .smHeroMemoryShowcase {
-  height: 455px;
-  overflow: visible;
-}
-.smCompactHome .smHeroBowTag {
-  position: absolute;
-  z-index: 3;
-  left: 12%;
-  bottom: 0;
-  width: 75%;
-  height: 118px;
-  background: url('/images/satin-bow-memory-tag.webp') center / contain no-repeat;
-  pointer-events: none;
-  filter: drop-shadow(0 7px 6px rgba(73, 34, 32, .13));
-}
-.smCompactHome .smHeroSlate { z-index: 1; }
-.smCompactHome .smHeroRecipientPhone { z-index: 2; }
-@media (max-width: 1050px) and (min-width: 761px) {
-  .smCompactHome .smHeroMemoryShowcase { height: 420px; }
-  .smCompactHome .smHeroBowTag { width: 82%; left: 7%; height: 110px; bottom: 0; }
-}
-@media (max-width: 760px) {
-  .smCompactHome .smHeroMemoryShowcase { height: 345px; }
-  .smCompactHome .smHeroBowTag {
-    left: 4%;
-    width: 93%;
-    height: 78px;
-    bottom: 1px;
-  }
-}
-@media (max-width: 380px) {
-  .smCompactHome .smHeroMemoryShowcase { height: 310px; }
-  .smCompactHome .smHeroBowTag { height: 69px; left: 4%; width: 91%; }
+  height: auto;
+  border-radius: 20px;
 }
 
 /* Memory-first creator: choice then the existing memory form, then physical finish. */
@@ -14187,29 +13970,36 @@ header.smSiteHeader {
 .smShopGiftChoiceKeyring{left:17%;bottom:12%;width:19%;aspect-ratio:1;border:6px solid #b5a1a0;border-radius:50%;background:#fbece8;font-size:clamp(24px,4vw,50px);transform:rotate(-13deg)}
 .smShopGiftChoiceMessage{right:23%;top:15%;width:13%;aspect-ratio:1;border:2px solid #f0dfd8;border-radius:50%;background:#fff7f4;color:#ae5966;font-size:clamp(24px,4vw,42px)}
 .smShopMemoryChoicePhoto{object-fit:contain;background:#f3e6df}
-@media(max-width:600px){.smShopGiftChoiceArtwork{min-height:210px}.smShopGiftChoiceSlate{border-width:7px}.smShopGiftChoiceMug{border-width:3px}.smShopGiftChoiceKeyring{border-width:4px}}
-.smHomeCollections {
+
+.smHomeKeepsakes {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  width: min(100% - 32px, 1100px);
-  margin: 18px auto 0;
+  gap: 14px;
 }
-.smHomeCollections a {
+.smHomeKeepsakes .smMemoryPathCard { padding: 12px; gap: 12px; }
+.smHomeKeepsakes h3 {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
-  min-height: 48px;
-  padding: 12px 15px;
-  border: 1px solid var(--sm-border);
-  border-radius: 12px;
-  background: white;
-  color: var(--sm-plum-dark);
-  font-weight: 700;
-  text-decoration: none;
+  font-size: clamp(18px, 1.8vw, 22px);
 }
-.smHomeCollections a:hover { border-color: var(--sm-rose); }
+.smHomeKeepsakes h3 [aria-hidden] { flex-shrink: 0; }
+.smHomeKeepsakeImage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f3e6df;
+}
+.smHomeKeepsakeImage img { object-fit: cover; }
+@media (max-width: 800px) {
+  .smHomeKeepsakes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .smHomeKeepsakes { grid-template-columns: 1fr; }
+}
+@media(max-width:600px){.smShopGiftChoiceArtwork{min-height:210px}.smShopGiftChoiceSlate{border-width:7px}.smShopGiftChoiceMug{border-width:3px}.smShopGiftChoiceKeyring{border-width:4px}}
 .smDeliverySummary { margin-block: 12px; font-size: .875rem; line-height: 1.5; }
 .smDeliverySummary summary { cursor: pointer; padding-block: 6px; }
 .smDeliverySummary summary span { display: block; }
@@ -14222,6 +14012,5 @@ header.smSiteHeader {
 .smSampleNotice { padding: 12px 16px; text-align: center; background: var(--sm-cream); }
 .smSampleNotice a { margin-inline-start: 8px; }
 @media (max-width: 600px) {
-  .smHomeCollections { grid-template-columns: minmax(0, 1fr); }
   .smCardTypeComparison .card { padding: 12px; }
 }
