@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { memoryTagDesigns } from '../lib/memoryTagDesigns.ts';
 
 test('the tag catalogue preserves all designs with unique IDs and images', () => {
-  assert.equal(memoryTagDesigns.length, 65);
+  assert.equal(memoryTagDesigns.length, 95);
   assert.equal(new Set(memoryTagDesigns.map(design => design.id)).size, memoryTagDesigns.length);
   assert.equal(new Set(memoryTagDesigns.map(design => design.image)).size, memoryTagDesigns.length);
 });
