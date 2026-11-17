@@ -1,4 +1,5 @@
 import { loadGiftPrices } from '@/lib/cardCatalogueServer';
+import { isPurchasableProduct } from '@/lib/storefrontAvailability';
 import { loadGiftTags } from '@/lib/giftTagCatalogueServer';
 import { verifyMemoryUpload } from '@/lib/verifyMemoryUpload';
 import {
@@ -81,6 +82,15 @@ export async function POST(
     const body =
       await request.json();
 
+    if (body.copyrightDeclarationAccepted !== true) {
+      return NextResponse.json(
+        { error: 'You must confirm that you have permission to reproduce the content supplied.' },
+        { status: 400 }
+      );
+    }
+
+    const copyrightAcceptedAt = new Date().toISOString();
+
     const cart =
       Array.isArray(body.cart)
         ? (
@@ -100,6 +110,11 @@ export async function POST(
           status: 400,
         }
       );
+    }
+
+    if (cart.some(item => !isPurchasableProduct(item?.productSlug) ||
+        (item?.productSlug === 'memory-tag' && item.productType !== 'product'))) {
+      return NextResponse.json({ error: 'Only Memory Gift Tags are available to order right now.' }, { status: 400 });
     }
 
     const auth =
@@ -646,9 +661,17 @@ export async function POST(
             item.imageUrl ||
             null,
 
-          personalisation:
-            item.personalisation ||
-            null,
+          personalisation: {
+            ...(item.personalisation && typeof item.personalisation === 'object' && !Array.isArray(item.personalisation)
+              ? item.personalisation as Record<string, unknown>
+              : {}),
+            copyrightDeclaration: {
+              version: '2026-11-14-v1',
+              accepted: true,
+              acceptedAt: copyrightAcceptedAt,
+              customerEmail,
+            },
+          },
         })
       );
 

@@ -86,6 +86,10 @@ export default async function AdminProtectedLayout({
                 '12px',
             }}
           >
+            <Link href="/" style={{ fontWeight: 700 }}>
+              View Full Website
+            </Link>
+
             <Link href="/admin">
               Dashboard
             </Link>

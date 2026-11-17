@@ -1,3 +1,4 @@
+import { isPurchasableProduct } from '@/lib/storefrontAvailability';
 import {
   NextResponse,
 } from 'next/server';
@@ -115,6 +116,7 @@ export async function POST(
         .select(
           `
             product_name,
+            product_slug,
             quantity,
             unit_price_pence
           `
@@ -135,6 +137,10 @@ export async function POST(
           'Order items could not be loaded.'
         )
       );
+    }
+
+    if (items.some(item => !isPurchasableProduct(item.product_slug))) {
+      return NextResponse.json({ error: 'Only Memory Gift Tags are available to order right now.' }, { status: 400 });
     }
 
     const itemTotal =

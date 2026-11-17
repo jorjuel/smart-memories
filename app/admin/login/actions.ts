@@ -74,5 +74,5 @@ export async function adminLogin(
     );
   }
 
-  redirect('/admin');
+  redirect('/');
 }

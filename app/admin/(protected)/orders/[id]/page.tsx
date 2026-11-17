@@ -259,6 +259,18 @@ export default async function AdminOrderDetailPage({
   const order =
     data as unknown as Order;
 
+  const copyrightDeclarations = order.order_items.map((item) => {
+    const personalisation = item.personalisation && typeof item.personalisation === 'object' && !Array.isArray(item.personalisation)
+      ? item.personalisation as Record<string, unknown>
+      : {};
+    const declaration = personalisation.copyrightDeclaration;
+    return declaration && typeof declaration === 'object' && !Array.isArray(declaration)
+      ? declaration as Record<string, unknown>
+      : null;
+  });
+  const rightsConfirmed = copyrightDeclarations.length > 0 && copyrightDeclarations.every((entry) => entry?.accepted === true);
+  const rightsAcceptedAt = copyrightDeclarations.find((entry) => typeof entry?.acceptedAt === 'string')?.acceptedAt;
+
   const codes =
     order.order_items
       .map(
@@ -581,6 +593,14 @@ export default async function AdminOrderDetailPage({
             )}
           </span>
         </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 18, marginBottom: 18 }}>
+        <h2>Copyright and content rights review</h2>
+        <p><strong>Customer declaration: {rightsConfirmed ? 'Accepted' : 'Not recorded / legacy order'}</strong></p>
+        {typeof rightsAcceptedAt === 'string' && <p>Recorded: {rightsAcceptedAt}</p>}
+        <p>Before production, check uploaded photographs, artwork, logos, audio and video for obvious third-party rights concerns. A customer declaration is not proof of a licence.</p>
+        <p>If permission is unclear, request evidence and use the existing production status <strong>On Hold</strong> until resolved. Refuse or cancel infringing orders under the published terms.</p>
       </div>
 
       {query.saved === 'status' && (

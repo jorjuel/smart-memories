@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useGiftTags } from '@/lib/useGiftTags';
+import { giftTagsOnly } from '@/lib/storefrontAvailability';
 import { uploadMemoryMedia } from '@/lib/memoryMediaUpload';
 import { getProductPricePence } from '@/lib/pricing';
 import { Suspense, useEffect, useState } from 'react';
@@ -191,10 +192,10 @@ function BowColourContent() {
     <div className="smBowIntro">
       <span className="v14Eyebrow">MEMORY ONLY · FINAL STEP</span>
       <h1>Your Smart Memory is ready</h1>
-      <p>Choose a satin bow for a tag you can attach to your own present, or add the digital memory on its own.</p>
+      <p>Choose a satin bow for a tag you can attach to your own present.</p>
       <p className="smBowMemoryReference">Memory reference: <strong>{code}</strong> · <Link href={`/m/${code}`}>View memory</Link></p>
     </div>
-    <section className="smDigitalMemoryCheckout">
+    {!giftTagsOnly && <section className="smDigitalMemoryCheckout">
       <div>
         <span className="v14Eyebrow">SMART MEMORY ALONE</span>
         <h2>Digital Smart Memory — £{digitalPrice.toFixed(2)}</h2>
@@ -204,7 +205,7 @@ function BowColourContent() {
         onClick={addDigitalMemoryToBasket}>
         Add digital memory to basket
       </button>
-    </section>
+    </section>}
     {error && <p role="alert" className="smBowError">{error}</p>}
     {!design && <p role="status">{!designId ? 'Choose a tag design to preview it with a bow.' : tagsFailed ? 'Could not load Gift Tags.' : tags ? 'This tag is unavailable.' : 'Loading your Gift Tag…'}
       {' '}<Link href={{ pathname: '/tags', query: { code } }}>Browse Gift Tags</Link></p>}
