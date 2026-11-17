@@ -105,7 +105,7 @@ const retiredDesignIds = new Set([
   'blue-daisies', 'golden-ginkgo', 'template-spring-daffodils',
   'woodland-toadstool', 'flower-bouquet', 'blue-butterfly',
   'template-bright-blue-butterfly', 'template-two-blue-butterflies',
-  'pink-flamingo', 'template-bouquet-dog',
+  'pink-flamingo', 'template-bouquet-dog', 'dog-with-wildflowers',
   'jellyfish', 'wedding-ivory-roses', 'wedding-blush-peonies',
   'wedding-olive-branches', 'wedding-rings',
 ]);
