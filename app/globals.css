@@ -14315,3 +14315,32 @@ label.smCustomTagPhotoOption input[type="checkbox"] {
   height: auto;
   border-radius: 20px;
 }
+
+.smHomeKeepsakes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.smHomeKeepsakes .smMemoryPathCard { padding: 12px; gap: 12px; }
+.smHomeKeepsakes h3 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: clamp(18px, 1.8vw, 22px);
+}
+.smHomeKeepsakes h3 [aria-hidden] { flex-shrink: 0; }
+.smHomeKeepsakeImage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f3e6df;
+}
+.smHomeKeepsakeImage img { object-fit: cover; }
+@media (max-width: 800px) {
+  .smHomeKeepsakes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .smHomeKeepsakes { grid-template-columns: 1fr; }
+}
