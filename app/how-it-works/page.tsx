@@ -4,9 +4,9 @@ const steps = [
   {
     number: '01',
     title:
-      'Choose your gift',
+      'Choose your gift tag',
     text:
-      'Choose the physical gift that feels right for the person, occasion or memory.',
+      'Pick a Memory Gift Tag design for the gift you’re giving.',
   },
 
   {
@@ -20,9 +20,9 @@ const steps = [
   {
     number: '03',
     title:
-      'We create your Smart Gift',
+      'We prepare your tag',
     text:
-      'Your physical gift is personalised and connected to its unique Smart Memory.',
+      'We link the tag to your Smart Memory. Tie it to your gift when it arrives.',
   },
 
   {
@@ -57,11 +57,7 @@ export default function HowItWorksPage() {
         </h1>
 
         <p>
-          Smart Memories connects a
-          personalised physical gift
-          to the photographs, words,
-          voices and moments behind
-          it.
+          A Memory Gift Tag adds your photos, words and voice to a gift you’ve chosen.
         </p>
 
         <div className="howMemoryNoApp">
@@ -70,7 +66,7 @@ export default function HowItWorksPage() {
           </strong>
 
           <span>
-            Tap the gift or scan
+            Tap the tag or scan
             its QR code and the
             memory opens in the
             phone browser.
@@ -126,7 +122,7 @@ export default function HowItWorksPage() {
 
         <Link
           className="btn big"
-          href="/create"
+          href="/tags"
         >
           Create a Memory
         </Link>

@@ -251,7 +251,7 @@ export default async function AccountPage() {
         </div>
 
         <Link
-          href="/create"
+          href="/tags"
           className="btn big"
         >
           Create a New Smart
@@ -313,7 +313,7 @@ export default async function AccountPage() {
             moment
           </span>
 
-          <Link href="/create">
+          <Link href="/tags">
             Create Memory →
           </Link>
         </article>
@@ -355,7 +355,7 @@ export default async function AccountPage() {
             </p>
 
             <Link
-              href="/create"
+              href="/tags"
               className="btn"
             >
               Create My First
@@ -415,7 +415,7 @@ export default async function AccountPage() {
             </p>
 
             <Link
-              href="/shop"
+              href="/tags"
               className="btn"
             >
               Explore Smart Gifts

@@ -1,5 +1,7 @@
 import { loadGiftPrices } from '@/lib/cardCatalogueServer';
+import { isPurchasableProduct } from '@/lib/storefrontAvailability';
 import { loadGiftTags } from '@/lib/giftTagCatalogueServer';
+import { verifyMemoryUpload } from '@/lib/verifyMemoryUpload';
 import {
   NextResponse,
 } from 'next/server';
@@ -108,6 +110,11 @@ export async function POST(
           status: 400,
         }
       );
+    }
+
+    if (cart.some(item => !isPurchasableProduct(item?.productSlug) ||
+        (item?.productSlug === 'memory-tag' && item.productType !== 'product'))) {
+      return NextResponse.json({ error: 'Only Memory Gift Tags are available to order right now.' }, { status: 400 });
     }
 
     const auth =
@@ -264,12 +271,25 @@ export async function POST(
                 const allowedBowColours = [
                   'rose-gold', 'champagne', 'ivory', 'blush', 'burgundy', 'sage',
                 ];
-                const tagDesign = personalisation.tagDesignId === undefined ? undefined :
+                const customTag = personalisation.tagDesignId === 'custom';
+                const tagDesign = customTag || personalisation.tagDesignId === undefined ? undefined :
                   (await loadGiftTags(true)).find(design => design.id === personalisation.tagDesignId);
-                if (personalisation.tagDesignId !== undefined && !tagDesign) {
+                if (!customTag && personalisation.tagDesignId !== undefined && !tagDesign) {
                   throw new Error('Select a valid gift tag design before ordering.');
                 }
-                if (tagDesign) {
+                if (customTag) {
+                  const path = personalisation.artworkPath;
+                  if (typeof path !== 'string' || !/\.(jpg|png|webp)$/.test(path)) {
+                    throw new Error('Upload an image for your custom gift tag.');
+                  }
+                  const artwork = await verifyMemoryUpload(admin, path, 'image');
+                  if (!artwork.url) throw new Error(artwork.error);
+                  if (!['image/jpeg', 'image/png', 'image/webp'].includes(artwork.mimeType)) {
+                    throw new Error('Choose a JPEG, PNG or WebP image for your custom gift tag.');
+                  }
+                  orderPersonalisation = { ...personalisation, tagDesign: 'Your own tag design' };
+                  orderImageUrl = artwork.url;
+                } else if (tagDesign) {
                   orderPersonalisation = { ...personalisation, tagDesign: tagDesign.name };
                   orderImageUrl = tagDesign.image;
                 } else {

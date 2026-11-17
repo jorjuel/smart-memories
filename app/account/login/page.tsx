@@ -165,7 +165,7 @@ export default async function CustomerLoginPage({
           </p>
 
           <Link
-            href="/shop"
+            href="/tags"
             className="btn secondary"
           >
             Continue as Guest

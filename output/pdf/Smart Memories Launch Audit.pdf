@@ -1,0 +1,64 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 3193 >>
+stream
+BT 0.56 0.25 0.30 rg /F2 11 Tf 48 801 Td (SMART MEMORIES) Tj ET
+BT 0.20 0.16 0.17 rg /F2 30 Tf 48 769 Td (Website launch audit) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 734 Td (14 November 2026  |  Launch checklist) Tj ET
+BT 0.20 0.16 0.17 rg /F2 14 Tf 48 705 Td (Ready for staging review. Keep live payments off.) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 686 Td (27 local routes responded successfully, 72 automated tests passed, and all four) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 670 Td (Personalised Gifts photos were reachable. These checks covered page availability. The) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 654 Td (production build and current end-to-end checkout and fulfilment tests remain pending.) Tj ET
+BT 0.20 0.16 0.17 rg /F2 13 Tf 48 631 Td (1. Publish business details and final policies) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 613 Td (Confirm the sole trader legal name, geographical business address, direct support email) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 597 Td (and returns arrangement. Update Terms, Contact, Returns and Privacy. Document access,) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 581 Td (retention and deletion for customer photos, audio and video.) Tj ET
+BT 0.20 0.16 0.17 rg /F2 13 Tf 48 558 Td (2. Confirm delivery and fulfilment) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 540 Td (Check the advertised GBP 3.95 standard and GBP 6.95 express against packed weights,) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 524 Td (especially bundles. Confirm coverage, production times, express service and the process) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 508 Td (for damaged or missing parcels.) Tj ET
+BT 0.20 0.16 0.17 rg /F2 13 Tf 48 485 Td (3. Run test orders on the release) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 467 Td (Test a Memory Tag, personalised gift with media, handmade card and bundle. Check mobile) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 451 Td (personalisation, delivery totals, payment success and cancellation, emails and admin) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 435 Td (orders. Scan QR codes and tap NFC tags on real phones to verify playback.) Tj ET
+BT 0.20 0.16 0.17 rg /F2 13 Tf 48 412 Td (4. Verify the production deployment) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 394 Td (Reconcile the branch with its remote, include the new homepage assets and run a production) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 378 Td (build. Verify Supabase, Stripe webhooks, account emails and the contact form. After sign-) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 362 Td (off, run one controlled live payment and refund.) Tj ET
+BT 0.20 0.16 0.17 rg /F2 13 Tf 48 339 Td (Before announcing the site) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 321 Td (Add a public sitemap and robots rules. Both currently return 404 locally. Exclude private) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 305 Td (memory and account URLs from the sitemap.) Tj ET
+BT 0.20 0.16 0.17 rg /F2 13 Tf 48 282 Td (First input needed) Tj ET
+BT 0.20 0.16 0.17 rg /F1 11 Tf 48 264 Td (Legal trader name, business address, support email and returns arrangement.) Tj ET
+BT 0.20 0.16 0.17 rg /F1 9 Tf 48 241 Td (References: GOV.UK online selling guidance and ICO privacy notice guidance.) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000000396 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+3641
+%%EOF

@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { maintenancePageHtml } from './lib/maintenancePage';
+import { giftTagsOnly } from './lib/storefrontAvailability';
 import {
   isMaintenanceActive,
   isMaintenanceOwner,
@@ -105,6 +106,13 @@ export async function proxy(request: NextRequest) {
    * Preserve the existing customer-session refresh when maintenance is
    * switched off, and for an authorised owner previewing the site.
    */
+  const { pathname, searchParams } = request.nextUrl;
+  const hiddenCollection = /^\/(shop|cards|bundles|occasions|personalise|gift|slate)(\/|$)/.test(pathname);
+  const hiddenCreator = pathname === '/create' && (searchParams.get('mode') === 'gift' || searchParams.has('product'));
+  if (giftTagsOnly && (hiddenCollection || hiddenCreator)) {
+    return NextResponse.redirect(new URL('/tags', request.url));
+  }
+
   let response = NextResponse.next({ request });
 
   if (url && key) {

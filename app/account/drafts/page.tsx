@@ -32,7 +32,7 @@ export default async function MyDraftsPage() {
           <h1>My Drafts</h1>
           <p>Pick up where you left off. Saved drafts are private to your verified account.</p>
         </div>
-        <Link href="/shop" className="btn big">Create a New Gift</Link>
+        <Link href="/tags" className="btn big">Create a New Gift</Link>
       </section>
       {error ? (
         <section className="smMemoryLoadError">
@@ -43,7 +43,7 @@ export default async function MyDraftsPage() {
         <section className="smMemoryEmpty">
           <h2>No unfinished drafts</h2>
           <p>When you start personalising a gift while signed in, your progress will appear here after it has been saved.</p>
-          <Link href="/shop" className="btn">Explore Gifts</Link>
+          <Link href="/tags" className="btn">Explore Gifts</Link>
         </section>
       ) : (
         <section className="smMemoryLibraryGrid">

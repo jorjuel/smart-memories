@@ -279,7 +279,7 @@ export default async function CustomerOrdersPage() {
         </div>
 
         <Link
-          href="/create"
+          href="/tags"
           className="btn big"
         >
           Create a New Memory
@@ -332,7 +332,7 @@ export default async function CustomerOrdersPage() {
             </p>
 
             <Link
-              href="/shop"
+              href="/tags"
               className="btn big"
             >
               Explore Smart Gifts

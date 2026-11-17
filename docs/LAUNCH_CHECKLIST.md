@@ -9,6 +9,7 @@ This is an operational checklist, not a statement of legal compliance.
 - [x] Sandbox/test payments labelled in the owner dashboard.
 
 ## Customer journey — still requires manual browser tests
+- [ ] Record the kids’ message for Grandma, replace the synthetic audio on `/m/sample`, and verify playback.
 - [ ] Create a new customer account; confirm email; sign in; sign out.
 - [ ] Close browser/reopen; confirm session persistence.
 - [ ] Request password recovery; follow email; update password; sign in.
