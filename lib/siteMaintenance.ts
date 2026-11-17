@@ -4,8 +4,9 @@
  * Maintenance is ON by default. Set SITE_MAINTENANCE_MODE=false
  * to restore the public website.
  */
-export function isMaintenanceActive(value: string | undefined): boolean {
-  return value?.trim().toLowerCase() !== 'false';
+export function isMaintenanceActive(value: string | undefined, environment?: string): boolean {
+  const setting = value?.trim().toLowerCase();
+  return setting ? setting !== 'false' : environment !== 'preview';
 }
 
 /**

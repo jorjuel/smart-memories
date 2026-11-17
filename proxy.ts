@@ -50,7 +50,7 @@ export async function proxy(request: NextRequest) {
   const adminCookieWrites: Array<(response: NextResponse) => void> = [];
   const adminAuthHeaders = new Headers();
 
-  if (isMaintenanceActive(process.env.SITE_MAINTENANCE_MODE)) {
+  if (isMaintenanceActive(process.env.SITE_MAINTENANCE_MODE, process.env.VERCEL_ENV)) {
     const pathname = request.nextUrl.pathname;
 
     // Password recovery must stay possible. The Stripe webhook validates
