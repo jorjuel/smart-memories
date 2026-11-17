@@ -2,6 +2,7 @@
 
 import {
   Suspense,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -20,8 +21,8 @@ import {
   products,
 } from '../../lib/products';
 import Link from 'next/link';
-
 import CreateMemoryJourney from '../../components/CreateMemoryJourney';
+
 import { uploadMemoryMedia, readMemorySaveResult } from '@/lib/memoryMediaUpload';
 import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
 import { useGiftPrice } from '@/lib/useCataloguePhoto';
@@ -35,8 +36,13 @@ function CreateContent() {
     searchParams.get('product');
   const mode = searchParams.get('mode');
   const memoryOnly = mode === 'tag';
-  const { tags, failed: tagsFailed } = useGiftTags(memoryOnly);
-  const tagDesign = tags?.find(design => design.id === searchParams.get('design'));
+  const [selectedDesign, ...selectedNext] = searchParams.getAll('selection');
+  const designId = searchParams.get('design') ?? selectedDesign;
+  const customTag = memoryOnly && designId === 'custom';
+  const { tags, failed: tagsFailed } = useGiftTags(memoryOnly && !customTag);
+  const tagDesign = customTag
+    ? { id: 'custom', name: 'Your own tag design' }
+    : tags?.find(design => design.id === designId);
   const memoryWithGift = mode === 'gift';
 
   const product = productSlug
@@ -62,6 +68,18 @@ function CreateContent() {
 
   const [photo, setPhoto] =
     useState<File>();
+  const [tagArtwork, setTagArtwork] = useState<File>();
+  const [tagArtworkPreview, setTagArtworkPreview] = useState('');
+  useEffect(() => {
+    if (!customTag || !tagArtwork) {
+      setTagArtworkPreview('');
+      return;
+    }
+    const url = URL.createObjectURL(tagArtwork);
+    setTagArtworkPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [customTag, tagArtwork]);
+  const [useTagPhoto, setUseTagPhoto] = useState(false);
 
   const [photoUrl, setPhotoUrl] =
     useState('');
@@ -274,9 +292,15 @@ function CreateContent() {
     }
 
     const usingVideo = memoryOnly && tagMediaMode === 'video';
+    if (customTag && (!tagArtwork || !['image/jpeg', 'image/png', 'image/webp'].includes(tagArtwork.type) ||
+        tagArtwork.size < 1 || tagArtwork.size > 10 * 1024 * 1024)) {
+      alert('Choose a JPEG, PNG or WebP image up to 10 MB to print on your tag.');
+      return;
+    }
+    const reuseArtwork = customTag && useTagPhoto && !usingVideo;
     if (!hasMeaningfulMemoryContent({
       message,
-      photo: !usingVideo && Boolean(photo),
+      photo: !usingVideo && Boolean(reuseArtwork ? tagArtwork : photo),
       audio: !usingVideo && Boolean(audio),
       video: usingVideo && Boolean(video),
     })) {
@@ -313,7 +337,12 @@ function CreateContent() {
         sender
       );
 
-      if (photo) {
+      if (customTag && tagArtwork) {
+        const artworkPath = await uploadMemoryMedia(tagArtwork, 'photo');
+        sessionStorage.setItem(`sm-tag-artwork:${code}`, artworkPath);
+        if (reuseArtwork) formData.set('photoPath', artworkPath);
+      }
+      if (photo && !reuseArtwork && !usingVideo) {
         const photoPath = await uploadMemoryMedia(photo, 'photo');
         formData.set('photoPath', photoPath);
       }
@@ -354,7 +383,9 @@ setSavedPhotoUrl(permanentPhotoUrl);
       if (memoryOnly && tagDesign) {
         // The memory is persisted before the customer chooses their bow.
         // Only the non-sensitive code is carried through the address bar.
-        router.push(`/create/bow?${new URLSearchParams({ code, design: tagDesign.id })}`);
+        const query = new URLSearchParams({ code, design: tagDesign.id });
+        [...selectedNext, ...searchParams.getAll('nextDesign')].forEach(id => query.append('nextDesign', id));
+        router.push(`/create/bow?${query}`);
       }
     } catch (error) {
       alert(
@@ -440,8 +471,8 @@ setSavedPhotoUrl(permanentPhotoUrl);
       );
     }
   }
-  if (memoryOnly && tagsFailed) return <p role="alert">Could not load the Gift Tag. Please reload and try again.</p>;
-  if (memoryOnly && !tags) return <p role="status">Loading your Gift Tag…</p>;
+  if (memoryOnly && !customTag && tagsFailed) return <p role="alert">Could not load the Gift Tag. Please reload and try again.</p>;
+  if (memoryOnly && !customTag && !tags) return <p role="status">Loading your Gift Tag…</p>;
   if (memoryOnly && !tagDesign) redirect('/tags');
 
   const directMode =
@@ -575,10 +606,34 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </fieldset>
           )}
 
+          {customTag && (<>
+            <label>
+              Image to print on your tag
+              <input type="file" accept="image/jpeg,image/png,image/webp" disabled={saving}
+                onChange={(event) => setTagArtwork(event.target.files?.[0])} />
+              <small>This image goes on the physical tag. Choose separately what the recipient sees after tapping or scanning.</small>
+            </label>
+            {tagArtworkPreview && (
+              <figure className="smCustomTagPreview">
+                <div className="smCustomTagMockup">
+                  <img src={tagArtworkPreview} alt="Your uploaded artwork on the front of the gift tag" />
+                </div>
+                <figcaption>Printed tag preview</figcaption>
+              </figure>
+            )}
+          </>)}
           {(!memoryOnly || tagMediaMode === 'photo') && (
             <>
+          {customTag && (
+            <label className="smCustomTagPhotoOption">
+              <input type="checkbox" checked={useTagPhoto} disabled={saving}
+                onChange={(event) => setUseTagPhoto(event.target.checked)} />
+              <span>Use the same image in my Smart Memory</span>
+            </label>
+          )}
+          {(!customTag || !useTagPhoto) && <>
           <label>
-            Photograph
+            {customTag ? 'Add a different photo to your Smart Memory (optional)' : 'Photograph'}
 
             <input
               type="file"
@@ -598,6 +653,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
               alt="Preview"
             />
           )}
+          </>}
 
           <div>
             <b>

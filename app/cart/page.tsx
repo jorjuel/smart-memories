@@ -304,6 +304,10 @@ export default function CartPage() {
                   </small>
                 )}
 
+                {item.productSlug === 'memory-tag' && item.memoryCode && (
+                  <Link href={{ pathname: '/tags', query: { code: item.memoryCode } }}>Choose another tag for this memory</Link>
+                )}
+
                 {item.personalisationId && (
                   <small className="basketReference">
                     Personalisation reference:{' '}

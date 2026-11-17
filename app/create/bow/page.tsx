@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useGiftTags } from '@/lib/useGiftTags';
+import { uploadMemoryMedia } from '@/lib/memoryMediaUpload';
 import { getProductPricePence } from '@/lib/pricing';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -26,8 +27,29 @@ function BowColourContent() {
   const [colour, setColour] = useState<string>('rose-gold');
   const [savedDesignId, setSavedDesignId] = useState<string>();
   const { tags, failed: tagsFailed } = useGiftTags(validCode);
-  const designId = query.get('design') ?? savedDesignId;
-  const design = designId ? tags?.find(item => item.id === designId) : tags?.[0];
+  const [selectedDesign, ...selectedNext] = query.getAll('selection');
+  const [nextDesign, ...remaining] = [...selectedNext, ...query.getAll('nextDesign')];
+  const reuseMemory = Boolean(selectedDesign) || query.get('reuseMemory') === '1';
+  const designId = query.get('design') ?? selectedDesign ?? savedDesignId;
+  const customTag = designId === 'custom';
+  const design = customTag ? { id: 'custom', name: 'Your own tag design', image: '' }
+    : tags?.find(item => item.id === designId);
+  const [artwork, setArtwork] = useState<File>();
+  const [savedArtwork, setSavedArtwork] = useState<{ code: string; path: string }>();
+  const savedArtworkPath = savedArtwork?.code === code ? savedArtwork.path : undefined;
+  const artworkUrl = savedArtworkPath
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/memory-media/${savedArtworkPath}`
+    : '';
+  const [artworkPreview, setArtworkPreview] = useState('');
+  useEffect(() => {
+    if (!artwork) {
+      setArtworkPreview('');
+      return;
+    }
+    const url = URL.createObjectURL(artwork);
+    setArtworkPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [artwork]);
   const [submitting, setSubmitting] = useState(false);
   const [pricePence, setPricePence] = useState<number|null>(null);
   const [checking, setChecking] = useState(true);
@@ -36,6 +58,8 @@ function BowColourContent() {
   useEffect(() => {
     if (!validCode) return;
     try {
+      const path = sessionStorage.getItem(`sm-tag-artwork:${code}`);
+      if (path) setSavedArtwork({ code, path });
       const stored = localStorage.getItem(`sm-bow-choice:${code}`);
       const parsed = stored ? JSON.parse(stored) : null;
       if (colours.some(item => item.id === parsed?.colour)) {
@@ -91,21 +115,32 @@ function BowColourContent() {
     }
   }
 
-  function addTagToBasket() {
-    if (!design) return;
+  async function addTagToBasket() {
+    if (!design || (customTag && !artwork && !savedArtworkPath)) return;
     if (!validCode || !pricePence || submitting) return;
     const selected = colours.find(item => item.id === colour);
     if (!selected) return;
     setSubmitting(true);
     setError('');
     try {
+      const artworkPath = customTag
+        ? artwork ? await uploadMemoryMedia(artwork, 'photo') : savedArtworkPath
+        : undefined;
+      const imageUrl = artworkPath
+        ? new URL(`/storage/v1/object/public/memory-media/${artworkPath}`, process.env.NEXT_PUBLIC_SUPABASE_URL).href
+        : design.image;
       localStorage.setItem(`sm-bow-choice:${code}`, JSON.stringify({colour,code,designId:design.id}));
       const existing = JSON.parse(localStorage.getItem('smart-memories-cart') || '[]');
       const basket = Array.isArray(existing) ? existing : [];
-      // Replace an earlier unfinished entry for this exact memory tag so a
-      // returning customer does not accidentally buy two copies.
-      const previous = basket.findIndex((item: {productSlug?: string;memoryCode?: string}) =>
-        item.productSlug === 'memory-tag' && item.memoryCode === code
+      const previous = basket.findIndex((item: {
+        productSlug?: string;
+        memoryCode?: string;
+        personalisation?: { tagDesignId?: string; bowColourId?: string; artworkPath?: string };
+      }) =>
+        item?.productSlug === 'memory-tag' && item.memoryCode === code &&
+        item.personalisation?.tagDesignId === design.id &&
+        item.personalisation.bowColourId === selected.id &&
+        item.personalisation.artworkPath === artworkPath
       );
       const line = {
         id: previous >= 0 && typeof basket[previous]?.id === 'string'
@@ -116,14 +151,15 @@ function BowColourContent() {
         category:'Smart Memory Tags',
         memoryCode: code,
         design: design.name,
-        imageUrl: design.image,
+        imageUrl,
         price:pricePence/100,
-        quantity:1,
+        quantity: previous >= 0 ? basket[previous].quantity : 1,
         personalisation:{
           bowColour: selected.name,
           bowColourId: selected.id,
           tagDesign: design.name,
           tagDesignId: design.id,
+          artworkPath,
           finish:'decorative satin bow',
           memoryCode:code,
         },
@@ -131,9 +167,15 @@ function BowColourContent() {
       if (previous >= 0) basket[previous] = line;
       else basket.push(line);
       localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
-      router.push('/cart');
-    } catch {
-      setError('Could not add your tag to the basket. Please check your browser storage settings and try again.');
+      if (nextDesign) {
+        const next = new URLSearchParams(reuseMemory ? { code, design: nextDesign, reuseMemory: '1' } : { mode: 'tag', design: nextDesign });
+        remaining.forEach(id => next.append('nextDesign', id));
+        window.location.assign(`${reuseMemory ? '/create/bow' : '/create'}?${next}`);
+      } else {
+        router.push('/cart');
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Could not add your tag to the basket. Please try again.');
       setSubmitting(false);
     }
   }
@@ -149,7 +191,7 @@ function BowColourContent() {
     <div className="smBowIntro">
       <span className="v14Eyebrow">MEMORY ONLY · FINAL STEP</span>
       <h1>Your Smart Memory is ready</h1>
-      <p>Choose a satin bow for a tag you can attach to your own present, or add the digital memory on its own.</p>
+      <p>Choose a satin bow for a tag you can attach to your own present.</p>
       <p className="smBowMemoryReference">Memory reference: <strong>{code}</strong> · <Link href={`/m/${code}`}>View memory</Link></p>
     </div>
     <section className="smDigitalMemoryCheckout">
@@ -164,15 +206,25 @@ function BowColourContent() {
       </button>
     </section>
     {error && <p role="alert" className="smBowError">{error}</p>}
-    {!design && <p role="status">{tagsFailed ? 'Could not load Gift Tags.' : tags ? 'This tag is unavailable.' : 'Loading your Gift Tag…'}
+    {!design && <p role="status">{!designId ? 'Choose a tag design to preview it with a bow.' : tagsFailed ? 'Could not load Gift Tags.' : tags ? 'This tag is unavailable.' : 'Loading your Gift Tag…'}
       {' '}<Link href={{ pathname: '/tags', query: { code } }}>Browse Gift Tags</Link></p>}
     {design && <>
-    <p className="smPhysicalBowDivider">Choose a bow colour for your gift tag.</p>
+    <p className="smPhysicalBowDivider">Choose a bow colour for {design.name}.</p>
     <div className="smBowLayout">
       <div className="smBowPreview">
-        <Image className="smTagDesignPreview" src={design.image} width={300} height={390}
-          sizes="(max-width: 600px) 65vw, 280px" alt={design.name} unoptimized={design.image.startsWith('https://')} />
+        {(customTag ? artworkPreview || artworkUrl : design.image) && <Image className="smTagDesignPreview" src={customTag ? artworkPreview || artworkUrl : design.image} width={300} height={390}
+          sizes="(max-width: 600px) 65vw, 280px" alt={design.name} unoptimized={customTag || design.image.startsWith('https://')} />}
         <strong>{design.name}</strong>
+        {customTag && !savedArtworkPath && <label>
+          Upload the image to print on your tag (JPEG, PNG or WebP, up to 10 MB)
+          <input type="file" accept="image/jpeg,image/png,image/webp" disabled={submitting}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              const valid = file && ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size > 0 && file.size <= 10 * 1024 * 1024;
+              setArtwork(valid ? file : undefined);
+              setError(file && !valid ? 'Choose a JPEG, PNG or WebP image up to 10 MB.' : '');
+            }} />
+        </label>}
         <small>Selected bow: {colours.find(item=>item.id===colour)?.name}</small>
         <Link href={{ pathname: '/tags', query: { code } }}>Change tag design</Link>
       </div>
@@ -194,9 +246,9 @@ function BowColourContent() {
           <strong>Memory Tag with satin bow{pricePence ? ` — £${(pricePence / 100).toFixed(2)}` : ''}</strong>
           <small>Delivery is calculated at checkout.</small>
           <button className="btn big" type="button"
-            disabled={checking || !pricePence || submitting}
+            disabled={checking || !pricePence || submitting || (customTag && !artwork && !savedArtworkPath)}
             onClick={addTagToBasket}>
-            {submitting ? 'Adding to basket…' : checking ? 'Checking price…' : 'Add tag to basket'}
+            {submitting ? 'Adding to basket…' : checking ? 'Checking price…' : nextDesign ? 'Add tag and continue to next' : 'Add tag to basket'}
           </button>
           <Link href={`/m/${code}`}>View your saved memory</Link>
         </div>
