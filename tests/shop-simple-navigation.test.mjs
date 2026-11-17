@@ -40,18 +40,17 @@ test('memory choice cards appear immediately beneath the introductory sentence',
  assert.match(shop,/Memory \+ Gift/);
 });
 
-test('shop lists individual gifts and homepage links to four keepsake collections in order',()=>{
+test('shop lists individual gifts and homepage promotes only Memory Gift Tags',()=>{
  const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
  assert.deepEqual(
    shopGiftProducts.map((product) => product.slug),
    ['smart-photo-slate', 'photo-mug', 'coaster-set', 'mouse-mat'],
  );
  assert.match(shop,/const filtered = shopGiftProducts\.filter/);
- assert.deepEqual(
-   [...home.matchAll(/title: '[^']+', href: '([^']+)'/g)].map(([, href]) => href),
-   ['/tags', '/shop#gifts', '/cards', '/bundles'],
- );
- assert.match(home,/keepsakeCollections\.map/);
+ assert.match(home, /export \{ default \} from '\.\/tags\/page'/);
+ const storefront = readFileSync(new URL('../app/tags/page.tsx', import.meta.url), 'utf8');
+ assert.match(storefront, /<GiftTagSelection/);
+ assert.doesNotMatch(storefront, /\/(shop|cards|bundles|occasions)\b/);
 });
 
 test('each memory choice has the matching reference photograph',()=>{

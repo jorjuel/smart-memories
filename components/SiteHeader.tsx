@@ -28,11 +28,6 @@ export default function SiteHeader() {
 
         <nav className="smDesktopNav" aria-label="Main navigation">
           <Link href="/tags" className={pathname.startsWith('/tags') ? 'smNavActive' : undefined}>Gift Tags</Link>
-          <Link href="/shop#gifts" className={pathname.startsWith('/shop') ? 'smNavActive' : undefined}>
-            Personalised Gifts
-          </Link>
-          <Link href="/cards" className={pathname.startsWith('/cards') ? 'smNavActive' : undefined}>Handmade Cards</Link>
-          <Link href="/bundles" className={pathname.startsWith('/bundles') ? 'smNavActive' : undefined}>Gift Bundles</Link>
           <Link
             href="/how-it-works"
             className={pathname === '/how-it-works' ? 'smNavActive' : undefined}

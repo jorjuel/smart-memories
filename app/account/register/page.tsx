@@ -152,7 +152,7 @@ export default async function CustomerRegisterPage({
           </p>
 
           <Link
-            href="/shop"
+            href="/tags"
             className="btn secondary"
           >
             Continue as Guest

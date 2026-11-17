@@ -206,18 +206,12 @@ export default function CartPage() {
           </p>
 
           <Link
-            href="/shop"
+            href="/tags"
             className="btn big basketCheckoutButton"
           >
-            Shop Smart Gifts →
+            Shop Gift Tags →
           </Link>
 
-          <Link
-            href="/cards"
-            className="basketContinue"
-          >
-            Browse handcrafted cards
-          </Link>
         </div>
       </section>
     );
@@ -302,6 +296,11 @@ export default function CartPage() {
                     Memory reference:{' '}
                     {item.memoryCode}
                   </small>
+                )}
+                {item.productSlug === 'memory-tag' && item.memoryCode && (
+                  <Link href={{ pathname: '/tags', query: { code: item.memoryCode } }}>
+                    Choose another tag for this memory
+                  </Link>
                 )}
 
                 {item.personalisationId && (
@@ -412,7 +411,7 @@ export default function CartPage() {
           </Link>
 
           <Link
-            href="/shop"
+            href="/tags"
             className="basketContinue"
           >
             Continue shopping

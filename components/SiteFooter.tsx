@@ -52,17 +52,7 @@ export default function SiteFooter() {
             CREATE
           </strong>
 
-          <Link href="/shop">
-            Smart Gifts
-          </Link>
-
-          <Link href="/cards">
-            Smart Cards
-          </Link>
-
-          <Link href="/occasions">
-            Shop by Occasion
-          </Link>
+          <Link href="/tags">Memory Gift Tags</Link>
         </div>
 
         <div>

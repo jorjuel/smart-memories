@@ -435,7 +435,7 @@ export default function CheckoutPage() {
             </Link>
 
             <Link
-              href="/shop"
+              href="/tags"
               className="btn secondary"
             >
               Continue Shopping
@@ -515,7 +515,7 @@ export default function CheckoutPage() {
             </Link>
 
             <Link
-              href="/shop"
+              href="/tags"
               className="btn secondary"
             >
               Continue Shopping
@@ -549,7 +549,7 @@ export default function CheckoutPage() {
 
           <Link
             className="btn"
-            href="/shop"
+            href="/tags"
           >
             Browse gifts
           </Link>
