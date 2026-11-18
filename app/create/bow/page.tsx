@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useGiftTags } from '@/lib/useGiftTags';
 import { uploadMemoryMedia } from '@/lib/memoryMediaUpload';
-import { getProductPricePence } from '@/lib/pricing';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -16,8 +15,6 @@ const colours = [
   { id:'burgundy', name:'Burgundy', value:'#743246' },
   { id:'sage', name:'Sage Green', value:'#a4b19d' },
 ] as const;
-
-const digitalPrice = getProductPricePence('digital-memory') / 100;
 
 function BowColourContent() {
   const router = useRouter();
@@ -84,37 +81,6 @@ function BowColourContent() {
     return () => { active = false; };
   }, []);
 
-  function addDigitalMemoryToBasket() {
-    if (!validCode || submitting) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      const existing = JSON.parse(localStorage.getItem('smart-memories-cart') || '[]');
-      const basket = Array.isArray(existing) ? existing : [];
-      const index = basket.findIndex((item: {productSlug?:string;memoryCode?:string}) =>
-        item.productSlug === 'digital-memory' && item.memoryCode === code);
-      const line = {
-        id: index >= 0 && typeof basket[index]?.id === 'string' ? basket[index].id : crypto.randomUUID(),
-        productType:'product',
-        productSlug:'digital-memory',
-        name:'Smart Memory — Digital Only',
-        category:'Digital Memories',
-        memoryCode:code,
-        imageUrl:null,
-        price:digitalPrice,
-        quantity:1,
-        personalisation:{digitalOnly:true,memoryCode:code},
-      };
-      if(index>=0) basket[index]=line;
-      else basket.push(line);
-      localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
-      router.push('/cart');
-    } catch {
-      setSubmitting(false);
-      setError('Could not add your digital memory to the basket. Please check your browser storage settings and try again.');
-    }
-  }
-
   async function addTagToBasket() {
     if (!design || (customTag && !artwork && !savedArtworkPath)) return;
     if (!validCode || !pricePence || submitting) return;
@@ -169,6 +135,8 @@ function BowColourContent() {
       localStorage.setItem('smart-memories-cart', JSON.stringify(basket));
       if (nextDesign) {
         const next = new URLSearchParams(reuseMemory ? { code, design: nextDesign, reuseMemory: '1' } : { mode: 'tag', design: nextDesign });
+        const sharedContent = query.get('sharedContent');
+        if (sharedContent && !reuseMemory) next.set('sharedContent', sharedContent);
         remaining.forEach(id => next.append('nextDesign', id));
         window.location.assign(`${reuseMemory ? '/create/bow' : '/create'}?${next}`);
       } else {
@@ -187,29 +155,17 @@ function BowColourContent() {
     </section>;
   }
 
-  return <main className="smBowPage">
+  return <div className="smBowPage smTagFinish">
     <div className="smBowIntro">
-      <span className="v14Eyebrow">MEMORY ONLY · FINAL STEP</span>
-      <h1>Your Smart Memory is ready</h1>
-      <p>Choose a satin bow for a tag you can attach to your own present.</p>
-      <p className="smBowMemoryReference">Memory reference: <strong>{code}</strong> · <Link href={`/m/${code}`}>View memory</Link></p>
+      <span className="v14Eyebrow">MEMORY GIFT TAG</span>
+      <h1>Finish your gift tag</h1>
+      <p>Your Smart Memory is ready. Choose a satin bow to finish your tag.</p>
+      <p className="smBowMemoryReference"><Link href={`/m/${code}`}>Preview your saved memory</Link></p>
     </div>
-    <section className="smDigitalMemoryCheckout">
-      <div>
-        <span className="v14Eyebrow">SMART MEMORY ALONE</span>
-        <h2>Digital Smart Memory — £{digitalPrice.toFixed(2)}</h2>
-        <p>Photo, personal message and voice memory. No physical tag, bow or delivery charge.</p>
-      </div>
-      <button type="button" className="btn big" disabled={submitting}
-        onClick={addDigitalMemoryToBasket}>
-        Add digital memory to basket
-      </button>
-    </section>
     {error && <p role="alert" className="smBowError">{error}</p>}
     {!design && <p role="status">{!designId ? 'Choose a tag design to preview it with a bow.' : tagsFailed ? 'Could not load Gift Tags.' : tags ? 'This tag is unavailable.' : 'Loading your Gift Tag…'}
       {' '}<Link href={{ pathname: '/tags', query: { code } }}>Browse Gift Tags</Link></p>}
     {design && <>
-    <p className="smPhysicalBowDivider">Choose a bow colour for {design.name}.</p>
     <div className="smBowLayout">
       <div className="smBowPreview">
         {(customTag ? artworkPreview || artworkUrl : design.image) && <Image className="smTagDesignPreview" src={customTag ? artworkPreview || artworkUrl : design.image} width={300} height={390}
@@ -250,12 +206,11 @@ function BowColourContent() {
             onClick={addTagToBasket}>
             {submitting ? 'Adding to basket…' : checking ? 'Checking price…' : nextDesign ? 'Add tag and continue to next' : 'Add tag to basket'}
           </button>
-          <Link href={`/m/${code}`}>View your saved memory</Link>
         </div>
       </div>
     </div>
     </>}
-  </main>;
+  </div>;
 }
 
 export default function BowPage() {

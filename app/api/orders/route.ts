@@ -1,4 +1,5 @@
 import { loadGiftPrices } from '@/lib/cardCatalogueServer';
+import { applyGiftTagPackPricing } from '@/lib/giftTagPackPricing';
 import { loadGiftTags } from '@/lib/giftTagCatalogueServer';
 import { verifyMemoryUpload } from '@/lib/verifyMemoryUpload';
 import {
@@ -468,8 +469,9 @@ export async function POST(
       );
     }
 
+    const orderCart = applyGiftTagPackPricing(pricedCart);
     const subtotalPence =
-      pricedCart.reduce(
+      orderCart.reduce(
         (
           total,
           item
@@ -622,7 +624,7 @@ export async function POST(
     }
 
     const items =
-      pricedCart.map(
+      orderCart.map(
         (
           item
         ) => ({

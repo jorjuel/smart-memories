@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-test('owner login opens full website homepage after verified sign-in', () => {
+test('owner login opens the admin dashboard after verified sign-in', () => {
   const login = readFileSync(new URL('../app/admin/login/actions.ts', import.meta.url), 'utf8');
   assert.match(login, /signInWithPassword/);
   assert.match(login, /allowedEmails\.includes/);
-  assert.match(login, /redirect\('\/'\)/);
+  assert.match(login, /redirect\('\/admin'\)/);
 });
 
 test('owner dashboard has direct navigation back to full website', () => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCataloguePhoto } from '@/lib/useCataloguePhoto';
+import { giftTagPackSavings, giftTagPricePence, isGiftTag } from '@/lib/giftTagPackPricing';
 import DeliverySummary, { deliveryMoney } from '@/components/DeliverySummary';
 import { digitalOnlyCart, getCartShippingPricePence } from '@/lib/shippingPricing';
 import Link from 'next/link';
@@ -40,7 +41,8 @@ export default function CartPage() {
   const [storedItems, setItems] = useState<BasketItem[]>([]);
   const { giftPrices } = useCataloguePhoto(storedItems.find((item) => item.productType === 'product')?.productSlug);
   const items = useMemo(() => storedItems.map((item) => {
-    const price = item.productType === 'product' && item.productSlug ? giftPrices?.[item.productSlug] : undefined;
+    const price = isGiftTag(item) ? giftTagPricePence
+      : item.productType === 'product' && item.productSlug ? giftPrices?.[item.productSlug] : undefined;
     return price === undefined ? item : { ...item, price: price / 100 };
   }), [storedItems, giftPrices]);
   const [loaded, setLoaded] = useState(false);
@@ -160,14 +162,15 @@ export default function CartPage() {
     saveItems(nextItems);
   }
 
+  const packSavings = giftTagPackSavings(items) / 100;
   const subtotal = useMemo(() => {
     return items.reduce(
       (total, item) =>
         total +
         item.price * item.quantity,
       0
-    );
-  }, [items]);
+    ) - packSavings;
+  }, [items, packSavings]);
 
   if (!loaded) {
     return (
@@ -398,6 +401,7 @@ export default function CartPage() {
             </strong>
           </div>
 
+          {packSavings > 0 && <p>Mix-and-match tag savings: £{packSavings.toFixed(2)}</p>}
           <DeliverySummary items={items} />
 
           <div className="basketSummaryTotal">

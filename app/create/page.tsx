@@ -28,6 +28,9 @@ import { hasMeaningfulMemoryContent } from '@/lib/memoryContent';
 import { useGiftPrice } from '@/lib/useCataloguePhoto';
 import { useGiftTags } from '@/lib/useGiftTags';
 
+type SharedTagField = 'message' | 'photoPath' | 'audioPath' | 'videoPath';
+type SharedTagContent = Partial<Record<SharedTagField, string>> & { all?: boolean };
+
 function CreateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,6 +40,21 @@ function CreateContent() {
   const mode = searchParams.get('mode');
   const memoryOnly = mode === 'tag';
   const [selectedDesign, ...selectedNext] = searchParams.getAll('selection');
+  const nextDesigns = [...selectedNext, ...searchParams.getAll('nextDesign')];
+  const sharedCode = memoryOnly ? searchParams.get('sharedContent') : null;
+  const [shared, setShared] = useState<SharedTagContent>({});
+  const [shareFields, setShareFields] = useState<Partial<Record<SharedTagField, boolean>>>({});
+  const [shareAll, setShareAll] = useState(false);
+  const [sharedLoaded, setSharedLoaded] = useState(!sharedCode);
+  useEffect(() => {
+    if (!sharedCode) return;
+    try {
+      setShared(JSON.parse(sessionStorage.getItem(`sm-shared-tag:${sharedCode}`) || '{}'));
+    } catch {
+      setShared({});
+    }
+    setSharedLoaded(true);
+  }, [sharedCode]);
   const designId = searchParams.get('design') ?? selectedDesign;
   const customTag = memoryOnly && designId === 'custom';
   const { tags, failed: tagsFailed } = useGiftTags(memoryOnly && !customTag);
@@ -270,6 +288,7 @@ function CreateContent() {
   }
 
   async function saveMemory() {
+    if (!sharedLoaded) return;
     if (!recipient.trim()) {
       alert(
         'Please enter the recipient name.'
@@ -286,23 +305,29 @@ function CreateContent() {
       return;
     }
 
-    if (memoryOnly && tagMediaMode === 'video' && !video) {
+    if (memoryOnly && !sender.trim()) {
+      alert('Please enter the sender name.');
+      return;
+    }
+
+    if (memoryOnly && tagMediaMode === 'video' && !video && !shared.videoPath) {
       alert('Please choose a video with sound, or switch back to the photo option.');
       return;
     }
 
-    const usingVideo = memoryOnly && tagMediaMode === 'video';
+    const usingVideo = memoryOnly && (Boolean(shared.videoPath) || tagMediaMode === 'video');
+    const memoryMessage = shared.message ?? message;
     if (customTag && (!tagArtwork || !['image/jpeg', 'image/png', 'image/webp'].includes(tagArtwork.type) ||
         tagArtwork.size < 1 || tagArtwork.size > 10 * 1024 * 1024)) {
       alert('Choose a JPEG, PNG or WebP image up to 10 MB to print on your tag.');
       return;
     }
-    const reuseArtwork = customTag && useTagPhoto && !usingVideo;
+    const reuseArtwork = customTag && useTagPhoto && !usingVideo && !shared.photoPath;
     if (!hasMeaningfulMemoryContent({
-      message,
-      photo: !usingVideo && Boolean(reuseArtwork ? tagArtwork : photo),
-      audio: !usingVideo && Boolean(audio),
-      video: usingVideo && Boolean(video),
+      message: memoryMessage,
+      photo: !usingVideo && Boolean(shared.photoPath || (reuseArtwork ? tagArtwork : photo)),
+      audio: !usingVideo && Boolean(shared.audioPath || audio),
+      video: usingVideo && Boolean(shared.videoPath || video),
     })) {
       alert('Add a photograph, voice recording, video or written message before saving your memory.');
       return;
@@ -329,12 +354,12 @@ function CreateContent() {
 
       formData.set(
         'message',
-        message
+        memoryMessage
       );
 
       formData.set(
         'sender',
-        sender
+        sender.trim()
       );
 
       if (customTag && tagArtwork) {
@@ -342,17 +367,20 @@ function CreateContent() {
         sessionStorage.setItem(`sm-tag-artwork:${code}`, artworkPath);
         if (reuseArtwork) formData.set('photoPath', artworkPath);
       }
-      if (photo && !reuseArtwork && !usingVideo) {
+      if (shared.photoPath) formData.set('photoPath', shared.photoPath);
+      if (shared.audioPath) formData.set('audioPath', shared.audioPath);
+      if (shared.videoPath) formData.set('videoPath', shared.videoPath);
+      if (photo && !reuseArtwork && !usingVideo && !shared.photoPath) {
         const photoPath = await uploadMemoryMedia(photo, 'photo');
         formData.set('photoPath', photoPath);
       }
 
-      if (audio && (!memoryOnly || tagMediaMode === 'photo')) {
+      if (audio && !usingVideo && !shared.audioPath) {
         const audioPath = await uploadMemoryMedia(audio, 'audio');
         formData.set('audioPath', audioPath);
       }
 
-      if (memoryOnly && tagMediaMode === 'video' && video) {
+      if (usingVideo && video && !shared.videoPath) {
         const videoPath = await uploadMemoryMedia(video, 'video');
         formData.set('videoPath', videoPath);
       }
@@ -384,7 +412,19 @@ setSavedPhotoUrl(permanentPhotoUrl);
         // The memory is persisted before the customer chooses their bow.
         // Only the non-sensitive code is carried through the address bar.
         const query = new URLSearchParams({ code, design: tagDesign.id });
-        [...selectedNext, ...searchParams.getAll('nextDesign')].forEach(id => query.append('nextDesign', id));
+        nextDesigns.forEach(id => query.append('nextDesign', id));
+        if (sharedCode) query.set('sharedContent', sharedCode);
+        else if (nextDesigns.length) {
+          const content: SharedTagContent = shareAll ? { all: true } : {};
+          for (const field of ['message', 'photoPath', 'audioPath', 'videoPath'] as const) {
+            const value = formData.get(field);
+            if ((shareAll || shareFields[field]) && typeof value === 'string' && value.trim()) content[field] = value;
+          }
+          if (Object.keys(content).length) {
+            sessionStorage.setItem(`sm-shared-tag:${code}`, JSON.stringify(content));
+            query.set('sharedContent', code);
+          }
+        }
         router.push(`/create/bow?${query}`);
       }
     } catch (error) {
@@ -551,9 +591,10 @@ setSavedPhotoUrl(permanentPhotoUrl);
         <div className="form card">
 
           <label>
-            Recipient name
+            {memoryOnly ? 'For' : 'Recipient name'}
 
             <input
+              required
               value={
                 recipient
               }
@@ -572,6 +613,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             From
 
             <input
+              required={memoryOnly}
               value={
                 sender
               }
@@ -586,7 +628,12 @@ setSavedPhotoUrl(permanentPhotoUrl);
             />
           </label>
 
-          {memoryOnly && (
+          {(shared.all || shared.message || shared.photoPath || shared.audioPath || shared.videoPath) && (
+            <p role="status">{shared.all
+              ? 'Using the same message and media. Enter a From and For name for this tag.'
+              : 'Your shared content is included. Add any remaining details for this tag below.'}</p>
+          )}
+          {memoryOnly && !shared.all && !shared.photoPath && !shared.audioPath && !shared.videoPath && (
             <fieldset className="smTagMediaSelector">
               <legend>Choose how the recipient will experience the memory</legend>
               <div className="smTagMediaOptions">
@@ -622,16 +669,16 @@ setSavedPhotoUrl(permanentPhotoUrl);
               </figure>
             )}
           </>)}
-          {(!memoryOnly || tagMediaMode === 'photo') && (
+          {!shared.all && !shared.videoPath && (!memoryOnly || tagMediaMode === 'photo') && (
             <>
-          {customTag && (
+          {customTag && !shared.photoPath && (
             <label className="smCustomTagPhotoOption">
               <input type="checkbox" checked={useTagPhoto} disabled={saving}
                 onChange={(event) => setUseTagPhoto(event.target.checked)} />
               <span>Use the same image in my Smart Memory</span>
             </label>
           )}
-          {(!customTag || !useTagPhoto) && <>
+          {!shared.photoPath && (!customTag || !useTagPhoto) && <>
           <label>
             {customTag ? 'Add a different photo to your Smart Memory (optional)' : 'Photograph'}
 
@@ -655,7 +702,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
           )}
           </>}
 
-          <div>
+          {!shared.audioPath && <div>
             <b>
               Voice message
             </b>
@@ -704,12 +751,12 @@ setSavedPhotoUrl(permanentPhotoUrl);
                 }
               />
             </label>
-          </div>
+          </div>}
 
             </>
           )}
 
-          {memoryOnly && tagMediaMode === 'video' && (
+          {memoryOnly && !shared.all && !shared.videoPath && tagMediaMode === 'video' && (
             <div className="smTagVideoUpload">
               <label htmlFor="tag-memory-video">Upload your video with sound</label>
               <p>Choose a short video from your phone. MP4 works best across iPhone and Android. MOV and WebM are accepted for this trial. Maximum 30 MB.</p>
@@ -724,7 +771,7 @@ setSavedPhotoUrl(permanentPhotoUrl);
             </div>
           )}
 
-          <label className="smOptionalMemoryMessage">
+          {!shared.all && shared.message === undefined && <label className="smOptionalMemoryMessage">
             <span className="smOptionalMemoryMessageHeading">
               Written message <small>(optional)</small>
             </span>
@@ -738,12 +785,36 @@ setSavedPhotoUrl(permanentPhotoUrl);
               Your photo, voice recording or video can tell the whole story.
               Leave this blank if you prefer. If you have no media, write a message instead.
             </small>
-          </label>
+          </label>}
+
+          {memoryOnly && nextDesigns.length > 0 && !sharedCode && (
+            <fieldset>
+              <legend>Reuse content on the remaining tags</legend>
+              <label className="smCustomTagPhotoOption">
+                <input type="checkbox" checked={shareAll} disabled={saving}
+                  onChange={event => setShareAll(event.target.checked)} />
+                Use the same message and media for all tags
+              </label>
+              {!shareAll && ([
+                ['message', 'Use the same written message', Boolean(message.trim())],
+                ['photoPath', 'Use the same memory photo', tagMediaMode === 'photo' && Boolean(photo || (customTag && useTagPhoto && tagArtwork))],
+                ['audioPath', 'Use the same voice recording', tagMediaMode === 'photo' && Boolean(audio)],
+                ['videoPath', 'Use the same video', tagMediaMode === 'video' && Boolean(video)],
+              ] as const).filter(([, , available]) => available).map(([field, label]) => (
+                <label key={field} className="smCustomTagPhotoOption">
+                  <input type="checkbox" checked={Boolean(shareFields[field])} disabled={saving}
+                    onChange={event => setShareFields(current => ({ ...current, [field]: event.target.checked }))} />
+                  {label}
+                </label>
+              ))}
+              <p>Leave these unchecked to personalise each tag separately. From and For are entered for every tag.</p>
+            </fieldset>
+          )}
 
           {!saved && (
             <button
               disabled={
-                saving
+                saving || !sharedLoaded
               }
               type="button"
               className="btn big"
