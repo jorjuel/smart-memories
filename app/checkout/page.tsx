@@ -1,6 +1,7 @@
 'use client';
 
 import { useCataloguePhoto } from '@/lib/useCataloguePhoto';
+import { giftTagPackSavings, giftTagPricePence, isGiftTag } from '@/lib/giftTagPackPricing';
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import type { SavedCardPreview } from '../../lib/cardDesigns';
 import Link from 'next/link';
@@ -56,7 +57,8 @@ export default function CheckoutPage() {
   const [storedItems, setItems] = useState<BasketItem[]>([]);
   const { giftPrices } = useCataloguePhoto(storedItems.find((item) => item.productType === 'product')?.productSlug);
   const items = useMemo(() => storedItems.map((item) => {
-    const price = item.productType === 'product' && item.productSlug ? giftPrices?.[item.productSlug] : undefined;
+    const price = isGiftTag(item) ? giftTagPricePence
+      : item.productType === 'product' && item.productSlug ? giftPrices?.[item.productSlug] : undefined;
     return price === undefined ? item : { ...item, price: price / 100 };
   }), [storedItems, giftPrices]);
 
@@ -189,6 +191,7 @@ export default function CheckoutPage() {
 
     setItems([]);
   }, [paymentSuccessful]);
+  const packSavings = giftTagPackSavings(items) / 100;
   const subtotal =
     useMemo(
       () =>
@@ -201,8 +204,8 @@ export default function CheckoutPage() {
             item.price *
               item.quantity,
           0
-        ),
-      [items]
+        ) - packSavings,
+      [items, packSavings]
     );
 
   const digitalOnly = digitalOnlyCart(items);
@@ -1003,6 +1006,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="checkoutTotals">
+              {packSavings > 0 && <div><span>Mix-and-match tag savings</span><strong>−£{packSavings.toFixed(2)}</strong></div>}
               <div>
                 <span>
                   Subtotal

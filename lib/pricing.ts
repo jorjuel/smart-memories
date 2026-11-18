@@ -1,5 +1,6 @@
 import { products } from './products';
 import { bundles } from './bundles';
+import { giftTagPricePence } from './giftTagPackPricing';
 
 export const CARD_PRICES_PENCE = {
   traditional: 695,
@@ -15,7 +16,8 @@ export const SHIPPING_PRICES_PENCE = {
 export function getProductPricePence(
   slug: string
 ) {
-  if (slug === 'memory-tag' || slug === 'digital-memory') return 500;
+  if (slug === 'memory-tag') return giftTagPricePence;
+  if (slug === 'digital-memory') return 500;
 
   const product =
     products.find(

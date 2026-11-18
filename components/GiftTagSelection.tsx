@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { giftTagPackSize } from '@/lib/giftTagPackPricing';
 
 export default function GiftTagSelection({ code, children }: { code?: string; children: ReactNode }) {
   const router = useRouter();
@@ -25,8 +26,13 @@ export default function GiftTagSelection({ code, children }: { code?: string; ch
       {code ? <input type="hidden" name="code" value={code} /> : <input type="hidden" name="mode" value="tag" />}
       {children}
       <div className="smTagSelectionActions">
-        <span aria-live="polite">{selected.length} selected</span>
-        <button type="submit" className="btn" disabled={!selected.length}>Personalise selected tags</button>
+        <span className="smTagSelectionStatus" aria-live="polite">
+          <strong>{selected.length} selected</strong>
+          {selected.length > 0 && selected.length < giftTagPackSize &&
+            <small>Choose {giftTagPackSize - selected.length} more for the offer</small>}
+          {selected.length >= giftTagPackSize && <small>Mix-and-match pricing applies in the basket</small>}
+        </span>
+        <button type="submit" className="btn" disabled={!selected.length}>Personalise tags</button>
       </div>
     </form>
   );
