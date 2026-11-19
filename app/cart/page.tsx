@@ -5,7 +5,8 @@ import { giftTagPackSavings, giftTagPricePence, isGiftTag } from '@/lib/giftTagP
 import DeliverySummary, { deliveryMoney } from '@/components/DeliverySummary';
 import { digitalOnlyCart, getCartShippingPricePence } from '@/lib/shippingPricing';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { GiftTagsOnlyContext } from '@/components/StorefrontContext';
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import type { SavedCardPreview } from '../../lib/cardDesigns';
 
@@ -38,6 +39,7 @@ type BasketItem = {
 const CART_KEY = 'smart-memories-cart';
 
 export default function CartPage() {
+  const giftTagsOnly = useContext(GiftTagsOnlyContext);
   const [storedItems, setItems] = useState<BasketItem[]>([]);
   const { giftPrices } = useCataloguePhoto(storedItems.find((item) => item.productType === 'product')?.productSlug);
   const items = useMemo(() => storedItems.map((item) => {
@@ -209,18 +211,18 @@ export default function CartPage() {
           </p>
 
           <Link
-            href="/shop"
+            href={giftTagsOnly ? '/tags' : '/shop'}
             className="btn big basketCheckoutButton"
           >
-            Shop Smart Gifts →
+            {giftTagsOnly ? 'Shop Gift Tags →' : 'Shop Smart Gifts →'}
           </Link>
 
-          <Link
+          {!giftTagsOnly && <Link
             href="/cards"
             className="basketContinue"
           >
             Browse handcrafted cards
-          </Link>
+          </Link>}
         </div>
       </section>
     );
@@ -420,7 +422,7 @@ export default function CartPage() {
           </Link>
 
           <Link
-            href="/shop"
+            href={giftTagsOnly ? '/tags' : '/shop'}
             className="basketContinue"
           >
             Continue shopping

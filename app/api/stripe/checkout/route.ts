@@ -1,3 +1,4 @@
+import { isGiftTagProduct, isGiftTagsOnly } from '@/lib/storefrontAvailability';
 import {
   NextResponse,
 } from 'next/server';
@@ -114,6 +115,8 @@ export async function POST(
         .from('order_items')
         .select(
           `
+            product_slug,
+            product_type,
             product_name,
             quantity,
             unit_price_pence
@@ -134,6 +137,15 @@ export async function POST(
         new Error(
           'Order items could not be loaded.'
         )
+      );
+    }
+
+    if (isGiftTagsOnly() && items.some(item =>
+      !isGiftTagProduct(item.product_slug, item.product_type)
+    )) {
+      return NextResponse.json(
+        { error: 'Only Memory Gift Tags are available to order right now.' },
+        { status: 400 }
       );
     }
 

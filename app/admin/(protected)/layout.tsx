@@ -1,12 +1,21 @@
 import Link from 'next/link';
 
 import {
+  RedirectType,
   redirect,
 } from 'next/navigation';
 
 import {
   createSupabaseAdminAuthClient,
 } from '../../../lib/supabaseAdminAuthServer';
+
+async function logout() {
+  'use server';
+
+  const supabase = await createSupabaseAdminAuthClient();
+  await supabase.auth.signOut();
+  redirect('/tags', RedirectType.replace);
+}
 
 export default async function AdminProtectedLayout({
   children,
@@ -94,6 +103,10 @@ export default async function AdminProtectedLayout({
               Dashboard
             </Link>
 
+            <Link href="/admin/fair-setup">Fair Setup</Link>
+            <Link href="/admin/fair-visits">Fair Visits</Link>
+            <Link href="/admin/promotion-pdfs">Promotion PDFs</Link>
+
             <Link href="/admin/orders">
               Orders
             </Link>
@@ -115,9 +128,9 @@ export default async function AdminProtectedLayout({
               Completed
             </Link>
 
-            <Link href="/admin/logout">
-              Logout
-            </Link>
+            <form action={logout}>
+              <button type="submit">Logout</button>
+            </form>
           </nav>
         </div>
       </section>

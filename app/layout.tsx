@@ -2,6 +2,8 @@ import './globals.css';
 
 import SiteHeader from '../components/SiteHeader';
 import SiteFooter from '../components/SiteFooter';
+import { StorefrontProvider } from '../components/StorefrontContext';
+import { showGiftTagsOnly } from '../lib/storefrontView';
 
 export const metadata = {
   title:
@@ -11,22 +13,23 @@ export const metadata = {
     'Create a personalised Smart Memory with photographs, words, voice and meaningful moments — connected to a gift they can tap and relive.',
 };
 
-export default function Layout({
+export default async function Layout({
   children,
 }: Readonly<{
   children:
     React.ReactNode;
 }>) {
+  const giftTagsOnly = await showGiftTagsOnly();
   return (
     <html lang="en">
       <body>
-        <SiteHeader />
+        <SiteHeader giftTagsOnly={giftTagsOnly} />
 
         <main>
-          {children}
+          <StorefrontProvider giftTagsOnly={giftTagsOnly}>{children}</StorefrontProvider>
         </main>
 
-        <SiteFooter />
+        <SiteFooter giftTagsOnly={giftTagsOnly} />
       </body>
     </html>
   );

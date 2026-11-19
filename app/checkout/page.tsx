@@ -1,6 +1,7 @@
 'use client';
 
 import { useCataloguePhoto } from '@/lib/useCataloguePhoto';
+import { GiftTagsOnlyContext } from '@/components/StorefrontContext';
 import { giftTagPackSavings, giftTagPricePence, isGiftTag } from '@/lib/giftTagPackPricing';
 import PersonalisedProductPreview from '../../components/PersonalisedProductPreview';
 import type { SavedCardPreview } from '../../lib/cardDesigns';
@@ -9,6 +10,7 @@ import { digitalOnlyCart, getCartShippingPricePence, singleMemoryTagLetterCart }
 import { useSearchParams } from 'next/navigation';
 
 import {
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -44,6 +46,7 @@ const IDEMPOTENCY_KEY =
   'smart-memories-checkout-idempotency';
 
 export default function CheckoutPage() {
+  const giftTagsOnly = useContext(GiftTagsOnlyContext);
     const searchParams = useSearchParams();
 
   const paymentStatus =
@@ -446,7 +449,7 @@ export default function CheckoutPage() {
             </Link>
 
             <Link
-              href="/shop"
+              href={giftTagsOnly ? '/tags' : '/shop'}
               className="btn secondary"
             >
               Continue Shopping
@@ -526,7 +529,7 @@ export default function CheckoutPage() {
             </Link>
 
             <Link
-              href="/shop"
+              href={giftTagsOnly ? '/tags' : '/shop'}
               className="btn secondary"
             >
               Continue Shopping
@@ -560,7 +563,7 @@ export default function CheckoutPage() {
 
           <Link
             className="btn"
-            href="/shop"
+            href={giftTagsOnly ? '/tags' : '/shop'}
           >
             Browse gifts
           </Link>

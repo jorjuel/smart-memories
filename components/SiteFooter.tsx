@@ -6,7 +6,7 @@ import {
   usePathname,
 } from 'next/navigation';
 
-export default function SiteFooter() {
+export default function SiteFooter({ giftTagsOnly }: { giftTagsOnly: boolean }) {
   const pathname =
     usePathname();
 
@@ -26,7 +26,7 @@ export default function SiteFooter() {
     <footer className="siteFooter">
       <div className="footerBrand">
         <Link
-          href="/"
+          href={giftTagsOnly ? '/tags' : '/'}
           className="footerLogo"
         >
           SMART MEMORIES
@@ -52,17 +52,15 @@ export default function SiteFooter() {
             CREATE
           </strong>
 
-          <Link href="/shop">
-            Smart Gifts
-          </Link>
-
-          <Link href="/cards">
-            Smart Cards
-          </Link>
-
-          <Link href="/occasions">
-            Shop by Occasion
-          </Link>
+          {giftTagsOnly ? (
+            <Link href="/tags">Memory Gift Tags</Link>
+          ) : (
+            <>
+              <Link href="/shop">Smart Gifts</Link>
+              <Link href="/cards">Smart Cards</Link>
+              <Link href="/occasions">Shop by Occasion</Link>
+            </>
+          )}
         </div>
 
         <div>

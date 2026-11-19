@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { showGiftTagsOnly } from '../../lib/storefrontView';
 
 const steps = [
   {
@@ -42,7 +43,8 @@ const steps = [
   },
 ];
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage() {
+  const giftTagsOnly = await showGiftTagsOnly();
   return (
     <>
       <section className="howMemoryHero">
@@ -126,9 +128,9 @@ export default function HowItWorksPage() {
 
         <Link
           className="btn big"
-          href="/create"
+          href={giftTagsOnly ? '/tags' : '/create'}
         >
-          Create a Memory
+          {giftTagsOnly ? 'Browse Gift Tags' : 'Create a Memory'}
         </Link>
       </section>
     </>

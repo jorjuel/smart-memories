@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { isDeferredStorefrontRoute } from '../../lib/storefrontAvailability';
+import { showGiftTagsOnly } from '../../lib/storefrontView';
 
 const links = [
   { href: '/shop#gifts', label: 'Personalised Gifts', description: 'Mugs, slates, coasters and more' },
@@ -14,14 +16,18 @@ const links = [
   { href: '/memories', label: 'My Memories', description: 'Find your saved memories' },
 ];
 
-export default function MenuPage() {
+export default async function MenuPage() {
+  const giftTagsOnly = await showGiftTagsOnly();
+  const visibleLinks = giftTagsOnly
+    ? links.filter(link => !isDeferredStorefrontRoute(link.href.split('#')[0], new URLSearchParams()))
+    : links;
   return (
     <section className="smStandaloneMenu">
       <span className="eyebrow">SMART MEMORIES</span>
       <h1>Explore Smart Memories</h1>
       <p>Choose where you would like to go.</p>
       <div className="smStandaloneMenuLinks">
-        {links.map((link) => (
+        {visibleLinks.map((link) => (
           <Link key={link.href} href={link.href} className="smStandaloneMenuLink">
             <span><strong>{link.label}</strong><small>{link.description}</small></span>
             <span aria-hidden="true">›</span>

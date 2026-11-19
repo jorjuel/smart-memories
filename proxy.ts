@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { maintenancePageHtml } from './lib/maintenancePage';
+import { isDeferredStorefrontRoute, isGiftTagsOnly, storefrontOwnerHeader } from './lib/storefrontAvailability';
 import {
   isMaintenanceActive,
   isMaintenanceOwner,
@@ -50,21 +51,27 @@ export async function proxy(request: NextRequest) {
   const adminCookieWrites: Array<(response: NextResponse) => void> = [];
   const adminAuthHeaders = new Headers();
 
-  if (isMaintenanceActive(process.env.SITE_MAINTENANCE_MODE)) {
+  const maintenance = isMaintenanceActive(process.env.SITE_MAINTENANCE_MODE);
+  const giftTagsOnly = isGiftTagsOnly();
+  const adminCookie = 'smart-memories-admin-auth';
+  const hasAdminSession = request.cookies.getAll().some(({ name }) =>
+    name === adminCookie || name.startsWith(`${adminCookie}.`)
+  );
+  let allowedOwner = false;
+
+  if (maintenance || (giftTagsOnly && hasAdminSession)) {
     const pathname = request.nextUrl.pathname;
 
     // Password recovery must stay possible. The Stripe webhook validates
     // Stripe's signature in its own handler; no other API is public.
-    if (isMaintenancePublicRoute(pathname, request.method)) {
+    if (maintenance && isMaintenancePublicRoute(pathname, request.method)) {
       return NextResponse.next({ request });
     }
-
-    let allowedOwner = false;
 
     if (url && key) {
       try {
         const admin = createServerClient(url, key, {
-          cookieOptions: { name: 'smart-memories-admin-auth' },
+          cookieOptions: { name: adminCookie },
           cookies: {
             getAll() {
               return request.cookies.getAll();
@@ -98,8 +105,20 @@ export async function proxy(request: NextRequest) {
       }
     }
 
-    if (!allowedOwner) return maintenanceResponse(request);
+    if (maintenance) {
+      if (!allowedOwner) return maintenanceResponse(request);
+    }
   }
+
+  const { pathname, searchParams } = request.nextUrl;
+  if (giftTagsOnly && !allowedOwner && isDeferredStorefrontRoute(pathname, searchParams)) {
+    const redirect = NextResponse.redirect(new URL('/tags', request.url));
+    redirect.headers.set('Cache-Control', 'private, no-store');
+    return redirect;
+  }
+
+  // Forward only the owner status verified by this request's auth lookup.
+  if (giftTagsOnly) request.headers.set(storefrontOwnerHeader, String(allowedOwner));
 
   /**
    * Preserve the existing customer-session refresh when maintenance is

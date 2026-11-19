@@ -2,6 +2,7 @@ import { loadGiftPrices } from '@/lib/cardCatalogueServer';
 import { applyGiftTagPackPricing } from '@/lib/giftTagPackPricing';
 import { loadGiftTags } from '@/lib/giftTagCatalogueServer';
 import { verifyMemoryUpload } from '@/lib/verifyMemoryUpload';
+import { isGiftTagProduct, isGiftTagsOnly } from '@/lib/storefrontAvailability';
 import {
   NextResponse,
 } from 'next/server';
@@ -109,6 +110,15 @@ export async function POST(
         {
           status: 400,
         }
+      );
+    }
+
+    if (isGiftTagsOnly() && cart.some(item =>
+      !isGiftTagProduct(item?.productSlug, item?.productType)
+    )) {
+      return NextResponse.json(
+        { error: 'Only Memory Gift Tags are available to order right now.' },
+        { status: 400 }
       );
     }
 

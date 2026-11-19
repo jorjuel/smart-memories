@@ -54,7 +54,8 @@ test('construction page includes the requested message without unpublished site 
 test('proxy gates all pages and APIs by verified Supabase admin identity', () => {
   const proxy = readFileSync(new URL('../proxy.ts', import.meta.url), 'utf8');
   assert.match(proxy, /admin\.auth\.getUser\(\)/);
-  assert.match(proxy, /cookieOptions: \{ name: 'smart-memories-admin-auth' \}/);
+  assert.match(proxy, /const adminCookie = 'smart-memories-admin-auth'/);
+  assert.match(proxy, /cookieOptions: \{ name: adminCookie \}/);
   assert.match(proxy, /if \(!allowedOwner\) return maintenanceResponse\(request\)/);
   assert.match(proxy, /status: 503/);
 });
