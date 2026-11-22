@@ -1,0 +1,207 @@
+.smGiftTagsPage .smGiftTagsHero {
+  min-height: clamp(730px, 64vw, 840px);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(22px, 3vw, 48px);
+}
+
+.smGiftTagsHero h1 em { display: block; }
+.smGiftTagsPage .smGiftTagsHero h1 { font-size: clamp(38px, 4.1vw, 57px); }
+.smGiftTagsHero .memoryHomeHeroLead { max-width: 46ch; }
+
+.smGiftTagsPage .smTagHeroVisual .smHomeHeroPhoto {
+  aspect-ratio: 1.36;
+  height: auto;
+  object-fit: cover;
+  object-position: 58% center;
+}
+
+.smGiftTagsPage .smTagHeroPrice .smTagPackOffer {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 9px 12px;
+  border-color: #d9bcb9;
+  background: #faeceb;
+  color: var(--sm-plum-dark);
+}
+
+.smGiftTagsPage .smTagPackOffer b { font-size: 1.125rem; }
+.smGiftTagsPage .smTagPackOffer span {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fffaf7;
+  color: var(--sm-plum-dark);
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.smGiftTagsPage .memoryHomeHeroTrust,
+.smTagOccasions ul,
+.smTagHow ol {
+  padding: 0;
+  list-style: none;
+}
+
+.smGiftTagsPage .memoryHomeHeroTrust { margin-bottom: 0; }
+.smGiftTagsPage .memoryHomeHeroTrust span { display: inline-block; }
+.smGiftTagsPage .actions .btn, .smGiftTagsPage .actions .memoryHomeSecondaryButton { min-height: 52px; }
+.smGiftTagsPage :is(a, button, input):focus-visible {
+  outline: 2px solid var(--sm-plum-dark);
+  outline-offset: 3px;
+}
+
+.smTagOccasions,
+.smTagHow {
+  max-width: 1260px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.smTagOccasions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-block: 12px;
+  border-block: 1px solid var(--sm-border);
+}
+
+.smTagOccasions h2, .smTagHow h2 {
+  margin: 0;
+  color: var(--sm-plum-dark);
+  font: 400 1.25rem Georgia, serif;
+  white-space: nowrap;
+}
+
+.smTagOccasions ul {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.smTagOccasions ul::-webkit-scrollbar { display: none; }
+.smTagOccasions li { flex: none; }
+.smTagOccasions a {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  background: #fffaf7;
+  color: var(--sm-plum-dark);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.smTagOccasions a:hover { border-color: var(--sm-rose); }
+
+.smTagHow { padding-block: 20px 12px; }
+.smTagHow ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 0;
+  counter-reset: gift-tag-step;
+}
+.smTagHow li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid var(--sm-border);
+  border-radius: 12px;
+  background: #fffaf7;
+  counter-increment: gift-tag-step;
+}
+.smTagHow li::before {
+  content: counter(gift-tag-step);
+  display: grid;
+  place-items: center;
+  flex: 0 0 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #faeceb;
+  color: var(--sm-plum-dark);
+  font: 700 .875rem Georgia, serif;
+}
+.smTagHow strong { color: var(--sm-plum-dark); }
+.smTagHow p { margin: 2px 0 0; font-size: .875rem; line-height: 1.35; }
+
+.smTagReviewPreview {
+  margin-block: 12px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--sm-rose);
+  background: #fffaf7;
+}
+.smTagReviewPreview p, .smTagReviewPreview blockquote { margin: 4px 0 0; }
+.smTagReviewPreview p span:first-child { color: #825729; letter-spacing: .1em; }
+.smTagReviewPreview blockquote { font: italic 1rem Georgia, serif; }
+
+.smGiftTagsPage .smTagStorefrontCollection { margin-block: 10px; }
+.smGiftTagsPage .smTagCarouselHeading { margin-bottom: 2px; }
+.smGiftTagsPage .smTagCollectionNav {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin-bottom: 4px;
+}
+.smGiftTagsPage .smTagCollectionNav button { white-space: nowrap; }
+.smGiftTagsPage .smTagCustomChoice { margin-bottom: 8px; padding: 10px; min-height: 44px; scroll-margin-top: 85px; }
+.smGiftTagsPage .smTagSelectionActions { position: static; min-height: 66px; }
+.smGiftTagsPage .smTagSelectionActions button:disabled { opacity: .58; cursor: default; }
+
+@media (max-width: 900px) {
+  .smGiftTagsPage .smGiftTagsHero { min-height: 0; }
+}
+
+@media (max-width: 760px) {
+  .smGiftTagsPage .smGiftTagsHero {
+    grid-template-columns: 1fr;
+    gap: 7px;
+    padding: 16px 18px 18px;
+  }
+  .smGiftTagsPage .smGiftTagsHero .memoryHomeHeroCopy { display: contents; }
+  .smGiftTagsPage .smGiftTagsHero h1 { margin: 0; font-size: clamp(36px, 8vw, 49px); }
+  .smGiftTagsPage .memoryHomeHeroLead { line-height: 1.45; }
+  .smGiftTagsPage .smTagHeroVisual { grid-row: 4; }
+  .smGiftTagsPage .smTagHeroVisual .smHomeHeroPhoto { aspect-ratio: 1.75; }
+  .smGiftTagsPage .smTagHeroVisual figcaption { margin-top: 3px; }
+  .smGiftTagsPage .smTagHeroPrice, .smGiftTagsPage .smGiftTagsHero .memoryHomeHeroCopy .actions,
+  .smGiftTagsPage .memoryHomeHeroTrust { margin-top: 0; }
+  .smGiftTagsPage .smTagHeroPrice .smTagPackOffer { margin-block: 4px; padding-block: 6px; }
+  .smGiftTagsPage .smGiftTagsHero .actions {
+    display: grid;
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .smGiftTagsPage .smGiftTagsHero .actions .btn { width: 100%; }
+  .smGiftTagsPage .smGiftTagsHero .actions .memoryHomeSecondaryButton {
+    min-height: 44px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    font-size: .9375rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .smGiftTagsPage .memoryHomeHeroTrust span { font-size: .75rem; }
+  .smTagOccasions, .smTagHow { padding-inline: 16px; }
+  .smTagOccasions { display: block; padding-block: 8px; }
+  .smTagOccasions ul { margin-top: 4px; }
+  .smTagHow li { padding: 8px; flex-direction: column; gap: 4px; }
+  .smTagHow li::before { flex: none; width: 26px; }
+  .smTagHow strong { font-size: .875rem; }
+  .smTagHow p { font-size: .75rem; }
+}
+
+@media (max-width: 540px) {
+  .smGiftTagsPage .smTagCatalogue { grid-auto-rows: 240px; }
+}
+
+@media (max-width: 360px) {
+  .smGiftTagsPage .smGiftTagsHero h1 { font-size: 32px; }
+}
